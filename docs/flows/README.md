@@ -2,6 +2,8 @@
 
 Data: 25/10/2026. Escopo: **Cliente e Admin**, nesta V2, sem implementação. Oficial consultado somente em leitura na revisão `f3d3f14043a6abc38636f0340fe831e621d8b357`. Proveniência e links imutáveis: [Fontes](SOURCES.md).
 
+Referência vigente: funcionamento de 26/10 testado pela Patrícia, [publicação 83](../BASELINE_REFERENCE_2026-10-26.md), identificada pelo mesmo SHA. [Regras de produto](../PRODUCT_RULES.md) e decisões atuais prevalecem sobre hipóteses anteriores; as tabelas de fonte preservam evidência estática.
+
 ## Estado e responsabilidade
 
 As fichas estão preenchidas com o comportamento localizado e com lacunas explícitas. Isso encerra a ficha documental deste levantamento, não certifica o contrato de produção nem resolve dúvidas por suposição. Separar:
@@ -30,7 +32,7 @@ Permissões por operação: [Matriz Cliente/Admin](../PERMISSIONS.md). Divergên
 
 ## Atualização do contrato alvo — 26/10/2026
 
-Oito decisões do usuário (DEC-05 a DEC-12) foram incorporadas em seções específicas das fichas e da matriz. Essas seções são normativas para construir a V2 no escopo decidido; tabelas de fontes continuam como evidência do oficial e não foram reescritas para fingir que já cumprem o alvo. Critérios de aceite afetados foram alinhados às decisões. Não há código ou permissões efetivas implementados por esta atualização.
+Decisões iniciais DEC-05 a DEC-12 e revisão DEC-13 a DEC-18 orientam as fichas; **DEC-07 foi substituída por DEC-13**. DISC separa respondente, avaliador interno e gestão. Regras de comunicação/interface e informação sobre dados pessoais foram incorporadas; resumo diário mantém especificação pendente em RESUMO-01. Tabelas de fonte não fingem implementação. Aceites são futuros, por entrega completa conforme o roadmap; nenhuma permissão efetiva foi alterada.
 
 ## Contrato comum de contexto e navegação
 

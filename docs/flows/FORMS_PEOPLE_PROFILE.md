@@ -1,8 +1,19 @@
 # FLOW-17 — Mapa de People, formulários e perfil comportamental
 
-Ficha de paridade de módulos adicionais encontrados no oficial. Cliente/Admin são o recorte; destinatário público é um ator distinto. Presença do código não autoriza expandir produto ou implementar avaliação nova. [Contrato comum](README.md); [matriz](../PERMISSIONS.md).
+Ficha de paridade de Mapa, Forms e perfil comportamental. **DISC é linha oficial do produto e integra a V2**, com três relatórios de públicos distintos; não é avaliação de desempenho. Cliente/Admin são o recorte; destinatário público é outro ator. [Contrato comum](README.md); [matriz](../PERMISSIONS.md).
 
-**Alvo confirmado em 26/10/2026 — DEC-07:** Cliente pode consultar relatório individual e agregado, ambos mediante liberação da CALI e dentro do escopo da própria empresa. A divergência do comentário antigo foi decidida nesse sentido. Condições de token, projeção, revogação e guards efetivos continuam trabalho técnico; não foram alteradas nesta etapa.
+**Alvo vigente em 26/10/2026 — DEC-13, substitui DEC-07:** Cliente consulta somente gestão após liberação CALI; avaliador é interno e não tem opção de liberação; respondente recebe somente PDF próprio por e-mail, com tela final de agradecimento. Metodologia/cálculos não são expostos ao respondente. Contrato: [Regras de produto](../PRODUCT_RULES.md). Fonte funcional: [publicação 83](../BASELINE_REFERENCE_2026-10-26.md). Leitura individual/token das tabelas abaixo é evidência legada a reconciliar, não alvo a reproduzir.
+
+## Transições alvo DISC
+
+| Etapa | Ação/condição | Resultado exigido |
+| --- | --- | --- |
+| Convite enviado | Sete dias, fim do dia em Brasília | Expiração/fuso controlados; até três lembretes, segunda a sexta, 8h–18h; pessoa focal avisada na véspera/no encerramento |
+| Resposta concluída | Geração/envio conforme contrato | Agradecimento e PDF próprio por e-mail; sem relatório/metodologia/cálculo na tela ou endpoint público de resultado |
+| Resultado técnico | Operação interna CALI | Avaliador restrito; sem alternador de liberação ao Cliente/respondente |
+| Gestão em rascunho | Cinco respostas, resultado buscado e parecer Patrícia | Pode aprovar; cinco a 14 sem números/gráficos; nenhum nome de respondente |
+| Gestão aprovada | Assinatura/foto/protocolo e liberação da revisão | Com conta: app e aviso por e-mail; sem conta: PDF ao gestor; geração/aprovação/liberação/envio auditados |
+| Conteúdo alterado | Voltar a rascunho, preservando histórico | Nova aprovação interna/liberação; ciência Cliente só se solicitada pelo Admin, conforme DEC-12 |
 
 ## Objetivo, fontes e composição
 
@@ -12,7 +23,7 @@ Ficha de paridade de módulos adicionais encontrados no oficial. Cliente/Admin s
 
 Anatomia: listas Admin, editor de perguntas/configurações, respostas/triagem, relatório técnico e relatório agregado separados. Não misturar conteúdo público, respostas individuais e leitura de gestão no mesmo DTO.
 
-## Transições e guardas observadas
+## Transições e guardas observadas na fonte estática
 
 | Objeto/anterior | Ação/ator | Guarda/camada | Seguinte/efeito |
 | --- | --- | --- | --- |
@@ -37,12 +48,12 @@ Anatomia: listas Admin, editor de perguntas/configurações, respostas/triagem, 
 
 Forms não têm policy de gestão/leitura geral de respostas para Cliente: ser destinatário de um slug público não transforma usuário em administrador do formulário.
 
-Em perfil, há policy `profile_results_client_visible` para SELECT de resultado individual com `client_visible=true` e própria empresa, além da rota Cliente do avaliador. Entretanto comentário do próprio avaliador afirma que cliente deve receber gestão, não relatório técnico. Registrar a divergência; não assumir nem remover a capacidade existente sem decisão. Gestão via RPC exige liberação e retorna agregados, com limiar de cinco; é outra operação.
+Em perfil, a fonte estática contém policy `profile_results_client_visible`, rota Cliente do avaliador e leitura pública por token. **DEC-13 resolve o produto em sentido mais restrito:** avaliador interno, respondente só PDF/e-mail e Cliente só gestão liberada. Na implementação, reconciliar rotas, projeções, RPC, arquivos e tokens legados; esconder botão não garante negação. Gestão via RPC é operação distinta, com critérios de aprovação/liberação. Nenhuma policy foi alterada nesta documentação.
 
 ## Continuidade, falhas e aceite
 
 Retorno Admin por link/campanha/resposta; resposta pública deve distinguir fechado, inválido, prazo encerrado e já enviado. Não presumir persistência/reabertura de respostas no navegador além do que a fonte implementa. Bloqueio de link e token de resultado são mecanismos diferentes.
 
-Aceite proposto: Cliente não lista todas as respostas; slug fechado; campos obrigatórios condicionais, tipos e arquivo fora do path; edição Admin sem apagar evidência por engano; token errado/convite expirado/recusado; limites de resposta; gestão com quatro/cinco pessoas, sem parecer, não liberada e outra empresa; acesso individual e agregado somente quando liberados pela CALI e no escopo da empresa; falha de e-mail/PDF. Não validar cientificamente método de avaliação nesta tarefa documental.
+Aceite proposto: Cliente não lista respostas gerais Forms; slug fechado; tipos/campos/arquivo fora do path; edição Admin preserva evidência; token inválido/convite expirado/recusado; três lembretes/janela/fuso; gestão com 4/5/14/15 respostas, sem resultado/parecer, não liberada e outra empresa; sem nomes; assinatura/foto/protocolo e revisão coerentes; avaliador negado ao Cliente/respondente inclusive por API/arquivo/token; agradecimento e PDF por e-mail sem metodologia/cálculos; falha/repetição de envio e retorno a rascunho após alteração. Não validar cientificamente o método nesta tarefa documental.
 
-**Dúvidas:** `REF-19` (edição/histórico e exposição de respostas), `REF-20` (individual x agregado/token), `REF-21` (Mapa sem corpo SQL), `REF-16` (envio), `REF-22` (retenção/exportação dos módulos novos). Escopo de migração de cada módulo continua uma decisão de paridade; a ficha não o elimina por omissão.
+**Pendências técnicas:** `REF-19` (edição/histórico Forms), `REF-20` (efetivar públicos/token de DEC-13), `REF-21` (Mapa sem corpo SQL), `REF-16` (envio), `REF-22` (retenção/exportação). DISC já é produto oficial, sem nova decisão de inclusão. Forms/Mapa continuam rastreados separadamente; não eliminar módulos por omissão.

@@ -4,6 +4,8 @@ Fichas FLOW-11/12. Observação estática, sem upload, gravação, envio ou leit
 
 ## Alvo V2 confirmado em 26/10/2026 para correção de relatório
 
+[Regras de produto](../PRODUCT_RULES.md) exigem assinatura virtual/foto da Patrícia, protocolo `CALI-TIPO-AAAA-NNNNNN` e auditoria de geração/aprovação/liberação/envio por revisão. Conteúdo alterado volta a rascunho antes de nova aprovação interna/liberação. Isso não é nova ciência obrigatória Cliente: DEC-12 permanece. PDF usa Inter e corresponde à revisão aprovada. Públicos DISC são tratados separadamente em FLOW-17.
+
 Admin pode reabrir o mesmo relatório disponibilizado, com motivo e histórico (**DEC-06**). Item fica indisponível ao Cliente durante a correção até nova liberação (**DEC-11**). Preservar registros anteriores de versão, conteúdo, ciência e autoria como histórico; indisponibilidade não é exclusão nem perda de trilha.
 
 Após nova liberação, ciência do relatório corrigido só é exigida **se Admin solicitar (DEC-12)**. Sem solicitação, não registrar ciência fictícia do conteúdo corrigido; a ciência anterior permanece ligada ao conteúdo histórico. A regra antiga de retirada somente antes de leitura e o caminho v63 sem corpo permanecem evidência do oficial; não substituem a decisão de permitir reabertura pelo Admin.

@@ -2,6 +2,8 @@
 
 Atualização: 25/10/2026. **18 fichas documentais preenchidas com fontes, transições, permissões e dúvidas; não é validação funcional.** Oficial consultado somente em leitura na revisão `f3d3f14043a6abc38636f0340fe831e621d8b357`. A V2 continua demonstrativa e sem integração.
 
+Revisão de produto de 26/10: usar o funcionamento testado da [publicação 83](BASELINE_REFERENCE_2026-10-26.md), as [regras atuais](PRODUCT_RULES.md) e o [roadmap por entregas completas](ROADMAP.md). DEC-13 substitui DEC-07: DISC é linha oficial, com públicos de respondente/avaliador/gestão distintos. O resumo diário é a pendência específica RESUMO-01; Partner fica posterior, sem reduzir cobertura Cliente/Admin.
+
 ## Como interpretar
 
 Um fluxo é a tarefa de um ator com início, decisão/ação e resultado observável. Uma página pode conter vários fluxos; um fluxo pode atravessar várias páginas.
@@ -33,7 +35,7 @@ As fichas do levantamento estão preenchidas; dúvidas sobre contratos ausentes,
 | FLOW-14 | Localizar módulo, receber sinalização e abrir objeto; consultar perfil/sair | Usuário do workspace | Shell e menus; `main.tsx`, `ClientHome.tsx` | Demo parcial; busca global/sessão reais ausentes | [Preenchida; dúvidas registradas](flows/WORKSPACE_HOURS_TEAM.md) |
 | FLOW-15 | Operar empresas atribuídas e administrar equipe CALI | Partner, Admin | Referência oficial `/equipe/*` e equipe CALI | Inventário adicional; sem área equivalente completa nesta V2 | [Preenchida; dúvidas registradas](flows/ADMIN_LIFECYCLE.md) |
 | FLOW-16 | Auditar eventos e acompanhar satisfação | Admin e outros papéis previstos | Satisfação parcial na prévia Admin; auditoria na referência | Demo parcial/inventário adicional | [Preenchida; dúvidas registradas](flows/ADMIN_LIFECYCLE.md) |
-| FLOW-17 | Executar jornadas de Mapa de People, formulários e perfil comportamental | Usuários/destinatários definidos por contrato | Referência oficial | Inventário adicional; não autoriza expansão de escopo | [Preenchida; dúvidas registradas](flows/FORMS_PEOPLE_PROFILE.md) |
+| FLOW-17 | Executar DISC, Mapa de People e formulários por subfluxo | CALI, Cliente de gestão e respondente conforme relatório/operação | DISC é produto oficial; Forms/Mapa rastreados separadamente | Sem implementação V2; públicos confirmados em DEC-13; contratos técnicos pendentes | [Preenchida; dúvidas registradas](flows/FORMS_PEOPLE_PROFILE.md) |
 | FLOW-18 | Consultar frentes/ajuda/legal e exercer ações de encerramento/exportação permitidas | Atores definidos pelo contrato | Entradas parciais na home; contexto/handoff e referência oficial | Demo parcial/documentado/inventário adicional | [Preenchida; dúvidas registradas](flows/ADMIN_LIFECYCLE.md) |
 
 Lista de páginas e rotas pertence à Arquitetura. Inventário de operação/tabela/RPC pertence a Dados e contratos. Este catálogo relaciona tarefas e aponta para a especificação pertinente.

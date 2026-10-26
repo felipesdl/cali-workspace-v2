@@ -4,6 +4,8 @@ Estado: **proposta para esta V2**, em 25/10/2026. Nenhuma das pastas ou dependê
 
 Antes de extrair uma feature, localizar sua tarefa no [Catálogo de fluxos](FLOW_CATALOG.md) e suas questões no [Registro de decisões](DECISIONS.md). Organização de código não substitui especificação de [UX/UI](UX_UI.md) nem aprovação de regra funcional.
 
+Contrato vigente: [Regras de produto](PRODUCT_RULES.md) e [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md). O [roadmap](ROADMAP.md) cresce por entregas completas: fundação mínima para o primeiro fluxo e DS/rotas/hooks/dados/testes junto dos consumidores. Não exigir todos os módulos demo antes de integrar a primeira jornada. Públicos DISC seguem DEC-13; finalidade/projeção/guarda constam em [Dados pessoais](DATA_PRIVACY.md).
+
 ## Decisões e alcance
 
 | Decisão | Estado | Justificativa |

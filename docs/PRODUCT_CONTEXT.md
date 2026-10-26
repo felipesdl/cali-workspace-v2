@@ -12,13 +12,15 @@ Base de evolução confirmada pelo usuário: este repositório V2. Escopo confir
 
 ## Regras alvo decididas em 26/10/2026
 
-Há até quatro acessos Cliente equivalentes por empresa, sem cadastro principal como hierarquia de acesso. Todos mantêm Equipe e podem informar/consultar os dados privados da própria empresa; Admin também. Cliente faz lançamento inicial das métricas mensais e somente Admin corrige valores já lançados. Isso não transforma Cliente em administrador de contrato nem muda fórmula de indicador.
+Há até quatro acessos Cliente equivalentes por empresa, sem cadastro principal como hierarquia de acesso. Todos mantêm Equipe e podem informar/consultar os dados privados da própria empresa; Admin também. Cliente faz lançamento inicial das métricas mensais e somente Admin corrige valores já lançados. Isso não transforma Cliente em administrador de contrato nem muda fórmula de indicador. Pessoa focal de uma campanha é destinatária operacional, sem privilégio de login.
 
-Adesão registrada antecede convite; aceite de uso é obrigatório no primeiro acesso e a cada nova versão, com bloqueio se a verificação falhar. Cliente pode consultar perfil comportamental individual e agregado quando liberados pela CALI.
+Adesão registrada antecede convite; aceite de uso é obrigatório no primeiro acesso e a cada nova versão, com bloqueio se a verificação falhar. Finalidade e tratamento de campos pessoais devem estar documentados e refletidos nas informações apresentadas no acesso, conforme [Dados pessoais](DATA_PRIVACY.md).
+
+DISC possui três relatórios: respondente recebe somente o próprio PDF por e-mail; avaliador é interno da CALI, sem opção de liberação; Cliente recebe somente gestão após aprovação/liberação CALI. Esta regra (DEC-13) substitui DEC-07. Critérios de respostas, parecer, assinatura/protocolo e canais estão em [Regras de produto](PRODUCT_RULES.md).
 
 Admin pode reabrir o mesmo entregável/relatório com motivo e histórico. Item fica indisponível ao Cliente até nova liberação. Entregável corrigido exige nova aprovação; nova ciência de relatório depende de solicitação do Admin. Validações anteriores permanecem históricas, sem serem atribuídas automaticamente ao conteúdo corrigido.
 
-Fonte das decisões: [DEC-05 a DEC-12](DECISIONS.md). São contrato futuro da V2; não uma descrição de políticas já aplicadas.
+Fonte das decisões: [registro vigente](DECISIONS.md), incluindo DEC-13 a DEC-18 da revisão de produto. Base de paridade: funcionamento oficial testado pela Patrícia em 26/10, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). Regras alvo não certificam políticas já aplicadas na V2. Chat não gera e-mail; pedido mensal aparece só para Cliente; detalhamento do resumo diário aguarda resposta em RESUMO-01.
 
 ## Atores e responsabilidades
 
@@ -59,7 +61,7 @@ Definições acima orientam leitura. Campos, estados e relações exatos são fe
 
 Jornadas a cobrir: adesão/acesso; planejamento; execução; interação; entrega; fechamento/relatório; renovação/encerramento. Mapa de fluxos e responsáveis: [Catálogo de fluxos](FLOW_CATALOG.md).
 
-O handoff caracteriza CALI como assessoria estratégica, não como HRIS/DP completo. Não acrescentar folha, férias, ponto, recrutamento completo ou avaliação individual por semelhança com referência externa. Módulos adicionais encontrados no oficial entram no inventário de paridade, não em expansão automática.
+O handoff caracteriza CALI como assessoria estratégica, não como HRIS/DP completo. Não acrescentar folha de pagamento, férias, ponto, recrutamento completo ou avaliação de desempenho individual. O perfil comportamental DISC é linha oficial do produto e integra o escopo da V2, com relatórios do respondente, avaliador e gestão e seus públicos distintos. Módulos adicionais existentes são rastreados na paridade; não autorizar expansão por omissão ou analogia.
 
 Valores demonstrativos, quantidades de horas e textos de fixtures não definem contrato comercial. Não criar funcionalidades/bloqueios de plano com base em semelhança de tela. Não reformular indicadores de headcount nesta etapa documental.
 

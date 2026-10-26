@@ -4,6 +4,8 @@ Fichas FLOW-01/02/03. Estado: observado estaticamente com divergências registra
 
 ## Alvo V2 confirmado em 26/10/2026
 
+Referência: [publicação 83](../BASELINE_REFERENCE_2026-10-26.md), [regras de produto](../PRODUCT_RULES.md) e [informação sobre dados no acesso](../DATA_PRIVACY.md). Textos de uso/privacidade devem estar consultáveis; registrar versão/confirmação conforme DEC-08, sem inventar prazo de guarda ou declarar gate já implementado.
+
 - **DEC-05:** até quatro acessos Cliente equivalentes por empresa, sem cadastro principal como hierarquia de acesso. Todos podem manter Equipe; revogar um não exige substituir principal nem deve retirar direitos dos demais.
 - **DEC-08:** adesão registrada antes do convite; termos obrigatórios no primeiro acesso e em nova versão. Falha ao comprovar aceite bloqueia a entrada e oferece recuperação/retry; não repetir o fail-open observado no oficial.
 - Contato comercial e papel/permissão de login são conceitos distintos. Dependências legadas de `is_primary` precisam ser inventariadas, sem remover campos ou alterar contratos agora.

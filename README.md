@@ -33,6 +33,8 @@ Comece por [AGENTS.md](AGENTS.md) e pelo [índice](docs/INDEX.md).
 | Documento | Responsabilidade |
 | --- | --- |
 | [Diagnóstico](docs/BASELINE_2026-10-25.md) | Estado da V2, evidências e contratos oficiais CALI |
+| [Referência funcional](docs/BASELINE_REFERENCE_2026-10-26.md) | Funcionamento oficial de 26/10, publicação 83, como base de paridade |
+| [Regras de produto](docs/PRODUCT_RULES.md) | Regras atuais de negócio, interface, públicos DISC e comunicação |
 | [Contexto de produto](docs/PRODUCT_CONTEXT.md) | Problema, atores, vocabulário e limites |
 | [Experiência UX/UI](docs/UX_UI.md) | Jornadas, composição, interação, conteúdo e responsividade |
 | [Catálogo de fluxos](docs/FLOW_CATALOG.md) | Cobertura, fichas e critérios de aceite por tarefa |
@@ -42,7 +44,8 @@ Comece por [AGENTS.md](AGENTS.md) e pelo [índice](docs/INDEX.md).
 | [Arquitetura](docs/ARCHITECTURE.md) | Estrutura proposta, rotas, hooks, layouts e contexts |
 | [Design system](docs/DESIGN_SYSTEM.md) | Identidade, tokens e contratos de componentes |
 | [Dados e contratos](docs/DATA_CONTRACTS.md) | Adaptação Supabase, permissões e inventário pendente |
-| [Plano e fases](docs/ROADMAP.md) | Fases, dependências, bloqueios, ondas de integração e aceite dos 18 fluxos |
+| [Dados pessoais](docs/DATA_PRIVACY.md) | Finalidades, leitores, guarda e informação/validação no acesso |
+| [Plano e fases](docs/ROADMAP.md) | Entregas completas por fluxo, dependências, bloqueios e aceite dos 18 IDs |
 | [Política de mudança](docs/CHANGE_POLICY.md) | Validação e entrega |
 | [Operação local](docs/RUNBOOK.md) | Comandos existentes e limites de verificação |
 | [Handoff de 08/10](docs/HANDOFF_MESTRE_CALI_WORKSPACE_V2_2026-10-08.md) | Contexto histórico a reconciliar com evidências posteriores |
@@ -51,7 +54,7 @@ Estruturas descritas como **proposta** ainda não estão implementadas. Diagnós
 
 Fichas e matriz foram cruzadas em leitura estática com o oficial `f3d3f140`. Fontes imutáveis e 29 chamadas de RPC sem corpo localizado estão em `docs/flows/SOURCES.md`; dúvidas de reprodução/negócio estão em `docs/DECISIONS.md`. Condição encontrada no código não é permissão comprovada em produção.
 
-Em 26/10/2026, oito decisões de produto foram registradas para o alvo da V2: acessos Cliente equivalentes sem principal, dados privados, lançamento/correção de métricas, adesão/termos e correção/liberação/validação de entregas e relatórios, além da liberação de perfil individual/agregado. Consulte [DEC-05 a DEC-12](docs/DECISIONS.md) e a seção de contrato alvo em [Permissões](docs/PERMISSIONS.md). Isso não implementou políticas nem iniciou as fases.
+Em 26/10/2026, a revisão de produto foi incorporada às [decisões](docs/DECISIONS.md) e regras. **DEC-13 substitui DEC-07:** Cliente recebe somente gestão DISC liberada; avaliador é interno CALI, sem liberação; respondente recebe apenas PDF próprio por e-mail, sem resultado na tela. As demais decisões anteriores continuam vigentes. Publicação 83 corresponde ao mesmo SHA das fontes; validação funcional da referência foi declarada pela Patrícia, sem auditoria de produção pelo agente. O roadmap entrega primeiro a rotina Admin/Cliente, depois DISC; Partner fica posterior. Resumo diário às 19h mantém detalhamento pendente em RESUMO-01. Nenhuma implementação foi iniciada.
 
 ## Ambientes declarados
 

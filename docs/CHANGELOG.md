@@ -1,5 +1,17 @@
 # Registro de mudanças
 
+## 26/10/2026 — Revisão de produto e plano por fluxos completos
+
+- **Autor e autorização:** agente Codex; Felipe autorizou aplicar a revisão de produto da Patrícia e atualizar o PR #1, mantendo o detalhamento do resumo diário pendente de resposta.
+- **Decisões:** DEC-13 substitui DEC-07 com três públicos DISC; DEC-14 a DEC-18 registram referência funcional testada, comunicação por público, regras de produto/interface, prioridade e documentação de dados pessoais. Demais decisões anteriores continuam vigentes; aprovação interna não é ciência Cliente e pessoa focal não cria acesso principal.
+- **Fontes:** comentários da Patrícia no PR e complemento fornecido pelo Felipe. Consulta somente leitura ao GitHub confirmou mensagem “Publicação 83” em `f3d3f14043a6abc38636f0340fe831e621d8b357`, o mesmo SHA das fontes. Não houve auditoria de runtime/banco.
+- **Arquivos:** novos PRODUCT_RULES, BASELINE_REFERENCE_2026-10-26 e DATA_PRIVACY; atualização de README, AGENTS, índice, decisões, contexto, DS/UX, arquitetura, contratos, permissões, catálogo/fichas, política e roadmap.
+- **Roadmap:** fundação mínima e entregas completas de empresas/acessos, Equipe e dados mensais; depois DISC e demais fluxos; Partner posterior. Matriz cobre os 18 IDs com dependências, bloqueios e aceite. DS, rotas, hooks e integração acompanham cada entrega.
+- **Pendências:** RESUMO-01 / OPEN-13 aguardam conteúdo/público/recorte/agenda detalhados; finalidade/guarda dos dados têm inventário e validação documental próprios, sem prazos inventados. TEC-01/02/03 continuam abertos para as operações afetadas.
+- **Validação desta rodada:** conferência de links/âncoras, Markdown/whitespace, regras/decisões/públicos, cobertura de fluxos e hashes de código/configuração/handoff. Build/typecheck, QA de aplicação, RLS e CI não executados, pois somente documentação mudou.
+- **Execução:** nenhum código/dependência/env/schema/payload/policy ou dado alterado; sem Supabase, migration, comunicação operacional, deploy ou escrita no oficial. A atualização do PR é documental; fase 1 não iniciada.
+- **Rollback:** reverter somente o commit desta revisão; preservar fontes/levantamento anteriores e histórico de decisões. Sem alteração de runtime/dados para desfazer.
+
 ## 26/10/2026 — Preparação do PR da base documental
 
 - **Autor:** agente Codex; PR solicitado pelo usuário antes de iniciar a fase 1.
@@ -22,6 +34,8 @@
 - **Rollback:** reverter somente esta revisão de roadmap e referências associadas, preservando levantamento e decisões de produto anteriores. Não há mudança de runtime/dados para desfazer.
 
 ## 26/10/2026 — Oito decisões de produto antes das fases
+
+Registro histórico da rodada inicial: DEC-07 foi posteriormente substituída por DEC-13, conforme a revisão de produto acima. O alvo vigente é Cliente somente gestão, avaliador interno e respondente somente PDF próprio por e-mail.
 
 - **Autor:** agente Codex, registrando respostas expressas do usuário.
 - **Decisões:** DEC-05 a DEC-12: até quatro Clientes equivalentes sem principal; reabertura Admin do mesmo item com motivo/histórico; perfil individual e agregado liberados pela CALI; adesão antes do convite e termos obrigatórios por versão; Cliente/Admin informam e consultam privados; Cliente lança métricas e só Admin corrige; item reaberto indisponível até liberação; nova aprovação de entrega e ciência de relatório só quando solicitada.

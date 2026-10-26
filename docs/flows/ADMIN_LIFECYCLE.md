@@ -51,6 +51,8 @@ Não afirmar que **todas** as horas Partner passam pela fila: migration posterio
 
 ## FLOW-16 — Auditoria e tratamento de satisfação
 
+Alvo confirmado: geração, aprovação, liberação e envio de relatórios são eventos distintos de auditoria, vinculados ao objeto/revisão e ator. [Regras de produto](../PRODUCT_RULES.md) não permitem usar um toast ou fila como comprovação de entrega externa. Administração de equipe CALI continua no recorte Admin; área Partner completa permanece posterior no roadmap.
+
 **Objetivo/atores/entrada:** Admin consulta `/admin/auditoria` e `/admin/satisfacao`. Cliente fornece avaliações pelos fluxos de entrega/ocorrência, não pelo painel Admin.
 
 **Fontes:** [auditoria UI](SOURCES.md#audit), [policy inicial activity_log](SOURCES.md#schema), [follow-up de satisfação](SOURCES.md#satisfaction), [feedback de ocorrência](SOURCES.md#records-reopen), [avaliação de entrega](SOURCES.md#approval), [resposta de privacidade](SOURCES.md#privacy-ui).

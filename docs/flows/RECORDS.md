@@ -2,6 +2,8 @@
 
 Estado: observado UI/SQL, sem execução. [Contrato comum](README.md); [permissões](../PERMISSIONS.md). Rotas `/cliente/registros` e `/admin/registros` compartilham consumidor com ações por papel.
 
+Regra de produto vigente: **mensagem de chat não gera e-mail**. Avisos por menção/atraso seguem o contrato do evento, sem transformar cada mensagem em disparo. Ver [Regras de produto](../PRODUCT_RULES.md); resumo diário permanece detalhamento pendente em RESUMO-01.
+
 ## Objetivo, fontes e composição
 
 Cliente abre/acompanha assunto de sua empresa; Admin conduz, registra nota interna, responde, decide encerramento e reabertura. Fontes: [UI](SOURCES.md#records-ui), [abertura](SOURCES.md#records-open), [mensagem/status](SOURCES.md#records-post), [exclusão excepcional](SOURCES.md#records-delete), [controles de mensagem](SOURCES.md#records-message), [feedback/reabertura](SOURCES.md#records-reopen), [anexos](SOURCES.md#chat-storage).

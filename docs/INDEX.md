@@ -7,6 +7,8 @@ Atualização: 26/10/2026. Base de desenvolvimento: este repositório V2. Escopo
 | Como iniciar e o que existe? | [README](../README.md) |
 | Como um agente deve trabalhar? | [AGENTS](../AGENTS.md) |
 | O que foi encontrado, com qual evidência? | [Baseline](BASELINE_2026-10-25.md) |
+| Qual funcionamento oficial reproduzir? | [Referência funcional de 26/10 — publicação 83](BASELINE_REFERENCE_2026-10-26.md) |
+| Quais regras de produto, públicos e comunicação valem? | [Regras de produto](PRODUCT_RULES.md) |
 | Qual problema, para quem e com qual vocabulário? | [Contexto de produto](PRODUCT_CONTEXT.md) |
 | Como compor telas e conduzir tarefas? | [Experiência UX/UI](UX_UI.md) |
 | Quais fluxos existem e como especificá-los? | [Catálogo de fluxos](FLOW_CATALOG.md) |
@@ -16,7 +18,8 @@ Atualização: 26/10/2026. Base de desenvolvimento: este repositório V2. Escopo
 | Onde deve morar cada responsabilidade? | [Arquitetura proposta](ARCHITECTURE.md) |
 | Como preservar identidade e componentes? | [Design system proposto](DESIGN_SYSTEM.md) |
 | Como adaptar dados e autorização? | [Dados e contratos](DATA_CONTRACTS.md) |
-| O que mudar, em qual fase, com quais dependências e aceite? | [Roadmap](ROADMAP.md) — fases 0–7, ondas de integração, matriz dos 18 fluxos e bloqueios técnicos |
+| Como informar/validar uso de dados pessoais no acesso? | [Dados pessoais](DATA_PRIVACY.md) |
+| O que entregar, com quais dependências e aceite? | [Roadmap](ROADMAP.md) — fundação mínima, fluxos completos e matriz dos 18 IDs |
 | Quais verificações e registros exigir? | [Política de mudança](CHANGE_POLICY.md) |
 | O que foi entregue e validado? | [Registro de mudanças](CHANGELOG.md) |
 | Como executar localmente? | [Runbook](RUNBOOK.md) |
@@ -30,7 +33,7 @@ Atualização: 26/10/2026. Base de desenvolvimento: este repositório V2. Escopo
 - **Pendente:** depende de decisão, inventário ou teste.
 - **Confirmado pelo usuário:** V2 como base; todos os fluxos de Cliente e Admin; leitura do oficial; manutenção da identidade existente.
 
-DEC-05 a DEC-12 registram as oito respostas posteriores de produto. São alvo da V2, com prioridade sobre proposta anterior para o mesmo assunto. Não alteram o retrato estático do oficial: tabelas de fonte e seções de alvo confirmado têm responsabilidades distintas.
+DEC-05 a DEC-12 registram as oito respostas iniciais; DEC-13 a DEC-18 incorporam a revisão de produto. **DEC-13 substitui DEC-07** e separa os relatórios respondente/avaliador/gestão. Demais regras anteriores continuam vigentes. Tabelas de fonte preservam evidência estática; alvo confirmado não significa implementação. Resumo diário permanece detalhamento pendente em RESUMO-01 / OPEN-13.
 
 Cada assunto tem um dono na tabela. Novos handoffs apontam para essas fontes e registram somente alterações/pendências, sem reproduzir regras completas.
 
@@ -40,11 +43,12 @@ DS especifica peças e tokens; UX/UI especifica tarefa, hierarquia, composição
 
 | Frente | Cobertura documental atual | O que ainda exige trabalho |
 | --- | --- | --- |
-| Produto e linguagem | Contexto consolidado | Reconciliar definições/contratos específicos ao detalhar domínio |
+| Produto e linguagem | Contexto e regras atuais consolidados | Responder RESUMO-01 e reconciliar contratos específicos; voz CALI no produto, preferência técnica restrita às sessões Felipe |
 | UX/UI | Diretrizes/famílias propostas e fichas com fontes de apresentação | Evidência visual e validação de tarefas/continuidade |
 | DS | Tokens/catálogo/comportamentos propostos | Valores finais, pares de contraste, componentes reais e QA |
 | Fluxos e permissões | 18 fichas e matriz Cliente/Admin preenchidas com evidência estática | Resolver contratos ausentes/divergências e provar permissões/transições em ambiente isolado |
 | Arquitetura e dados | Fronteiras e integração propostas | Contratos concretos, schema/tipos e ambiente isolado |
+| Dados pessoais | Inventário documental, leitores conhecidos e informação no acesso | Validar finalidade/uso/guarda por campo e refletir conteúdo na versão apresentada, sem prazo inventado |
 | Decisões | Confirmações e pendências registradas | Resolver o que bloqueia cada recorte, sem assumir aprovação |
 | Qualidade e operação | Política/runbook existentes | Scripts/testes/CI e procedimentos reais conforme implementação |
 
@@ -64,6 +68,6 @@ Revisão oficial fixada em `f3d3f14043a6abc38636f0340fe831e621d8b357`, sem escri
 
 ## Fechamento da rodada de produto — 26/10/2026
 
-PROD-01 a PROD-08 foram respondidas; regras alvo foram refletidas nas fichas e matriz, sem modificar fonte oficial ou código. As pendências remanescentes TEC-01/02/03 são de engenharia: contratos ausentes, guardas/consistência e comprovação em ambiente autorizado. Questões específicas de domínio/QA continuam registradas sem virar bloqueios globais artificiais. Nenhuma fase foi iniciada nesta rodada.
+PROD-01 a PROD-08 foram respondidas; a revisão da Patrícia substituiu PROD-03 por DEC-13. Regras foram refletidas nas fichas/matriz sem alterar código ou fonte oficial. TEC-01/02/03 continuam como investigação/prova de engenharia. OPEN-13 registra o questionamento encaminhado sobre resumo diário; OPEN-14 acompanha conteúdo de finalidade/guarda/informação no acesso. Não transformar essas pendências em bloqueios globais artificiais.
 
-O roadmap foi detalhado após essas respostas: separa levantamento entregue, fundação local, DS/UX, navegação, cobertura demo, acesso isolado, integração por dependência e homologação. Cada fase define entrada, entregas, bloqueios e saída verificável; os 18 fluxos têm rastreabilidade de integração e aceite. A revisão continua sendo planejamento, sem iniciar implementação ou reduzir escopo a um fluxo piloto.
+O roadmap atual fecha tarefas de ponta a ponta após fundação mínima: primeiro empresas/acessos, Equipe e dados mensais; depois DISC e demais fluxos; Partner posterior. DS, rotas, hooks/adaptadores e validação crescem junto dos consumidores. Os 18 IDs têm dependências e aceite. O código `f3d3f14` já identifica a publicação 83; o registro de 26/10 explicita o funcionamento oficial testado como referência. Nenhuma implementação foi iniciada.

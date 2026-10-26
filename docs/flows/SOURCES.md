@@ -2,6 +2,8 @@
 
 Data: 25/10/2026. Repositório `patricia258/app.cali`, revisão **`f3d3f14043a6abc38636f0340fe831e621d8b357`**. `main` ainda apontava para essa revisão na consulta desta etapa.
 
+Conferência de metadados em 26/10: o mesmo SHA identifica **“Publicação 83 — Perfil comportamental: assinatura, protocolo e entrega”** e continua em `main`. A [referência funcional vigente](../BASELINE_REFERENCE_2026-10-26.md) é o funcionamento de 26/10 testado pela Patrícia. Este índice preserva evidência estática; [regras atuais](../PRODUCT_RULES.md) e DEC-13 substituem hipóteses anteriores de público do DISC, sem fingir que as policies já foram alteradas.
+
 Leitura estática de código, migrations, funções e consumidores. Nenhum código importado foi executado; nenhum acesso ao Supabase, sessão real, envio ou escrita no oficial. Os arquivos temporários consultados não fazem parte da V2.
 
 Foram obtidos 367 arquivos de fonte para pesquisa local e conferência de referências anteriores; todas as 166 migrations foram pesquisadas. A busca de declarações encontrou 312 definições `CREATE FUNCTION`, agrupadas em 245 nomes. Esses números são inventário textual: sobrecargas, patches dinâmicos e funções mencionadas sem corpo impedem tratar o resultado como schema final aplicado.

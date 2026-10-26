@@ -1,250 +1,167 @@
-# Plano de padronização de todos os fluxos
+# Plano de padronização por fluxos completos
 
-Atualização: 26/10/2026. **Planejamento revisado; implementação não iniciada.** A V2 é a base; `patricia258/app.cali` permanece referência somente em leitura. Este plano não autoriza conexão ao banco, migrations, comunicações, publicação ou execução de fases.
+Atualização: 26/10/2026. **Planejamento revisado; nenhuma implementação iniciada.** V2 é a base; oficial somente leitura. Referência: aplicativo funcionando em 26/10, testado pela Patrícia, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
 
-Objetivo: padronizar identidade, UX/UI, componentes, layouts, rotas, hooks, contextos justificados e fronteiras de dados em **todos os fluxos de Cliente e Admin**, preservando contratos, histórico e diferenças de jornada. Os 18 IDs do [catálogo](FLOW_CATALOG.md) rastreiam a cobertura. FLOW-15 abrange administração CALI e seus efeitos sobre Cliente/Admin; não aprova construir a área Partner completa. Subfluxos públicos e adicionais de FLOW-17/18 não podem desaparecer por omissão nem virar funcionalidades novas por analogia.
+Objetivo: padronizar todos os fluxos Cliente/Admin sem passar várias fases construindo camadas antes da primeira jornada utilizável. Cada entrega fecha uma tarefa com interface, dados, regra, autorização, histórico, falhas e comunicação quando aplicável. “Fluxo completo” é unidade de construção; não cria fluxo novo nem significa que toda tela dispara e-mail. Chat não gera e-mail. Produção, migrations e canais externos exigem escopo próprio.
 
-## Ponto de partida e decisões incorporadas
+## Estado e cobertura
 
-Já existem diagnóstico, arquitetura/DS/UX propostos, 18 fichas de levantamento e matriz estática. Não refazer o inventário como se estivesse vazio. Faltam contratos executáveis, implementação e comprovação. Código/configuração continuam demonstrativos: somente `typecheck` e `build` são verificações existentes; lint, testes, CI, router, SDK Supabase e DS compartilhado ainda não estão implementados.
+Já existem levantamento, 18 fichas, matriz estática, DS/UX/arquitetura propostos e decisões. Não repetir inventário como se estivesse vazio. Código segue demonstrativo; somente typecheck/build existem como verificações locais. Router, SDK, DS compartilhado, lint, testes e CI ainda não foram implantados.
 
-A referência estática do oficial continua fixada em `f3d3f14043a6abc38636f0340fe831e621d8b357`. As [fontes](flows/SOURCES.md) registram 29 nomes literais de RPC sem corpo de função localizado nas migrations examinadas. Isso é lacuna de reprodução, não prova de inexistência no banco. Atualizar a referência exige registrar nova revisão e diferenças, mantendo o histórico.
+O SHA `f3d3f14043a6abc38636f0340fe831e621d8b357` das fontes já corresponde à publicação 83. Os links continuam válidos; código/migrations não comprovam configuração ou aplicação no banco ativo. As 29 chamadas sem corpo localizado permanecem lacunas técnicas por operação, não motivo para inventar contrato.
 
-As oito decisões priorizadas foram respondidas. Não reabrir perguntas resolvidas. O [registro](DECISIONS.md), as [fichas](flows/README.md) e a seção de contrato alvo da [matriz](PERMISSIONS.md) são os donos das regras; este quadro vincula implementação e aceite.
+Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem primeiro; depois DISC, demais fluxos Admin/Cliente e, por último, Partner. FLOW-17 inclui DISC como produto oficial, além de Forms e Mapa; sua implementação é separada por subfluxo. FLOW-15 cobre gestão Admin da equipe CALI e efeitos sobre acessos; área Partner completa permanece etapa posterior com recorte próprio.
 
-| Decisão confirmada | Aplicação | Prova antes de operar com dados reais |
-| --- | --- | --- |
-| DEC-05 — até quatro acessos Cliente equivalentes, sem principal; todos mantêm Equipe | Contas, acesso, Equipe e revogação | Quatro acessos equivalentes; tentativa excedente rejeitada; revogar um preserva direitos dos demais; manutenção não depende de `is_primary` |
-| DEC-06 — Admin reabre o mesmo entregável/relatório, com motivo e histórico | Projetos e relatórios | Identidade preservada, motivo registrado, histórico recuperável e chamada não autorizada recusada |
-| DEC-07 — perfil individual e agregado liberados pela CALI | Perfil comportamental | Ambos disponíveis somente quando liberados e dentro da própria empresa; negação em outra empresa e sem liberação |
-| DEC-08 — adesão antes do convite e termos obrigatórios por versão | Conta, convite, sessão e legal | Convite sem adesão recusado; primeira entrada/nova versão exigem aceite; falha de comprovação bloqueia com possibilidade de tentar novamente |
-| DEC-09 — Cliente informa e consulta privados de Equipe; Admin também | DTOs, formulários e leitura/escrita privada | Ambos consultam/informam campos autorizados; Cliente de outra empresa não recebe dados, inclusive por acesso direto |
-| DEC-10 — Cliente lança métricas; só Admin corrige depois | Equipe, períodos e indicadores | Lançamento inicial permitido ao Cliente; alteração posterior negada ao Cliente e permitida ao Admin com rastreabilidade; fórmulas preservadas |
-| DEC-11 — item reaberto indisponível ao Cliente até liberação | Listagem, detalhe, arquivo/PDF e cache aplicáveis | Conteúdo em correção não é recuperável pelos caminhos Cliente; cache da aplicação invalidado; não prometer revogar arquivos já baixados |
-| DEC-12 — nova aprovação de entrega; ciência de relatório só a pedido Admin | Revisões, liberação e validação | Aprovação antiga não aprova conteúdo corrigido; nova ciência pendente somente se solicitada; registros antigos ligados ao conteúdo histórico |
+## Fases e dependências
 
-A documentação não define por si só schema, enum, payload ou migration dessas decisões. Projetar compatibilidade antes de alterar contratos, preservando a fonte oficial como evidência histórica.
-
-## Sequência e dependências
-
-A numeração anterior foi preservada. Fase 0 identifica o levantamento documental entregue; fases 1–7 continuam planejadas. Não há estimativas em dias nem responsáveis individuais nomeados. Antes da execução de cada recorte, registrar responsável técnico e quem valida produto, UX, dados e operação conforme o risco.
-
-| Fase | Dependência de entrada | Resultado | Estado atual |
+| Fase | Entrada | Entrega/saída | Estado |
 | --- | --- | --- | --- |
-| 0 — Levantamento e decisões | Fontes V2/oficial e respostas do usuário | Baseline, fichas, matriz e contrato alvo | Entregue documentalmente; sem validação operacional |
-| 1 — Fundação reproduzível e contratos rastreáveis | 0 e autorização futura para implementar | Baseline de execução, gates reais e diferenças por operação | Planejada |
-| 2 — DS e padrões de UX/UI | Fundação de 1 e fichas dos consumidores | Tokens, primitivas e composições em consumidores reais | Planejada |
-| 3 — Shell, rotas e contexto navegável | Fundação de 1 e primitivas necessárias de 2 | URLs, layouts persistentes e continuidade | Planejada |
-| 4 — Todos os domínios com hooks e demo | Shell de 3 e componentes necessários de 2, por recorte | Jornadas completas e estados coerentes para cada fluxo | Planejada |
-| 5 — Ambiente isolado, identidade e autorização | Contratos de acesso reconciliados em 1; shell de 3 e fronteiras compartilhadas de 4 | Acesso real de teste e matriz de isolamento comprovada | Planejada |
-| 6 — Integração de todos os fluxos | 5; demo, contrato e bloqueios resolvidos por operação | Jornadas reais de teste, transições e falhas comprovadas | Planejada |
-| 7 — Homologação e preparação de release | Todos os recortes aplicáveis de 6 encerrados | Evidência global, aceite e plano de corte/rollback | Planejada; não inclui publicar |
+| 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; RESUMO-01 pendente |
+| 1 — Fundação mínima para o primeiro fluxo | 0 e autorização futura de implementação | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Planejada |
+| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | Planejada |
+| 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
+| 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
+| 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
+| 6 — Homologação global do recorte | Entregas aplicáveis de 2–4; 5 somente se autorizada no recorte | Regressão entre fluxos, evidência de permissões, UX e aceite de produto | Planejada |
+| 7 — Preparação de release | 6 e aceites exigidos | Configuração de destino, observabilidade, corte, backup/restauração e rollback revisáveis | Planejada; sem publicação implícita |
 
-Há duas frentes de trabalho, sem necessidade de agentes paralelos: **estrutura/experiência (1–4)** e **reconciliação de contratos (1, 5 e 6)**. Uma RPC ausente de agenda não bloqueia tokenização ou navegação de Equipe. Contrato incerto pode ser representado por cenário demo explicitamente provisório; a operação real permanece bloqueada.
+Não há estimativas em dias nem responsáveis individuais inventados. Nomear responsável técnico e validador funcional/UX/dados/operação antes do aceite aplicável. Ausência de resposta do resumo diário bloqueia esse recurso; não impede os demais fluxos ou comunicações cujo contrato esteja fechado.
 
-Fases 2 e 3 avançam em recortes coordenados após a fundação mínima de 1. Fase 4 consome esses recortes. A fase 5 pode começar quando suas dependências específicas estiverem atendidas, sem esperar todos os componentes de todos os módulos. Fechar uma fase exige seus critérios completos; primeiro consumidor pronto não encerra a cobertura global. A integração é liberada por operação/domínio, não por existir demo.
+## Fase 1 — Fundação mínima para a primeira entrega
 
-## Fase 0 — Levantamento e decisões
+**Dependência:** fase 0 e autorização de execução. A prioridade é viabilizar 2A, não criar todas as pastas, componentes ou integrações antes de entregar uso.
 
-**Entregue:** [baseline](BASELINE_2026-10-25.md), [contexto](PRODUCT_CONTEXT.md), [UX/UI](UX_UI.md), [DS](DESIGN_SYSTEM.md), [arquitetura](ARCHITECTURE.md), catálogo/fichas, fontes, permissões e DEC-01 a DEC-12.
+**Trabalho necessário:**
 
-**Limites:** fichas preenchidas não significam paridade validada. TEC-01/02/03 e questões específicas continuam registradas; somente PROD-01 a PROD-08 desta rodada estão resolvidas.
+- Conferir checkout, runtime/gerenciador, versões e scripts; escolher baseline suportada, lockfile e instalação reproduzível. Runtime utilizado no diagnóstico não vira suporte oficial automaticamente.
+- Introduzir formatação, lint e CI reais para os gates implantados, além de typecheck/build. Testes devem verificar regras e riscos do recorte; não espelhar markup nem simular verificação com script vazio.
+- Definir ambiente local/não produtivo autorizado, contas/atores sintéticos e outbound bloqueado antes da primeira conexão. Sem fallback para produção; preview de hosting não isola banco.
+- Reconciliar somente os contratos de acesso e empresa necessários ao início. Preparar contas/adesões sintéticas para testar sessão sem depender do cadastro completo de 2A.
+- Implementar bootstrap, shell/layout e rotas mínimas; identidade e contexto isolados; tokens e primitivas com consumidores reais. DS/rotas/hooks/cache crescem com as entregas seguintes.
+- Adesão antes do convite; termos obrigatórios no primeiro acesso/nova versão; falha de comprovação bloqueia. Integrar informação de privacidade e versionamento conforme [Dados pessoais](DATA_PRIVACY.md).
 
-**Saída documental:** fonte/revisão identificadas; observado, alvo, proposta e lacuna distintos; links íntegros; nenhuma refatoração ou conexão implícita.
+**Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 
-## Fase 1 — Fundação reproduzível e contratos rastreáveis
+**Aceite:** instalação limpa e comandos implantados passam na revisão registrada; configuração inválida não toca produção; sessão ativa/inativa/expirada e atores A/B/Admin exercitados no ambiente autorizado; URL direta/retorno/logout e limpeza de contexto funcionam; UI básica legível/mobile/teclado. Fundação isolada não é declarada fluxo de produto completo; o primeiro resultado de uso fecha em 2A.
 
-**Dependência:** fase 0 e autorização de execução. Recuperar todas as definições do banco não é pré-requisito para iniciar a fundação local.
+## Fase 2 — Rotina Admin/Cliente completa
 
-**Entregas:**
+Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
 
-1. Conferir checkout, scripts e dependências; escolher e registrar runtime suportado, gerenciador, versões e lockfile. Runtime usado no diagnóstico não vira suporte oficial automaticamente. Inventariar assets/fontes externas, fallback e carregamento.
-2. Introduzir formatação, lint e verificação de fronteiras reais, além de CI de instalação, typecheck e build. Preparar testes proporcionais aos contratos críticos seguintes; sem scripts vazios ou testes que apenas reproduzem componentes triviais.
-3. Acrescentar às fichas existentes diferenças V2/oficial/alvo, URLs, leitores afetados, composição UX e ações instaladas por runtimes DOM. Confirmar operações aplicáveis Cliente/Admin e todos os subfluxos de FLOW-15/17/18 sem expandir escopo silenciosamente.
-4. Detalhar em [Dados e contratos](DATA_CONTRACTS.md), por operação: entrada/saída, autorização, transição, cálculo, efeitos, falha, consistência e leitores/cache. Separar conhecido, provisório e bloqueado. Rastrear cada chamada sem corpo, patches e ordem aplicada; não declarar baseline do banco reproduzível antes da prova.
-5. Projetar compatibilidade das decisões novas: principal legado; privados Cliente; lançamento/correção; adesão/termos; reabertura e vínculo das validações a revisões. Não mudar backend/payload para compensar lacuna de UI.
-
-**Bloqueios:** TEC-01 impede fechar os contratos afetados e reproduzir suas integrações. Fonte que dependa de inspeção não autorizada permanece bloqueada; pedir somente acesso/exportação estritamente necessários em etapa própria. Nomear responsáveis antes do respectivo aceite.
-
-**Critérios de aceite:**
-
-- Instalação limpa reproduz a baseline documentada; comandos implantados passam no ambiente/revisão registrados; CI executa os gates declarados. Arquivo de configuração não equivale a execução bem-sucedida.
-- Os 18 IDs têm subfluxos aplicáveis, dono técnico, consumidores, estado de paridade, dependências e aceite. Adiamento exige decisão explícita com impacto; todos continuam no plano até essa decisão.
-- Operações do próximo recorte têm contrato suficiente. Cada lacuna restante possui fonte, impacto, responsável por investigar e gate de bloqueio; não precisa ser fingida como resolvida para encerrar fundação local.
-- Arquitetura registra escolhas/versões efetivas após implementação; nenhuma árvore vazia é contada como entrega.
-
-## Fase 2 — Design system e padrões de experiência
-
-**Dependência:** fundação de 1 e fichas dos consumidores. Usar fixtures, sem depender do banco.
-
-**Entregas:** tokens primitivos/semânticos/de componente; bordô/marfim/dourado; tipografia/densidade; estados textuais, contraste, camadas, scroll e movimento. Implementar ações, campos, abas, tabelas/listas, menus, overlays e feedback segundo o [DS](DESIGN_SYSTEM.md).
-
-Aplicar as famílias de [UX/UI](UX_UI.md): diretório, extrato, execução/cronograma, conversa, catálogo, relatório e cadastro. Cada consumidor preserva tarefa, conteúdo, hierarquia e continuidade próprios. Migrar consumidores concretos Cliente/Admin por lote e remover CSS substituído. DS não conhece feature, empresa ou SDK; composição de negócio fica no domínio. Avaliar biblioteca de primitivas e estratégia de CSS na execução conforme as necessidades CALI.
-
-**Bloqueios:** OPEN-06/07 e REF-24 exigem QA visual/interação, não decisão de negócio sobre pixels. Sem consumidor e estados verificáveis, peça permanece incompleta; contrato de banco ausente não impede QA sintético.
-
-**Critérios de aceite:**
-
-- Código consome tokens; variantes não se multiplicam por módulo; sem nova camada de overrides para esconder regras antigas.
-- Consumidores reais Cliente/Admin cobrem leitura, formulário e overlay; propriedades/estados/acessibilidade documentados. Não criar componentes sem demanda concreta.
-- Evidência por revisão em 1440/1280/1024/390 px, larguras intermediárias relevantes, zoom, teclado/foco/retorno, Escape, scroll, contraste e movimento reduzido. Ação essencial não depende de hover.
-- Inventário mostra consumidores migrados e pendentes de 3/4. O núcleo DS pode fechar antes da migração global; padronização completa só fecha com cobertura em 4/7.
-
-## Fase 3 — Shell, rotas, layouts e contexto
-
-**Dependência:** fundação de 1, peças necessárias de 2 e mapa de rotas/continuidade. Autenticação real pertence a 5.
-
-**Entregas:** bootstrap fino; shell compartilhado; layouts Cliente/Admin persistentes; catálogo único de navegação/títulos; rotas finas; parse/serialização tipados; detalhe por URL; 404 e falha localizada. Preservar caminhos confirmados no [mapa de arquitetura](ARCHITECTURE.md); verificar caminhos adicionais antes de defini-los. Não inventar URL para encerrar checklist.
-
-Declarar dono de estado: URL para contexto compartilhável; hook local para busca/rascunho transitório; cache para resposta assíncrona; context transversal somente com fonte, consumidores e ciclo de vida. Sessão real nasce em 5; alternador demo permanece explícito e não autoriza acesso. Workspace não guarda listas remotas nem espelha empresa em vários estados.
-
-**Bloqueios:** caminho/parâmetro desconhecido impede declarar compatibilidade do subfluxo afetado. TEC-02 bloqueia acesso real, não os layouts; guardas demo são simulação.
-
-**Critérios de aceite:**
-
-- Todas as entradas demonstrativas existentes têm destino navegável; entradas adicionais confirmadas estão rastreadas até o recorte que as implementará. Página vazia não conta como fluxo pronto.
-- URL direta, reload, Back/Forward, parâmetro inválido, retorno e troca de empresa/período obedecem à política documentada. Menu/título/localização concordam; shell persiste entre rotas filhas.
-- Conteúdo/rascunho de outro contexto não aparece como atual. Descarte/preservação de alterações é explícito e verificável.
-- Layout suporta teclado/mobile. Fallback de SPA fica documentado e deve ser validado no hosting de teste antes do release; sem alegar produção verificada.
-
-## Fase 4 — Features, hooks e adaptadores demo de todos os fluxos
-
-**Dependência:** rota/layout e peças DS exigidos pelo recorte. Os 18 fluxos devem ser cobertos ao encerrar a fase.
-
-**Entregas:** domínios com consumidores reais; modelos/hooks de apresentação; regras puras no dono; adaptadores demo tipados; cenários sintéticos consistentes entre listas, resumos, histórico e períodos. Views não importam SDK nem fixtures. Calendário/mural consomem o domínio Avisos, sem importar arrays de outra view.
-
-Para operações assíncronas, definir dono de consulta/mutação, chaves e leitores invalidados; adicionar cache quando houver consumidor e necessidade. Hooks reutilizáveis nascem de responsabilidade repetida, sem meta de quantidade. Contexts não substituem URL/cache. Aplicar decisões de produto nas simulações; contrato ausente mantém cenário explicitamente provisório, sem ser descrito como regra oficial ou prova de segurança.
-
-**Bloqueios:** contrato incerto impede paridade funcional definitiva, mas permite exercitar composição/estados propostos. OPEN-11 impede homologar experiência sem fixtures coerentes.
-
-**Critérios de aceite:**
-
-- Cada ID tem percurso demo aplicável e estados inicial/loading/vazio/parcial/erro/negado/expirado/sucesso conforme operação. Estado não aplicável exige justificativa, sem tela artificial.
-- Cliente/Admin recebem ações compatíveis com alvo; tentativa inválida tem resultado coerente no demo. Isso não comprova RLS.
-- Empresas/períodos não se misturam; Equipe cobre série sintética necessária, inclusive vazios/retroatividade; listas/resumos concordam. Fórmula oficial não é recriada por aproximação.
-- Duplo submit, falha e resultado desconhecido têm tratamento observável; toast não afirma envio real. Limites de persistência do demo são explícitos.
-- Adaptador pode ser substituído sem refazer a view; DS não importa domínio; CSS/fixtures/dependências substituídos são removidos. Runtime baseado em seletor DOM não vira arquitetura permanente.
-
-## Fase 5 — Ambiente isolado, identidade e autorização
-
-**Dependência:** contratos de acesso reconciliados em 1, shell de 3 e fronteira de dados comum de 4. Exige autorização específica do ambiente/operações de teste; este plano não a concede.
-
-**Entregas:** ambiente local ou não produtivo com isolamento demonstrado; baseline/ordem de migrations reconciliadas; tipos gerados desse ambiente; seleção explícita demo/integração sem fallback produtivo; outbound e callbacks/gatilhos externos bloqueados antes do primeiro teste. Preview de hosting não isola banco.
-
-Implementar sessão/callback/expiração/logout; identidade ativa, vínculo/papel e MFA reconciliados entre superfícies; adesão/aceite versionado; limite/equivalência dos acessos. Testar tabelas, RPC, storage e funções conforme [Dados e contratos](DATA_CONTRACTS.md). Provider de sessão possui consumidores e limpeza de ciclo de vida explícitos.
-
-Contas, adesões e convites sintéticos mínimos podem ser preparados como fixtures do ambiente autorizado para provar acesso. Isso evita dependência circular com a gestão completa de contas de 6A; não equivale a homologar o cadastro, contrato ou ciclo da conta.
-
-**Bloqueios:** TEC-01 para definições/baseline de acesso; TEC-02 para predicados, MFA, grants e escopo; OPEN-10 para ambiente. Autorização frontend não substitui contrato. Divergência funcional de MFA remanescente exige decisão pontual antes de habilitar a operação, após investigar fontes.
-
-**Critérios de aceite:**
-
-- Ambiente/destino identificados; configuração ausente/errada não toca produção. Atores/dados sintéticos; outbound bloqueado com evidência dos canais/gatilhos abrangidos.
-- Matriz executada com sem sessão, inativo, Cliente A e outro acesso da mesma empresa, Cliente B de outra empresa, Admin e Partner atribuído/não atribuído quando afetar a operação. Cobrir quatro acessos, revogação individual e tentativa excedente.
-- DEC-05/08 comprovadas no caminho real de teste, inclusive negação por API direta. Alterar URL/payload não concede papel/empresa.
-- Expiração/logout/troca de empresa isolam requisições e limpam cache/detalhes incompatíveis; resposta atrasada não reaparece no novo contexto.
-- Evidência registra operação, ator, superfície, entrada, esperado/obtido, ambiente e revisão. Resultado de uma RPC não certifica todas as policies; só superfícies testadas ficam liberadas.
-
-## Fase 6 — Integração de todos os fluxos por dependência
-
-**Dependência:** 5 e, por operação, contrato reconciliado, experiência demo correspondente e bloqueios técnicos resolvidos. Trocar o adaptador sem redefinir jornada para acomodar transporte.
-
-### Ondas de integração
-
-| Onda | Escopo | Dependências e limites |
+| Entrega | Dependências | Conteúdo e aceite observável |
 | --- | --- | --- |
-| 6A — Conta e administração base | FLOW-02/03; cadastro e vínculos de FLOW-15; partes de FLOW-18 relativas a frentes/legal | Acesso de 5; contratos comerciais/staff/públicos. Ordem técnica não torna proposta aceita requisito novo de cadastro, adesão ou convite |
-| 6B — Estrutura de trabalho e pessoas | FLOW-05/06/08; perfil de FLOW-14 | Empresa/acesso e vínculos necessários de 6A. Projetos/Equipe avançam independentemente quando não houver dependência de dados comprovada |
-| 6C — Operação e comunicação | FLOW-07/09/10/11/13; notificações de FLOW-14; decisões de submissão de FLOW-15 | Projeto/entrega/ciclo somente quando exigidos pela operação; decisões staff após os contratos de horas/material correspondentes. Comunicação/anexos compartilham infraestrutura, sem fundir máquinas de estado |
-| 6D — Consolidação e ciclo de dados | FLOW-04/12/16/17; direitos/exportação/encerramento de FLOW-18 | Fontes de resumo/relatório e contratos públicos/privados. Subfluxos independentes de Forms/Mapa/perfil podem antecipar quando seus próprios gates estiverem atendidos |
+| 2A — Empresa e acessos | 1; conta, adesão, convite e ciclo | Admin cadastra/acompanha empresa e acessos; Cliente entra no contexto correto; até quatro acessos equivalentes; sem principal; revogar um preserva demais; conta bloqueada não mantém acesso; aceite/privacidade versionados; perfil e retorno contextual necessários |
+| 2B — Equipe | 2A; contratos de pessoas, privados e histórico | Cadastro/consulta/alteração/arquivamento e importação com prévia; todos os Clientes mantêm Equipe; Cliente/Admin informam/consultam privados permitidos; sem dados de outra empresa; ausentes no CSV não são desligados; datas efetivas, histórico e leitores coerentes |
+| 2C — Dados mensais e confirmação | 2B e períodos/métricas/revisão mensal | Pedido de dados aparece só ao Cliente; Cliente lança; correção posterior só Admin; confirmação e resumos consistentes; cenários vazios/retroativos e falhas; fórmulas oficiais preservadas; comunicação apenas conforme contrato definido |
 
-Ondas são coordenação, não regras de negócio ou barreiras artificiais de lote. Dependência de dado aponta para contrato concreto. Início/notificações/auditoria recebem fontes progressivamente e só fecham cobertura global após os domínios necessários. FLOW-01 fecha o núcleo em 5 e participa da regressão de todas as ondas.
+DS, tabelas, campos, overlays, modelos/hooks e cache necessários são entregues junto dos consumidores. Declarar quem possui cada estado: URL para contexto compartilhável, local para transitório, cache para respostas remotas e context somente para responsabilidades realmente transversais. Views não importam SDK ou fixtures.
 
-### Entregas e critérios comuns de aceite
+**Privacidade:** inventariar finalidade, leitores e guarda dos campos do recorte e refletir a informação nos textos de acesso/coleta; registrar validação de conteúdo sem inventar prazos. DEC-09 não publica dados privados em logs, notificações ou PDFs por consequência.
 
-- Operações reais de teste preservam identidade, projeção, nulabilidade, unidade, período e autoridade de cálculo. Backend/payload só mudam com compatibilidade e escopo explicitamente tratados.
-- Executar permitido/negado por superfície, transições válidas/inválidas, expiração, concorrência, repetição e falha parcial conforme risco. Simulação de falha tem identificação própria; não comprova entrega externa.
-- Preservar histórico/autoria e invalidar listas, detalhes, resumos e demais leitores. Não transferir aprovação/ciência silenciosamente entre revisões.
-- Arquivos/PDF/links seguem visibilidade do objeto. Reabertura bloqueia conteúdo em correção até liberação; cache não mantém acesso indevido da aplicação. Revogação de URLs existentes exige estratégia comprovada, sem prometer remover cópia já baixada.
-- Timer, decisão composta e envio têm consistência/idempotência/reconciliação demonstradas. Fila, aceitação de provedor e entrega são estados distintos. Outbound continua bloqueado; prova real de integração externa só em destino de teste expressamente autorizado.
-- Cada linha da matriz tem ficha/contrato/QA atualizados e evidência por revisão. Sem contrato/prova, operação permanece bloqueada e domínio não é declarado concluído; sucesso local ou permissão visual não contornam gate.
+**Aceite comum:** Cliente A, outro acesso equivalente A, Cliente B e Admin; quatro acessos e tentativa excedente; revogação; API direta permitida/negada; reload/Back/Forward e filtros; loading/vazio/erro/parcial/negação; retry/duplo submit; foco/mobile. Não declarar sucesso de gravação/envio sem confirmação do resultado.
+
+## Fase 3 — Perfil comportamental DISC completo
+
+**Dependência:** identidade/empresa, infraestrutura estritamente necessária e contratos públicos/privados reconciliados. A prioridade é posterior à rotina inicial; não depende de concluir todos os módulos de 4.
+
+| Entrega | Conteúdo | Aceite observável |
+| --- | --- | --- |
+| 3A — Convite, resposta e PDF do respondente | Campanha, prazo, resposta, agradecimento, PDF e comunicações de teste | Sete dias/fim do dia em Brasília; máximo de três lembretes em dias/horas definidos; pessoa focal avisada; token inválido/expirado/recusado; conclusão não mostra resultado/metodologia/cálculos; PDF do próprio respondente por e-mail, sem duplicar envio |
+| 3B — Avaliador interno | Leitura e operação CALI sobre resultado técnico | Sem opção de liberação ao Cliente ou respondente; testar rota, API, arquivo e token legado; separar projeções, não apenas ocultar botão |
+| 3C — Gestão e entrega | Respostas elegíveis, resultado buscado, parecer Patrícia, aprovação, protocolo/assinatura, liberação e destinatário | Testar 4/5/14/15 respostas; cinco a 14 sem números/gráficos; nenhum nome; sem parecer/resultado não aprova; conteúdo alterado retorna a rascunho; empresa com conta recebe no app/aviso e sem conta recebe PDF ao gestor; histórico/auditoria preservados |
+
+DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciência Cliente: DEC-12 continua vigente. Todo envio real externo usa apenas destino de teste autorizado; cenário simulado não certifica entrega. Canais não usados pela operação não são acrescentados para preencher checklist.
+
+**Bloqueios:** contratos de projeção/token, liberação, assinatura/protocolo e envio; TEC-01/02/03; retenção/exportação aplicáveis. Método de cálculo existente é preservado, sem novo algoritmo de avaliação. Não certificar validade científica nesta padronização.
+
+## Fase 4 — Demais fluxos Cliente/Admin
+
+Conduzir cada domínio por entrega completa; dependências são de dados/operação, não barreiras artificiais de lote. A primeira entrega não elimina as demais do escopo.
+
+| Entrega | Conteúdo | Dependências e saída |
+| --- | --- | --- |
+| 4A — Projetos e entregáveis | Frentes, planejamento, cronograma, revisão, execução, aprovação, ajustes e conversas | Empresa e contratos de projeto; regras de prazo/capacidade reconciliadas; reabertura com motivo/histórico, indisponível até liberação e nova aprovação; frentes contratadas não se confundem com workstreams |
+| 4B — Horas e agenda | Timer/manual, extrato/ciclo, capacidade e solicitações/reuniões | Projeto/vínculo quando exigidos; pausa/retomada sem dupla contagem; Cliente consulta sem justificativa interna; agenda sem duplicidade; preço aceito preservado e status externo verdadeiro |
+| 4C — Interações, documentos e avisos | Ocorrências/conversas, anexos, versões/ciência, mural/agenda/notificações | Público, autoria e storage; nota interna não vaza; mesma origem dos leitores de Avisos; chat sem e-mail; demais canais conforme contrato; RESUMO-01 permanece separado |
+| 4D — Relatórios executivos e satisfação | Fatos/período, curadoria, aprovação, PDF, publicação, ciência e tratamento de avaliação | Fontes integradas, autoria/assinatura/protocolo e auditoria; tela/PDF correspondem à revisão; reabertura oculta até liberar; nova ciência só a pedido Admin; feedback original preservado |
+| 4E — Comercial, módulos adicionais e ciclo de dados | Propostas, Forms, Mapa, frentes/ajuda, auditoria, direitos, exportação/encerramento e administração equipe CALI | Contratos próprios, públicos e permissões por operação; proposta aceita não vira pré-requisito novo de cadastro; Forms/Mapa não são DISC; staff Admin não equivale a construir área Partner; cobertura e falha parcial do ciclo de dados comprovadas |
+
+Início, localizador, notificações e auditoria recebem leitores reais a cada entrega. Seu aceite global exige todas as fontes aplicáveis, sem métricas fictícias e sem apresentar período/empresa anteriores como atuais.
 
 ## Matriz de cobertura e aceite por fluxo
 
-Fases 1–4 tratam transversalmente todos os IDs. A coluna de integração indica quando fechar o percurso real. O aceite complementa as [fichas](flows/README.md), sem substituir seus casos de fronteira. Bloqueios estão no [registro](DECISIONS.md).
+As [fichas](flows/README.md) continuam donas das transições e fronteiras. A matriz organiza a entrega e seus bloqueios. Nenhum ID foi marcado implementado pela revisão documental.
 
-| ID e ficha | Integração e dependências | Aceite específico Cliente/Admin | Bloqueios antes da operação real |
+| ID e ficha | Entrega e dependências | Aceite específico | Bloqueios técnicos principais |
 | --- | --- | --- | --- |
-| FLOW-01 — [Acesso](flows/ACCESS_ACCOUNTS.md) | 5; adesão, convite, identidade e legal | Papel/vínculo corretos; expiração/retorno/logout; aceite por versão e bloqueio em erro; revogação efetiva | TEC-01/02; REF-01/02/03; OPEN-10 |
-| FLOW-02 — [Conta/contrato](flows/ACCESS_ACCOUNTS.md) | 5 acessos; 6A ciclo da conta | Quatro Clientes equivalentes; adesão antes do convite; revogar um preserva demais; bloquear/encerrar distinto de eliminar | REF-03/04/05; compatibilidade DEC-05/08 |
-| FLOW-03 — [Propostas](flows/ACCESS_ACCOUNTS.md) | 6A; destinatário e Portal | Gestão Admin negada ao Cliente; aprovação interna distinta de aceite externo; valor/versão aceitos preservados; sem envio duplicado | TEC-01/03; REF-06/16; contratos públicos/comerciais |
-| FLOW-04 — [Prioridades](flows/WORKSPACE_HOURS_TEAM.md) | 6D; leitores dos domínios necessários | Total/período/empresa coerentes com detalhe; atalho autorizado; dado parcial declarado, sem métrica fictícia | Agregações; REF-04/24; OPEN-05/11 |
-| FLOW-05 — [Planejamento](flows/PROJECTS.md) | 6B; conta, frentes e dependências | Compartilhar/revisar/ajustar/aprovar com guardas/prazos verificados e transições explícitas, sem seletor DOM | REF-04/07; OPEN-03; v39/ordem efetiva |
-| FLOW-06 — [Entregáveis](flows/PROJECTS.md) | 6B; projeto, revisão e histórico | Mesmo item reaberto com motivo; indisponível até liberar; nova aprovação; histórico preservado; ajuste/conversa/avaliação autorizados | TEC-02/03; REF-07/14/16; DEC-06/11/12 |
-| FLOW-07 — [Horas](flows/WORKSPACE_HOURS_TEAM.md) | 6C; conta/ciclo e vínculos exigidos | Timer/manual sem dupla contagem; pausa/retomada; Cliente consulta sem justificativa interna; total da autoridade oficial | REF-04/08/09; OPEN-04; timer/capacidade/concorrência |
-| FLOW-08 — [Equipe](flows/WORKSPACE_HOURS_TEAM.md) | 6B; empresa, acessos e períodos | Todos os Clientes mantêm Equipe e informam/consultam privados; Admin também; Cliente lança e só Admin corrige métricas; importar com prévia sem desligar ausentes; datas/snapshots coerentes | REF-10/11; TEC-02/03; OPEN-05/11; DEC-05/09/10 |
-| FLOW-09 — [Agenda](flows/CALENDAR.md) | 6C; acesso e solicitação/capacidade aplicáveis | Solicitar/confirmar/remarcar/cancelar sem duplicar; conflitos/timezone/prazos; preço aceito preservado; Google/Meet com estado verdadeiro | REF-05/12/16; scheduling ausente; integração externa de teste |
-| FLOW-10 — [Ocorrências](flows/RECORDS.md) | 6C; protocolo, conversa e anexos | Abertura/resposta/fechamento/avaliação/reabertura permitidos; nota interna protegida; autoria/histórico; falha não duplica mensagem | REF-16/18/24; autoria/SLA e consistência de anexos |
-| FLOW-11 — [Documentos](flows/DOCUMENTS_REPORTS.md) | 6C; empresa e vínculos existentes | Versão/publicação/ciência; comentário e arquivo autorizados; draft/privado negado; Drive distingue sincronização/entrega | REF-13/14/16; comentários/ciência e storage efetivo |
-| FLOW-12 — [Relatórios](flows/DOCUMENTS_REPORTS.md) | 6D; fatos, período e revisão | Tela/PDF/fonte concordam; mesmo item reaberto com motivo/histórico; indisponível até liberar; ciência só se solicitada; NPS/headcount preservados | REF-04/15/16; OPEN-05; v63 e DEC-06/11/12 |
-| FLOW-13 — [Avisos](flows/ADMIN_LIFECYCLE.md) | 6C; público, ciência e comunicação | Mural/agenda/notificação com mesma origem; público correto; comentário/reação/ciência/desfazer conforme operação; oculto não vaza | REF-05/14/16/17; storage, autoria e ciência |
-| FLOW-14 — [Perfil/notificações](flows/WORKSPACE_HOURS_TEAM.md) | 3/4 navegação demo; 5 sessão; 6B perfil; 6C notificações | Menu/localizador/retorno; perfil não muda papel; notificação abre objeto autorizado; logout limpa; leitura sem falso sucesso | REF-01/04/16/24; contratos de perfil/notificação |
-| FLOW-15 — [Equipe CALI](flows/ADMIN_LIFECYCLE.md) | 6A cadastro/vínculos; 6C decisões após contratos de horas/material | Admin convida/desativa/atribui; revogação retira acesso; decisão concorrente não duplica horas/material; Cliente sem gestão staff | REF-01/04/05; recorte Admin e efeitos de atribuições; área Partner completa fora do escopo |
-| FLOW-16 — [Auditoria/satisfação](flows/ADMIN_LIFECYCLE.md) | 6D; eventos/avaliações | Filtro/empresa/ator corretos; tratamento não altera feedback original; autoria/imutabilidade do contrato reconciliado comprovadas | REF-04/18; satisfação/privacidade e permissões amplas |
-| FLOW-17 — [Mapa/Forms/perfil](flows/FORMS_PEOPLE_PROFILE.md) | 6D ou recorte independente após 5; contratos de cada subfluxo | Três subfluxos rastreados; Cliente sem leitura geral de respostas Forms; token/arquivo/fechamento corretos; perfil individual/agregado liberados pela CALI e própria empresa | REF-19/20/21/22; RPCs Mapa, histórico de resposta, tokens/liberação; DEC-07 |
-| FLOW-18 — [Frentes/legal/ciclo de dados](flows/ADMIN_LIFECYCLE.md) | 5 legal de acesso; 6A frentes; 6D direitos/exportação/encerramento | Consultar não contrata frente; pedir direito não concede eliminação; bloquear/encerrar/exportar/eliminar distintos; cobertura/retenção/recuperação testadas com dados sintéticos | REF-02/04/16/22; cobertura, retenções e falha storage/banco; sem produção |
+| FLOW-01 — [Acesso](flows/ACCESS_ACCOUNTS.md) | 1 e 2A; adesão, identidade e legal | Papel/vínculo/aceite corretos; erro bloqueia; expiração, retorno, logout e revogação; informação de privacidade acessível | TEC-01/02; REF-01/02/03; OPEN-10 |
+| FLOW-02 — [Conta](flows/ACCESS_ACCOUNTS.md) | 2A; ciclo/encerramento em 4E | Quatro acessos equivalentes; adesão antes do convite; remover um preserva demais; bloquear/encerrar distinto de eliminar | REF-03/04/05; compatibilidade DEC-05/08 |
+| FLOW-03 — [Propostas](flows/ACCESS_ACCOUNTS.md) | 4E; Portal e destinatário | Gestão Admin negada ao Cliente; aprovação interna distinta de aceite externo; valor/versão preservados; sem envio duplicado | TEC-01/03; REF-06/16 |
+| FLOW-04 — [Prioridades](flows/WORKSPACE_HOURS_TEAM.md) | 2A–2C, completado pelas fontes de 3/4 | Totais/contexto corretos; atalho autorizado; dado parcial declarado; nenhuma métrica fictícia | REF-04/24; OPEN-05/11 |
+| FLOW-05 — [Planejamento](flows/PROJECTS.md) | 4A; conta/frentes/projeto | Compartilhar/revisar/ajustar/aprovar com prazo e guardas verificados; ações explícitas em React | REF-04/07; OPEN-03 |
+| FLOW-06 — [Entregáveis](flows/PROJECTS.md) | 4A; projeto e revisões | Reabrir mesmo item com motivo; indisponível até liberar; nova aprovação; conversa/avaliação e histórico autorizados | TEC-02/03; REF-07/14/16 |
+| FLOW-07 — [Horas](flows/WORKSPACE_HOURS_TEAM.md) | 4B; conta/ciclo e vínculos exigidos | Timer/manual sem duplicar; pausa/retomada; extrato Cliente sem justificativa interna; total da autoridade oficial | REF-04/08/09; OPEN-04 |
+| FLOW-08 — [Equipe](flows/WORKSPACE_HOURS_TEAM.md) | 2B/2C; empresa/acessos/períodos | Clientes equivalentes mantêm Equipe; privados no escopo; Cliente lança e só Admin corrige; importação/efetividade/snapshots coerentes; informação sobre dados validada | REF-10/11; TEC-02/03; OPEN-05/11/14 |
+| FLOW-09 — [Agenda](flows/CALENDAR.md) | 4B; solicitação/capacidade aplicáveis | Solicitar/confirmar/remarcar/cancelar sem duplicar; conflito/timezone/prazo/preço aceito; Google/Meet com estado verdadeiro | REF-05/12/16 |
+| FLOW-10 — [Ocorrências](flows/RECORDS.md) | 4C; protocolo/conversa/anexos | Abertura/resposta/fechamento/avaliação/reabertura; interno protegido; autoria; falha sem duplicar; chat sem e-mail | REF-16/18/24 |
+| FLOW-11 — [Documentos](flows/DOCUMENTS_REPORTS.md) | 4C; empresa e vínculos existentes | Versão/publicação/ciência e comentário autorizados; arquivo privado negado; Drive distingue sincronização/entrega | REF-13/14/16 |
+| FLOW-12 — [Relatórios](flows/DOCUMENTS_REPORTS.md) | 4D; fatos/período/revisão | Tela/PDF/fonte/assinatura/foto/protocolo concordam; auditoria; reabertura oculta; ciência só se solicitada; NPS/headcount preservados | REF-04/15/16; OPEN-05 |
+| FLOW-13 — [Avisos](flows/ADMIN_LIFECYCLE.md) | 4C; público/ciência | Mural/agenda/notificação com mesma origem; destinatário correto; comentário/reação/ciência/desfazer conforme contrato | REF-05/14/16/17 |
+| FLOW-14 — [Perfil/notificações](flows/WORKSPACE_HOURS_TEAM.md) | 1/2A para sessão/perfil; 2C/4C para comunicações | Navegação e retorno; perfil não muda papel; notificação abre objeto autorizado; logout limpa; RESUMO-01 não é tratado como especificado | REF-01/04/16/24; OPEN-13 |
+| FLOW-15 — [Equipe CALI](flows/ADMIN_LIFECYCLE.md) | Administração em 4E; decisões após horas/material; área Partner posterior em 5 | Admin convida/desativa/atribui; revogação retira acesso; decisão concorrente não duplica efeito; Cliente sem gestão staff | REF-01/04/05; escopo Partner separado |
+| FLOW-16 — [Auditoria/satisfação](flows/ADMIN_LIFECYCLE.md) | Eventos a cada entrega; fechamento em 4D/4E | Ator/empresa/objeto e versão corretos; geração/aprovação/liberação/envio rastreados; feedback original preservado | REF-04/18 |
+| FLOW-17 — [DISC/Forms/Mapa](flows/FORMS_PEOPLE_PROFILE.md) | DISC em 3A–3C; Forms/Mapa em 4E | Três relatórios DISC com públicos distintos; gestão com limiares/parecer; respondente só PDF; avaliador interno; Forms sem leitura geral Cliente; tokens/arquivos autorizados | REF-19/20/21/22; DEC-13/16 |
+| FLOW-18 — [Frentes/legal/ciclo](flows/ADMIN_LIFECYCLE.md) | Legal/acesso em 1/2A; demais operações em 4A/4E | Consulta não contrata frente; pedir direito não elimina conta; exportação/retenção/recuperação testadas; textos acessíveis e versão registrada | REF-02/04/16/22; OPEN-14 |
 
-## Bloqueios técnicos e critérios de desbloqueio
+## Bloqueios e critérios de desbloqueio
 
-“Produto decidido” não significa “integração liberada”. Engenharia deve investigar fontes autorizadas; não repassar ao usuário escolhas de SQL, nomes de RPC, cache ou retry. Eventual conflito de negócio remanescente exige pergunta específica, sem reabrir DEC-05 a DEC-12.
-
-| Bloqueio | Impacto/fases | Evidência para desbloquear | O que pode avançar antes |
+| Bloqueio | Quando bloqueia | Evidência de desbloqueio | O que pode avançar |
 | --- | --- | --- | --- |
-| TEC-01 — definições/baseline ausentes | Contratos, policies, patches e ordem aplicada; REF-04/06/12/13/21/23; 1/5 e operação afetada em 6 | Definições versionadas com origem/revisão, ordem reconciliada e reprodução em ambiente autorizado; contrato conferido | Fundação local, DS, UX, rotas conhecidas e demo provisória |
-| TEC-02 — autorização divergente | Sessão ativa, papel, empresa, MFA, privados, publicação e storage; 5/6 | Permitido/negado por superfície, API direta, revogação e cache; alvo atendido | Experiência demo e guardas identificadas como simulação |
-| TEC-03 — consistência/efeitos | Timer/capacidade, múltiplas gravações, concorrência, repetição, anexos e canais externos; 6 | Fronteiras, corrida, repetição e falha parcial; reconciliação/compensação e estado externo no destino de teste autorizado | Leitura independente e cenários sintéticos; não habilitar efeito pendente |
-| OPEN-10 — ambiente isolado | Primeira conexão real e teste com efeito; 5/6 | Ambiente/destino, atores sintéticos, migrations de teste e outbound bloqueado; sem fallback produtivo | Toda a frente local com fixtures |
-| OPEN-03/04/05 — prazo/capacidade/indicadores | Planejamento, horas, Equipe e relatórios dependentes | Fonte efetiva e fronteiras/retroatividade; preservar fórmulas/valores, sem inventar regra | Estrutura visual e leitores independentes do resultado pendente |
-| REF-17/18/19 — divergências por operação | Ciência/desfazer, reações, autoria/imutabilidade e edição de Forms | Contrato reconciliado; decisão funcional pontual se persistir conflito; provas de teste | Fluxos independentes; não bloqueia globalmente DS/rotas |
-| OPEN-06/07/08/11/12 e REF-24 — experiência/QA | Saída de DS/demo/homologação; 2/3/4/7 | Capturas e tarefas com estados/fixtures coerentes, responsividade e continuidade; validação humana aplicável | Recortes com pendência explícita, sem declarar experiência homologada |
+| TEC-01 — contrato/baseline efetiva ausentes | Primeira operação real que depende da definição | Corpo/ordem/projeção versionados, origem e contrato reconciliados; reprodução autorizada | Fundação/UI/fluxos independentes; cenário demo declarado provisório |
+| TEC-02 — identidade/autorização divergentes | Habilitar acesso real a dado/arquivo/operação | Permitido/negado por superfície, API direta, revogação e cache; alvo vigente atendido | Composição local, sem alegar autorização comprovada |
+| TEC-03 — consistência/efeitos | Escrita composta, timer, anexo e comunicação | Fronteiras, corrida, repetição, falha parcial e reconciliação testadas | Leituras independentes e cenários sintéticos |
+| OPEN-10 — ambiente | Qualquer conexão real ou teste com efeito | Destino autorizado, atores sintéticos, baseline de teste e outbound bloqueado; sem fallback produtivo | Trabalho local com fixtures |
+| OPEN-03/04/05 — prazo/capacidade/cálculo | Regra dependente do resultado | Fonte efetiva, fronteiras e retroatividade; fórmulas/valores preservados | Operações independentes do cálculo pendente |
+| OPEN-13 / RESUMO-01 | Conteúdo/público/agendamento detalhado do resumo diário | Resposta da Patrícia ao questionamento encaminhado e contrato atualizado | Todos os demais fluxos e comunicações já definidos |
+| OPEN-14 — informação sobre dados | Coleta/migração dos campos do recorte | Finalidades/consumidores/guarda identificados, texto validado e apresentado no acesso/coleta | Estrutura sem coleta real; validação documental sem inventar prazo |
+| REF-17/18/19 e REF-24 | Operação divergente ou aceite de experiência | Contrato pontual, autoria/histórico e QA de tarefa/responsividade/continuidade | Recortes sem dependência; não bloquear globalmente DS/rotas |
 
-Bloqueio permanece aberto até existir evidência, mesmo com código parcial. Nenhuma exclusão/adiamento silencioso pode transformar fase em concluída. Definição indisponível deve apontar operação afetada e próxima fonte/ação necessária.
+Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao produto. Perguntar somente escolha funcional remanescente com contexto/alternativas; não pedir SQL, nome de RPC, cache ou retry. Código parcial não fecha bloqueio. Não remover fluxo silenciosamente para declarar a fase concluída.
 
-## Fase 7 — Homologação global e preparação de release
+## Checklist obrigatório de cada entrega
 
-**Dependência:** cobertura operacional aplicável de 6 e fechamento dos bloqueios dos percursos a homologar. Redução de escopo depende de decisão explícita; não é assumida neste plano.
+1. Identificar fluxo/subfluxo, tarefa, ator, empresa/período/objeto e responsável pelo aceite.
+2. Conferir funcionamento da publicação 83 e regra alvo; registrar diferença aprovada e fontes, sem copiar bug/guarda contrária ao contrato confirmado.
+3. Implementar interface, DS/layout necessário, URL, modelo/hook e operação real de teste com fronteiras explícitas. Demo é apoio à experiência, não entrega operacional completa.
+4. Conferir tabelas/RPC/storage/funções aplicáveis: permitido/negado, outra empresa, inativo/expirado, resposta atrasada e revogação; mock não prova RLS.
+5. Testar escrita/transição, histórico, invalidação de leitores, corrida/repetição/falha parcial proporcionais ao risco. Correlacionar arquivo/PDF/assinatura com a revisão correta.
+6. Conferir comunicação aplicável: público, canal, conteúdo e resultado; sem e-mail de chat, efeito externo implícito ou confusão entre fila e entrega. Destino de teste precisa de autorização.
+7. Executar tarefa em desktop/mobile, teclado/foco, vazio/erro/negação; formulários preservam dados conforme política de retorno. Remover CSS/fixtures substituídos no recorte.
+8. Registrar revisão/ambiente/atores, resultados, documentação, aceite humano, limitações e rollback. Nenhum status de validado é concedido por build verde isolado.
 
-**Entregas:** regressão por tarefa Cliente/Admin e entre módulos; revisão visual/acessibilidade; evidência das decisões; baseline/limites de bundle, assets e carregamento; observabilidade sem dados sensíveis; hosting de teste e URLs diretas; backup/restauração, compatibilidade, corte e rollback. Nomear responsáveis pelos aceites funcional, UX, acesso/dados e operação.
+## Fases 5–7 — Prioridade posterior e fechamento
 
-**Critérios de aceite:**
+**5 — Partner:** adiar a área completa; antes de incluí-la, fechar público, atribuições, matriz e paridade próprios. Não conflitar com a gestão Admin de equipe CALI já prevista. O recorte Cliente/Admin pode ser homologado sem essa expansão.
 
-- Os 18 IDs/subfluxos possuem estado e evidência de ambiente/revisão/ator; nenhuma operação obrigatória somente simulada ou bloqueio crítico aberto. Exceção exige decisão explícita, não marcação por aparência de UI.
-- Empresa/período/objeto concordam entre módulos; prioridade/notificação levam ao detalhe; aprovação reflete no resumo; horas/Equipe alimentam relatório. Reabertura retira acesso até liberar e trata validação conforme DEC-12.
-- Executar regressão proporcional: typecheck/build, lint/CI implantados, regras de fronteira, contratos/isolamento, transições críticas e falhas. Registrar comandos/resultados reais; mock não prova backend.
-- QA das larguras especificadas, teclado/foco/zoom e estados completos por família, com evidência visual. Pesquisa/usabilidade só declaradas se executadas e documentadas com tarefa, perfil e resultado.
-- Hosting de teste atende URLs diretas, retorno e callbacks aplicáveis; configuração/observabilidade conferidas. Definir limites de performance com baseline, sem orçamento numérico inventado neste plano.
-- Rollback distingue UI/versão, compatibilidade de contratos/migrations e dados alterados. Testar restauração em ambiente isolado; deploy anterior não desfaz escrita de dados automaticamente.
-- Aceite humano registrado; docs correspondem ao código; pendência não crítica tem impacto, responsável e encaminhamento. Produção/publicação exigem escopo e autorização próprios após resultado revisável.
+**6 — Homologação:** os 18 IDs/subfluxos aplicáveis têm evidência real ou adiamento explicitamente aprovado. Executar regressão entre módulos, isolamento e decisões vigentes; mídia/PDF/e-mail e tela concordam; sem operação obrigatória apenas simulada, bloqueio crítico oculto ou dados fictícios tratados como reais. UX/mobile/teclado são conferidos em cada entrega e novamente nos percursos cruzados. RESUMO-01 permanece recurso pendente até resposta, sem fingir aceite.
 
-## Unidade de trabalho e registro para IA
+**7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
 
-Cada tarefa entrega recorte vertical revisável: ação/consumidores, contrato, experiência, validação e documentação. Evitar “refatorar tudo”, “criar todos os hooks” ou camadas vazias. Primeiro recorte é unidade de execução, não redução do escopo a módulos iniciais.
+## Referências anteriores e tarefa para IA
+
+O plano anterior 0–7 organizava camadas: fundação, DS, shell, demo, acesso, integração e homologação. Nesta revisão, DS/shell/hooks/adaptadores/testes passam a acompanhar cada entrega; acesso/isolamento essenciais são antecipados para 1. As antigas ondas 6A–6D são substituídas pela matriz acima. Referências de fases em entradas históricas do changelog descrevem o plano daquela data, não uma obrigação de concluir todos os módulos demo antes de integrar o primeiro.
 
 ```text
-Fase/onda; ID do fluxo/subfluxo; objetivo observável:
+Fase/entrega; FLOW e subfluxo; tarefa e resultado observável:
 Responsável técnico e responsável pelo aceite:
-Ficha, decisão alvo e fonte/revisão:
-Estado atual, arquivos e consumidores Cliente/Admin afetados:
-Dependências concretas e bloqueios com evidência:
-Recorte de código, contrato, compatibilidade e efeito externo:
-Anatomia UX, peças DS, URL e dono de cada estado:
-Hook/modelo/adaptador; contexts somente se justificados:
-Aceite permitido, negado, fronteiras, falha e continuidade:
-Ambiente, atores/dados sintéticos; canais externos bloqueados:
-Validação, comandos reais e evidências esperadas:
-Documentação canônica, rollback, pendências e próxima ação:
+Publicação 83: fonte e comportamento; regra vigente/diferença aprovada:
+Dependências concretas, contratos e bloqueios com evidência:
+Arquivos/consumidores; DS/UX; URL e dono de cada estado:
+Modelo/hook/adaptador/context somente se justificado:
+Operações reais de teste, atores/dados sintéticos e canais bloqueados:
+Permitido/negado, fronteira, erro, continuidade e efeito externo:
+Comandos reais/resultados; QA, evidências e aceite de produto:
+Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar entregas no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir `planejado`, `em execução`, `bloqueado`, `implementado` e `validado`. Só marcar `validado` com resultado, ambiente/revisão e aceite exigido. Esta matriz de planejamento não atualiza esses estados automaticamente.
-
-**Definição de concluído:** todos os fluxos aplicáveis padronizados e operacionais no ambiente autorizado, experiência/contratos coerentes, permissões/transições demonstradas, histórico preservado e docs correspondentes. Build verde isolado não encerra fluxo, fase ou release. Nenhuma fase de implementação foi iniciada por esta revisão.
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. Todos os estados de implementação permanecem planejados nesta revisão.

@@ -6,6 +6,8 @@ Data: 25/10/2026. Oficial consultado em `f3d3f14043a6abc38636f0340fe831e621d8b35
 
 Esta seção prevalece para o desenho futuro da V2. As tabelas posteriores preservam o que foi observado no oficial; não representam implementação dessas decisões.
 
+Revisão vigente: [regras de produto](PRODUCT_RULES.md), [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md) e DEC-13 a DEC-18. DEC-07 foi substituída; leitura individual encontrada no SQL histórico não autoriza o alvo atual.
+
 | Operação/tema | Admin na V2 | Cliente na V2 | Decisão |
 | --- | --- | --- | --- |
 | Acessos Cliente da empresa | Gestão de até quatro acessos equivalentes; remover um não depende de principal | Sem hierarquia de cadastro principal | DEC-05 |
@@ -17,10 +19,13 @@ Esta seção prevalece para o desenho futuro da V2. As tabelas posteriores prese
 | Consultar item enquanto reaberto | Trabalha na correção com histórico preservado | Item indisponível até nova liberação | DEC-11 |
 | Validar entregável após correção liberada | Libera para nova aprovação; não reutiliza aprovação antiga | Nova aprovação obrigatória do entregável corrigido | DEC-12 |
 | Ciência de relatório após correção liberada | Decide se solicita nova ciência | Nova ciência exigida somente se solicitada pelo Admin | DEC-12 |
-| Ler perfil comportamental individual/agregado | Conduz liberação CALI | Pode ler ambos quando liberados pela CALI e no escopo da empresa | DEC-07 |
+| Consultar relatório do avaliador DISC | Uso interno CALI; sem opção de liberação externa | Negado, inclusive após liberar gestão | DEC-13 |
+| Consultar relatório de gestão DISC | Aprova/libera com critérios de respostas, resultado buscado e parecer | Somente gestão liberada da própria empresa | DEC-13/16 |
+| Receber relatório do respondente DISC | Conduz geração/envio conforme operação | Papel Cliente não concede acesso ao relatório de outra pessoa; próprio respondente recebe PDF por e-mail, sem resultado na tela | DEC-13 |
+| Receber pedido de dados do mês | Acompanha administrativamente os dados | Solicitação de preenchimento aparece somente para Cliente | DEC-16 |
 | Ativar acesso Cliente | Adesão registrada antes de emitir convite | Aceite de uso no primeiro acesso e a cada nova versão; sem entrada se verificação falhar | DEC-08 |
 
-Oito decisões de produto desta rodada estão resolvidas. Fonte: [registro](DECISIONS.md). Não remover `is_primary` de schema ou alterar policy nesta etapa; registrar dependências de migração/compatibilidade sem perpetuar privilégio de principal na V2. Registros antigos de aprovação/ciência permanecem históricos e não são atribuídos automaticamente ao conteúdo corrigido.
+Decisões anteriores continuam vigentes, exceto DEC-07 substituída por DEC-13. Fonte: [registro](DECISIONS.md). Resumo diário tem público/conteúdo detalhados pendentes em RESUMO-01. Não alterar schema/policy nesta etapa. Histórico de aprovação/ciência não é atribuído automaticamente ao conteúdo corrigido; pessoa focal não cria privilégio principal. Finalidades/guarda e informação de acesso estão em [Dados pessoais](DATA_PRIVACY.md).
 
 ## Legenda e limites
 

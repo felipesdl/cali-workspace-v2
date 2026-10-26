@@ -2,6 +2,8 @@
 
 Estado: **plano de integração**, sem conexão ou migrations nesta V2. Fonte atual: código e migrations do oficial na revisão do [baseline](BASELINE_2026-10-25.md); não houve inspeção do banco ativo.
 
+Referência funcional vigente: [publicação 83 de referência em 26/10](BASELINE_REFERENCE_2026-10-26.md), identificada pelo mesmo SHA das fontes. [Regras de produto](PRODUCT_RULES.md) definem resultado/público; [Dados pessoais](DATA_PRIVACY.md) registra finalidades, projeções, guarda e informação ao usuário.
+
 Vocabulário: [Contexto de produto](PRODUCT_CONTEXT.md). Operações se vinculam aos IDs do [Catálogo de fluxos](FLOW_CATALOG.md), às [fichas reconciliadas](flows/README.md) e à [matriz Cliente/Admin](PERMISSIONS.md). Essa matriz é evidência estática; permissões efetivas e contratos ausentes continuam pendentes de prova. Decisões/conflitos estão no [registro](DECISIONS.md).
 
 ## Contrato alvo posterior ao levantamento
@@ -9,6 +11,10 @@ Vocabulário: [Contexto de produto](PRODUCT_CONTEXT.md). Operações se vinculam
 Em 26/10/2026, DEC-05 a DEC-12 fecharam acessos equivalentes sem principal, manutenção/leitura privada de Equipe, separação lançamento/correção de métricas, adesão/aceite e reabertura/liberação/validação de conteúdo. A seção de alvo confirmado da matriz e as fichas registram essas regras. Na futura integração, identificar diferenças do oficial e planejar compatibilidade/migração; não executar alterações nesta etapa.
 
 Especialmente: não perpetuar guarda `is_primary` de manutenção; leitura privada Cliente é autorizada pelo novo alvo somente na própria empresa; correção de métrica já lançada é Admin-only; conteúdo reaberto deve ficar inacessível até liberação. Reabertura preserva identidade do item e histórico, distinguindo revisão corrigida de aprovação/ciência antigas. Nenhuma escolha de schema/enum ou alteração de payload foi implementada por esta decisão.
+
+Revisão posterior DEC-13 a DEC-18: DEC-07 foi substituída. DISC tem projeções separadas: avaliador interno CALI, respondente somente PDF próprio por e-mail sem resultado/metodologia/cálculos na tela, Cliente somente gestão aprovada/liberada da empresa. Reconciliar leitura direta, arquivos e tokens públicos legados; flag `client_visible` não pode liberar avaliador contra essa regra. Aprovar/congelar conteúdo, gerar PDF, liberar e enviar têm contratos/eventos distintos.
+
+Chat não gera e-mail; pedidos mensais são tarefas Cliente. O resumo diário às 19h tem detalhamento pendente em RESUMO-01 / OPEN-13: não implementar destinatários/conteúdo/agenda detalhada por inferência. Rastrear canais reais por operação e idempotência; uma entrega completa não exige e-mail onde o fluxo não o prevê.
 
 ## Fronteira proposta
 
@@ -40,7 +46,7 @@ Não copiar texto de tela como contrato. Precisão de horas, timezone, mês efet
 
 ## Inventário inicial de domínios
 
-Nomes abaixo são resumo de orientação, não catálogo validado do banco atual. Transições e operações concretas localizadas foram detalhadas nas fichas; [SOURCES](flows/SOURCES.md) enumera fontes e 29 chamadas sem corpo de função localizado. Reconciliação das lacunas continua na fase 1.
+Nomes abaixo são orientação, não catálogo validado do banco atual. [SOURCES](flows/SOURCES.md) enumera fontes e 29 chamadas sem corpo localizado. Reconciliar acesso/empresa mínimos na fundação e demais contratos na entrega correspondente; não esperar fechar todas as RPCs para viabilizar o primeiro fluxo independente.
 
 | Domínio | Fontes a reconciliar | Invariantes que a padronização deve preservar |
 | --- | --- | --- |
@@ -85,6 +91,9 @@ E-mail, convites, Calendar/Meet, Drive e notificações externas precisam de inv
 | Prazo cliente | Patch de 19/10 altera revisão para 24h × parâmetro; caminho v39 sem corpo localizado | Conferir aplicação e contrato por operação; não mudar prazo de dúvida do relatório por analogia |
 | Alertas de horas | Além de fontes antigas 50/80 e 70/85/100, SQL de capacidade usa 75/100 e marcos de excedente | Reconciliar mecanismos e configuração ativa; ver REF-09 |
 | Indicadores | Fixtures não definem fórmula oficial de turnover/headcount | Preservar comportamento existente e validar snapshots/regra; não redesenhar fórmula nesta etapa |
+| DISC | Fonte permite leitura individual/token; DEC-13 restringe públicos e entrega | Efetivar projeções/rotas/storage/tokens por relatório, sem reabrir a decisão de produto |
+| Resumo diário | Horário declarado, conteúdo/público/recorte não definidos | Aguardar RESUMO-01 antes da implementação desse recurso; preservar demais comunicações definidas |
+| Dados pessoais | Finalidades/guarda por campo ainda precisam de conteúdo validado | Registrar consumidores e políticas no documento dono e refletir a informação no acesso/coleta; não inventar prazo nem novos campos |
 
 Não resolver esses pontos com mudanças silenciosas no backend ou no payload frontend.
 

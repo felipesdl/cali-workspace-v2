@@ -12,6 +12,8 @@ Estado: orientação de desenvolvimento proposta. Scripts/estrutura atualmente e
 
 Para mudança de experiência/comportamento, localizar o ID em [Catálogo de fluxos](FLOW_CATALOG.md), preencher a ficha pertinente e conferir [UX/UI](UX_UI.md) e [Decisões](DECISIONS.md). DS isolado não determina jornada, permissão ou significado de uma confirmação.
 
+Conferir também [Regras de produto](PRODUCT_RULES.md) e [publicação 83](BASELINE_REFERENCE_2026-10-26.md): cada entrega fecha tarefa, dados, interface, permissão, falhas e comunicação aplicável. Chat não gera e-mail; detalhamento RESUMO-01 não pode ser inventado. Para campos pessoais, conferir informação/validação do acesso e finalidade/guarda no [documento dono](DATA_PRIVACY.md).
+
 Reorganização de arquivos não deve mudar silenciosamente payload, fórmulas, permissões, valores já aceitos ou histórico. Se precisar mudar contrato, documentar compatibilidade e decisão antes de portar consumidores.
 
 ## Gates
@@ -27,6 +29,8 @@ Reorganização de arquivos não deve mudar silenciosamente payload, fórmulas, 
 | Hook/dados | Loading/erro/vazio/retry, cache/invalidação, concorrência, troca de empresa e sessão |
 | Contrato Supabase | Operação permitida/negada em ambiente isolado; RLS/RPC/storage conforme superfície; falha/atomicidade/idempotência |
 | Jornada crítica | E2E de transição e falha; desktop/mobile; cliente/Admin/Partner aplicáveis |
+| Entrega completa de fluxo | Checklist contra referência funcional e alvo atual; dados, permissão, UI, histórico/falha e canais aplicáveis testados; aceite de produto |
+| Informação sobre dados pessoais | Campos/consumidores/finalidade/guarda documentados e validados; informação apresentada e versão/aceite coerentes; projeções privadas testadas |
 | Release | Gates da alteração + ambiente/revisão, configuração, observabilidade, rollback e aceite |
 
 Não criar testes que apenas reproduzam a implementação. Não exigir uma suíte nova para ajuste documental. Mock prova comportamento do cliente; não prova RLS, envio de e-mail ou sincronização externa.

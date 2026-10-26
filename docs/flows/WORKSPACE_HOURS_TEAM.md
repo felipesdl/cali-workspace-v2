@@ -4,6 +4,8 @@ Fichas FLOW-04/07/08/14. Herdam [contexto, estados e validação comuns](README.
 
 ## Alvo V2 confirmado em 26/10/2026 para FLOW-08
 
+[Regras de produto](../PRODUCT_RULES.md) e [Dados pessoais](../DATA_PRIVACY.md): pedido de dados do mês aparece somente ao Cliente; Admin acompanha a operação e faz correções autorizadas. Documentar finalidade/leitores/guarda e informação apresentada no acesso/coleta, sem prazo inventado. Pessoa focal não cria hierarquia de acesso.
+
 - **DEC-05:** todos os até quatro acessos Cliente equivalentes da empresa mantêm pessoas/importação/arquivamento/revisão mensal; não há privilégio de principal.
 - **DEC-09:** Cliente informa e consulta remuneração, revisão salarial, gênero e filhos da própria empresa; Admin também. A policy antiga de leitura privada Admin-only é evidência de diferença a reconciliar, não alvo a manter.
 - **DEC-10:** lançamento inicial de métricas mensais é do Cliente; após gravado, correção é exclusiva do Admin. Não muda fórmula de indicador. Registrar autoria/estado anterior na futura correção; não confundir rascunho de formulário ainda não enviado com valor já lançado.
@@ -82,6 +84,8 @@ People Analytics está liberado na UI para Admin, plano Full ou frente ativa; in
 **Aceite proposto para o alvo decidido:** até quatro Clientes equivalentes mantendo Equipe; remoção de um sem dependência de principal; Cliente informa/lê privados da própria empresa e não de outra; importação duplicada/gestor inexistente; faltantes preservados; janela de período; reativação de arquivada; 12 meses/retroatividade; lançamento inicial de métricas pelo Cliente e correção posterior somente pelo Admin, com autoria/histórico. Não mudar cálculo de headcount. **Pendências técnicas:** `REF-10/11`; fórmula/qualidade continuam em `OPEN-05`, sem nova regra inventada.
 
 ## FLOW-14 — Perfil, localizador e notificações
+
+Contrato atual: chat não gera e-mail; atrasos e menções avisam o destinatário conforme operação. Resumo diário citado às 19h tem público/conteúdo/recorte/agenda detalhada pendentes em RESUMO-01; não tratar esses valores como aprovados até resposta da Patrícia. Demais notificações têm contrato próprio.
 
 **Objetivo/atores/entrada:** Cliente/Admin navegam pelo shell, abrem sinalização contextual, mantêm o próprio perfil e encerram sessão. Fontes: [chrome](SOURCES.md#chrome), [perfil](SOURCES.md#profile-ui), [perfil/contato SQL](SOURCES.md#contact), [notificações/RLS](SOURCES.md#schema), [privacidade](SOURCES.md#privacy).
 

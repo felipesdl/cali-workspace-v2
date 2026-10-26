@@ -2,6 +2,8 @@
 
 Estado: **diretrizes propostas**, consolidadas em 25/10/2026 a partir do código V2, contexto e handoff. Identidade e escopo foram confirmados; detalhes de interação/composição ainda precisam de validação. Não houve pesquisa com usuários, auditoria visual ou teste de usabilidade nesta revisão.
 
+Atualização de produto em 26/10: [Regras de produto](PRODUCT_RULES.md) confirmam UI-01 a UI-14 e os públicos/fluxos DISC. Base de paridade: [publicação 83](BASELINE_REFERENCE_2026-10-26.md). Diretriz proposta não substitui essas regras; o detalhamento abaixo as aplica sem afirmar QA já executado.
+
 ## Responsabilidade deste documento
 
 - UX/UI define como a pessoa encontra informação, executa tarefa, entende o resultado e continua o trabalho.
@@ -27,6 +29,8 @@ Navegação tem três níveis: global do workspace, seções/abas do módulo e f
 
 O usuário deve reconhecer onde está e como voltar. Título de página, item ativo e breadcrumb, quando necessário, representam a mesma localização. Nome de rota interna não precisa aparecer na linguagem da interface. Caminhos e compatibilidade permanecem no mapa de [Arquitetura](ARCHITECTURE.md).
 
+Admin e Cliente usam somente tema claro. Fotos/logos quadrados com raio de 7 px, elementos de marca e PDFs em Inter seguem o DS; toda entrega inclui mobile. Textos do produto e comunicações usam a voz CALI, sem propagar o estilo das sessões técnicas do Felipe.
+
 Catálogo de módulos não deve ser diferente em cada menu. Entrada não permitida não concede acesso por URL. Escolher ocultar ou explicar indisponibilidade conforme o caso de uso; não mostrar formulário editável quando a operação é apenas consulta.
 
 ## Anatomia da página
@@ -48,6 +52,8 @@ Cada região tem uma ação prioritária conforme a tarefa, com secundárias men
 | Cadastro/proposta | Formulário ou etapas justificadas pelo trabalho | Dados exigidos, revisão e consequência da confirmação |
 
 Essas famílias não aprovam novo conteúdo ou indicador. Especificação da tela deve declarar quais informações existem no contrato.
+
+Notas/observações complementares ficam ao final da página; erro de campo e alerta necessário para agir permanecem junto da ação/contexto. Datas/contagens/metadados usam hierarquia secundária compacta e legível, sem card próprio. Evitar repetição redundante em cards sem proibir palavras necessárias ao conteúdo.
 
 ## Navegação e continuidade
 
@@ -72,11 +78,14 @@ DS é dono do foco, Escape, retorno ao gatilho, scroll e teclado. Fluxo decide s
 
 - Label e placeholder devem refletir os campos realmente pesquisados. Não prometer cargo/área quando busca aceita apenas nome.
 - Período, filtros ativos, contagem e ação de limpar precisam ser identificáveis. Diferenciar seleção em edição de filtro aplicado quando houver confirmação.
+- Barras de filtros/ações/abas priorizam uma linha no espaço disponível. Em mobile ou zoom, usar composição responsiva ou rolagem controlada sem esconder ações; rolagem discreta continua perceptível e utilizável por toque/teclado.
 - Diferenciar sem registros, nenhum resultado no filtro, acesso não permitido e dados ainda indisponíveis.
 - Resumo deve informar se cobre todo o recorte ou apenas página/seleção. Paginação não pode alterar silenciosamente significado do total.
 - Ações de linha referenciam identidade estável. Ordenação deve ter critério perceptível; seleção precisa indicar alcance e consequência de ação em lote.
 
 ## Formulários, validação e feedback
+
+Cadastro usa formulário único organizado em seções, sem wizard artificial. Prévia de importação, aceite, aprovação e transições reais continuam como operações próprias; essa regra visual não elimina guardas/confirmações funcionais. Antes de coletar campos pessoais, explicar uso/obrigatoriedade e disponibilizar as informações de [Dados pessoais](DATA_PRIVACY.md), também apresentadas no acesso conforme a versão vigente.
 
 - Label persistente, obrigatoriedade, formato e exemplo quando necessário. Campo desabilitado deve ter motivo compreensível quando isso afeta a tarefa.
 - Validar no momento útil; associar erro ao campo e preservar dados após falha. Em formulário longo, orientar até o erro relevante.

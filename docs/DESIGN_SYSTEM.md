@@ -1,6 +1,6 @@
 # Design system CALI
 
-Estado: **especificação proposta**, sem implementação nesta entrega. Identidade existente confirmada pelo usuário em 25/10/2026. Fonte visual: V2 atual e handoff; paleta secundária conferida no oficial na revisão do [baseline](BASELINE_2026-10-25.md).
+Estado: **regras de identidade/experiência confirmadas; implementação e contratos de componentes propostos**. Atualização: 26/10/2026. Fonte visual: V2 e [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios; não há DS implementado nesta entrega.
 
 Este documento é dono de tokens, primitivas e seus contratos. Composição de telas, hierarquia de ações, escolha de página/drawer/modal e continuidade de tarefas pertencem a [UX/UI](UX_UI.md). Usar o [Catálogo de fluxos](FLOW_CATALOG.md) para aplicar essas peças a uma jornada concreta.
 
@@ -8,7 +8,7 @@ Este documento é dono de tokens, primitivas e seus contratos. Composição de t
 
 Produto consultivo, editorial e compacto: superfícies predominantemente claras, bordô para navegação/ação principal e dourado como detalhe. Cards são pontuais; diretório, extrato, cronograma e leitura executiva têm composições próprias. Não transformar todas as páginas em uma faixa de indicadores seguida de cards.
 
-Tema inicial da V2: claro. Aparência do oficial, incluindo tema administrativo, é referência de compatibilidade a inventariar; não muda automaticamente o escopo visual confirmado desta base.
+Tema exclusivo da V2: claro, em Cliente e Admin; sem modo noturno. Folha e lima usam assets oficiais CALI identificados. Fotos/logos são quadrados com cantos de 7 px; não circulares. PDFs usam Inter sem serifa. Nenhuma dessas regras comprova implementação ou homologação visual.
 
 ## Camadas de tokens
 
@@ -52,7 +52,7 @@ São valores de referência, não certificação de acessibilidade. Definir pare
 - Inter é a fonte atual, carregada via Google Fonts; manter fallback de sistema e decidir hospedagem/cache na fundação.
 - Declarar escala única de títulos, corpo, auxiliar e dados tabulares. Não continuar adicionando valores independentes de 9–13 px para caber conteúdo.
 - Conflito a homologar: PRODUCT_RULES oficial recomenda corpo de 16 px; V2 define raiz de 13 px e auxiliares menores. Proposta: corpo legível de 16 px e variante compacta explícita para tabelas, validada nas quatro larguras, sem encolher globalmente a interface.
-- Proposta inicial de espaçamento: escala 4/8/12/16/24/32 px; raios 4/8/12 px. Ajustar após inventário geométrico, não como redesign automático.
+- Proposta de escala: 4/8/12/16/24/32 px; referência de separação entre cards de 14–16 px, com padrão técnico proposto de 16 px e alinhamento conferido no layout. Raios gerais de 4/8/12 px são proposta; fotos/logos têm regra específica de 7 px.
 - Centralizar z-index por camada: navegação, popover, overlay, toast. Não elevar z-index por tentativa em cada módulo.
 - Motion breve e funcional; respeitar preferência de movimento reduzido. Ação essencial funciona sem hover.
 
@@ -72,11 +72,15 @@ São valores de referência, não certificação de acessibilidade. Definir pare
 | `Toast` | Sucesso/erro/status com anúncio; duração e deduplicação comuns | Todas as ações |
 | `Avatar`/formatadores de data e duração | Fallback autorizado e formatação central, sem alterar fórmula | Pessoas, horas, histórico |
 
+O consumidor visual de foto/logo mantém formato quadrado e raio de 7 px mesmo quando a API interna da peça usa o nome `Avatar`. Barras de controles priorizam linha única sem cortar ações em mobile; rolagem discreta mantém operação por toque/teclado e indicação de continuação. Alertas de atenção/erro usam âmbar/vermelho e orientação textual; demais estados mantêm a semântica da paleta.
+
+Dialog de confirmação, inclusive exclusão, deve seguir o padrão visual atual identificado na publicação 83 e explicar objeto/efeito. Não criar novo formato a partir de um texto genérico de confirmação. Formulário por seções e notas de rodapé são decisões de composição em UX/UI; foco/teclado/scroll pertencem ao DS.
+
 Não criar `DataTable` universal com todos os filtros/ações do produto. DS fornece semântica e composição; coluna, escopo e permissão continuam no domínio. Charts recebem dados com origem e período; não calculam indicador oficial.
 
 Abas de navegação devem usar links/roteador. Abas locais com `tablist` precisam de relação tab/panel e teclado completo.
 
-Biblioteca acessível de primitivas pode ser avaliada na fase de DS. Não implementar manualmente foco/posicionamento em cada página nem adicionar outra biblioteca sem conferir compatibilidade, tamanho e contratos.
+Biblioteca acessível de primitivas pode ser avaliada na fundação mínima e nos consumidores de cada entrega. Não implementar foco/posicionamento por página nem adicionar biblioteca sem conferir compatibilidade, tamanho e contrato.
 
 ## Política de CSS
 
