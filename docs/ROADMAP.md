@@ -16,7 +16,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 
 | Fase | Entrada | Entrega/saída | Estado |
 | --- | --- | --- | --- |
-| 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; RESUMO-01 pendente |
+| 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
 | 1 — Fundação mínima para o primeiro fluxo | 0 e autorização futura de implementação | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Planejada |
 | 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | Planejada |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
@@ -25,7 +25,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | 6 — Homologação global do recorte | Entregas aplicáveis de 2–4; 5 somente se autorizada no recorte | Regressão entre fluxos, evidência de permissões, UX e aceite de produto | Planejada |
 | 7 — Preparação de release | 6 e aceites exigidos | Configuração de destino, observabilidade, corte, backup/restauração e rollback revisáveis | Planejada; sem publicação implícita |
 
-Não há estimativas em dias nem responsáveis individuais inventados. Nomear responsável técnico e validador funcional/UX/dados/operação antes do aceite aplicável. Ausência de resposta do resumo diário bloqueia esse recurso; não impede os demais fluxos ou comunicações cujo contrato esteja fechado.
+Não há estimativas em dias nem responsáveis individuais inventados. Nomear responsável técnico e validador funcional/UX/dados/operação antes do aceite aplicável. Resumo Admin tem contrato fechado em DEC-19/RESUMO-01 e precisa de prova técnica; a versão Partner será definida em sua fase, sem bloquear Cliente/Admin.
 
 ## Fase 1 — Fundação mínima para a primeira entrega
 
@@ -82,7 +82,7 @@ Conduzir cada domínio por entrega completa; dependências são de dados/operaç
 | --- | --- | --- |
 | 4A — Projetos e entregáveis | Frentes, planejamento, cronograma, revisão, execução, aprovação, ajustes e conversas | Empresa e contratos de projeto; regras de prazo/capacidade reconciliadas; reabertura com motivo/histórico, indisponível até liberação e nova aprovação; frentes contratadas não se confundem com workstreams |
 | 4B — Horas e agenda | Timer/manual, extrato/ciclo, capacidade e solicitações/reuniões | Projeto/vínculo quando exigidos; pausa/retomada sem dupla contagem; Cliente consulta sem justificativa interna; agenda sem duplicidade; preço aceito preservado e status externo verdadeiro |
-| 4C — Interações, documentos e avisos | Ocorrências/conversas, anexos, versões/ciência, mural/agenda/notificações | Público, autoria e storage; nota interna não vaza; mesma origem dos leitores de Avisos; chat sem e-mail; demais canais conforme contrato; RESUMO-01 permanece separado |
+| 4C — Interações, documentos e avisos | Ocorrências/conversas, anexos, versões/ciência, mural/agenda/notificações | Público, autoria e storage; nota interna não vaza; mesma origem dos leitores de Avisos; chat sem e-mail; resumo Admin diário conforme RESUMO-01/DEC-19; testar corte, volume, exclusões e dias sem atividade; versão Partner posterior |
 | 4D — Relatórios executivos e satisfação | Fatos/período, curadoria, aprovação, PDF, publicação, ciência e tratamento de avaliação | Fontes integradas, autoria/assinatura/protocolo e auditoria; tela/PDF correspondem à revisão; reabertura oculta até liberar; nova ciência só a pedido Admin; feedback original preservado |
 | 4E — Comercial, módulos adicionais e ciclo de dados | Propostas, Forms, Mapa, frentes/ajuda, auditoria, direitos, exportação/encerramento e administração equipe CALI | Contratos próprios, públicos e permissões por operação; proposta aceita não vira pré-requisito novo de cadastro; Forms/Mapa não são DISC; staff Admin não equivale a construir área Partner; cobertura e falha parcial do ciclo de dados comprovadas |
 
@@ -107,7 +107,7 @@ As [fichas](flows/README.md) continuam donas das transições e fronteiras. A ma
 | FLOW-11 — [Documentos](flows/DOCUMENTS_REPORTS.md) | 4C; empresa e vínculos existentes | Versão/publicação/ciência e comentário autorizados; arquivo privado negado; Drive distingue sincronização/entrega | REF-13/14/16 |
 | FLOW-12 — [Relatórios](flows/DOCUMENTS_REPORTS.md) | 4D; fatos/período/revisão | Tela/PDF/fonte/assinatura/foto/protocolo concordam; auditoria; reabertura oculta; ciência só se solicitada; NPS/headcount preservados | REF-04/15/16; OPEN-05 |
 | FLOW-13 — [Avisos](flows/ADMIN_LIFECYCLE.md) | 4C; público/ciência | Mural/agenda/notificação com mesma origem; destinatário correto; comentário/reação/ciência/desfazer conforme contrato | REF-05/14/16/17 |
-| FLOW-14 — [Perfil/notificações](flows/WORKSPACE_HOURS_TEAM.md) | 1/2A para sessão/perfil; 2C/4C para comunicações | Navegação e retorno; perfil não muda papel; notificação abre objeto autorizado; logout limpa; RESUMO-01 não é tratado como especificado | REF-01/04/16/24; OPEN-13 |
+| FLOW-14 — [Perfil/notificações](flows/WORKSPACE_HOURS_TEAM.md) | 1/2A para sessão/perfil; 2C/4C para comunicações | Navegação e retorno; perfil não muda papel; notificação abre objeto autorizado; logout limpa; resumo Admin corresponde a RESUMO-01/DEC-19, sem destinatários Cliente/staff; digest de chat das 08h não retorna | REF-01/04/16/24; OPEN-13 |
 | FLOW-15 — [Equipe CALI](flows/ADMIN_LIFECYCLE.md) | Administração em 4E; decisões após horas/material; área Partner posterior em 5 | Admin convida/desativa/atribui; revogação retira acesso; decisão concorrente não duplica efeito; Cliente sem gestão staff | REF-01/04/05; escopo Partner separado |
 | FLOW-16 — [Auditoria/satisfação](flows/ADMIN_LIFECYCLE.md) | Eventos a cada entrega; fechamento em 4D/4E | Ator/empresa/objeto e versão corretos; geração/aprovação/liberação/envio rastreados; feedback original preservado | REF-04/18 |
 | FLOW-17 — [DISC/Forms/Mapa](flows/FORMS_PEOPLE_PROFILE.md) | DISC em 3A–3C; Forms/Mapa em 4E | Três relatórios DISC com públicos distintos; gestão com limiares/parecer; respondente só PDF; avaliador interno; Forms sem leitura geral Cliente; tokens/arquivos autorizados | REF-19/20/21/22; DEC-13/16 |
@@ -122,7 +122,7 @@ As [fichas](flows/README.md) continuam donas das transições e fronteiras. A ma
 | TEC-03 — consistência/efeitos | Escrita composta, timer, anexo e comunicação | Fronteiras, corrida, repetição, falha parcial e reconciliação testadas | Leituras independentes e cenários sintéticos |
 | OPEN-10 — ambiente | Qualquer conexão real ou teste com efeito | Destino autorizado, atores sintéticos, baseline de teste e outbound bloqueado; sem fallback produtivo | Trabalho local com fixtures |
 | OPEN-03/04/05 — prazo/capacidade/cálculo | Regra dependente do resultado | Fonte efetiva, fronteiras e retroatividade; fórmulas/valores preservados | Operações independentes do cálculo pendente |
-| OPEN-13 / RESUMO-01 | Conteúdo/público/agendamento detalhado do resumo diário | Resposta da Patrícia ao questionamento encaminhado e contrato atualizado | Todos os demais fluxos e comunicações já definidos |
+| OPEN-13 / RESUMO-01 | Produto Admin resolvido em DEC-19; prova técnica antes de operar; conteúdo Partner posterior | Testar destinatários, filtros, corte temporal, volume/totais e retry no ambiente autorizado; definir versão Partner apenas na fase dele | Entregas Cliente/Admin não dependem da definição Partner |
 | OPEN-14 — informação sobre dados | Coleta/migração dos campos do recorte | Finalidades/consumidores/guarda identificados, texto validado e apresentado no acesso/coleta | Estrutura sem coleta real; validação documental sem inventar prazo |
 | REF-17/18/19 e REF-24 | Operação divergente ou aceite de experiência | Contrato pontual, autoria/histórico e QA de tarefa/responsividade/continuidade | Recortes sem dependência; não bloquear globalmente DS/rotas |
 
@@ -143,7 +143,7 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 **5 — Partner:** adiar a área completa; antes de incluí-la, fechar público, atribuições, matriz e paridade próprios. Não conflitar com a gestão Admin de equipe CALI já prevista. O recorte Cliente/Admin pode ser homologado sem essa expansão.
 
-**6 — Homologação:** os 18 IDs/subfluxos aplicáveis têm evidência real ou adiamento explicitamente aprovado. Executar regressão entre módulos, isolamento e decisões vigentes; mídia/PDF/e-mail e tela concordam; sem operação obrigatória apenas simulada, bloqueio crítico oculto ou dados fictícios tratados como reais. UX/mobile/teclado são conferidos em cada entrega e novamente nos percursos cruzados. RESUMO-01 permanece recurso pendente até resposta, sem fingir aceite.
+**6 — Homologação:** os 18 IDs/subfluxos aplicáveis têm evidência real ou adiamento explicitamente aprovado. Executar regressão entre módulos, isolamento e decisões vigentes; mídia/PDF/e-mail e tela concordam; sem operação obrigatória apenas simulada, bloqueio crítico oculto ou dados fictícios tratados como reais. UX/mobile/teclado são conferidos em cada entrega e novamente nos percursos cruzados. Resumo Admin segue RESUMO-01/DEC-19 e exige evidência de operação; conteúdo Partner não faz parte do aceite Admin/Cliente.
 
 **7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
 

@@ -12,7 +12,7 @@ Estado: orientação de desenvolvimento proposta. Scripts/estrutura atualmente e
 
 Para mudança de experiência/comportamento, localizar o ID em [Catálogo de fluxos](FLOW_CATALOG.md), preencher a ficha pertinente e conferir [UX/UI](UX_UI.md) e [Decisões](DECISIONS.md). DS isolado não determina jornada, permissão ou significado de uma confirmação.
 
-Conferir também [Regras de produto](PRODUCT_RULES.md) e [publicação 83](BASELINE_REFERENCE_2026-10-26.md): cada entrega fecha tarefa, dados, interface, permissão, falhas e comunicação aplicável. Chat não gera e-mail; detalhamento RESUMO-01 não pode ser inventado. Para campos pessoais, conferir informação/validação do acesso e finalidade/guarda no [documento dono](DATA_PRIVACY.md).
+Conferir também [Regras de produto](PRODUCT_RULES.md) e [publicação 83](BASELINE_REFERENCE_2026-10-26.md): cada entrega fecha tarefa, dados, interface, permissão, falhas e comunicação aplicável. Chat não gera e-mail; RESUMO-01 / DEC-19 define o resumo Admin e mantém versão Partner posterior. Conferir filtros, volume e corte temporal; não reativar digest de chat das 08h. Para campos pessoais, conferir informação/validação do acesso e finalidade/guarda no [documento dono](DATA_PRIVACY.md).
 
 Reorganização de arquivos não deve mudar silenciosamente payload, fórmulas, permissões, valores já aceitos ou histórico. Se precisar mudar contrato, documentar compatibilidade e decisão antes de portar consumidores.
 

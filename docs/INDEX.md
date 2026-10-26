@@ -33,7 +33,7 @@ Atualização: 26/10/2026. Base de desenvolvimento: este repositório V2. Escopo
 - **Pendente:** depende de decisão, inventário ou teste.
 - **Confirmado pelo usuário:** V2 como base; todos os fluxos de Cliente e Admin; leitura do oficial; manutenção da identidade existente.
 
-DEC-05 a DEC-12 registram as oito respostas iniciais; DEC-13 a DEC-18 incorporam a revisão de produto. **DEC-13 substitui DEC-07** e separa os relatórios respondente/avaliador/gestão. Demais regras anteriores continuam vigentes. Tabelas de fonte preservam evidência estática; alvo confirmado não significa implementação. Resumo diário permanece detalhamento pendente em RESUMO-01 / OPEN-13.
+DEC-05 a DEC-12 registram as oito respostas iniciais; DEC-13 a DEC-18 incorporam a revisão de produto. **DEC-13 substitui DEC-07** e separa os relatórios respondente/avaliador/gestão. Demais regras anteriores continuam vigentes. Tabelas de fonte preservam evidência estática; alvo confirmado não significa implementação. DEC-19 resolve o resumo Admin em RESUMO-01 / OPEN-13; conteúdo Partner fica para sua fase; Cliente/staff não recebem e digest de chat das 08h não retorna.
 
 Cada assunto tem um dono na tabela. Novos handoffs apontam para essas fontes e registram somente alterações/pendências, sem reproduzir regras completas.
 
@@ -43,7 +43,7 @@ DS especifica peças e tokens; UX/UI especifica tarefa, hierarquia, composição
 
 | Frente | Cobertura documental atual | O que ainda exige trabalho |
 | --- | --- | --- |
-| Produto e linguagem | Contexto e regras atuais consolidados | Responder RESUMO-01 e reconciliar contratos específicos; voz CALI no produto, preferência técnica restrita às sessões Felipe |
+| Produto e linguagem | Contexto e regras atuais consolidados | Provar RESUMO-01 Admin e reconciliar contratos específicos; voz CALI no produto, preferência técnica restrita às sessões Felipe |
 | UX/UI | Diretrizes/famílias propostas e fichas com fontes de apresentação | Evidência visual e validação de tarefas/continuidade |
 | DS | Tokens/catálogo/comportamentos propostos | Valores finais, pares de contraste, componentes reais e QA |
 | Fluxos e permissões | 18 fichas e matriz Cliente/Admin preenchidas com evidência estática | Resolver contratos ausentes/divergências e provar permissões/transições em ambiente isolado |
@@ -68,6 +68,6 @@ Revisão oficial fixada em `f3d3f14043a6abc38636f0340fe831e621d8b357`, sem escri
 
 ## Fechamento da rodada de produto — 26/10/2026
 
-PROD-01 a PROD-08 foram respondidas; a revisão da Patrícia substituiu PROD-03 por DEC-13. Regras foram refletidas nas fichas/matriz sem alterar código ou fonte oficial. TEC-01/02/03 continuam como investigação/prova de engenharia. OPEN-13 registra o questionamento encaminhado sobre resumo diário; OPEN-14 acompanha conteúdo de finalidade/guarda/informação no acesso. Não transformar essas pendências em bloqueios globais artificiais.
+PROD-01 a PROD-08 foram respondidas; a revisão da Patrícia substituiu PROD-03 por DEC-13. Regras foram refletidas nas fichas/matriz sem alterar código ou fonte oficial. TEC-01/02/03 continuam como investigação/prova de engenharia. OPEN-13 registra o resumo Admin resolvido por DEC-19, com conteúdo Partner adiado; OPEN-14 acompanha conteúdo de finalidade/guarda/informação no acesso. Não transformar essas pendências em bloqueios globais artificiais.
 
 O roadmap atual fecha tarefas de ponta a ponta após fundação mínima: primeiro empresas/acessos, Equipe e dados mensais; depois DISC e demais fluxos; Partner posterior. DS, rotas, hooks/adaptadores e validação crescem junto dos consumidores. Os 18 IDs têm dependências e aceite. O código `f3d3f14` já identifica a publicação 83; o registro de 26/10 explicita o funcionamento oficial testado como referência. Nenhuma implementação foi iniciada.

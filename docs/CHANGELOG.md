@@ -1,5 +1,15 @@
 # Registro de mudanças
 
+## 26/10/2026 — Resumo diário Admin definido pela responsável de produto
+
+- **Fonte:** [resposta da Patrícia no PR #1](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6418618652), após o questionamento encaminhado pelo Felipe; continuidade da revisão documental e atualização do PR.
+- **Decisão:** DEC-19 fecha RESUMO-01 / OPEN-13 para Admins ativos. Cliente/staff não recebem; dois blocos de ações e horas por empresa, limite visual/trecho/totais, ordem, período/fuso, envio diário e ausência de atividade definidos. Conteúdo Partner será definido na fase dele. Resumo de chat das 08h não retorna.
+- **Conferência técnica:** leitura da função/agendamentos na fonte da publicação 83, sem executar. Registrar corte real na geração, teto de 2.000 notificações, critérios de agrupamento/data de horas e necessidade de prova do filtro de chat; não alterar regra de produto nem prometer fechamento futuro do dia.
+- **Arquivos:** regras, decisões, contratos/fontes, matriz, roadmap, contexto, catálogo, fichas e documentos de entrada alinhados; novo status do resumo propagado sem apagar o histórico da pergunta.
+- **Validação:** links/âncoras, Markdown/whitespace, públicos, cobertura de 18 IDs e 30 regras, preservação de código/configuração/handoff. Sem build/typecheck, execução de e-mail/cron, RLS, QA de aplicação ou CI nesta alteração documental.
+- **Limites:** mesmo PR, sem merge; fase 1 não iniciada; sem código/env/schema/policy/migration, conexão ao Supabase, envio operacional, publicação ou escrita no oficial.
+- **Rollback:** reverter somente o commit documental deste contrato; nenhum runtime/dado foi alterado.
+
 ## 26/10/2026 — Revisão de produto e plano por fluxos completos
 
 - **Autor e autorização:** agente Codex; Felipe autorizou aplicar a revisão de produto da Patrícia e atualizar o PR #1, mantendo o detalhamento do resumo diário pendente de resposta.

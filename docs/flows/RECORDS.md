@@ -2,7 +2,7 @@
 
 Estado: observado UI/SQL, sem execução. [Contrato comum](README.md); [permissões](../PERMISSIONS.md). Rotas `/cliente/registros` e `/admin/registros` compartilham consumidor com ações por papel.
 
-Regra de produto vigente: **mensagem de chat não gera e-mail**. Avisos por menção/atraso seguem o contrato do evento, sem transformar cada mensagem em disparo. Ver [Regras de produto](../PRODUCT_RULES.md); resumo diário permanece detalhamento pendente em RESUMO-01.
+Regra de produto vigente: **mensagem de chat não gera e-mail**. Avisos por menção/atraso seguem o contrato do evento, sem transformar cada mensagem em disparo. Ver [Regras de produto](../PRODUCT_RULES.md); resumo Admin segue RESUMO-01 / DEC-19 e exclui chat; resumo das 08h de conversas não lidas não retorna.
 
 ## Objetivo, fontes e composição
 

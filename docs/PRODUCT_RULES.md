@@ -38,7 +38,7 @@ Conteúdo para Patrícia, clientes e produto usa português claro, consultivo e 
 | ID | Regra confirmada | Contrato e aceite |
 | --- | --- | --- |
 | NEG-01 | Mensagem de chat nunca gera e-mail | Não criar disparo de e-mail por mensagem; testar notificações sem introduzir esse efeito |
-| NEG-02 | Resumo diário por e-mail às 19h | Existência/horário declarados; conteúdo, público, recorte e regras detalhadas aguardam resposta da Patrícia em RESUMO-01 |
+| NEG-02 | Resumo diário CALI às 19h de Brasília, inclusive fins de semana | Admins ativos; Cliente/staff não recebem; ações do dia por empresa em dois blocos e horas; sem chat, pendências antigas ou envio sem atividade; Partner recebe em etapa futura com conteúdo ainda a definir; ver RESUMO-01 |
 | NEG-03 | Atrasos e menções com `@` avisam a pessoa pertinente/citada | Público e objeto corretos; reconciliar canais no oficial sem pressupor e-mail em toda operação |
 | NEG-04 | Pedido de dados do mês aparece somente para Cliente | Admin acompanha os dados e a operação administrativa, sem receber a solicitação como tarefa de preenchimento Cliente |
 | NEG-05 | Relatórios têm assinatura virtual e foto da Patrícia e protocolo `CALI-TIPO-AAAA-NNNNNN` | Identidade/protocolo vinculados à revisão aprovada e rastreáveis; não alegar certificação digital ou mecanismo de assinatura não comprovado |
@@ -64,18 +64,29 @@ Conteúdo para Patrícia, clientes e produto usa português claro, consultivo e 
 
 DEC-13 substitui DEC-07. Empresa com conta não recebe poder de liberar avaliador; empresa sem conta não recebe acesso ao workspace por consequência do envio de PDF. Reabrir/corrigir preserva identidade e histórico. Nova aprovação interna e nova liberação são necessárias após alteração; nova ciência do Cliente segue DEC-12, somente se Admin solicitar.
 
-## RESUMO-01 — definição detalhada pendente
+## RESUMO-01 — contrato Admin definido; Partner posterior
 
-Felipe encaminhou questionamento à Patrícia. Não preencher por suposição nem interpretar “tudo” como especificação. Registrar resposta para:
+Fonte: [resposta da Patrícia em 26/10](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6418618652). O resumo já existe no oficial e é referência da V2. DEC-19 fecha o produto Admin; detalhes da versão Partner ficam para sua fase, sem bloquear Admin/Cliente.
 
-1. Destinatários Cliente e CALI; mesmos conteúdos ou versões por papel.
-2. Assuntos incluídos/excluídos, sem disparo de e-mail por mensagem de chat.
-3. Campos de cada item: assunto, situação, prazo, pessoa que age, link e conteúdo adicional desejado.
-4. Período coberto e repetição de pendências antigas.
-5. Fuso, dias de envio e comportamento sem novidades/pendências; horário citado de 19h não fecha essas escolhas.
-6. Ordem/seções e exemplo de mensagem Cliente/CALI.
+| Tema | Regra vigente |
+| --- | --- |
+| Público atual | Admins ativos que conduzem o trabalho CALI; Cliente e equipe interna/staff não recebem |
+| Partner | Receberá em etapa posterior; Patrícia definirá empresas abrangidas e presença de horas nessa versão. Não reutilizar automaticamente o conteúdo global Admin |
+| Organização | Por empresa; empresas com mais movimento primeiro; dentro de cada empresa, “O cliente fez” antes de “A CALI fez” |
+| O cliente fez | Ações Cliente que geraram aviso à CALI: dados do mês, aprovação, resposta, documento e solicitação |
+| A CALI fez | Ações CALI que geraram aviso ao Cliente: entregável, relatório liberado e lembrete |
+| Horas | Horas do dia por empresa e total geral; fonte/data de referência reconciliadas no contrato técnico |
+| Item | Horário, título do aviso, até 180 caracteres do texto e link para abrir no aplicativo |
+| Limite visual | Até 12 itens por bloco de cada empresa; excedente exibido como “e mais N” |
+| Totais no topo | Ações dos clientes, ações da CALI e horas registradas; limite visual não redefine os totais |
+| Período | Somente dia corrente em Brasília, janela de calendário 00h–23h59; pendência antiga não reaparece por continuar pendente |
+| Envio | Todos os dias às 19h de Brasília, inclusive fim de semana; sem atividade elegível não envia |
+| Exclusões | Mensagens de chat e avisos internos da equipe/staff |
+| Resumo de chat das 08h | Desligado desde 18/10 segundo a Patrícia; não reativar na V2 |
 
-Até resposta, nenhum público, conteúdo ou agenda detalhada do resumo está aprovado para implementação. A pendência bloqueia esse resumo, não os demais fluxos ou comunicações cujo contrato esteja definido.
+O envio das 19h utiliza os dados existentes quando a consulta ocorre. A janela de calendário até 23h59 não faz aquela mensagem conter atividades futuras. Não prometer fechamento integral do dia, reenvio ou recuperação automática posterior ao envio: essas capacidades não foram solicitadas nem comprovadas. Detalhamento técnico e diferenças observadas: [Dados e contratos](DATA_CONTRACTS.md#contrato-do-resumo-admin-e-limites-da-fonte).
+
+Aceite futuro: Admin ativo/inativo/sem e-mail; Cliente/staff sem recebimento; dia sem atividade; dia só com horas; duas empresas; ordem dos blocos e empresas; 0/12/13 itens por bloco; 180/181 caracteres; totais além dos itens visíveis; ausência de chat/staff; não repetir pendência antiga; execução em fim de semana/fuso Brasília; duplicidade/retry e limite de volume. Código e migrations são evidência estática, não teste do envio em produção.
 
 ## Privacidade e paridade
 

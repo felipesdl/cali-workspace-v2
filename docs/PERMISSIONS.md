@@ -23,9 +23,10 @@ Revisão vigente: [regras de produto](PRODUCT_RULES.md), [referência funcional 
 | Consultar relatório de gestão DISC | Aprova/libera com critérios de respostas, resultado buscado e parecer | Somente gestão liberada da própria empresa | DEC-13/16 |
 | Receber relatório do respondente DISC | Conduz geração/envio conforme operação | Papel Cliente não concede acesso ao relatório de outra pessoa; próprio respondente recebe PDF por e-mail, sem resultado na tela | DEC-13 |
 | Receber pedido de dados do mês | Acompanha administrativamente os dados | Solicitação de preenchimento aparece somente para Cliente | DEC-16 |
+| Receber resumo diário das 19h | Admin ativo com e-mail; ações elegíveis/horas por empresa | Não recebe; staff também não; versão Partner posterior, sem público/projeção definidos ainda | DEC-19 |
 | Ativar acesso Cliente | Adesão registrada antes de emitir convite | Aceite de uso no primeiro acesso e a cada nova versão; sem entrada se verificação falhar | DEC-08 |
 
-Decisões anteriores continuam vigentes, exceto DEC-07 substituída por DEC-13. Fonte: [registro](DECISIONS.md). Resumo diário tem público/conteúdo detalhados pendentes em RESUMO-01. Não alterar schema/policy nesta etapa. Histórico de aprovação/ciência não é atribuído automaticamente ao conteúdo corrigido; pessoa focal não cria privilégio principal. Finalidades/guarda e informação de acesso estão em [Dados pessoais](DATA_PRIVACY.md).
+Decisões anteriores continuam vigentes, exceto DEC-07 substituída por DEC-13. Fonte: [registro](DECISIONS.md). Resumo diário Admin segue DEC-19/RESUMO-01: Cliente e staff não recebem; conteúdo Partner ainda será definido na fase dele. Não alterar schema/policy nesta etapa. Histórico de aprovação/ciência não é atribuído automaticamente ao conteúdo corrigido; pessoa focal não cria privilégio principal. Finalidades/guarda e informação de acesso estão em [Dados pessoais](DATA_PRIVACY.md).
 
 ## Legenda e limites
 

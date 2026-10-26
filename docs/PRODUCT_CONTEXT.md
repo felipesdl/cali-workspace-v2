@@ -20,7 +20,7 @@ DISC possui três relatórios: respondente recebe somente o próprio PDF por e-m
 
 Admin pode reabrir o mesmo entregável/relatório com motivo e histórico. Item fica indisponível ao Cliente até nova liberação. Entregável corrigido exige nova aprovação; nova ciência de relatório depende de solicitação do Admin. Validações anteriores permanecem históricas, sem serem atribuídas automaticamente ao conteúdo corrigido.
 
-Fonte das decisões: [registro vigente](DECISIONS.md), incluindo DEC-13 a DEC-18 da revisão de produto. Base de paridade: funcionamento oficial testado pela Patrícia em 26/10, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). Regras alvo não certificam políticas já aplicadas na V2. Chat não gera e-mail; pedido mensal aparece só para Cliente; detalhamento do resumo diário aguarda resposta em RESUMO-01.
+Fonte das decisões: [registro vigente](DECISIONS.md), incluindo DEC-13 a DEC-18 da revisão de produto. Base de paridade: funcionamento oficial testado pela Patrícia em 26/10, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). Regras alvo não certificam políticas já aplicadas na V2. Chat não gera e-mail; pedido mensal aparece só para Cliente; resumo diário é para Admins ativos da CALI, nunca Cliente/staff; contrato Admin definido em RESUMO-01 / DEC-19. Versão Partner fica para sua fase e digest de chat das 08h não retorna.
 
 ## Atores e responsabilidades
 

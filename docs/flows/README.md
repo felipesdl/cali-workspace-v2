@@ -32,7 +32,7 @@ Permissões por operação: [Matriz Cliente/Admin](../PERMISSIONS.md). Divergên
 
 ## Atualização do contrato alvo — 26/10/2026
 
-Decisões iniciais DEC-05 a DEC-12 e revisão DEC-13 a DEC-18 orientam as fichas; **DEC-07 foi substituída por DEC-13**. DISC separa respondente, avaliador interno e gestão. Regras de comunicação/interface e informação sobre dados pessoais foram incorporadas; resumo diário mantém especificação pendente em RESUMO-01. Tabelas de fonte não fingem implementação. Aceites são futuros, por entrega completa conforme o roadmap; nenhuma permissão efetiva foi alterada.
+Decisões iniciais DEC-05 a DEC-12 e revisão DEC-13 a DEC-18 orientam as fichas; **DEC-07 foi substituída por DEC-13**. DISC separa respondente, avaliador interno e gestão. Regras de comunicação/interface e informação sobre dados pessoais foram incorporadas; DEC-19 fecha o resumo Admin em RESUMO-01; Cliente/staff não recebem, conteúdo Partner fica posterior e digest de chat das 08h não retorna. Tabelas de fonte não fingem implementação. Aceites são futuros, por entrega completa conforme o roadmap; nenhuma permissão efetiva foi alterada.
 
 ## Contrato comum de contexto e navegação
 

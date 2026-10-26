@@ -2,7 +2,7 @@
 
 Atualização: 26/10/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
 
-## Decisões expressas do usuário
+## Decisões de produto e escopo
 
 | ID | Decisão | Evidência na conversa | Documento dono |
 | --- | --- | --- | --- |
@@ -21,9 +21,10 @@ Atualização: 26/10/2026. Registra estado e evidência; regras completas perman
 | DEC-13 | DISC: Cliente somente gestão; avaliador interno CALI sem liberação; respondente somente PDF próprio por e-mail e tela de agradecimento | Revisão da Patrícia em 26/10 e autorização posterior do Felipe; substitui DEC-07 | [Regras](PRODUCT_RULES.md), FLOW-17 e [matriz](PERMISSIONS.md) |
 | DEC-14 | Funcionamento oficial de 26/10, publicação 83 testada pela Patrícia, é base de paridade; oficial permanece somente leitura | Felipe confirmou usar como funciona agora; metadados identificam publicação 83 no SHA já utilizado | [Referência funcional](BASELINE_REFERENCE_2026-10-26.md) |
 | DEC-15 | Caveman somente nas sessões técnicas do Felipe; conteúdo para Patrícia/clientes/produto segue a voz CALI | Revisão da Patrícia e encaminhamento aprovado pelo Felipe | [AGENTS](../AGENTS.md), [UX/UI](UX_UI.md) |
-| DEC-16 | Consolidar regras operacionais e de interface da revisão de produto com critérios técnicos de uso/legibilidade/responsividade | Comentários e complemento da Patrícia aceitos pelo Felipe; resumo diário permanece com detalhamento pendente | [Regras](PRODUCT_RULES.md), DS/UX e fichas |
+| DEC-16 | Consolidar regras operacionais e de interface da revisão de produto com critérios técnicos de uso/legibilidade/responsividade | Comentários e complemento da Patrícia; definição posterior do resumo Admin registrada em DEC-19 | [Regras](PRODUCT_RULES.md), DS/UX e fichas |
 | DEC-17 | Construir por fluxos completos, começando pela rotina Admin/Cliente, depois DISC; Partner posterior | Revisão de produto e autorização do Felipe; preserva cobertura dos demais fluxos | [Roadmap](ROADMAP.md) |
 | DEC-18 | Finalidades, leitores e guarda são documentados e refletidos na informação/validação do acesso | Felipe direcionou o tema à documentação e validação do usuário ao acessar; nenhum prazo novo definido | [Dados pessoais](DATA_PRIVACY.md), FLOW-01/08/18 |
+| DEC-19 | Resumo das 19h somente para CALI: Admins ativos; Cliente/staff não recebem; contrato Admin de RESUMO-01 fechado; Partner posterior com conteúdo a definir; resumo de chat das 08h não retorna | [Resposta da Patrícia](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6418618652), 26/10/2026 | [Regras](PRODUCT_RULES.md#resumo-01--contrato-admin-definido-partner-posterior), FLOW-14 e [Dados](DATA_CONTRACTS.md) |
 
 DEC-05 a DEC-12 registram a rodada inicial de 26/10. DEC-13 a DEC-18 incorporam a revisão de produto autorizada depois: **DEC-13 é o alvo vigente do DISC e substitui DEC-07**. Demais decisões anteriores continuam válidas. Fontes: [revisão da Patrícia](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417356971), [regras/prioridades](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417361907) e confirmações do Felipe. Nenhuma decisão documental autoriza integração, deploy, migration ou mudança de fórmula.
 
@@ -52,7 +53,7 @@ As questões abaixo delimitam permissões, exposição de dados e ciclo de vida.
 | PROD-07 | Visibilidade durante correção de item reaberto | Acesso ao conteúdo durante revisão | REF-07, REF-14, REF-15 | Resolvida: DEC-11 |
 | PROD-08 | Nova aprovação de entrega e ciência de relatório após liberar correção | Validação do objeto corrigido e histórico das validações anteriores | REF-07, REF-15 | Resolvida: DEC-12 |
 
-As oito perguntas iniciais foram respondidas; a revisão posterior substituiu PROD-03 por DEC-13. Não perguntar novamente o que está resolvido. **O detalhamento do resumo diário está pendente em OPEN-13 / RESUMO-01**, com questionamento encaminhado à Patrícia; não preencher por suposição. Equivalência de acesso Cliente não concede gestão de contrato nem outra empresa. Contato comercial ou pessoa focal não criam hierarquia de privilégio de login.
+As oito perguntas iniciais foram respondidas; a revisão posterior substituiu PROD-03 por DEC-13. **OPEN-13 / RESUMO-01 está resolvido para Admin por DEC-19**; escopo/conteúdo da versão Partner foi explicitamente adiado à sua fase. Não perguntar novamente o que está fechado nem inventar a versão Partner. Equivalência Cliente não concede gestão de contrato ou outra empresa; pessoa focal não cria hierarquia de privilégio.
 
 O [roadmap revisado](ROADMAP.md) vincula decisões às entregas completas, dependências, bloqueios e aceite dos 18 fluxos. As antigas ondas de integração foram substituídas por entregas que incluem interface, dados, acesso e falhas. Detalhar o plano não resolve TEC-01/02/03 nem autoriza executá-lo. Questões técnicas são investigadas antes de perguntar eventual escolha funcional ao produto.
 
@@ -98,7 +99,7 @@ Esses itens permanecem visíveis; não foram marcados como resolvidos nem descar
 | OPEN-10 | Ambiente isolado ainda não foi selecionado/verificado | Ambiente, migrations reconciliadas, atores de teste e bloqueio de outbound | Antes da integração; responsável técnico |
 | OPEN-11 | Fixtures atuais têm métricas/estado desconectados | Cenários sintéticos coerentes por empresa/período, inclusive falha e vazio | Antes de homologar experiência; responsável domínio/QA |
 | OPEN-12 | UX/UI foi especificada sem teste de usabilidade | Executar tarefas, registrar dificuldades e ajustar hipóteses com evidência | Homologação de recortes e sistema; responsável design/produto |
-| OPEN-13 | Resumo diário às 19h foi citado, sem contrato detalhado; Felipe enviou questionamento | Conteúdo, destinatários, campos, recorte/repetição, fuso/dias/ausência de novidades e organização; ver RESUMO-01 | Antes de implementar o resumo; resposta da Patrícia e contrato técnico posterior; não bloqueia outros fluxos |
+| OPEN-13 | **Resolvida para Admin em DEC-19**; resumo diário definido pela Patrícia | Implementar/provar contrato Admin; versão Partner com empresas/horas ainda a definir na fase dele; limites técnicos em Dados | Resumo Admin integra sua entrega completa; definição Partner não bloqueia Cliente/Admin |
 | OPEN-14 | Dados pessoais precisam de finalidade/guarda e informação no acesso/coleta | Identificar consumidores, documentar prazos a validar e refletir conteúdo na versão apresentada; sem inventar valores | Documentação/validação do recorte antes de migrar/coletar os campos; produto e responsáveis pelos textos/dados |
 
 Patrícia é a fonte de validação das regras de produto desta revisão; responsáveis técnicos, de textos/dados e operação ainda precisam ser identificados para cada aceite. A tabela não atribui trabalho individual por suposição.

@@ -142,6 +142,16 @@ Foram obtidos 367 arquivos de fonte para pesquisa local e conferência de refer�
 | <a id="schedule-v39"></a>`schedule-v39` | [src/lib/projectApprovalRulesRuntimeV39.ts](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/lib/projectApprovalRulesRuntimeV39.ts#L128) | Caminho de ajuste v39 sem corpo SQL localizado |
 | <a id="report-reopen"></a>`report-reopen` | [src/lib/reportWithdrawalRuntimeV62.ts](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/lib/reportWithdrawalRuntimeV62.ts#L92) | Reabrir versão retirada por RPC sem corpo localizado |
 
+## Fontes do resumo diário
+
+Conferidas em leitura estática após a [resposta da Patrícia](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6418618652); mesmos arquivos da publicação 83. Não houve envio, execução de cron ou inspeção do banco ativo.
+
+| ID | Fonte imutável | Evidência |
+| --- | --- | --- |
+| <a id="admin-summary"></a>`admin-summary` | [workspace-admin-daily-summary/index.ts](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/supabase/functions/workspace-admin-daily-summary/index.ts#L71) | Janela, fontes, agrupamento/deduplicação, limites, destinatários e envio |
+| <a id="admin-summary-schedule"></a>`admin-summary-schedule` | [20261018150000_admin_daily_summary_schedule.sql](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/supabase/migrations/20261018150000_admin_daily_summary_schedule.sql#L16) | Cron diário 19h Brasília e desativação do resumo de chat das 08h |
+| <a id="admin-summary-test"></a>`admin-summary-test` | [20261019150000_admin_daily_summary_test_source.sql](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/supabase/migrations/20261019150000_admin_daily_summary_test_source.sql#L1) | Origem de teste separada do disparo diário |
+
 ## Chamadas de RPC sem corpo CREATE FUNCTION localizado
 
 Busca textual nas fontes obtidas: 29 nomes literais de chamada `rpc(...)` sem declaração correspondente nas migrations da revisão. Não inclui toda chamada dinâmica/bridge ou possível serviço externo. Comentários de algumas migrations remetem a aplicação pelo painel. Não executar chamadas para completar o inventário nesta etapa.

@@ -2,7 +2,7 @@
 
 Atualização: 25/10/2026. **18 fichas documentais preenchidas com fontes, transições, permissões e dúvidas; não é validação funcional.** Oficial consultado somente em leitura na revisão `f3d3f14043a6abc38636f0340fe831e621d8b357`. A V2 continua demonstrativa e sem integração.
 
-Revisão de produto de 26/10: usar o funcionamento testado da [publicação 83](BASELINE_REFERENCE_2026-10-26.md), as [regras atuais](PRODUCT_RULES.md) e o [roadmap por entregas completas](ROADMAP.md). DEC-13 substitui DEC-07: DISC é linha oficial, com públicos de respondente/avaliador/gestão distintos. O resumo diário é a pendência específica RESUMO-01; Partner fica posterior, sem reduzir cobertura Cliente/Admin.
+Revisão de produto de 26/10: usar o funcionamento testado da [publicação 83](BASELINE_REFERENCE_2026-10-26.md), as [regras atuais](PRODUCT_RULES.md) e o [roadmap por entregas completas](ROADMAP.md). DEC-13 substitui DEC-07: DISC é linha oficial, com públicos de respondente/avaliador/gestão distintos. Resumo Admin está definido em RESUMO-01 / DEC-19; apenas conteúdo Partner permanece para sua fase; Partner fica posterior, sem reduzir cobertura Cliente/Admin.
 
 ## Como interpretar
 

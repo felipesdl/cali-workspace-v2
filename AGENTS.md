@@ -15,7 +15,7 @@
 2. Ler `docs/BASELINE_REFERENCE_2026-10-26.md` para a referência funcional vigente e `docs/BASELINE_2026-10-25.md` para o diagnóstico histórico da V2.
 3. Ler `docs/PRODUCT_CONTEXT.md`, localizar a tarefa em `docs/FLOW_CATALOG.md` e conferir pendências em `docs/DECISIONS.md`.
    Para transições/permissões, consultar `docs/flows/README.md`, a ficha do domínio e `docs/PERMISSIONS.md`; fontes do oficial são estáticas e não comprovam estado ativo.
-   Ler `docs/PRODUCT_RULES.md`: DEC-07 foi substituída por DEC-13; demais decisões anteriores continuam vigentes. Resumo diário tem detalhamento pendente em RESUMO-01, sem impedir os demais fluxos.
+   Ler `docs/PRODUCT_RULES.md`: DEC-07 foi substituída por DEC-13; demais decisões anteriores continuam vigentes. DEC-19 define o resumo Admin em RESUMO-01; Cliente/staff não recebem. Versão Partner será definida na fase dele; resumo de chat das 08h não retorna.
 4. Para mudanças de interface/experiência, ler `docs/UX_UI.md` e `docs/DESIGN_SYSTEM.md`: experiência define composição e jornada; DS define primitivas e tokens.
 5. Ler o documento canônico da área e conferir os arquivos de código citados. Preencher a ficha do fluxo antes de mudar comportamento; não tratar exemplo proposto como regra aprovada.
 6. Consultar o handoff histórico para contexto funcional; reconciliar divergências com fontes posteriores e instruções expressas do usuário.

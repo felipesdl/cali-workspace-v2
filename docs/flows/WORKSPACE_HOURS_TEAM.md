@@ -85,7 +85,7 @@ People Analytics está liberado na UI para Admin, plano Full ou frente ativa; in
 
 ## FLOW-14 — Perfil, localizador e notificações
 
-Contrato atual: chat não gera e-mail; atrasos e menções avisam o destinatário conforme operação. Resumo diário citado às 19h tem público/conteúdo/recorte/agenda detalhada pendentes em RESUMO-01; não tratar esses valores como aprovados até resposta da Patrícia. Demais notificações têm contrato próprio.
+Contrato atual: chat não gera e-mail; atrasos e menções avisam o destinatário conforme operação. Resumo diário Admin está definido em RESUMO-01 / DEC-19: todos os dias às 19h de Brasília, ações por empresa nos dois blocos e horas; sem Cliente/staff/chat ou envio sem atividade. Conteúdo Partner fica para sua fase; digest de chat das 08h não retorna. Testar filtro, corte, volume, totais e duplicidade conforme Dados e contratos. Demais notificações têm contrato próprio.
 
 **Objetivo/atores/entrada:** Cliente/Admin navegam pelo shell, abrem sinalização contextual, mantêm o próprio perfil e encerram sessão. Fontes: [chrome](SOURCES.md#chrome), [perfil](SOURCES.md#profile-ui), [perfil/contato SQL](SOURCES.md#contact), [notificações/RLS](SOURCES.md#schema), [privacidade](SOURCES.md#privacy).
 

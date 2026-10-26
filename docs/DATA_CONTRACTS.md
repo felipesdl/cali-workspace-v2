@@ -14,7 +14,7 @@ Especialmente: não perpetuar guarda `is_primary` de manutenção; leitura priva
 
 Revisão posterior DEC-13 a DEC-18: DEC-07 foi substituída. DISC tem projeções separadas: avaliador interno CALI, respondente somente PDF próprio por e-mail sem resultado/metodologia/cálculos na tela, Cliente somente gestão aprovada/liberada da empresa. Reconciliar leitura direta, arquivos e tokens públicos legados; flag `client_visible` não pode liberar avaliador contra essa regra. Aprovar/congelar conteúdo, gerar PDF, liberar e enviar têm contratos/eventos distintos.
 
-Chat não gera e-mail; pedidos mensais são tarefas Cliente. O resumo diário às 19h tem detalhamento pendente em RESUMO-01 / OPEN-13: não implementar destinatários/conteúdo/agenda detalhada por inferência. Rastrear canais reais por operação e idempotência; uma entrega completa não exige e-mail onde o fluxo não o prevê.
+Chat não gera e-mail; pedidos mensais são tarefas Cliente. DEC-19 fecha o resumo Admin em RESUMO-01: Admins ativos recebem às 19h de Brasília, Cliente/staff não recebem; conteúdo Partner é decisão posterior da fase dele. Rastrear canais/idempotência por operação; entrega completa não exige e-mail onde não previsto, e resumo de chat das 08h não retorna.
 
 ## Fronteira proposta
 
@@ -92,10 +92,25 @@ E-mail, convites, Calendar/Meet, Drive e notificações externas precisam de inv
 | Alertas de horas | Além de fontes antigas 50/80 e 70/85/100, SQL de capacidade usa 75/100 e marcos de excedente | Reconciliar mecanismos e configuração ativa; ver REF-09 |
 | Indicadores | Fixtures não definem fórmula oficial de turnover/headcount | Preservar comportamento existente e validar snapshots/regra; não redesenhar fórmula nesta etapa |
 | DISC | Fonte permite leitura individual/token; DEC-13 restringe públicos e entrega | Efetivar projeções/rotas/storage/tokens por relatório, sem reabrir a decisão de produto |
-| Resumo diário | Horário declarado, conteúdo/público/recorte não definidos | Aguardar RESUMO-01 antes da implementação desse recurso; preservar demais comunicações definidas |
+| Resumo diário | Produto Admin definido; filtros/volume/corte e retry precisam de prova; versão Partner adiada | Seguir DEC-19/RESUMO-01 e os limites abaixo; não certificar cobertura integral ou ausência de chat apenas por existir cron |
 | Dados pessoais | Finalidades/guarda por campo ainda precisam de conteúdo validado | Registrar consumidores e políticas no documento dono e refletir a informação no acesso/coleta; não inventar prazo nem novos campos |
 
 Não resolver esses pontos com mudanças silenciosas no backend ou no payload frontend.
+
+## Contrato do resumo Admin e limites da fonte
+
+Produto: [RESUMO-01](PRODUCT_RULES.md#resumo-01--contrato-admin-definido-partner-posterior). Fontes: [função](flows/SOURCES.md#admin-summary), [agendamento e desativação do chat](flows/SOURCES.md#admin-summary-schedule), [origem de teste](flows/SOURCES.md#admin-summary-test). Consulta estática, sem executar função/SQL ou acessar o banco.
+
+- Seleciona notificações do dia em Brasília, ordenadas por `created_at`; horas por `work_date` do dia. São critérios distintos: não substituir data de atuação por data de criação do lançamento sem contrato.
+- Classifica avisos pelo papel do destinatário: Admin em “O cliente fez”, Cliente em “A CALI fez”; exclui `staff_` e deduplica por bloco/empresa/título/texto/entidade. Isso não é contagem automática de todo clique do usuário.
+- Ordena empresas pela quantidade de avisos dos dois blocos; horas sem aviso também podem gerar seção. Mostra 12 itens por bloco, 180 caracteres e “e mais N”; totais são calculados antes do corte visual.
+- Busca Admins ativos com e-mail; função usa chave de idempotência por Admin/dia e separa origem de teste. Aceitação pelo provedor não comprova entrega ao destinatário. Não usar canal de produção para testar.
+- Migration agenda diariamente às 22h UTC, equivalentes a 19h de Brasília na referência, e desagenda o resumo de chat das 08h. Não comprova cron efetivo de produção.
+- Janela SQL vai até o fim do dia, mas a mensagem contém somente dados existentes na geração. Eventos posteriores ao envio não entram naquela mensagem; não foi localizado mecanismo de recuperação do restante do dia nesse fluxo. Não mudar horário/recorte por conta própria.
+- A fonte limita a consulta a 2.000 notificações antes do agrupamento. Esse teto técnico não é regra de produto; testar alto volume e cobertura dos totais antes de garantir “todas as atividades”. Não confundir com os 12 itens visíveis por bloco.
+- O loop localizado exclui `staff_`, mas não contém exclusão explícita de todo tipo de chat. Verificar os tipos/produtores e provar ausência de chat no resumo; não inferir que desligar o digest das 08h elimina qualquer outro caminho de e-mail.
+
+Esses itens são reconciliação/teste de engenharia dentro de TEC-01/02/03 e REF-16, não novas perguntas de produto sobre o que entra no resumo. Implementar Partner somente após definição de empresas/horas/projeção autorizada na etapa correspondente.
 
 ## Matriz mínima de comprovação futura
 
