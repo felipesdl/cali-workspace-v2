@@ -1,0 +1,112 @@
+.companies-page {
+  display: grid;
+  gap: var(--space-4);
+  color: var(--text-primary);
+  font-size: var(--font-size-body);
+}
+.companies-filters {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(150px, 220px) auto;
+  align-items: end;
+  gap: var(--space-4);
+}
+.companies-filter-actions,
+.companies-section-head {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
+}
+.companies-list,
+.companies-accesses {
+  background: var(--surface-panel);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-control);
+  padding: var(--space-4);
+  min-width: 0;
+}
+.companies-page h2 {
+  color: var(--action-primary);
+  font-size: 1.25em;
+  margin: 0 0 var(--space-3);
+}
+.companies-table-scroll {
+  overflow-x: auto;
+}
+.companies-table-scroll:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+.companies-scroll-hint {
+  display: none;
+}
+.companies-page table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.companies-caption {
+  text-align: left;
+  color: var(--text-secondary);
+  padding-bottom: var(--space-3);
+}
+.companies-page th,
+.companies-page td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border-default);
+}
+.companies-page thead th {
+  white-space: nowrap;
+  font-size: 0.875em;
+}
+.companies-access-list {
+  padding: 0;
+  margin: var(--space-4) 0 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-3);
+}
+.companies-access-list li {
+  display: grid;
+  gap: var(--space-1);
+  overflow-wrap: anywhere;
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--border-default);
+}
+.companies-access-list li span,
+.companies-demo-note {
+  color: var(--text-secondary);
+  font-size: 0.875em;
+}
+.companies-demo-note {
+  margin: 0;
+  line-height: 1.6;
+}
+@media (max-width: 1000px) {
+  .companies-scroll-hint {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.875em;
+    line-height: 1.5;
+  }
+  .companies-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .companies-filter-actions {
+    justify-content: flex-start;
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 600px) {
+  .companies-filters {
+    grid-template-columns: 1fr;
+  }
+  .companies-section-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .companies-page th,
+  .companies-page td {
+    padding: var(--space-2);
+  }
+}

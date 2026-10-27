@@ -1,7 +1,7 @@
 import React,{useState} from 'react';
 import {CalendarDays,ChevronLeft,ChevronRight,Plus,Search,Filter,Clock3,Users,Check,MessageCircle,FileText,X,Send,Paperclip,AlertCircle,ArrowRight,Info,Download,SlidersHorizontal,ChevronDown} from 'lucide-react';
 import './workflows.css';
-import {noticeSamples} from './NoticesView';
+import {noticeSamples} from './mocks/fixtures/notices';
 type Nav=(p:'calendar'|'records'|'documents'|'reports'|'hours')=>void;
 const days=['Seg 05','Ter 06','Qua 07','Qui 08','Sex 09'];
 const events=[
