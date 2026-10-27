@@ -1,5 +1,13 @@
 # Registro de mudanças
 
+## 27/10/2026 — PR #2 aberto e vínculo do acompanhamento
+
+- **Entrega:** [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) aberto em rascunho de `felipesdl:codex/fase-1-base` para `patricia258:main`. Quatro commits iniciais: `fb53a67` (fundação/API/verificações), `0e4306b` (DS), `55cc020` (rotas/empresas com mocks) e `abec452` (documentação). Este registro e os links do acompanhamento compõem um commit documental posterior.
+- **Descrição:** escopo entregue, checklist de fechamento, limites, commits, fontes canônicas e rollback registrados; atualizar o mesmo PR a cada lote de commits conforme política. Fase 1 permanece em andamento e fase 2A não foi antecipada como entrega operacional.
+- **Conferência remota:** PR aberto, draft e head `abec452` confirmados; quatro commits presentes e sem conflitos reportados. GitHub não registrou checks/runs para essa revisão na consulta; CI continua pendente, sem atribuição de causa ou alegação de sucesso remoto.
+- **Validação:** `npm run verify` passou para o pacote de implementação em `abec452`, com 50 testes e build. Este ajuste posterior altera somente documentação/links, validado por `docs:check` (30 documentos/558 links locais) e `git diff --check`, sem repetir a suíte de aplicação. As alterações locais foram preservadas nos commits enviados.
+- **Estado/limites:** README, AGENTS, roadmap e runbook agora identificam o PR real. Sem merge, conexão ao Supabase oficial, migration, comunicação operacional ou deploy. Rollback por reversão do recorte, preservando a documentação/base anteriores e eventuais mudanças posteriores.
+
 ## 27/10/2026 — Preparação do PR de acompanhamento da fase 1
 
 - **Autor/autorização:** agente Codex, conforme pedido do Felipe de fazer os commits e abrir PR antes de avançar. Base `patricia258/cali-workspace-v2:main` em `c9baea7`; branch `codex/fase-1-base` no fork `felipesdl/cali-workspace-v2`. Destino confirmado em leitura; nenhuma mudança direta na main.

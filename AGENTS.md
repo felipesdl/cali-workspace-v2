@@ -55,4 +55,4 @@ Para sintaxe, configuração ou uso de bibliotecas/serviços, consultar Context7
 - Aplicar gates da mudança em `docs/CHANGE_POLICY.md`.
 - Não conectar Supabase oficial, executar migrations, disparar comunicações ou publicar como consequência implícita de documentação.
 - Registrar arquivos, motivo, impacto, testes executados, limitações e rollback. Build verde não comprova aprovação funcional.
-- Enquanto o PR de acompanhamento da fase 1 estiver aberto, atualizar sua descrição a cada lote de commits junto do checklist em `docs/ROADMAP.md` e dos documentos donos. Manter entregue/pendente, validações e limitações coerentes; fase 1 permanece em andamento até prova de sessão/permissões no ambiente isolado.
+- Enquanto o [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) de acompanhamento da fase 1 estiver aberto, atualizar sua descrição a cada lote de commits junto do checklist em `docs/ROADMAP.md` e dos documentos donos. Manter entregue/pendente, validações e limitações coerentes; fase 1 permanece em andamento até prova de sessão/permissões no ambiente isolado.

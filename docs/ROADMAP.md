@@ -44,7 +44,7 @@ Não há estimativas em dias nem responsáveis individuais inventados. Nomear re
 
 ### Acompanhamento da fase 1 — pacote para revisão
 
-Esta lista registra execução e evidência. O PR de rascunho acompanha o mesmo recorte; atualizar sua descrição a cada lote de commits junto das fontes canônicas. Fase 1 continua em andamento até cumprir os gates de acesso real abaixo.
+Esta lista registra execução e evidência. O [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) acompanha o mesmo recorte em rascunho; atualizar sua descrição a cada lote de commits junto das fontes canônicas. Fase 1 continua em andamento até cumprir os gates de acesso real abaixo.
 
 **Concluído localmente:**
 

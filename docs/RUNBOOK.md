@@ -1,6 +1,6 @@
 # Operação local e verificação
 
-Atualização: 27/10/2026. Fase 1 iniciada na branch local `codex/fase-1-base`, a partir de `main` `c9baea7`. O pacote está preparado para revisão em PR de rascunho, conforme solicitação de 27/10; o acompanhamento de concluído/pendente fica no [roadmap](ROADMAP.md#acompanhamento-da-fase-1--pacote-para-revisão). Commits/push/PR são etapas de revisão distintas de merge/deploy. Sem conexão ao Supabase oficial ou publicação da aplicação.
+Atualização: 27/10/2026. Fase 1 iniciada na branch local `codex/fase-1-base`, a partir de `main` `c9baea7`. O pacote está em revisão no [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) em rascunho, conforme solicitação de 27/10; o acompanhamento de concluído/pendente fica no [roadmap](ROADMAP.md#acompanhamento-da-fase-1--pacote-para-revisão). Commits/push/PR são etapas de revisão distintas de merge/deploy. Sem conexão ao Supabase oficial ou publicação da aplicação.
 
 ## Runtime e instalação
 
@@ -72,7 +72,7 @@ As variáveis `VITE_DATA_MODE=demo` e `VITE_DEMO_MODE=true` continuam identifica
 
 ## CI configurada
 
-`.github/workflows/verify.yml` define instalação/verificação em pull requests e push na main, com permissão somente de leitura e sem deploy/segredos operacionais. A configuração está local; não foi executada no GitHub nesta entrega. Referências: [checkout](https://github.com/actions/checkout) e [setup-node](https://github.com/actions/setup-node).
+`.github/workflows/verify.yml` define instalação/verificação em pull requests e push na main, com permissão somente de leitura e sem deploy/segredos operacionais. O workflow foi enviado no PR #2. Na consulta registrada para a revisão `abec452`, GitHub não reportou checks ou execuções de Actions; a validação remota continua pendente, sem inferir a causa pela ausência de execução. Referências: [checkout](https://github.com/actions/checkout) e [setup-node](https://github.com/actions/setup-node).
 
 ## Validação e limites
 
