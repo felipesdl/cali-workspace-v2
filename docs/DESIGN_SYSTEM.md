@@ -1,6 +1,6 @@
 # Design system CALI
 
-Estado: **regras de identidade/experiência confirmadas; implementação e contratos de componentes propostos**. Atualização: 26/10/2026. Fonte visual: V2 e [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios; não há DS implementado nesta entrega.
+Estado: **regras confirmadas; tokens, Button e Field iniciais implementados; demais contratos propostos**. Atualização: 27/10/2026. Fonte visual: V2 e [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios; a adoção inicial atende empresas, sem migrar todas as prévias nem homologar o DS completo.
 
 Este documento é dono de tokens, primitivas e seus contratos. Composição de telas, hierarquia de ações, escolha de página/drawer/modal e continuidade de tarefas pertencem a [UX/UI](UX_UI.md). Usar o [Catálogo de fluxos](FLOW_CATALOG.md) para aplicar essas peças a uma jornada concreta.
 
@@ -16,7 +16,7 @@ Tema exclusivo da V2: claro, em Cliente e Admin; sem modo noturno. Folha e lima 
 2. **Semânticos:** papel do valor na interface: texto, superfície, borda, ação, status, foco.
 3. **Componente:** apenas especializações necessárias, como largura de sidebar ou altura de linha.
 
-Fonte futura: `src/styles/tokens.css`, consumida pelo DS. Novas features usam tokens semânticos; não repetem hex. Tokenizar primeiro valores efetivamente usados, sem criar centenas de aliases para reproduzir a cascata atual.
+Fonte inicial existente: `src/styles/tokens.css`, consumida por Button, Field e empresas. Ainda não contém todos os aliases ou estados do catálogo. Novas features usam tokens semânticos; não repetem hex. Tokenizar primeiro valores efetivamente usados, sem criar centenas de aliases para reproduzir a cascata atual.
 
 ### Paleta primária
 
@@ -56,6 +56,27 @@ São valores de referência, não certificação de acessibilidade. Definir pare
 - Centralizar z-index por camada: navegação, popover, overlay, toast. Não elevar z-index por tentativa em cada módulo.
 - Motion breve e funcional; respeitar preferência de movimento reduzido. Ação essencial funciona sem hover.
 
+## Estado implementado em 27/10
+
+`Button` oferece variantes primária/secundária, disabled, pending com bloqueio e foco visível. `Field` associa label/erro por identificadores; controles nativos no consumidor recebem descrição e invalidez. Empresas usa corpo de 16 px e estilos com escopo. Nenhum componente importa domínio, API ou banco. Demais peças e catálogo visual permanecem futuros; estilos legados ainda coexistem.
+
+## Vocabulário compartilhado de variantes
+
+Fonte implementada: [variants.ts](../src/components/ds/variants.ts). `UiVariant` é um objeto `as const` com `Primary`/`Secondary`; o tipo de mesmo nome é derivado dos valores. Assim, valores e tipo têm um único dono, sem enum TypeScript nativo nem união de strings repetida nos componentes.
+
+```ts
+export const UiVariant = {
+  Primary: 'primary',
+  Secondary: 'secondary',
+} as const;
+
+export type UiVariant = (typeof UiVariant)[keyof typeof UiVariant];
+```
+
+`ButtonProps.variant` usa o tipo compartilhado `UiVariant`, importado somente como tipo. O padrão é `'primary'` e consumidores usam `variant="secondary"`, com autocomplete e rejeição de valores inválidos pelo TypeScript. A constante `as const` centraliza a definição; seu uso no JSX é opcional. O lint permite literais na prop `variant`. Valores CSS `primary`/`secondary` permanecem iguais.
+
+Reutilizar esse vocabulário entre componentes que compartilhem a mesma hierarquia visual. Isso não obriga toda peça a oferecer ambas as variantes nem transforma status de negócio, cor, tamanho ou layout em variante de ação. Uma necessidade diferente deve ter semântica e contrato registrados no DS antes de adicionar nomes/valores; não criar enum paralelo por feature. Não criar variantes futuras sem consumidor.
+
 ## Catálogo mínimo e contratos
 
 | Peça | Contrato obrigatório | Primeiros consumidores |
@@ -92,4 +113,4 @@ Biblioteca acessível de primitivas pode ser avaliada na fundação mínima e no
 
 ## Critério de consolidação
 
-DS só está implementado quando componentes têm consumidores reais em Cliente/Admin, estados e contratos documentados, sem variantes duplicadas por módulo. Conferir 1440/1280/1024/390 px, teclado, foco, contraste real, overflow, zoom e movimento reduzido. Esta análise não executou esse QA.
+DS só está implementado quando componentes têm consumidores reais em Cliente/Admin, estados e contratos documentados, sem variantes duplicadas por módulo. Conferir 1440/1280/1024/390 px, teclado, foco, contraste real, overflow, zoom e movimento reduzido. O registro de execução e seus limites ficam no changelog. QA do consumidor inicial não representa homologação global de todos os componentes, telas, zoom ou leitores de tela.

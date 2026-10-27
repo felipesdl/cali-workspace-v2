@@ -16,9 +16,15 @@ Revisão posterior DEC-13 a DEC-18: DEC-07 foi substituída. DISC tem projeçõe
 
 Chat não gera e-mail; pedidos mensais são tarefas Cliente. DEC-19 fecha o resumo Admin em RESUMO-01: Admins ativos recebem às 19h de Brasília, Cliente/staff não recebem; conteúdo Partner é decisão posterior da fase dele. Rastrear canais/idempotência por operação; entrega completa não exige e-mail onde não previsto, e resumo de chat das 08h não retorna.
 
-## Fronteira proposta
+## Fronteira de dados — base local de 27/10
 
-Cada domínio declara um contrato de dados independente da UI. `data/<dominio>/demo.ts` atende esse contrato com fixtures; `supabase.ts` será introduzido na integração. Hooks de query/mutation consomem o contrato; views não importam SDK.
+Cada domínio declara um contrato independente da UI em `src/api/modules/<dominio>`. No primeiro consumidor, `companies`, schemas Zod validam entradas/respostas; service recebe um cliente Axios; composição seleciona o adapter de `src/mocks/adapters/companies.ts`; hooks usam Query e factories de keys `as const` incluindo ator/empresa/filtros. Views não importam Axios, SDK ou fixtures. Form cuida do rascunho/validação; respostas permanecem no cache Query.
+
+`GET /companies`, detalhe e acessos são caminhos virtuais atendidos em memória, sem servidor e sem promessa de contrato HTTP oficial. DTOs de demonstração não substituem tabelas/RPCs do oficial. `mock-admin` é namespace de cache sintético, sem autenticação ou autorização. Na integração, adaptar o transporte por operação reconciliada, evitando obrigar chamadas Supabase a um contrato REST inventado.
+
+Fixtures usadas pela aplicação pertencem a `src/mocks/fixtures`; cenários exclusivos de teste pertencem a `tests/fixtures`, com adapters controlados em `tests/mocks`. Testes podem usar os mocks da aplicação para provar a composição local; a aplicação não importa testes. A seleção do mock fica em `api.ts`, não no hook/view/service. Ver [fronteiras](ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes).
+
+Ainda não há SDK, cliente Supabase, escrita ou mutation. Criar hooks de mutation junto do consumidor real, com confirmação, erro, idempotência aplicável e invalidação dirigida. Definir limpeza/cancelamento na troca de identidade e provar acesso no servidor; keys isoladas não substituem RLS.
 
 Evitar um repositório genérico `getAll(table)` que permita qualquer tabela/campo. Preferir operações do domínio, como consultar extrato do ciclo, confirmar revisão mensal ou solicitar ajuste. DTO de leitura não inclui dados internos que o consumidor não pode receber.
 

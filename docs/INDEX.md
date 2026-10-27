@@ -1,6 +1,6 @@
 # Índice da documentação
 
-Atualização: 26/10/2026. Base de desenvolvimento: este repositório V2. Escopo: diagnóstico, contratos alvo decididos e proposta de padronização de todos os fluxos.
+Atualização: 27/10/2026. Base de desenvolvimento: este repositório V2. Escopo: diagnóstico, contratos alvo decididos e padronização de todos os fluxos; fase 1 local em andamento.
 
 | Pergunta | Fonte canônica |
 | --- | --- |
@@ -15,8 +15,10 @@ Atualização: 26/10/2026. Base de desenvolvimento: este repositório V2. Escopo
 | Quais transições/guardas foram encontradas no oficial? | [Fichas reconciliadas](flows/README.md) e [fontes](flows/SOURCES.md) |
 | O que Cliente/Admin podem fazer, por operação? | [Matriz de permissões](PERMISSIONS.md) |
 | O que foi decidido e o que está aberto? | [Decisões](DECISIONS.md) |
-| Onde deve morar cada responsabilidade? | [Arquitetura proposta](ARCHITECTURE.md) |
-| Como preservar identidade e componentes? | [Design system proposto](DESIGN_SYSTEM.md) |
+| Onde deve morar cada responsabilidade? | [Arquitetura e limites de migração](ARCHITECTURE.md) |
+| Como preservar identidade e componentes? | [Design system inicial e contratos propostos](DESIGN_SYSTEM.md) |
+| Como modelar tipos e quais restrições de lint existem? | [Tipagem](ARCHITECTURE.md#tipagem-e-validação) e [lint](RUNBOOK.md#regras-de-lint-implantadas) |
+| Onde organizar mocks e dados de teste? | [Arquitetura: mocks e testes](ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes) |
 | Como adaptar dados e autorização? | [Dados e contratos](DATA_CONTRACTS.md) |
 | Como informar/validar uso de dados pessoais no acesso? | [Dados pessoais](DATA_PRIVACY.md) |
 | O que entregar, com quais dependências e aceite? | [Roadmap](ROADMAP.md) — fundação mínima, fluxos completos e matriz dos 18 IDs |
@@ -70,4 +72,4 @@ Revisão oficial fixada em `f3d3f14043a6abc38636f0340fe831e621d8b357`, sem escri
 
 PROD-01 a PROD-08 foram respondidas; a revisão da Patrícia substituiu PROD-03 por DEC-13. Regras foram refletidas nas fichas/matriz sem alterar código ou fonte oficial. TEC-01/02/03 continuam como investigação/prova de engenharia. OPEN-13 registra o resumo Admin resolvido por DEC-19, com conteúdo Partner adiado; OPEN-14 acompanha conteúdo de finalidade/guarda/informação no acesso. Não transformar essas pendências em bloqueios globais artificiais.
 
-O roadmap atual fecha tarefas de ponta a ponta após fundação mínima: primeiro empresas/acessos, Equipe e dados mensais; depois DISC e demais fluxos; Partner posterior. DS, rotas, hooks/adaptadores e validação crescem junto dos consumidores. Os 18 IDs têm dependências e aceite. O código `f3d3f14` já identifica a publicação 83; o registro de 26/10 explicita o funcionamento oficial testado como referência. Nenhuma implementação foi iniciada.
+O roadmap atual fecha tarefas de ponta a ponta após fundação mínima: primeiro empresas/acessos, Equipe e dados mensais; depois DISC e demais fluxos; Partner posterior. DS, rotas, hooks/adaptadores e validação crescem junto dos consumidores. Os 18 IDs têm dependências e aceite. O código `f3d3f14` já identifica a publicação 83; o registro de 26/10 explicita o funcionamento oficial testado como referência. Fase 1 iniciada em 27/10: router, Query/Form, módulo demonstrativo de empresas e DS inicial existem. Gates locais e workflow estão definidos; autenticação, persistência, RLS e fluxos completos continuam pendentes. Estado executável e limites estão no runbook e na arquitetura.

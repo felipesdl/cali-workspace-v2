@@ -1,6 +1,6 @@
 # Registro de decisões e questões abertas
 
-Atualização: 26/10/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
+Atualização: 27/10/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
 
 ## Decisões de produto e escopo
 
@@ -28,15 +28,23 @@ Atualização: 26/10/2026. Registra estado e evidência; regras completas perman
 
 DEC-05 a DEC-12 registram a rodada inicial de 26/10. DEC-13 a DEC-18 incorporam a revisão de produto autorizada depois: **DEC-13 é o alvo vigente do DISC e substitui DEC-07**. Demais decisões anteriores continuam válidas. Fontes: [revisão da Patrícia](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417356971), [regras/prioridades](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417361907) e confirmações do Felipe. Nenhuma decisão documental autoriza integração, deploy, migration ou mudança de fórmula.
 
+## DEC-20 — Stack e organização de dados confirmadas em 27/10/2026
+
+Felipe escolheu TanStack Form (`@tanstack/react-form`), Query e Router, date-fns, Axios e Zod, com API organizada por módulos, hooks próprios e keys padronizadas por constantes `as const`. Versões foram selecionadas conforme compatibilidade; não foi exigida migração de React. Vite permanece o bundler; seu uso permite diferentes routers, e TanStack Router é a escolha explícita desta base.
+
+Implementação local: `src/api/modules/companies` possui schemas, keys, service, composição dos mocks de desenvolvimento e hooks de consulta; filtros usam Form/Zod e URL. Identificadores constantes e factories de tuplas substituem TS enums para query keys. Axios fica na fronteira de transporte; não duplicar Query em context. Mutation só será criada com operação de escrita real e contrato reconciliado. Versões e gates: [runbook](RUNBOOK.md); fronteiras: [arquitetura](ARCHITECTURE.md).
+
+Autorização desta rodada: sincronizar main e iniciar fase 1 localmente. Sem Supabase oficial, migrations, comunicações ou publicação.
+
 ## Propostas técnicas/de experiência
 
-Manter React/Vite; usar router; separar adaptadores/hooks; adotar cache de servidor; definir tokens, escala tipográfica, composição e padrões de interação são propostas em [Arquitetura](ARCHITECTURE.md), [Design system](DESIGN_SYSTEM.md) e [UX/UI](UX_UI.md). Dependências e versões ainda não foram implementadas.
+Manter React/Vite; usar router; separar adaptadores/hooks; adotar cache de servidor; definir tokens, escala tipográfica, composição e padrões de interação são propostas em [Arquitetura](ARCHITECTURE.md), [Design system](DESIGN_SYSTEM.md) e [UX/UI](UX_UI.md). A seleção DEC-20 e o primeiro consumidor demo estão implementados; demais padrões continuam propostos até possuir consumidor e validação.
 
 Decisões rotineiras de implementação dentro de um recorte autorizado podem ser tomadas e registradas pelo implementador. Questão aberta não exige perguntar tudo ao usuário: primeiro conferir código, contratos e evidência disponíveis; perguntar somente o que continuar bloqueando uma decisão de produto/escopo.
 
 ## Prioridade de resolução antes das fases
 
-Revisão de prioridade: 25/10/2026, por solicitação do usuário. **Nenhuma fase de implementação foi iniciada.** As 24 referências não são 24 decisões a repassar ao usuário. Há decisão de produto, informação técnica ausente e comprovação que só existe durante implementação/homologação.
+Revisão de prioridade original: 25/10/2026. Atualização de execução: fase 1 iniciada localmente em 27/10, sem integração real. As 24 referências não são 24 decisões a repassar ao usuário. Há decisão de produto, informação técnica ausente e comprovação que só existe durante implementação/homologação.
 
 ### Decisões de produto que afetam os contratos da V2
 
@@ -81,7 +89,7 @@ Percentuais, prazos e valores já encontrados no código precisam ser reconcilia
 | Ambiente isolado e comprovação operacional — OPEN-10/12 | Definir infraestrutura de teste e critérios antes da integração; prova não pode ser produzida por uma resposta de produto |
 | Paridade de módulos adicionais — OPEN-09 | Escopo geral de todos os fluxos já foi confirmado; não perguntar novamente por um piloto. Registrar somente exceção concreta se surgir |
 
-Esses itens permanecem visíveis; não foram marcados como resolvidos nem descartados. O pedido de resolver decisões antes das fases é respeitado: esta rodada altera somente documentação e faz perguntas, sem iniciar fundação, DS, rotas ou integração.
+Esses itens permanecem visíveis; não foram marcados como resolvidos nem descartados. O pedido de resolver decisões antes das fases é respeitado: as decisões de produto foram documentadas antes das fases; a fundação local agora segue DEC-20 sem antecipar integração real.
 
 ## Pendências que não devem virar suposição
 

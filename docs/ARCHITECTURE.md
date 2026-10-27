@@ -1,119 +1,102 @@
 # Arquitetura de desenvolvimento
 
-Estado: **proposta para esta V2**, em 25/10/2026. Nenhuma das pastas ou dependências abaixo foi criada nesta análise. Estado implementado: [baseline](BASELINE_2026-10-25.md).
+Atualização: 27/10/2026. **Fundação local iniciada; fase 1 em andamento.** A base sincronizada é `c9baea7` da `main`, após merge do PR documental. Rotas, Query/Form, módulo demonstrativo de empresas, tokens e duas primitivas existem; autenticação real, backend isolado e prova de permissões não foram implementados.
 
-Antes de extrair uma feature, localizar sua tarefa no [Catálogo de fluxos](FLOW_CATALOG.md) e suas questões no [Registro de decisões](DECISIONS.md). Organização de código não substitui especificação de [UX/UI](UX_UI.md) nem aprovação de regra funcional.
+Ler [Regras de produto](PRODUCT_RULES.md), [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md), [fichas](flows/README.md) e [roadmap](ROADMAP.md). Estrutura de código não aprova regra nova. A V2 é a base, o oficial permanece somente leitura.
 
-Contrato vigente: [Regras de produto](PRODUCT_RULES.md) e [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md). O [roadmap](ROADMAP.md) cresce por entregas completas: fundação mínima para o primeiro fluxo e DS/rotas/hooks/dados/testes junto dos consumidores. Não exigir todos os módulos demo antes de integrar a primeira jornada. Públicos DISC seguem DEC-13; finalidade/projeção/guarda constam em [Dados pessoais](DATA_PRIVACY.md).
+## Bibliotecas escolhidas
 
-## Decisões e alcance
+Felipe definiu em 27/10: TanStack Form (`@tanstack/react-form`), Query (`@tanstack/react-query`) e Router (`@tanstack/react-router`), date-fns, Axios e Zod. Vite permanece o bundler; TanStack Router é a escolha de roteamento do projeto. React Router deixa de ser a proposta da V2. React 18 foi preservado.
 
-| Decisão | Estado | Justificativa |
-| --- | --- | --- |
-| V2 como base; oficial somente como referência | Confirmada pelo usuário | Evolução deve ocorrer neste repositório |
-| Todos os fluxos de Cliente e Admin | Confirmada pelo usuário | Padronização transversal, não uma tela isolada |
-| Identidade bordô/marfim/dourado | Confirmada pelo usuário | Consolidar design existente |
-| Manter React/TypeScript/Vite | Recomendada | Oficial e V2 já compartilham stack; troca de framework não resolve acoplamento |
-| React Router para URLs/layouts | Recomendada | Roteador já usado no oficial; permite preservar contratos de navegação |
-| TanStack Query para dados assíncronos | Recomendada, ainda sem dependência | Dono de cache, loading, retry e invalidação por domínio |
-| CSS com tokens e escopo por componente | Recomendada | Evitar migração de ferramenta de estilo junto da reorganização |
-| Contexts apenas para sessão/workspace/UI transversal justificada | Recomendada | Não substituir URL, cache ou estado local |
-| Store global adicional | Sem necessidade demonstrada | Estado transversal exige fonte, consumidores e ciclo de vida definidos |
+Versões são fixadas em package/lockfile; Node e npm estão documentados no [runbook](RUNBOOK.md). Escolha de versões foi conferida por documentação primária via Context7, peer dependencies e execução local. Não instalar biblioteca adicional por analogia nem criar abstração sem consumidor.
 
-Versões de novas dependências devem ser escolhidas e fixadas na fase de fundação. Não confundir recomendações atuais da biblioteca com a versão React Router 6 declarada no oficial.
+## Fronteiras e estado implementado
 
-## Fronteiras
+Fluxo atual de dados: **view → hook de consulta do módulo → service → Axios com adapter local → fixtures**. Zod valida filtros, datas e retorno; Query controla ciclo assíncrono/cache. Os caminhos virtuais do adapter são contrato interno dos mocks de desenvolvimento, não endpoints oficiais nem substitutos de RPC Supabase.
 
-Fluxo principal: **rota / layout → view → hook de modelo → hook de dados → adaptador → Supabase**. Regra pura fica no domínio; primitivas visuais ficam no DS. Fixtures entram pelo adaptador demo, usando os mesmos contratos da integração futura.
+| Dono | Responsabilidade e estado |
+| --- | --- |
+| `src/main.tsx` | Bootstrap e validação da configuração demo; sem JSX de negócio |
+| `src/app` | Router, Query provider e ponte de navegação para composições existentes |
+| `src/app/ClientWorkspace.tsx` | Composição cliente extraída do bootstrap, ainda com estado/fixtures legados a migrar por fluxo |
+| `src/AdminPreview.tsx` | Layout/prévias Admin existentes com seção controlada pela URL; empresas usa o novo consumidor |
+| `src/features/companies` | Formulário de filtros, lista e consulta de acessos locais; sem SDK, Axios ou fixture importados diretamente |
+| `src/api/modules/companies` | Schema/tipos, keys, service, composição do adapter mock e hooks Query com consumidores reais |
+| `src/mocks/http/client.ts` | Axios com adapter obrigatório; destinos, baseURL e transporte alternativos recusados; nenhum modo de rede nesta etapa |
+| `src/api/query-client.ts` | Configuração do QueryClient, criado por instância do router; não guarda dados em context |
+| `src/components/ds` | Button/Field e estilos locais; sem dependência de app, feature ou API |
+| `src/styles/tokens.css` | Tokens iniciais consumidos pelas peças e página de empresas; não substitui ainda toda a cascata legada |
+| `src/mocks/fixtures/notices.ts` | Seeds de Avisos compartilhados com as prévias de mural/calendário; alterações do mural ainda não compõem um domínio vivo comum |
+| `src/lib/dates.ts` | Formatação de data civil com date-fns, preservando o dia informado |
 
-| Camada | Dona de | Não deve fazer |
-| --- | --- | --- |
-| `app` | Bootstrap, rotas, providers e layouts persistentes | Consultas de negócio ou páginas monolíticas |
-| `components/ds` | Aparência/comportamento genéricos e acessibilidade | Conhecer empresa, perfil, tabela ou SDK Supabase |
-| `features` | Jornadas, composição, seleção e modelo de apresentação | Consultar banco diretamente ou duplicar regras oficiais |
-| `hooks/api` | Lifecycle assíncrono, query keys, mutações e invalidação | JSX ou regras de autorização como fonte de verdade |
-| `data` | Contratos tipados, mapeamento de respostas e acesso por domínio | Estado de UI ou regras baseadas em texto do DOM |
-| `lib/domain` | Regras puras compartilhadas e semântica de negócio | Efeitos de React, globais DOM ou SDK |
-| `lib/navigation` | Parse/serialização/validação de contexto navegável | Autorizar acesso a uma empresa |
-| `lib/supabase` | Cliente configurado, tipos gerados e limite de schema | Fallback silencioso para produção ou secrets de servidor |
-| `demo` | Fixtures sintéticos coerentes e cenários | Dados reais ou segunda implementação de fórmula oficial |
+Não criar árvores paralelas `data` e `hooks/api` para repetir a responsabilidade agora consolidada no módulo de API. Adaptador real futuro entra na fronteira do respectivo módulo, após contrato/autorização; essa mudança não transforma o frontend em backend nem exige proxy HTTP artificial.
 
-Essa separação substitui a dependência atual `CalendarView → NoticesView.noticeSamples`. Ambos devem consumir o domínio de avisos.
-
-## Estrutura proposta
+## Organização dos módulos de API
 
 ```text
-src/
-  main.tsx                         # somente bootstrap
-  app/
-    App.tsx
-    router.tsx                     # catálogo de rotas e layouts
-    routes/                        # entradas finas para features
-    layouts/
-      workspace-shell/WorkspaceShell.tsx
-      client-layout/ClientLayout.tsx
-      admin-layout/AdminLayout.tsx
-    providers/                     # somente quando houver responsabilidade real
-  components/
-    ds/
-      foundations/
-      actions/button/Button.tsx
-      navigation/tabs/Tabs.tsx
-      overlays/dialog/Dialog.tsx
-      overlays/drawer/Drawer.tsx
-      feedback/
-      index.ts                     # catálogo real de vários componentes
-  features/
-    team/
-      team-view/
-        TeamView.tsx
-        types.ts                   # se compartilhado dentro do slice
-        constants.ts               # se houver configuração local
-        hooks/useTeamModel.ts
-        components/person-row/PersonRow.tsx
-    hours/
-    projects/
-    records/
-    calendar/
-    documents/
-    reports/
-    notices/
-    accounts/
-    proposals/
-  hooks/api/<dominio>/
+src/api/
+  query-client.ts
+  modules/companies/
+    schemas.ts
     keys.ts
-    queries.ts
-    mutations.ts                   # apenas se houver escrita autorizada
-    types.ts                       # apenas se compartilhado
-  data/<dominio>/
-    contracts.ts
-    demo.ts
-    supabase.ts                    # somente na fase de integração
-    mappers.ts                     # quando transporte e modelo diferirem
-  lib/
-    domain/
-    navigation/
-    supabase/
-  demo/fixtures/
-  styles/
-    tokens.css
-    reset.css
-    typography.css
-tests/                             # suítes conforme responsabilidade
-docs/
+    service.ts
+    api.ts
+    hooks/useCompaniesQuery.ts
+    hooks/useCompanyQuery.ts
+    hooks/useCompanyAccessesQuery.ts
 ```
 
-Não criar todos esses diretórios vazios. Cada extração deve trazer consumidores reais. Um arquivo TSX por componente extraído; componente trivial pode permanecer como markup do pai. Nomes de pasta em kebab-case, componente em PascalCase, hook em `use...`.
+- `schemas.ts`: projeções e validações com Zod; tipos inferidos. Não modelar o banco oficial manualmente a partir de DTO demo.
+- `service.ts`: contrato de leitura do módulo, transporte e validação do retorno. Consome AbortSignal e rejeita resposta de outra empresa. Não contém JSX ou estado de view.
+- `keys.ts`: identificadores em objeto `as const` e factories de tuplas; sem enums TypeScript ou strings repetidas nos consumidores. Chaves incluem ator, módulo, operação, empresa e filtros que alterem resposta. Filtro equivalente produz chave equivalente.
+- `hooks`: nomes de domínio, ciclo Query e `queryOptions` compartilháveis. Evitar wrappers que apenas renomeiam propriedades sem responsabilidade real.
+- `api.ts`: composição da instância utilizada pela SPA com mocks de desenvolvimento; `mock-admin` é ator sintético fixo, não autenticação.
+- Escrita futura: adicionar service e hook `use...Mutation` quando houver operação/consumidor reais, com mutation key tipada, confirmação do resultado e invalidação dos leitores afetados. Não criar mutation genérica ou arquivo vazio para aparentar estrutura.
 
-Tipo usado em um arquivo permanece nele. `constants.ts` não recebe regra de negócio nem objetos sem consumidor. Imports canônicos diretos; barrel somente com API real. Alias `@/` é opcional e exige configurar TS e bundler juntos.
+As consultas de lista, detalhe e acessos têm cache separado. Não usar dados anteriores de outra empresa como placeholder. Na integração real, ator/vínculo virão da sessão autenticada e logout/revogação deverão cancelar/limpar cache e detalhes; isso ainda não está implementado nem comprovado pelo isolamento de chaves demo.
 
-## Layout e navegação
+## Tipagem e validação
 
-Um `WorkspaceShell` compartilha estrutura, slots e responsividade. `ClientLayout` e `AdminLayout` fornecem menus, cabeçalhos e ações permitidas. Não duplicar sidebar/topbar por página. Layout pai recebe o conteúdo da rota por `Outlet`; navegação entre filhos não remonta o shell.
+Tipos ficam junto do dono: contratos de empresas em `src/api/modules/companies/schemas.ts`; props e modelos exclusivos de uma composição permanecem locais. Não criar uma pasta global `types` sem consumidores que justifiquem compartilhamento.
 
-Referência: [layouts e rotas aninhadas](https://reactrouter.com/start/declarative/routing). Em hosting estático, resolver acesso direto a URLs válidas para `index.html`, preservando assets: [fallback de SPA](https://reactrouter.com/how-to/spa). Adaptar ao build Vite; não copiar comandos de Framework Mode do React Router.
+- Quando existe schema de runtime, inferir o tipo com `z.infer<typeof schema>`: `Company`, `CompanyAccess`, `CompanyFilters` e `CompanySearch`. Não repetir manualmente a mesma estrutura em uma interface que possa divergir do schema. Esses contratos são projeções locais de demonstração, não tipos do banco oficial.
+- Para props/modelos locais sem validação externa, usar um `type` específico ou inferência quando a estrutura já estiver clara. `PreviewMessage` e `NoticeComment` têm `id` e `text`; o ID é criado ao adicionar a entrada, permitindo conteúdos repetidos sem usar posição como identidade.
+- O vocabulário de variantes UI fica em `src/components/ds/variants.ts`: constante `UiVariant` com `Primary`/`Secondary` e tipo derivado. Componentes reutilizam o tipo quando a semântica coincide; consumidores podem usar strings tipadas no JSX, sem importar a constante de valores. Ver [design system](DESIGN_SYSTEM.md#vocabulário-compartilhado-de-variantes).
+- Usar `as const` para constantes e tuplas de query keys. Para mapas conhecidos, usar anotação ou `satisfies Record<Chaves, Valor>`; `Record<Section, string>` é um mapa fechado legítimo. Não substituir um objeto de domínio por um dicionário genérico para evitar sua modelagem.
+- `import type` e modificadores inline `type` separam tipos dos valores executados. A interface `Register` do router existe para ampliação de módulo do TanStack; essa necessidade não justifica duplicar os DTOs inferidos.
+- Entrada bruta não ganha tipo confiável por cast. O service recebe respostas Axios como `unknown`, faz parse Zod e confere o vínculo da empresa antes do retorno. Configuração externa passa por `safeParse`. São exceções locais justificadas no lint, não tipos propagados ao domínio. O helper de teste aceita payload arbitrário para exercitar respostas inválidas.
 
-### Mapa de rotas proposto
+O lint restringe `any`, `unknown` fora dessas entradas justificadas, casts de objetos/arrays literais e imports de tipo incorretos. `as const` continua permitido; as regras não proíbem toda assertion possível. TypeScript permanece `strict`; esta configuração não ativa o conjunto de regras ESLint com análise de tipos `no-unsafe-*`. Não alegar essa garantia. Regras/exceções completas estão no [runbook](RUNBOOK.md#regras-de-lint-implantadas).
+
+## Mocks da aplicação e suporte exclusivo de testes
+
+```text
+src/mocks/
+  http/client.ts             # Axios restrito ao adapter em memória
+  adapters/companies.ts      # Simulação das operações de empresas
+  fixtures/companies.ts      # Empresas/acessos usados pela aplicação
+  fixtures/notices.ts        # Avisos compartilhados nas prévias legadas
+tests/
+  fixtures/companies.ts      # Empresa ausente e acessos de outra empresa
+  mocks/http.ts              # Respostas controladas para casos adversos
+```
+
+Fixtures são dados sintéticos; mocks simulam respostas/comportamentos. Código executado pela aplicação fica em `src/mocks`; arquivos usados exclusivamente por testes ficam em `tests/fixtures` ou `tests/mocks`. Testes de integração podem consumir os mocks da aplicação para exercitar a mesma composição, sem copiar suas fixtures. Cenários de erro específicos usam os dados/adapters exclusivos dos testes. Spies locais de uma única asserção permanecem no próprio teste.
+
+A aplicação nunca importa `tests`. Em features e DS, imports de mocks também são bloqueados; no módulo de API, apenas `api.ts` seleciona a implementação mock. Schemas, services e hooks não importam fixtures/adapters diretamente. ESLint verifica essas fronteiras. As prévias legadas de Avisos/Calendário ainda consomem as fixtures diretamente até a migração do seu fluxo. Outros dados inline do protótipo permanecem pendentes de extração por recorte; esta reorganização não os migrou globalmente.
+
+O nome `demo` continua nas variáveis de configuração e nos textos que identificam o modo demonstrativo; não é uma pasta nem um segundo mecanismo de dados. Integração futura substitui a composição do serviço por transporte real após contrato/ambiente autorizados. Mocks de desenvolvimento só permanecem em um modo explícito; sua remoção da execução normal não elimina os cenários necessários aos testes. Não importar `tests` no runtime nem tratar mock como autorização de servidor.
+
+## Navegação e continuidade
+
+TanStack Router usa árvore definida em código, sem plugin de geração de rotas. `src/app/navigation.ts` é o catálogo de caminhos; parents Cliente/Admin preservam as composições existentes entre filhos. As prévias ainda são uma ponte de migração, não features totalmente extraídas.
+
+`/admin/clientes` já possui busca, situação e empresa selecionada na URL com validação Zod; formulário TanStack mantém rascunho e aplica filtros por submit. Back/Forward restaura lista/formulário; acesso por link direto consulta o detalhe independentemente da lista. Outros filtros/abas/rascunhos legados continuam locais até seu recorte.
+
+A tela de empresas é carregada sob demanda. Bootstrap/provider/router não são fonte de autorização; alternar Cliente/Admin continua demonstração explícita. Há erro de configuração e rota não encontrada, sem login fictício tratado como sessão real.
+
+### Mapa de rotas
+
 
 Preservar prefixos e caminhos do oficial para compatibilidade. Itens que não existem no protótipo são inventário de paridade, não novas funcionalidades aprovadas.
 
@@ -137,39 +120,23 @@ Preservar prefixos e caminhos do oficial para compatibilidade. Itens que não ex
 
 Detalhes de projeto, abas e filtros podem usar parâmetros/search params sem inventar novos caminhos nesta análise. Não trocar links oficiais por nomes internos como `records`/`overview`. Menu, título e breadcrumb derivam do mesmo catálogo de navegação.
 
-### Dono de cada estado
+## Dono de cada estado
 
-| Estado | Dono proposto | Regra |
-| --- | --- | --- |
-| Página, aba compartilhável, período, filtros confirmados | URL | Parse tipado, defaults e serialização canônica; Back/Forward restaura contexto |
-| Empresa selecionada Admin | URL validada e exposta pelo workspace | Uma fonte; não espelhar em outro `useState` |
-| Empresa cliente | Vínculo autenticado/autorizado | URL não concede acesso; conflito de empresa deve falhar explicitamente |
-| Usuário, sessão e acesso | Provider de sessão | Criar ao integrar Auth; sem papéis reais simulados como autorização |
-| Respostas remotas | TanStack Query | Isolar identidade, empresa e recorte; não duplicar arrays em context |
-| Busca durante digitação, drawer, menu, formulário | Componente/hook local | Definir política de descarte/preservação ao sair |
-| Preferência transversal leve | Provider de UI, se necessário | Documentar consumidores; não instalar store antes da necessidade |
-| Valores derivados | Função pura/modelo | Evitar effects para copiar props e sincronizar estados redundantes |
+| Estado | Dono |
+| --- | --- |
+| Caminho e filtros confirmados de empresas | Router/search validado; não duplicar em useState |
+| Busca durante digitação | TanStack Form; restaurada quando muda a URL confirmada |
+| Respostas de empresas/acessos | Query com keys por ator/empresa/recorte; sem arrays em context |
+| Campos derivados | Função/modelo local; não copiar respostas em effects |
+| Preferência ou estado local de prévia | Componente; continuidade declarada no recorte |
+| Sessão e vínculo real | Provider futuro, somente após contrato e ambiente isolado |
 
-## Hooks reutilizáveis
+## Contexts, limites e migração
 
-- `useTeamModel`, `useHoursModel` etc. compõem dados, filtros, seleção e ações da feature. Componentes recebem props tipadas; não conhecem transporte.
-- `hooks/api/<dominio>/queries.ts` consulta adaptador por contrato. `mutations.ts` define quais listas, detalhes, resumos e leitores invalidar; erro permanece observável.
-- Query key inclui identidade do usuário/escopo de acesso, empresa, período e filtros que alteram resposta. Exemplo conceitual: `['workspace', userId, companyId, 'hours', period, filters]`.
-- Normalizar listas de filtro; equivalente deve produzir chave equivalente. Não incluir `monthLabel` traduzido como identificador canônico de período.
-- Trocar empresa deve fechar detalhes antigos, cancelar requisições pertinentes e impedir apresentação de dados anteriores como atuais. Remover cache sensível conforme política de acesso; logout limpa cache de query e mutation. Não usar `keepPreviousData` entre empresas inadvertidamente.
-- Atualização otimista só com rollback e autorização definidos. Nas primeiras escritas, preferir confirmação do servidor e invalidação explícita.
-- Hooks técnicos como debounce, fechamento externo ou URL só são extraídos com comportamento repetido. Acessibilidade de overlay pertence à primitiva, não a cada view.
+QueryClientProvider e RouterProvider têm consumidores reais. Nenhum context de domínio foi criado. Sessão/workspace só recebem provider próprio com fonte, consumidores, validade e limpeza explícitos; DS recebe props e não conhece empresa.
 
-Referências: [query keys](https://tanstack.com/query/latest/docs/framework/react/guides/query-keys), [invalidação por mutação](https://tanstack.com/query/latest/docs/framework/react/guides/invalidations-from-mutations) e [QueryClient](https://tanstack.com/query/latest/docs/reference/QueryClient). Política de isolamento acima é uma decisão proposta do CALI apoiada nessas APIs, não uma garantia automática da biblioteca.
+Views não importam SDK/transporte; DS não importa app/features/API. ESLint verifica essas fronteiras para a nova estrutura. As composições legadas preservam exceção localizada de imports/variáveis não usados; sua formatação fica fora da rodada para não misturar uma migração global ao primeiro consumidor. Ver escopo e comandos no runbook.
 
-## Contexts
+Não transportar runtimes DOM como arquitetura definitiva. Por operação, localizar evento, permissão, transição e efeito; mover regra para domínio/adaptador e interação para componente/hook com prova de paridade. Proposta não é implementada só porque sua pasta aparece no mapa.
 
-Criar somente quando houver dados realmente transversais: sessão e contexto do workspace são candidatos. Provider precisa declarar fonte, consumidores, validade e comportamento ao trocar usuário/empresa. Separar providers com frequência de atualização distinta; memoização não corrige responsabilidade excessiva.
-
-Uma feature com estado complexo pode usar reducer/hook local antes de context. DS recebe propriedades; não depende de `WorkspaceContext`. Não criar context para listas de pessoas, relatórios ou horas remotas.
-
-## Migração de comportamento oficial
-
-Não copiar runtimes DOM para sustentar a estrutura nova. Para cada comportamento externo à árvore React: localizar evento, seletor, consulta/RPC, permissão, transição, efeito e feedback; criar contrato e teste de paridade; mover regra para domínio/adaptador e interação para hook/componente. Só remover a dependência depois de demonstrar a equivalência.
-
-Esse trabalho é especialmente relevante para projetos/aprovações, relatórios, calendário e ocorrências. Um botão visualmente igual pode não preservar uma operação instalada por runtime. Base V2 deve ter ações explícitas em React.
+Referências primárias consultadas: [TanStack Router](https://tanstack.com/router/latest/docs/framework/react/guide/code-based-routing), [Query keys](https://tanstack.com/query/latest/docs/framework/react/guides/query-keys), [TanStack Form](https://tanstack.com/form/latest/docs/framework/react/guides/validation), [Axios](https://axios-http.com/docs/req_config), [Zod](https://zod.dev/api) e [date-fns](https://date-fns.org/docs/parseISO).

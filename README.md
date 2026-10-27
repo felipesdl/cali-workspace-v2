@@ -4,11 +4,15 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 
 **CALI administra; cliente acompanha, participa, valida e avalia.** Equipe cadastrada não equivale a usuários com acesso.
 
-## Estado verificado em 25/10/2026
+## Estado atual — 27/10/2026
 
 - Cliente: Início, Equipe, Horas, Calendário, Ocorrências, Documentos, Relatórios, Projetos/Entregáveis e Avisos têm composições demonstrativas.
 - Admin: prévia com 11 seções, incluindo contas, propostas e equipe.
-- Navegação por `useState`, sem rotas por URL, autenticação ou permissões reais.
+- TanStack Router controla URLs Cliente/Admin; composições legadas continuam como ponte de migração. Autenticação e permissões reais ainda não existem.
+- Empresas em `/admin/clientes` usa TanStack Form/Query, Axios com adapter local e Zod; filtros/empresa na URL, cache separado e até quatro acessos fictícios equivalentes. Sem cadastro, convite ou alteração real.
+- API organizada por módulos em `src/api/modules`, com schemas, services, hooks e query keys `as const`. DS inicial contém tokens, Button e Field; demais componentes continuam propostos.
+- Mocks executados pela aplicação ficam em `src/mocks`; cenários exclusivos ficam em `tests/fixtures` e `tests/mocks`. Aplicação não importa testes. Ver [organização e fronteiras](docs/ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes).
+- Tipos de contratos são inferidos dos schemas Zod; props/modelos locais ficam no consumidor. Ver [tipagem](docs/ARCHITECTURE.md#tipagem-e-validação) e [restrições de lint](docs/RUNBOOK.md#regras-de-lint-implantadas).
 - Formulários e interações locais não comprovam persistência, envio, aprovação ou ciência.
 - Escopo confirmado: padronizar todos os fluxos de Cliente e Admin e consolidar identidade bordô, marfim e dourado.
 - O código de `patricia258/app.cali` foi consultado somente em leitura como referência de contratos. Não é o destino da refatoração.
@@ -16,15 +20,14 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 ## Executar
 
 ```bash
-npm install
-npm run typecheck
-npm run build
+npm ci --ignore-scripts
+npm run verify
 npm run dev
 ```
 
-Ainda não há lockfile nem versão de Node declarada. Uma instalação nova pode resolver versões diferentes. A análise validou uma cópia temporária com Node 24.22.1 e npm 11.19.1; isso não define automaticamente o runtime suportado.
+Runtime local fixado: Node 24.22.1 e npm 11.19.1, com lockfile e versões exatas. Gates e limites estão no [runbook](docs/RUNBOOK.md). Workflow de verificação está definido; execução remota não foi realizada nesta etapa.
 
-`.env.example` declara `VITE_DEMO_MODE=true`, mas o código não lê essa variável. Ela ainda não bloqueia integrações tecnicamente; a ausência de acesso ao banco decorre do código atual.
+`.env.example` habilita somente demonstração. Configuração de API/Supabase não vazia é rejeitada; o cliente Axios exige adapter em memória. Não há SDK Supabase ou transporte de rede para dados deste módulo. Assets externos do protótipo permanecem; isso não representa aplicação inteiramente offline.
 
 ## Documentação para desenvolvimento e IA
 
@@ -41,7 +44,7 @@ Comece por [AGENTS.md](AGENTS.md) e pelo [índice](docs/INDEX.md).
 | [Fichas reconciliadas](docs/flows/README.md) | 18 fluxos com transições/fontes do oficial, sem implementação |
 | [Permissões Cliente/Admin](docs/PERMISSIONS.md) | Operações por papel, condições, camada e dúvidas |
 | [Decisões](docs/DECISIONS.md) | Confirmações, propostas e pendências sem suposições |
-| [Arquitetura](docs/ARCHITECTURE.md) | Estrutura proposta, rotas, hooks, layouts e contexts |
+| [Arquitetura](docs/ARCHITECTURE.md) | Estrutura implementada e limites de migração, rotas, hooks, layouts e contexts |
 | [Design system](docs/DESIGN_SYSTEM.md) | Identidade, tokens e contratos de componentes |
 | [Dados e contratos](docs/DATA_CONTRACTS.md) | Adaptação Supabase, permissões e inventário pendente |
 | [Dados pessoais](docs/DATA_PRIVACY.md) | Finalidades, leitores, guarda e informação/validação no acesso |
@@ -54,7 +57,7 @@ Estruturas descritas como **proposta** ainda não estão implementadas. Diagnós
 
 Fichas e matriz foram cruzadas em leitura estática com o oficial `f3d3f140`. Fontes imutáveis e 29 chamadas de RPC sem corpo localizado estão em `docs/flows/SOURCES.md`; dúvidas de reprodução/negócio estão em `docs/DECISIONS.md`. Condição encontrada no código não é permissão comprovada em produção.
 
-Em 26/10/2026, a revisão de produto foi incorporada às [decisões](docs/DECISIONS.md) e regras. **DEC-13 substitui DEC-07:** Cliente recebe somente gestão DISC liberada; avaliador é interno CALI, sem liberação; respondente recebe apenas PDF próprio por e-mail, sem resultado na tela. As demais decisões anteriores continuam vigentes. Publicação 83 corresponde ao mesmo SHA das fontes; validação funcional da referência foi declarada pela Patrícia, sem auditoria de produção pelo agente. O roadmap entrega primeiro a rotina Admin/Cliente, depois DISC; Partner fica posterior. DEC-19 fecha o resumo diário Admin às 19h de Brasília, sem Cliente/staff/chat; conteúdo Partner fica para sua fase. Contrato e limites de corte/volume estão em RESUMO-01 e Dados e contratos. Nenhuma implementação foi iniciada.
+Em 26/10/2026, a revisão de produto foi incorporada às [decisões](docs/DECISIONS.md) e regras. **DEC-13 substitui DEC-07:** Cliente recebe somente gestão DISC liberada; avaliador é interno CALI, sem liberação; respondente recebe apenas PDF próprio por e-mail, sem resultado na tela. As demais decisões anteriores continuam vigentes. Publicação 83 corresponde ao mesmo SHA das fontes; validação funcional da referência foi declarada pela Patrícia, sem auditoria de produção pelo agente. O roadmap entrega primeiro a rotina Admin/Cliente, depois DISC; Partner fica posterior. DEC-19 fecha o resumo diário Admin às 19h de Brasília, sem Cliente/staff/chat; conteúdo Partner fica para sua fase. Contrato e limites de corte/volume estão em RESUMO-01 e Dados e contratos. A fundação local de 27/10 está em andamento; regras de acesso e fluxos completos ainda aguardam implementação e prova em ambiente isolado.
 
 ## Ambientes declarados
 
@@ -63,4 +66,4 @@ Em 26/10/2026, a revisão de produto foi incorporada às [decisões](docs/DECISI
 - Backend informado no handoff: CALI MAPA, schema `cali_workspace`. Nenhuma conexão foi criada nesta análise.
 - Vercel, proteção e domínios são informações documentadas; configuração ativa não verificada.
 
-Usar fixtures sintéticos. Integração futura exige ambiente isolado, contratos reconciliados e testes de acesso. Publicação e migração de produção dependem de escopo próprio.
+Usar fixtures sintéticos. Fase 1 iniciada localmente, a partir da `main` `c9baea7`, na branch `codex/fase-1-base`, preparada para revisão em PR de rascunho. Concluído e pendente estão no [acompanhamento da fase 1](docs/ROADMAP.md#acompanhamento-da-fase-1--pacote-para-revisão); a fase ainda não está encerrada. Sem conexão ao Supabase oficial ou deploy. Integração futura exige ambiente isolado, contratos reconciliados e testes de acesso. Publicação e migração de produção dependem de escopo próprio.

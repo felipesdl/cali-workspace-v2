@@ -1,12 +1,12 @@
 # Plano de padronização por fluxos completos
 
-Atualização: 26/10/2026. **Planejamento revisado; nenhuma implementação iniciada.** V2 é a base; oficial somente leitura. Referência: aplicativo funcionando em 26/10, testado pela Patrícia, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
+Atualização: 27/10/2026. **Fase 1 em andamento localmente; demais entregas planejadas.** V2 é a base; oficial somente leitura. Referência: aplicativo funcionando em 26/10, testado pela Patrícia, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
 
 Objetivo: padronizar todos os fluxos Cliente/Admin sem passar várias fases construindo camadas antes da primeira jornada utilizável. Cada entrega fecha uma tarefa com interface, dados, regra, autorização, histórico, falhas e comunicação quando aplicável. “Fluxo completo” é unidade de construção; não cria fluxo novo nem significa que toda tela dispara e-mail. Chat não gera e-mail. Produção, migrations e canais externos exigem escopo próprio.
 
 ## Estado e cobertura
 
-Já existem levantamento, 18 fichas, matriz estática, DS/UX/arquitetura propostos e decisões. Não repetir inventário como se estivesse vazio. Código segue demonstrativo; somente typecheck/build existem como verificações locais. Router, SDK, DS compartilhado, lint, testes e CI ainda não foram implantados.
+Já existem levantamento, 18 fichas, matriz estática, DS/UX/arquitetura propostos e decisões. Não repetir inventário como se estivesse vazio. Código segue demonstrativo. Router, Query/Form, API modular de empresas, tokens e Button/Field existem; lint, testes, formatação, links e build compõem `npm run verify`. Workflow definido ainda não executado no GitHub. SDK, sessão real e RLS permanecem pendentes. Bibliotecas foram escolhidas pelo usuário em DEC-20.
 
 O SHA `f3d3f14043a6abc38636f0340fe831e621d8b357` das fontes já corresponde à publicação 83. Os links continuam válidos; código/migrations não comprovam configuração ou aplicação no banco ativo. As 29 chamadas sem corpo localizado permanecem lacunas técnicas por operação, não motivo para inventar contrato.
 
@@ -17,7 +17,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | Fase | Entrada | Entrega/saída | Estado |
 | --- | --- | --- | --- |
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
-| 1 — Fundação mínima para o primeiro fluxo | 0 e autorização futura de implementação | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Planejada |
+| 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; base demo local, sem sessão real |
 | 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | Planejada |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
@@ -29,7 +29,7 @@ Não há estimativas em dias nem responsáveis individuais inventados. Nomear re
 
 ## Fase 1 — Fundação mínima para a primeira entrega
 
-**Dependência:** fase 0 e autorização de execução. A prioridade é viabilizar 2A, não criar todas as pastas, componentes ou integrações antes de entregar uso.
+**Dependência:** fase 0; execução local autorizada pelo Felipe em 27/10, sem conexão ao Supabase oficial nem publicação. A prioridade é viabilizar 2A, não criar todas as pastas, componentes ou integrações antes de entregar uso.
 
 **Trabalho necessário:**
 
@@ -39,6 +39,38 @@ Não há estimativas em dias nem responsáveis individuais inventados. Nomear re
 - Reconciliar somente os contratos de acesso e empresa necessários ao início. Preparar contas/adesões sintéticas para testar sessão sem depender do cadastro completo de 2A.
 - Implementar bootstrap, shell/layout e rotas mínimas; identidade e contexto isolados; tokens e primitivas com consumidores reais. DS/rotas/hooks/cache crescem com as entregas seguintes.
 - Adesão antes do convite; termos obrigatórios no primeiro acesso/nova versão; falha de comprovação bloqueia. Integrar informação de privacidade e versionamento conforme [Dados pessoais](DATA_PRIVACY.md).
+
+**Progresso local de 27/10:** main sincronizada em `c9baea7`; runtime/lockfile e gates definidos; navegação Cliente/Admin por URL preservando composições legadas; empresas com filtros/seleção na URL, hooks Query, formulário Form/Zod e adapter Axios em memória. Tokens e duas primitivas têm consumidor real. Isso prepara 2A, sem declarar cadastro, convite, revogação ou limite de acessos comprovados no servidor.
+
+### Acompanhamento da fase 1 — pacote para revisão
+
+Esta lista registra execução e evidência. O PR de rascunho acompanha o mesmo recorte; atualizar sua descrição a cada lote de commits junto das fontes canônicas. Fase 1 continua em andamento até cumprir os gates de acesso real abaixo.
+
+**Concluído localmente:**
+
+- [x] Sincronizar a base documental da main `c9baea7` e trabalhar na branch `codex/fase-1-base`.
+- [x] Fixar runtime, dependências e lockfile; comprovar instalação limpa sem scripts de dependências.
+- [x] Configurar formatação, lint, typecheck, testes, checagem documental e build em `npm run verify`.
+- [x] Implantar bootstrap, Router/Query providers, URLs Cliente/Admin e retorno para erro/rota inexistente; shells legados permanecem ponte de migração.
+- [x] Preparar módulo de empresas com schemas Zod, services, hooks Query, keys `as const`, filtros/seleção na URL e dados em memória. Isso não entrega cadastro/convite/revogação reais.
+- [x] Implantar tokens, Button/Field e tipo compartilhado de variantes, com strings tipadas no JSX.
+- [x] Separar mocks da aplicação de fixtures/adapters exclusivos dos testes; proteger fronteiras com lint.
+- [x] Documentar tipos, regras de lint/exceções, decisões de stack, operação e rollback.
+- [x] Validar o consumidor demonstrativo em 1440/1280/1024/390 px e teclado; última verificação local completa passou com 50 testes em seis arquivos.
+
+**Falta para fechar a fase 1:**
+
+- [ ] Reconciliar contratos mínimos de acesso/empresa: perfil, vínculo, sessão, guardas, MFA e definições necessárias; TEC-01/02. Lacunas de outros domínios ficam nos respectivos fluxos.
+- [ ] Definir e comprovar ambiente isolado, dados/atores sintéticos e bloqueio de comunicações externas; OPEN-10. Nenhuma conexão ao oficial está autorizada.
+- [ ] Implementar autenticação/sessão e contexto reais, login/callback, guardas por papel/empresa/ativo e tratamento de MFA conforme contrato reconciliado.
+- [ ] Implementar adesão como pré-condição e aceite de termos obrigatório por versão, com informação de privacidade e bloqueio em falha de comprovação. Usar contas/adesões preparadas para teste, sem antecipar o cadastro completo da fase 2A.
+- [ ] Provar isolamento no servidor para Cliente A/B/Admin, perfil inativo, empresa bloqueada, expiração/revogação, logout e cancelamento/limpeza de cache/contexto.
+- [ ] Validar URL direta/retorno após login e teclado/mobile dos estados de acesso reais; fixtures não encerram esse aceite.
+- [ ] Executar/revisar CI no GitHub para a revisão enviada e concluir a revisão técnica do recorte; workflow definido não é execução comprovada.
+
+Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de ponta a ponta são a entrega 2A. O DS e as demais extrações crescem junto dos fluxos; não são um catálogo completo a terminar antes de 2A. Fontes de evidência: [arquitetura](ARCHITECTURE.md), [runbook](RUNBOOK.md), [changelog](CHANGELOG.md) e [ficha de acesso/contas](flows/ACCESS_ACCOUNTS.md).
+
+**Próximo passo técnico:** reconciliar contratos mínimos de acesso/empresa e definir ambiente isolado antes da conexão. OPEN-10, sessão/MFA/termos, atores A/B/Admin, expiração/revogação/logout e RLS continuam pendentes. Não tratar demonstração Admin como autenticação.
 
 **Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 
@@ -164,4 +196,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. Todos os estados de implementação permanecem planejados nesta revisão.
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. Fase 1 tem execução local parcial; as entregas de produto das fases 2–7 permanecem planejadas. Não encerrar fase 1 com base apenas em mocks, lint e build.

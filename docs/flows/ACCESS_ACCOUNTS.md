@@ -39,6 +39,8 @@ As tabelas abaixo continuam descrevendo fontes oficiais, inclusive a guarda anti
 
 ## FLOW-02 — Conta, contrato, acessos e ciclo de vida
 
+**Estado V2 em 27/10:** `/admin/clientes` consulta três empresas e acessos sintéticos por módulo/hook, com filtros e seleção na URL. Quatro acessos equivalentes aparecem na fixture inicial, sem conta principal. Isso prepara a interface/contrato local; não implementa cadastro, adesão, convite, revogação, autenticação, persistência ou limites no servidor. Demais transições abaixo descrevem referência/alvo a portar, não comportamento já entregue. Ver [arquitetura](../ARCHITECTURE.md) e [runbook](../RUNBOOK.md).
+
 **Objetivo/atores:** Admin cadastra/manutenção de conta e configura contrato/acessos; Cliente consulta contexto autorizado. Rotas `/admin/clientes` e páginas cliente relacionadas. Fontes: [cadastro UI](SOURCES.md#accounts), [contato principal](SOURCES.md#contact), [limite/status](SOURCES.md#access-limit), [triggers de encerramento](SOURCES.md#access-close), [definição ausente](SOURCES.md#account-missing), [schema/RLS](SOURCES.md#schema), [frentes](SOURCES.md#fronts).
 
 **Entrada/dados/composição:** Admin usa etapas Dados, Decisores/acessos, Contrato, Financeiro e Documentos; manutenção inclui Operação, Frentes, Agenda, Comunicações e Histórico. Campos incluem empresa/contato/e-mail, plano/capacidade, vigência, condições comerciais, documentos, acesso e automações. Valores de fixtures não são contrato. Perfil cliente não recebe escrita genérica em `companies`, `profiles` ou `client_invites` pelas policies iniciais.
