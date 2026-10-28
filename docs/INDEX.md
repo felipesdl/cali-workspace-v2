@@ -1,6 +1,6 @@
 # Índice da documentação
 
-Atualização: 27/10/2026. Base de desenvolvimento: este repositório V2. Escopo: diagnóstico, contratos alvo decididos e padronização de todos os fluxos; fase 1 local em andamento.
+Atualização: 28/10/2026. Base de desenvolvimento: este repositório V2. Escopo: diagnóstico, contratos alvo decididos e padronização de todos os fluxos; fase 1 local em andamento.
 
 | Pergunta | Fonte canônica |
 | --- | --- |

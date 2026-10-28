@@ -1,12 +1,14 @@
 # Arquitetura de desenvolvimento
 
-Atualização: 27/10/2026. **Fundação local iniciada; fase 1 em andamento.** A base sincronizada é `c9baea7` da `main`, após merge do PR documental. Rotas, Query/Form, módulo demonstrativo de empresas, tokens e duas primitivas existem; autenticação real, backend isolado e prova de permissões não foram implementados.
+Atualização: 28/10/2026. **Fundação local iniciada; fase 1 em andamento.** A base sincronizada é `c9baea7` da `main`, após merge do PR documental. Rotas, Query/Form, módulo demonstrativo de empresas, tokens e duas primitivas existem; autenticação real, backend isolado e prova de permissões não foram implementados.
 
 Ler [Regras de produto](PRODUCT_RULES.md), [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md), [fichas](flows/README.md) e [roadmap](ROADMAP.md). Estrutura de código não aprova regra nova. A V2 é a base, o oficial permanece somente leitura.
 
 ## Bibliotecas escolhidas
 
 Felipe definiu em 27/10: TanStack Form (`@tanstack/react-form`), Query (`@tanstack/react-query`) e Router (`@tanstack/react-router`), date-fns, Axios e Zod. Vite permanece o bundler; TanStack Router é a escolha de roteamento do projeto. React Router deixa de ser a proposta da V2. React 18 foi preservado.
+
+Tailwind CSS 4.3.3 com `@tailwindcss/vite` 4.3.3 e `prettier-plugin-tailwindcss` 0.8.1 foi integrado em 28/10 (DEC-24). Bootstrap importa tokens e folha Tailwind uma vez; DS/features usam utilities `tw:` e aliases CALI, sem Preflight nesta coexistência. [Política e inventário de estilos](DESIGN_SYSTEM.md#política-de-css) definem migração por consumidor e limpeza final.
 
 Versões são fixadas em package/lockfile; Node e npm estão documentados no [runbook](RUNBOOK.md). Escolha de versões foi conferida por documentação primária via Context7, peer dependencies e execução local. Não instalar biblioteca adicional por analogia nem criar abstração sem consumidor.
 
@@ -24,7 +26,7 @@ Fluxo atual de dados: **view → hook de consulta do módulo → service → Axi
 | `src/api/modules/companies` | Schema/tipos, keys, service, composição do adapter mock e hooks Query com consumidores reais |
 | `src/mocks/http/client.ts` | Axios com adapter obrigatório; destinos, baseURL e transporte alternativos recusados; nenhum modo de rede nesta etapa |
 | `src/api/query-client.ts` | Configuração do QueryClient, criado por instância do router; não guarda dados em context |
-| `src/components/ds` | Button/Field e estilos locais; sem dependência de app, feature ou API |
+| `src/components/ds` | Button/Field com utilities Tailwind e variantes tipadas; sem dependência de app, feature ou API |
 | `src/styles/tokens.css` | Tokens iniciais consumidos pelas peças e página de empresas; não substitui ainda toda a cascata legada |
 | `src/mocks/fixtures/notices.ts` | Seeds de Avisos compartilhados com as prévias de mural/calendário; alterações do mural ainda não compõem um domínio vivo comum |
 | `src/lib/dates.ts` | Formatação de data civil com date-fns, preservando o dia informado |

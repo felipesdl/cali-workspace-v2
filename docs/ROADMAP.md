@@ -66,6 +66,12 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 - [x] Definir Supabase local dedicado, CLI/portas/rede e configuração versionada com migrations/seeds desligados — DEC-22; [ambiente](LOCAL_ENVIRONMENT.md).
 - [x] Implementar checagem estática da configuração e preflight somente de leitura. Docker/portas conferidos; preflight não passou porque CLI e rede dedicada ainda não existem.
 
+**Avanço de 28/10 — padronização de estilos (DEC-24):**
+
+- [x] Integrar Tailwind/Vite/Prettier, mapear tokens CALI e migrar Button, Field e empresas; remover os três CSS substituídos.
+- [x] Registrar coexistência sem Preflight, prefixo `tw:` e inventário dos oito CSS legados no [DS](DESIGN_SYSTEM.md#inventário-da-migração-de-estilos).
+- [ ] Migrar os demais consumidores junto dos respectivos fluxos; retirar regras/imports substituídos a cada recorte e concluir limpeza global após todos migrarem. Trabalho transversal das fases, sem bloquear a primeira entrega por catálogo visual completo.
+
 **Falta para fechar a fase 1:**
 
 - [ ] Completar lacunas de contrato e baseline por operação: DDL de códigos, persistência do novo registro de adesão e unificação de predicados perfil/allowlist/ativo; create_client_account segue ausente para 2A, sem impedir preparação sintética. MFA já decidido em DEC-21; implementação/prova pendentes. TEC-01/02 não foram declarados resolvidos globalmente.

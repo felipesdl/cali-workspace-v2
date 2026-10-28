@@ -37,6 +37,8 @@ Não criar testes que apenas reproduzam a implementação. Não exigir uma suít
 
 Desde 27/10, `npm run verify` agrega formatação, lint, typecheck, testes, integridade da configuração local, links documentais e build. Escopo/exceções legadas estão no runbook. Workflow definido não comprova CI executada; verificações locais não substituem gates de permissão/integração ou aceite funcional. Não criar scripts que prometam garantias não executadas.
 
+Migração de estilos segue DEC-24: novas peças/consumidores usam Tailwind e tokens CALI. Remover CSS/imports substituídos junto da migração; manter folhas compartilhadas enquanto houver consumidores. Conferir o inventário no [DS](DESIGN_SYSTEM.md#inventário-da-migração-de-estilos). Limpeza global ocorre após a migração completa, com revisão da cascata/base e regressão dos fluxos.
+
 ## Controle de documentação
 
 - Atualizar o documento dono da mudança, conforme [índice](INDEX.md).

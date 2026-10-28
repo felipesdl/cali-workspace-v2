@@ -48,6 +48,10 @@ Definição técnica de 28/10 no escopo autorizado: Supabase CLI 2.122.0/Docker 
 
 Em 28/10, Felipe pediu investigar cadastro/primeiro acesso e, se não houver registro, criar um. Inspeção do cadastro/documentos, TermsGate, workspace-access e dos 166 SQLs da referência encontrou contratos/aditivos e aceite individual dos termos, sem registro autônomo da adesão da empresa. Criado contrato mínimo novo da V2: empresa, referência da formalização, autoria e instante do servidor; operação Admin, antes do convite, preservando DEC-08. Não foi inventada assinatura digital, upload obrigatório ou prazo de validade. Formato/comprovação da referência e persistência precisam ser implementados na baseline local; ainda não há gravação funcional. [Investigação e alvo](contracts/ACCESS_COMPANIES.md#registro-próprio-de-adesão--dec-23).
 
+## DEC-24 — Tailwind e migração incremental de estilos
+
+Em 28/10, Felipe aprovou integrar Tailwind à branch atual e migrar o que já foi construído, evoluindo o legado junto dos commits dos fluxos e deixando a limpeza global para o fim. Implementados Tailwind 4.3.3, plugin Vite e ordenação Prettier; Button, Field e empresas migrados com remoção dos três CSS substituídos. Tokens/identidade e contratos funcionais permanecem no DS/domínio. Prefixo `tw:`, ausência de Preflight e utilities sem layer preservam a coexistência com o legado; [política e inventário](DESIGN_SYSTEM.md#inventário-da-migração-de-estilos). Não implica migrar todas as prévias nesta rodada nem encerrar a fase 1.
+
 ## Propostas técnicas/de experiência
 
 Manter React/Vite; usar router; separar adaptadores/hooks; adotar cache de servidor; definir tokens, escala tipográfica, composição e padrões de interação são propostas em [Arquitetura](ARCHITECTURE.md), [Design system](DESIGN_SYSTEM.md) e [UX/UI](UX_UI.md). A seleção DEC-20 e o primeiro consumidor demo estão implementados; demais padrões continuam propostos até possuir consumidor e validação.

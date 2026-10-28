@@ -11,6 +11,7 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 - TanStack Router controla URLs Cliente/Admin; composições legadas continuam como ponte de migração. Autenticação e permissões reais ainda não existem.
 - Empresas em `/admin/clientes` usa TanStack Form/Query, Axios com adapter local e Zod; filtros/empresa na URL, cache separado e até quatro acessos fictícios equivalentes. Sem cadastro, convite ou alteração real.
 - API organizada por módulos em `src/api/modules`, com schemas, services, hooks e query keys `as const`. DS inicial contém tokens, Button e Field; demais componentes continuam propostos.
+- Tailwind 4 integrado ao Vite; Button, Field e empresas migrados. Legado migra por fluxo, com limpeza global após retirar seus consumidores. Ver [política e inventário](docs/DESIGN_SYSTEM.md#inventário-da-migração-de-estilos).
 - Mocks executados pela aplicação ficam em `src/mocks`; cenários exclusivos ficam em `tests/fixtures` e `tests/mocks`. Aplicação não importa testes. Ver [organização e fronteiras](docs/ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes).
 - Tipos de contratos são inferidos dos schemas Zod; props/modelos locais ficam no consumidor. Ver [tipagem](docs/ARCHITECTURE.md#tipagem-e-validação) e [restrições de lint](docs/RUNBOOK.md#regras-de-lint-implantadas).
 - [Contratos mínimos de acesso/empresa](docs/contracts/ACCESS_COMPANIES.md) reconciliados com schemas de fronteira; nenhum service/Auth conectado. Admin exige os dois passos antes de entrar (DEC-21).

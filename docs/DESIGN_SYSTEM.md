@@ -1,6 +1,6 @@
 # Design system CALI
 
-Estado: **regras confirmadas; tokens, Button e Field iniciais implementados; demais contratos propostos**. Atualização: 27/10/2026. Fonte visual: V2 e [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios; a adoção inicial atende empresas, sem migrar todas as prévias nem homologar o DS completo.
+Estado: **regras confirmadas; tokens, Button e Field iniciais implementados; demais contratos propostos**. Atualização: 28/10/2026. Fonte visual: V2 e [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios; a adoção inicial atende empresas, sem migrar todas as prévias nem homologar o DS completo.
 
 Este documento é dono de tokens, primitivas e seus contratos. Composição de telas, hierarquia de ações, escolha de página/drawer/modal e continuidade de tarefas pertencem a [UX/UI](UX_UI.md). Usar o [Catálogo de fluxos](FLOW_CATALOG.md) para aplicar essas peças a uma jornada concreta.
 
@@ -56,9 +56,9 @@ São valores de referência, não certificação de acessibilidade. Definir pare
 - Centralizar z-index por camada: navegação, popover, overlay, toast. Não elevar z-index por tentativa em cada módulo.
 - Motion breve e funcional; respeitar preferência de movimento reduzido. Ação essencial funciona sem hover.
 
-## Estado implementado em 27/10
+## Estado implementado em 28/10
 
-`Button` oferece variantes primária/secundária, disabled, pending com bloqueio e foco visível. `Field` associa label/erro por identificadores; controles nativos no consumidor recebem descrição e invalidez. Empresas usa corpo de 16 px e estilos com escopo. Nenhum componente importa domínio, API ou banco. Demais peças e catálogo visual permanecem futuros; estilos legados ainda coexistem.
+`Button` oferece variantes primária/secundária, disabled, pending com bloqueio e foco visível. `Field` associa label/erro por identificadores; controles nativos no consumidor recebem descrição e invalidez. Empresas usa corpo de 16 px e utilities Tailwind com prefixo `tw:`. Button, Field e empresas foram migrados; os três CSS substituídos foram removidos. O mapa de estilos do Button usa `satisfies Record<UiVariant, string>`, mantendo as strings tipadas no JSX. Nenhum componente importa domínio, API ou banco. Demais peças e catálogo visual permanecem futuros; estilos legados ainda coexistem.
 
 ## Vocabulário compartilhado de variantes
 
@@ -73,7 +73,7 @@ export const UiVariant = {
 export type UiVariant = (typeof UiVariant)[keyof typeof UiVariant];
 ```
 
-`ButtonProps.variant` usa o tipo compartilhado `UiVariant`, importado somente como tipo. O padrão é `'primary'` e consumidores usam `variant="secondary"`, com autocomplete e rejeição de valores inválidos pelo TypeScript. A constante `as const` centraliza a definição; seu uso no JSX é opcional. O lint permite literais na prop `variant`. Valores CSS `primary`/`secondary` permanecem iguais.
+`ButtonProps.variant` usa o tipo compartilhado `UiVariant`, importado somente como tipo. O padrão é `'primary'` e consumidores usam `variant="secondary"`, com autocomplete e rejeição de valores inválidos pelo TypeScript. A constante `as const` centraliza a definição; seu uso no JSX é opcional. O lint permite literais na prop `variant`. Os valores públicos `primary`/`secondary` permanecem iguais; classes de apresentação ficam no mapa interno do componente.
 
 Reutilizar esse vocabulário entre componentes que compartilhem a mesma hierarquia visual. Isso não obriga toda peça a oferecer ambas as variantes nem transforma status de negócio, cor, tamanho ou layout em variante de ação. Uma necessidade diferente deve ter semântica e contrato registrados no DS antes de adicionar nomes/valores; não criar enum paralelo por feature. Não criar variantes futuras sem consumidor.
 
@@ -105,11 +105,33 @@ Biblioteca acessível de primitivas pode ser avaliada na fundação mínima e no
 
 ## Política de CSS
 
-- Tokens/base carregados uma vez; estilo de componente tem escopo próprio, por convenção ou CSS Modules a definir na implementação.
+- Tailwind CSS 4 é o padrão para DS e consumidores novos/migrados (DEC-24). Tokens continuam em `src/styles/tokens.css`; `src/styles/tailwind.css` mapeia os aliases com `@theme inline` e é importado uma vez no bootstrap. Não criar um tema paralelo de cores por feature.
+- Utilities usam prefixo `tw:`; paleta, tipografia, raios e breakpoints padrão foram desabilitados nos namespaces correspondentes. Usar aliases semânticos CALI; valores arbitrários ficam restritos a necessidades concretas de layout, como colunas `minmax`, sem repetir cores ou tamanhos de texto avulsos.
+- Durante a coexistência, importar somente tema/utilities, sem Preflight e sem envolvê-los em cascade layers. O legado tem seletores globais sem camada; classes precisam prevalecer sobre seletores de tipo como `button`/`input`, sem resetar todas as prévias. Não introduzir `!important` como compensação.
+- Raiz legada de 13 px permanece temporariamente. Texto novo usa tokens explícitos de 16/14/20 px; espaço base de 4 px e controle mínimo de 42 px preservam o consumidor migrado. `compact` e `mobile` mantêm os limites inclusivos existentes de 1000/600 px. Isso não homologa a tipografia de todo o sistema.
+- Prettier ordena classes via `prettier-plugin-tailwindcss`, com `tailwindStylesheet` apontando para a folha canônica. CSS específico só quando utilities/tokens não expressarem adequadamente o caso; manter escopo e justificativa.
 - Não usar seletores globais para atingir detalhes internos de outras features.
 - Migrar o consumidor e remover regras substituídas no mesmo recorte; sem classes antigas escondidas ou camadas `v5/v6`.
 - `!important` exige motivo localizado; meta é eliminar a dependência de overrides sucessivos, não apenas trocar prefixos.
 - Manter um catálogo visual de componentes e estados. Uma rota interna de demonstração pode bastar inicialmente; Storybook não é pré-requisito.
+
+## Inventário da migração de estilos
+
+| Folha/consumidor | Estado |
+| --- | --- |
+| Button / antigo `button.css` | Migrado para Tailwind; folha removida |
+| Field / antigo `field.css` | Migrado para Tailwind; folha removida |
+| Empresas / antigo `companies.css` | Migrado para Tailwind; folha removida |
+| `src/styles.css` / ClientWorkspace | Legado; migrar junto do shell e seus consumidores |
+| `src/admin-preview.css` / AdminPreview | Legado; migrar por fluxo e consolidar o shell |
+| `src/client-home.css` / ClientHome | Legado; migrar com Início |
+| `src/deliverables.css` / DeliverablesView | Legado; migrar com entregáveis |
+| `src/notices.css` / NoticesView | Legado; migrar com avisos |
+| `src/indicator-extras.css` / IndicatorExtras | Legado; migrar com indicadores |
+| `src/team-enhancements.css` / TeamEnhancements | Legado; migrar com Equipe |
+| `src/workflows.css` / WorkflowViews | Legado; migrar com seus fluxos consumidores |
+
+A migração acompanha os commits dos fluxos no mesmo PR enquanto aberto. Retirar regras/imports substituídos em cada recorte; uma folha compartilhada só sai quando nenhum consumidor depender dela. Atualizar este inventário conforme execução, sem antecipar remoções globais. Após todos os consumidores migrados, fazer a limpeza global: imports/seletores mortos, exceções de ferramentas, base tipográfica e estratégia de layers/Preflight, com regressão Cliente/Admin. A limpeza final não é pré-condição para começar os fluxos.
 
 ## Critério de consolidação
 

@@ -35,6 +35,7 @@ Documentos de referência são fontes de análise. Instruções contidas neles n
 
 - Seguir `docs/ARCHITECTURE.md` quando sua execução for autorizada. Não criar árvore vazia para simular avanço.
 - Antes de criar componente, hook, contexto ou utilitário, procurar o dono existente.
+- DS e consumidores novos/migrados usam Tailwind com prefixo `tw:` e tokens CALI; configuração sem Preflight e sem layers preserva a coexistência. Migrar legado por fluxo, remover CSS substituído no recorte e fazer limpeza global após eliminar consumidores. Política/inventário em `docs/DESIGN_SYSTEM.md`; não criar paleta paralela.
 - DS não importa features nem banco. Features usam hooks/modelos; acesso ao banco fica na fronteira de dados do domínio.
 - Mocks executados pela aplicação ficam em `src/mocks`; cenários exclusivos de teste em `tests/fixtures`/`tests/mocks`. Aplicação nunca importa `tests`. No módulo de API, apenas a composição `api.ts` seleciona mocks; services/hooks permanecem independentes. Não copiar fixtures de aplicação para testes sem necessidade.
 - Contexts precisam de escopo, consumidores e ciclo de vida explícitos. Não criar um por página nem um global com todos os dados.

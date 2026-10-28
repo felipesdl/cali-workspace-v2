@@ -1,5 +1,16 @@
 # Registro de mudanças
 
+## 28/10/2026 — Tailwind no DS e empresas; migração por fluxo
+
+- **Autor/escopo:** agente Codex, conforme autorização do Felipe para atualizar a branch/PR #2, migrar o legado junto dos fluxos e fazer limpeza global após migrar seus consumidores (DEC-24). Fase 1 continua em andamento.
+- **Construção:** Tailwind e plugin Vite 4.3.3, plugin Prettier 0.8.1 e lockfile fixos; `vite.config.ts`, `.prettierrc.json`, bootstrap, tokens e nova `src/styles/tailwind.css` configurados. Prefixo `tw:`, aliases CALI via `@theme inline`, sem Preflight e sem layers durante a coexistência com CSS global legado. Nenhuma biblioteca adicional de composição de classes.
+- **Consumidores:** Button, Field e empresas usam utilities; mapa de variantes exaustivo preserva `variant="secondary"`. Removidos os três CSS integralmente substituídos (170 linhas). Contratos, filtros, permissões, rotas e dados permanecem iguais. Oito folhas legadas ficam inventariadas no [DS](DESIGN_SYSTEM.md#inventário-da-migração-de-estilos), para migração com consumidores reais e limpeza final após retirar dependências.
+- **Documentação:** README/AGENTS, arquitetura, DS, DEC-24, roadmap, runbook e política de mudança registram padrão, coexistência e trabalho restante. PR acompanha esta mesma entrega; sem declarar migração global concluída.
+- **Validação:** instalação limpa `npm ci --ignore-scripts --offline --no-fund` passou; `npm run verify` passou com 76 testes em oito arquivos, formatação, lint, tipos, configuração local e build; checagem documental final passou com 32 documentos/597 links. Nenhum teste novo criado apenas para espelhar classes. Permanecem dois avisos conhecidos de anotações do Zod.
+- **QA local:** empresas conferido antes/depois em 1440/1280/1024/390 px; geometria e tipografia preservadas. Capturas em 1440/1024/390 e telas legadas Admin/Cliente em 1280 tiveram arquivos idênticos por SHA-256. Tab confirma foco bordô de 2 px/offset de 3 px no Button; tabela mobile rola por ArrowRight sem ampliar documento (390 px; região 256 px/conteúdo 489 px). Busca inválida mantém erro associado de 14 px e botão disabled/opacidade 0,65. Contraste calculado em sRGB: bordô/branco 12,66:1, texto principal/branco 14,16:1, auxiliar/branco 5,47:1 e auxiliar/marfim 4,96:1; não certifica todos os estados do sistema. Console: zero erros/warnings. Capturas locais em `output/playwright/`, ignoradas pelo Git.
+- **Limites:** conferência não homologa todos os fluxos, zoom/leitor de tela ou estados assíncronos reais. Não houve conexão ao Supabase oficial, ativação do stack local, SQL, comunicação, merge ou deploy. Sessão, adesão persistida e RLS continuam pendentes. CI remota precisa ser conferida na revisão enviada.
+- **Rollback:** reverter somente integração/configuração, lockfile e migração deste recorte, restaurando os três CSS/imports correspondentes; preservar contratos e alterações posteriores. Não há dados ou serviços deste lote para remover.
+
 ## 28/10/2026 — Contratos de acesso/empresas e definição do laboratório local
 
 - **Autor/escopo:** agente Codex, conforme continuidade autorizada da fase 1 e manutenção do PR #2. Sem conexão ao Supabase oficial, execução de SQL ou ativação de serviços. Oficial consultado somente em leitura.
