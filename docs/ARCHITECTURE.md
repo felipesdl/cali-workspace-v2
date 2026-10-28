@@ -68,6 +68,12 @@ Tipos ficam junto do dono: contratos de empresas em `src/api/modules/companies/s
 
 O lint restringe `any`, `unknown` fora dessas entradas justificadas, casts de objetos/arrays literais e imports de tipo incorretos. `as const` continua permitido; as regras não proíbem toda assertion possível. TypeScript permanece `strict`; esta configuração não ativa o conjunto de regras ESLint com análise de tipos `no-unsafe-*`. Não alegar essa garantia. Regras/exceções completas estão no [runbook](RUNBOOK.md#regras-de-lint-implantadas).
 
+## Contratos de acesso e laboratório local — 28/10
+
+`src/api/modules/access/schemas.ts` contém requests/respostas de workspace-access e projeções mínimas planejadas de perfil/aceite. `companies/records.ts` separa records de empresa/convite do DTO de demonstração. Schemas não habilitam Auth, transportes, guardas ou RLS; [contrato e lacunas](contracts/ACCESS_COMPANIES.md). Admin exige os dois passos em DEC-21.
+
+DEC-22 escolhe Supabase local dedicado. `scripts/local-environment.ts` define e confere `supabase/config.toml`; preflight somente lê pré-condições e não inicia nada. Configuração estática integra verify; Docker/CLI/rede/bindings/egress/baseline reais continuam gates separados. A SPA permanece em modo demo; [ambiente e evidências](LOCAL_ENVIRONMENT.md).
+
 ## Mocks da aplicação e suporte exclusivo de testes
 
 ```text

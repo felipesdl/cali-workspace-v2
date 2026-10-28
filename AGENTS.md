@@ -15,6 +15,7 @@
 2. Ler `docs/BASELINE_REFERENCE_2026-10-26.md` para a referência funcional vigente e `docs/BASELINE_2026-10-25.md` para o diagnóstico histórico da V2.
 3. Ler `docs/PRODUCT_CONTEXT.md`, localizar a tarefa em `docs/FLOW_CATALOG.md` e conferir pendências em `docs/DECISIONS.md`.
    Para transições/permissões, consultar `docs/flows/README.md`, a ficha do domínio e `docs/PERMISSIONS.md`; fontes do oficial são estáticas e não comprovam estado ativo.
+   Para a fase 1, ler `docs/contracts/ACCESS_COMPANIES.md` e `docs/LOCAL_ENVIRONMENT.md`: contratos reconciliados não comprovam backend; CLI/rede/stack/baseline ainda não ativados. DEC-21 exige MFA Admin inclusive no primeiro uso, bloqueando falhas; DEC-22 define o laboratório local sem vínculo remoto. DEC-23 autoriza registro próprio de adesão após investigação; contrato existe, persistência/servidor ainda pendentes.
    Ler `docs/PRODUCT_RULES.md`: DEC-07 foi substituída por DEC-13; demais decisões anteriores continuam vigentes. DEC-19 define o resumo Admin em RESUMO-01; Cliente/staff não recebem. Versão Partner será definida na fase dele; resumo de chat das 08h não retorna.
 4. Para mudanças de interface/experiência, ler `docs/UX_UI.md` e `docs/DESIGN_SYSTEM.md`: experiência define composição e jornada; DS define primitivas e tokens.
 5. Ler o documento canônico da área e conferir os arquivos de código citados. Preencher a ficha do fluxo antes de mudar comportamento; não tratar exemplo proposto como regra aprovada.
@@ -51,8 +52,8 @@ Para sintaxe, configuração ou uso de bibliotecas/serviços, consultar Context7
 
 ## Validação e entrega
 
-- Gates locais: `npm run verify` executa formatação, lint, typecheck, testes, links documentais e build. Workflow definido não comprova execução no GitHub; testes com fixtures não comprovam autenticação ou RLS. Ver `docs/RUNBOOK.md`.
+- Gates locais: `npm run verify` executa formatação, lint, typecheck, testes, integridade da configuração local, links documentais e build. Workflow definido não comprova execução no GitHub; testes com fixtures não comprovam autenticação ou RLS. Ver `docs/RUNBOOK.md`.
 - Aplicar gates da mudança em `docs/CHANGE_POLICY.md`.
-- Não conectar Supabase oficial, executar migrations, disparar comunicações ou publicar como consequência implícita de documentação.
+- Não conectar Supabase oficial, executar migrations, disparar comunicações ou publicar como consequência implícita de documentação. O laboratório local exige preflight e baseline revisada antes de ativar; não usar link/login/db pull/push/deploy, credenciais oficiais ou redes de outros projetos por conveniência.
 - Registrar arquivos, motivo, impacto, testes executados, limitações e rollback. Build verde não comprova aprovação funcional.
 - Enquanto o [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) de acompanhamento da fase 1 estiver aberto, atualizar sua descrição a cada lote de commits junto do checklist em `docs/ROADMAP.md` e dos documentos donos. Manter entregue/pendente, validações e limitações coerentes; fase 1 permanece em andamento até prova de sessão/permissões no ambiente isolado.

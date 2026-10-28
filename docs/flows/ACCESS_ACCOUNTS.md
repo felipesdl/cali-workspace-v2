@@ -12,6 +12,10 @@ Referência: [publicação 83](../BASELINE_REFERENCE_2026-10-26.md), [regras de 
 
 As tabelas abaixo continuam descrevendo fontes oficiais, inclusive a guarda antiga de principal. O alvo é o contrato de construção futuro, não mudança aplicada ao backend.
 
+## Contratos mínimos reconciliados — 28/10
+
+[Contratos de acesso/empresas](../contracts/ACCESS_COMPANIES.md) detalham payloads, projeções, códigos de erro, fontes e lacunas por operação. Schemas de fronteira existem, sem service/Auth conectado. DEC-21 fecha MFA obrigatório Admin, incluindo primeiro uso e bloqueio em falha; tabelas de evidência abaixo preservam as exceções observadas no oficial. DEC-22 define ambiente local dedicado, cuja ativação/prova continuam pendentes. Não considerar contratos totalmente fechados: corpo de create_client_account, DDL de códigos, persistência do novo registro de adesão e predicados acumulados ainda exigem reconciliação.
+
 ## FLOW-01 — Convite, código, sessão, MFA e aceite
 
 **Objetivo/atores:** pessoa autorizada acessa o workspace adequado como Cliente ou Admin. Empresa e papel vêm do perfil; não da seleção demonstrativa da V2. Adesão comercial e aceite de uso são eventos diferentes.

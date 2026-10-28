@@ -1,6 +1,6 @@
 # Regras de produto CALI
 
-Atualização: 26/10/2026. **Contrato de produto confirmado, sem implementação nesta entrega.** Fonte canônica das regras operacionais e de experiência consolidadas após a revisão da Patrícia e autorização do Felipe. Fontes: [decisões e públicos](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417356971), [regras e prioridades](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417361907) e complemento de interface fornecido na conversa de 26/10.
+Atualização: 28/10/2026. **Contrato de produto confirmado, sem implementação nesta entrega.** Fonte canônica das regras operacionais e de experiência consolidadas após a revisão da Patrícia e autorização do Felipe. Fontes: [decisões e públicos](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417356971), [regras e prioridades](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417361907) e complemento de interface fornecido na conversa de 26/10.
 
 As regras definem resultado e público; não determinam automaticamente schema, biblioteca ou comprovação de produção. O código de referência é a [publicação 83](BASELINE_REFERENCE_2026-10-26.md). O [registro de decisões](DECISIONS.md) preserva substituições; as fichas detalham operações e casos; DS/UX transformam intenção em composição verificável. Não duplicar versões concorrentes das regras.
 
@@ -63,6 +63,14 @@ Conteúdo para Patrícia, clientes e produto usa português claro, consultivo e 
 | Gestão | Gestão da empresa, após aprovação/liberação CALI | Empresa com conta: aplicativo e aviso por e-mail; empresa sem conta: PDF no e-mail do gestor |
 
 DEC-13 substitui DEC-07. Empresa com conta não recebe poder de liberar avaliador; empresa sem conta não recebe acesso ao workspace por consequência do envio de PDF. Reabrir/corrigir preserva identidade e histórico. Nova aprovação interna e nova liberação são necessárias após alteração; nova ciência do Cliente segue DEC-12, somente se Admin solicitar.
+
+## Acesso Admin — DEC-21, confirmação de 28/10
+
+Admin deve cadastrar e confirmar o segundo fator antes de entrar, inclusive no primeiro uso. Falha de verificação mantém o acesso bloqueado e oferece retry; não transportar exceções de ausência de fator, erro ou ambiente QA do oficial. Cliente continua com o contrato já definido. A decisão está documentada; implementação e testes reais ainda pendentes. Ver [contratos de acesso](contracts/ACCESS_COMPANIES.md).
+
+## Registro de adesão — DEC-23
+
+A investigação não localizou operação própria no cadastro/primeiro acesso. Felipe autorizou criar o registro mínimo da adesão da empresa, distinto do aceite individual dos termos e comprovado antes do convite (DEC-08). Contrato V2 definido; persistência e operação real ainda pendentes. Não inventar assinatura, anexo ou prazo por consequência dessa criação. [Detalhes e limites](contracts/ACCESS_COMPANIES.md#registro-próprio-de-adesão--dec-23).
 
 ## RESUMO-01 — contrato Admin definido; Partner posterior
 

@@ -6,6 +6,10 @@ Referência funcional vigente: [publicação 83 de referência em 26/10](BASELIN
 
 Vocabulário: [Contexto de produto](PRODUCT_CONTEXT.md). Operações se vinculam aos IDs do [Catálogo de fluxos](FLOW_CATALOG.md), às [fichas reconciliadas](flows/README.md) e à [matriz Cliente/Admin](PERMISSIONS.md). Essa matriz é evidência estática; permissões efetivas e contratos ausentes continuam pendentes de prova. Decisões/conflitos estão no [registro](DECISIONS.md).
 
+## Recorte de acesso/empresa — 28/10/2026
+
+[Contrato mínimo reconciliado](contracts/ACCESS_COMPANIES.md): request/verify por código, troca de token, perfil, empresa, convite, termos, diferenças aprovadas e definições ausentes por operação. Há schemas de fronteira e records mínimos planejados, sem transporte Supabase conectado. DEC-21 exige MFA Admin antes de liberar acesso; DEC-22 define [ambiente local dedicado](LOCAL_ENVIRONMENT.md), ainda sem stack/baseline ativos. DEC-23 autoriza registro próprio de adesão após investigação: contrato mínimo criado, gravação/persistência pendentes, separado de aceite de termos. O DTO demo de empresas não substitui projeção real; archived foi incorporado ao catálogo de estados conhecido.
+
 ## Contrato alvo posterior ao levantamento
 
 Em 26/10/2026, DEC-05 a DEC-12 fecharam acessos equivalentes sem principal, manutenção/leitura privada de Equipe, separação lançamento/correção de métricas, adesão/aceite e reabertura/liberação/validação de conteúdo. A seção de alvo confirmado da matriz e as fichas registram essas regras. Na futura integração, identificar diferenças do oficial e planejar compatibilidade/migração; não executar alterações nesta etapa.
@@ -82,9 +86,9 @@ Nomes abaixo são orientação, não catálogo validado do banco atual. [SOURCES
 
 O cliente oficial possui fallback de configuração para o projeto oficial. Não portá-lo literalmente. Na V2, configuração futura ausente deve resultar em demo explícita ou erro de configuração, sem contato implícito com produção.
 
-`VITE_DEMO_MODE` hoje não é lido. Implementar seleção única de adaptador e validar ambiente antes de criar o cliente. Seleção de adaptador no navegador é ergonomia, não controle de segurança do banco.
+`VITE_DATA_MODE`/`VITE_DEMO_MODE` já são validados pelo bootstrap e continuam permitindo apenas demonstração. A configuração local do laboratório não habilita SDK/cliente no frontend. A futura seleção de adaptador deve ser única e validar destino antes de criar cliente; ergonomia de ambiente não substitui autorização no servidor.
 
-Para integração, escolher ambiente Supabase local ou projeto não produtivo, com migrations reconciliadas, fixtures sintéticos e outbound bloqueado. Mesmo projeto com empresas sandbox só pode ser considerado após isolamento e efeitos colaterais demonstrados; preview Vercel não isola banco.
+Ambiente escolhido em DEC-22: Supabase local dedicado. Configuração e preflight estão em [Ambiente isolado](LOCAL_ENVIRONMENT.md); ativação requer baseline revisada, atores sintéticos e prova de bloqueio de outbound. Mesmo projeto com empresas sandbox só pode ser considerado após isolamento e efeitos colaterais demonstrados; preview Vercel não isola banco.
 
 E-mail, convites, Calendar/Meet, Drive e notificações externas precisam de inventário de gatilhos. `enqueued`, preview ou toast de sucesso não comprovam entrega externa.
 

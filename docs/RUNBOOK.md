@@ -27,7 +27,9 @@ npm run dev -- --host 127.0.0.1
 | `docs:check` | Links/âncoras locais e fechamento de blocos de código em README/AGENTS/docs |
 | `build` | TypeScript e Vite; artefatos em dist |
 | `preview` | Servidor local do build; não publica nem comprova hosting |
-| `verify` | Format check, lint, typecheck, testes, docs check e build |
+| `local:config:check` | Integridade da configuração versionada do laboratório; sem Docker, CLI ou banco |
+| `local:preflight` | Pré-condições em leitura: vínculo/overrides, versões, rede e portas; sem iniciar serviços |
+| `verify` | Format check, lint, typecheck, testes, local config check, docs check e build |
 
 Formatação exclui Markdown e TSX/CSS legados explicitados em `.prettierignore`. As oito composições de prévia enumeradas no ESLint mantêm exceção de variáveis/imports não usados; regras de hooks continuam ativas. Não chamar isso de normalização integral do legado. Ao migrar uma feature, remover sua exceção e validar no mesmo recorte.
 
@@ -69,6 +71,10 @@ Fontes/imagens externas do protótipo permanecem nos seus consumidores; são dis
 Mocks executados pela aplicação ficam em `src/mocks`: adapters, fixtures de empresas/avisos e cliente Axios sem rede. `tests/fixtures` contém cenários exclusivos de teste; `tests/mocks` contém adapters de resposta controlada. Testes de integração podem reutilizar mocks de `src`; o caminho inverso é proibido pelo lint. Não duplicar dados da aplicação apenas para preencher uma pasta de testes. Detalhes e árvore atual estão na [arquitetura](ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes).
 
 As variáveis `VITE_DATA_MODE=demo` e `VITE_DEMO_MODE=true` continuam identificando o modo demonstrativo, agora organizado como mocks; não houve alteração do contrato de configuração nem habilitação de backend.
+
+## Laboratório local definido em 28/10
+
+Ler [Ambiente isolado](LOCAL_ENVIRONMENT.md) antes de instalar/ativar qualquer serviço. Supabase local dedicado, CLI 2.122.0 e rede internal/loopback; `supabase/config.toml` existe, com migrations/seeds automáticos desabilitados. `local:preflight` não passou por CLI e rede ausentes; nenhum stack ou SQL foi iniciado. A aplicação segue somente com mocks. Contratos mínimos e lacunas por operação: [Acesso/empresas](contracts/ACCESS_COMPANIES.md).
 
 ## CI configurada
 

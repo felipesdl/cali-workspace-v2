@@ -35,7 +35,7 @@ Reorganização de arquivos não deve mudar silenciosamente payload, fórmulas, 
 
 Não criar testes que apenas reproduzam a implementação. Não exigir uma suíte nova para ajuste documental. Mock prova comportamento do cliente; não prova RLS, envio de e-mail ou sincronização externa.
 
-Desde 27/10, `npm run verify` agrega formatação, lint, typecheck, testes, links documentais e build. Escopo/exceções legadas estão no runbook. Workflow definido não comprova CI executada; verificações locais não substituem gates de permissão/integração ou aceite funcional. Não criar scripts que prometam garantias não executadas.
+Desde 27/10, `npm run verify` agrega formatação, lint, typecheck, testes, integridade da configuração local, links documentais e build. Escopo/exceções legadas estão no runbook. Workflow definido não comprova CI executada; verificações locais não substituem gates de permissão/integração ou aceite funcional. Não criar scripts que prometam garantias não executadas.
 
 ## Controle de documentação
 

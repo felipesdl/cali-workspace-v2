@@ -4,7 +4,7 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 
 **CALI administra; cliente acompanha, participa, valida e avalia.** Equipe cadastrada não equivale a usuários com acesso.
 
-## Estado atual — 27/10/2026
+## Estado atual — 28/10/2026
 
 - Cliente: Início, Equipe, Horas, Calendário, Ocorrências, Documentos, Relatórios, Projetos/Entregáveis e Avisos têm composições demonstrativas.
 - Admin: prévia com 11 seções, incluindo contas, propostas e equipe.
@@ -13,6 +13,8 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 - API organizada por módulos em `src/api/modules`, com schemas, services, hooks e query keys `as const`. DS inicial contém tokens, Button e Field; demais componentes continuam propostos.
 - Mocks executados pela aplicação ficam em `src/mocks`; cenários exclusivos ficam em `tests/fixtures` e `tests/mocks`. Aplicação não importa testes. Ver [organização e fronteiras](docs/ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes).
 - Tipos de contratos são inferidos dos schemas Zod; props/modelos locais ficam no consumidor. Ver [tipagem](docs/ARCHITECTURE.md#tipagem-e-validação) e [restrições de lint](docs/RUNBOOK.md#regras-de-lint-implantadas).
+- [Contratos mínimos de acesso/empresa](docs/contracts/ACCESS_COMPANIES.md) reconciliados com schemas de fronteira; nenhum service/Auth conectado. Admin exige os dois passos antes de entrar (DEC-21).
+- [Ambiente local dedicado](docs/LOCAL_ENVIRONMENT.md) definido, com configuração e preflight; stack/baseline ainda não ativos.
 - Formulários e interações locais não comprovam persistência, envio, aprovação ou ciência.
 - Escopo confirmado: padronizar todos os fluxos de Cliente e Admin e consolidar identidade bordô, marfim e dourado.
 - O código de `patricia258/app.cali` foi consultado somente em leitura como referência de contratos. Não é o destino da refatoração.

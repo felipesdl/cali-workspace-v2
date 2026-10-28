@@ -19,6 +19,8 @@ Atualização: 27/10/2026. Base de desenvolvimento: este repositório V2. Escopo
 | Como preservar identidade e componentes? | [Design system inicial e contratos propostos](DESIGN_SYSTEM.md) |
 | Como modelar tipos e quais restrições de lint existem? | [Tipagem](ARCHITECTURE.md#tipagem-e-validação) e [lint](RUNBOOK.md#regras-de-lint-implantadas) |
 | Onde organizar mocks e dados de teste? | [Arquitetura: mocks e testes](ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes) |
+| Quais contratos mínimos de acesso/empresa estão reconciliados? | [Contratos do recorte](contracts/ACCESS_COMPANIES.md) |
+| Qual ambiente isolado usar e o que foi comprovado? | [Ambiente local dedicado](LOCAL_ENVIRONMENT.md) |
 | Como adaptar dados e autorização? | [Dados e contratos](DATA_CONTRACTS.md) |
 | Como informar/validar uso de dados pessoais no acesso? | [Dados pessoais](DATA_PRIVACY.md) |
 | O que entregar, com quais dependências e aceite? | [Roadmap](ROADMAP.md) — fundação mínima, fluxos completos e matriz dos 18 IDs |

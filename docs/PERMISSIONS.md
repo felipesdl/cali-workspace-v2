@@ -2,7 +2,7 @@
 
 Data: 25/10/2026. Oficial consultado em `f3d3f14043a6abc38636f0340fe831e621d8b357`, somente leitura. **Matriz de evidência estática, não certificação de permissões em produção.** Fontes: [índice imutável](flows/SOURCES.md). Fluxos: [fichas](flows/README.md).
 
-## Contrato alvo confirmado pelo usuário — registro em 26/10/2026
+## Contrato alvo confirmado pelo usuário — atualizado em 28/10/2026
 
 Esta seção prevalece para o desenho futuro da V2. As tabelas posteriores preservam o que foi observado no oficial; não representam implementação dessas decisões.
 
@@ -10,6 +10,7 @@ Revisão vigente: [regras de produto](PRODUCT_RULES.md), [referência funcional 
 
 | Operação/tema | Admin na V2 | Cliente na V2 | Decisão |
 | --- | --- | --- | --- |
+| Entrar e exercer poderes Admin | Sessão/perfil autorizados e segundo fator cadastrado/confirmado; ausência de fator ou falha não libera acesso | Não atribui MFA novo ao fluxo Cliente | DEC-21, 28/10; ainda sem prova operacional |
 | Acessos Cliente da empresa | Gestão de até quatro acessos equivalentes; remover um não depende de principal | Sem hierarquia de cadastro principal | DEC-05 |
 | Cadastrar/importar/arquivar pessoas e confirmar revisão mensal | Mantém operações administrativas autorizadas | Todos os acessos Cliente da própria empresa podem manter Equipe | DEC-05 |
 | Informar/consultar remuneração, revisão salarial, gênero e filhos | Informa e consulta no escopo administrativo | Informa e consulta somente da própria empresa | DEC-09 |
