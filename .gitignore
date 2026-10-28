@@ -10,3 +10,5 @@ dist
 coverage/
 .playwright-cli/
 output/playwright/
+supabase/.temp/
+supabase/.branches/
