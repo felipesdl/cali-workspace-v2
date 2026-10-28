@@ -16,4 +16,7 @@
   --radius-control: 8px;
   --radius-media: 7px;
   --font-size-body: 16px;
+  --font-size-caption: 14px;
+  --font-size-section: 20px;
+  --control-min-height: 42px;
 }

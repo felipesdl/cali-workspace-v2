@@ -1,0 +1,43 @@
+/* Sem Preflight e sem layer(): utilities devem vencer seletores globais de tipo do legado. */
+@import 'tailwindcss/theme.css' prefix(tw);
+@import 'tailwindcss/utilities.css' prefix(tw) source('../');
+
+@theme inline {
+  --color-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --breakpoint-*: initial;
+
+  --spacing: var(--space-1);
+  --spacing-control: var(--control-min-height);
+  --color-brand: var(--color-brand-burgundy);
+  --color-ivory: var(--color-brand-ivory);
+  --color-gold: var(--color-brand-gold);
+  --color-panel: var(--surface-panel);
+  --color-copy: var(--text-primary);
+  --color-muted-copy: var(--text-secondary);
+  --color-border-default: var(--border-default);
+  --color-action-primary: var(--action-primary);
+  --color-focus: var(--focus-ring);
+  --radius-control: var(--radius-control);
+  --radius-media: var(--radius-media);
+  --text-body: var(--font-size-body);
+  --text-body--line-height: normal;
+  --text-caption: var(--font-size-caption);
+  --text-caption--line-height: normal;
+  --text-section: var(--font-size-section);
+  --text-section--line-height: normal;
+  --leading-note: 1.6;
+}
+
+@custom-variant compact {
+  @media (max-width: 1000px) {
+    @slot;
+  }
+}
+
+@custom-variant mobile {
+  @media (max-width: 600px) {
+    @slot;
+  }
+}

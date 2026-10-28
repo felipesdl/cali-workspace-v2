@@ -4,6 +4,7 @@ import { readEnvironment } from './config/environment';
 import { App } from './app/App';
 import { createAppRouter } from './app/router';
 import './styles/tokens.css';
+import './styles/tailwind.css';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Elemento raiz da aplicação não encontrado.');
