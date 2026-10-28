@@ -9,7 +9,6 @@ import { companyFilterSchema, companyStatus } from '../../api/modules/companies/
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { formatCalendarDate } from '../../lib/dates';
-import './companies.css';
 
 const statusLabels = {
   all: 'Todas as situações',
@@ -40,9 +39,9 @@ export function CompaniesPage() {
   }, [form, search.q, search.status]);
 
   return (
-    <div className="companies-page">
+    <div data-feature="companies" className="tw:grid tw:gap-4 tw:text-body tw:text-copy">
       <form
-        className="companies-filters"
+        className="tw:grid tw:grid-cols-[minmax(160px,1fr)_minmax(150px,220px)_auto] tw:items-end tw:gap-4 tw:compact:grid-cols-2 tw:mobile:grid-cols-1"
         aria-label="Filtrar empresas"
         onSubmit={(event) => {
           event.preventDefault();
@@ -90,7 +89,7 @@ export function CompaniesPage() {
             </Field>
           )}
         </form.Field>
-        <div className="companies-filter-actions">
+        <div className="tw:flex tw:items-center tw:justify-between tw:gap-2 tw:compact:col-span-full tw:compact:justify-start">
           <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" disabled={!canSubmit} pending={isSubmitting}>
@@ -111,11 +110,16 @@ export function CompaniesPage() {
       </form>
 
       <section
-        className="companies-list"
+        className="tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
         aria-labelledby="companies-title"
         aria-busy={companies.isFetching}
       >
-        <h2 id="companies-title">Empresas</h2>
+        <h2
+          className="tw:m-0 tw:mb-3 tw:text-section tw:font-bold tw:text-action-primary"
+          id="companies-title"
+        >
+          Empresas
+        </h2>
         {companies.isPending && <p role="status">Carregando empresas…</p>}
         {companies.isError && (
           <div role="alert">
@@ -130,17 +134,17 @@ export function CompaniesPage() {
         )}
         {companies.isSuccess && companies.data.length > 0 && (
           <div
-            className="companies-table-scroll"
+            className="tw:overflow-x-auto tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
             role="region"
             aria-label="Tabela de empresas; role horizontalmente para ver todas as colunas"
             tabIndex={0}
           >
-            <table>
-              <caption className="companies-caption">
+            <table className="tw:w-full tw:border-collapse tw:text-left tw:[&_:is(th,td)]:border-b tw:[&_:is(th,td)]:border-border-default tw:[&_:is(th,td)]:p-3 tw:mobile:[&_:is(th,td)]:p-2">
+              <caption className="tw:pb-3 tw:text-left tw:text-muted-copy">
                 {companies.data.length}{' '}
                 {companies.data.length === 1 ? 'empresa no resultado' : 'empresas no resultado'}
               </caption>
-              <thead>
+              <thead className="tw:[&_th]:text-caption tw:[&_th]:whitespace-nowrap">
                 <tr>
                   <th scope="col">Empresa</th>
                   <th scope="col">Plano</th>
@@ -174,7 +178,7 @@ export function CompaniesPage() {
           </div>
         )}
         {companies.isSuccess && companies.data.length > 0 && (
-          <p className="companies-scroll-hint">
+          <p className="tw:hidden tw:text-caption tw:leading-normal tw:text-muted-copy tw:compact:block">
             Role a tabela para ver todas as colunas e acessos.
           </p>
         )}
@@ -182,13 +186,16 @@ export function CompaniesPage() {
 
       {search.companyId && (
         <section
-          className="companies-accesses"
+          className="tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
           aria-labelledby="accesses-title"
           aria-busy={accesses.isFetching}
         >
-          <div className="companies-section-head">
+          <div className="tw:flex tw:items-center tw:justify-between tw:gap-2 tw:mobile:flex-col tw:mobile:items-start">
             <div>
-              <h2 id="accesses-title">
+              <h2
+                className="tw:m-0 tw:mb-3 tw:text-section tw:font-bold tw:text-action-primary"
+                id="accesses-title"
+              >
                 Acessos{selectedCompany.data ? ` · ${selectedCompany.data.displayName}` : ''}
               </h2>
               <p>Até quatro acessos Cliente equivalentes por empresa.</p>
@@ -206,7 +213,7 @@ export function CompaniesPage() {
           )}
           {accesses.isSuccess && accesses.data.length === 0 && <p>Nenhum acesso nesta empresa.</p>}
           {accesses.isSuccess && accesses.data.length > 0 && (
-            <ul className="companies-access-list">
+            <ul className="tw:m-0 tw:mt-4 tw:grid tw:list-none tw:gap-3 tw:p-0 tw:[&_li]:grid tw:[&_li]:gap-1 tw:[&_li]:border-b tw:[&_li]:border-border-default tw:[&_li]:py-3 tw:[&_li]:wrap-anywhere tw:[&_li_span]:text-caption tw:[&_li_span]:text-muted-copy">
               {accesses.data.map((access) => (
                 <li key={access.id}>
                   <strong>{access.name}</strong>
@@ -221,7 +228,7 @@ export function CompaniesPage() {
           )}
         </section>
       )}
-      <p className="companies-demo-note">
+      <p className="tw:m-0 tw:text-caption tw:leading-note tw:text-muted-copy">
         Demonstração local com dados fictícios. Cadastro, convites e alterações reais serão
         disponibilizados após a integração e validação de acesso.
       </p>
