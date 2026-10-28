@@ -5,6 +5,7 @@ export const companyStatus = {
   Paused: 'paused',
   Blocked: 'blocked',
   Closed: 'closed',
+  Archived: 'archived',
 } as const;
 
 export const companySchema = z.object({

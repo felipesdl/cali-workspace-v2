@@ -17,6 +17,7 @@ const statusLabels = {
   paused: 'Pausada',
   blocked: 'Bloqueada',
   closed: 'Encerrada',
+  archived: 'Arquivada',
 } as const;
 
 export function CompaniesPage() {
