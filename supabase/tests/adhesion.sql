@@ -37,6 +37,10 @@ insert into cali_workspace.profiles(id, company_id, role, active) values
   ('20000000-0000-4000-8000-000000000004', null, 'admin', false),
   ('20000000-0000-4000-8000-000000000005', null, 'partner', true);
 
+insert into auth.sessions(id,user_id) select ('30000000-0000-4000-8000-' || right(id::text,12))::uuid,id from auth.users where email like '%-sql@example.test';
+insert into cali_workspace.legal_versions(version,title,content) values ('local-adhesion-sql','Teste sintético','Termos sintéticos exclusivos do laboratório.');
+insert into cali_private.current_legal_version(singleton,version) values (true,'local-adhesion-sql') on conflict(singleton) do update set version=excluded.version;
+
 set local role anon;
 select pg_temp.expect_denied('select * from cali_workspace.workspace_adhesions', '42501');
 select pg_temp.expect_denied($q$select cali_workspace.register_workspace_adhesion(
@@ -49,11 +53,11 @@ select pg_temp.expect_denied($q$select cali_workspace.register_workspace_adhesio
 reset role;
 
 set local role authenticated;
-set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000001","aal":"aal1"}';
+set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000001","session_id":"30000000-0000-4000-8000-000000000001","aal":"aal1"}';
 select pg_temp.assert_true(not cali_private.is_admin(), 'Admin AAL1 negado');
 select pg_temp.expect_denied($q$select cali_workspace.register_workspace_adhesion(
   '10000000-0000-4000-8000-000000000001', 'ref')$q$, '42501');
-set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000001","aal":"aal2"}';
+set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000001","session_id":"30000000-0000-4000-8000-000000000001","aal":"aal2"}';
 select pg_temp.assert_true(not cali_private.is_admin(), 'AAL2 sem fator verificado negado');
 reset role;
 insert into auth.mfa_factors(id, user_id, factor_type, status, secret, created_at, updated_at)
@@ -61,7 +65,8 @@ insert into auth.mfa_factors(id, user_id, factor_type, status, secret, created_a
   from auth.users where email like '%-sql@example.test';
 
 set local role authenticated;
-select pg_temp.assert_true(cali_private.is_admin(), 'Admin ativo com AAL2/fator permitido');
+select cali_workspace.accept_current_terms('local-adhesion-sql',(cali_workspace.get_current_terms()->>'contentHash'));
+select pg_temp.assert_true(cali_private.is_admin(), 'Admin ativo com AAL2/fator/termos permitido');
 select pg_temp.assert_true(
   (cali_workspace.register_workspace_adhesion('10000000-0000-4000-8000-000000000001', '  CALI-TESTE-01  ')
     ->>'recordedBy') = '20000000-0000-4000-8000-000000000001', 'Autoria vem da sessão');
@@ -82,21 +87,21 @@ select pg_temp.expect_denied($q$select cali_workspace.register_workspace_adhesio
 select pg_temp.expect_denied($q$select cali_workspace.register_workspace_adhesion(
   '10000000-0000-4000-8000-000000000001', E' \n\t ')$q$, '22023');
 
-set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000002","aal":"aal2","role":"admin","user_metadata":{"role":"admin"}}';
+set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000002","session_id":"30000000-0000-4000-8000-000000000002","aal":"aal2","role":"admin","user_metadata":{"role":"admin"}}';
 select pg_temp.assert_true(not cali_private.is_admin(), 'Cliente não vira Admin por claims');
 select pg_temp.assert_true((select count(*) = 0 from cali_workspace.workspace_adhesions), 'Cliente A não lê evidências');
 select pg_temp.expect_denied($q$select cali_workspace.register_workspace_adhesion(
   '10000000-0000-4000-8000-000000000001', 'ref')$q$, '42501');
 select pg_temp.expect_denied('update cali_workspace.profiles set role = ''admin''', '42501');
-set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000003","aal":"aal2"}';
+set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000003","session_id":"30000000-0000-4000-8000-000000000003","aal":"aal2"}';
 select pg_temp.assert_true((select count(*) = 0 from cali_workspace.workspace_adhesions), 'Cliente B não lê evidências');
-set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000004","aal":"aal2"}';
+set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000004","session_id":"30000000-0000-4000-8000-000000000004","aal":"aal2"}';
 select pg_temp.assert_true(not cali_private.is_admin(), 'Admin inativo negado');
 select pg_temp.expect_denied($q$select cali_workspace.register_workspace_adhesion(
   '10000000-0000-4000-8000-000000000001', 'ref')$q$, '42501');
-set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000005","aal":"aal2"}';
+set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000005","session_id":"30000000-0000-4000-8000-000000000005","aal":"aal2"}';
 select pg_temp.assert_true(not cali_private.is_admin(), 'Partner negado');
-set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000006","aal":"aal2"}';
+set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000006","session_id":"30000000-0000-4000-8000-000000000006","aal":"aal2"}';
 select pg_temp.assert_true(not cali_private.is_admin(), 'Perfil ausente negado');
 set local request.jwt.claims = '{}';
 select pg_temp.assert_true(not cali_private.is_admin(), 'Identidade/aal ausentes negados');
@@ -106,7 +111,7 @@ select pg_temp.expect_denied('update cali_workspace.workspace_adhesions set evid
 select pg_temp.expect_denied('delete from cali_workspace.workspace_adhesions', '55000');
 delete from auth.mfa_factors where user_id = '20000000-0000-4000-8000-000000000001';
 set local role authenticated;
-set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000001","aal":"aal2"}';
+set local request.jwt.claims = '{"sub":"20000000-0000-4000-8000-000000000001","session_id":"30000000-0000-4000-8000-000000000001","aal":"aal2"}';
 select pg_temp.assert_true(not cali_private.is_admin(), 'JWT AAL2 com fator removido negado');
 reset role;
 rollback;

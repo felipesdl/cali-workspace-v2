@@ -85,6 +85,8 @@ async function main() {
     const session = z.object({ access_token: z.string().min(1) }).parse(await login.json());
     return { id: user.id, token: session.access_token };
   }
+  localSql(`insert into cali_workspace.legal_versions(version,title,content) values ('local-adhesion-api','Teste sintético','Documento sintético, não é termo de produção.') on conflict do nothing;
+    insert into cali_private.current_legal_version(singleton,version) values(true,'local-adhesion-api') on conflict do nothing;`);
   const companyA = randomUUID();
   const companyB = randomUUID();
   localSql(
@@ -127,6 +129,14 @@ async function main() {
   });
   check(verified.ok, 'segundo fator validado pelo Auth local');
   const session = z.object({ access_token: z.string().min(1) }).parse(await verified.json());
+  const legalResponse = await request('/rest/v1/rpc/get_current_terms', session.access_token, {});
+  const legal = z
+    .object({ version: z.string(), contentHash: z.string() })
+    .parse(await legalResponse.json());
+  check(
+    (await request('/rest/v1/rpc/accept_current_terms', session.access_token, legal)).ok,
+    'aceite corrente antes da operação Admin',
+  );
   const response = await request(rpc, session.access_token, payload);
   check(response.ok, 'Admin AAL2 grava adesão pela API');
   const adhesion = workspaceAdhesionRecordSchema.parse(await response.json());
@@ -171,12 +181,6 @@ async function main() {
     (await request(rpc, keys.SERVICE_ROLE_KEY, payload)).status === 403,
     'service role não substitui autoria Admin',
   );
-  localSql(`update cali_workspace.profiles set active = false where id = '${admin.id}';`);
-  check(
-    (await request(rpc, session.access_token, payload)).status === 403,
-    'perfil inativo corta escrita com JWT válido',
-  );
-  localSql(`update cali_workspace.profiles set active = true where id = '${admin.id}';`);
   const removed = await request(
     `/auth/v1/factors/${factor.id}`,
     session.access_token,
@@ -187,6 +191,11 @@ async function main() {
   check(
     (await request(rpc, session.access_token, payload)).status === 403,
     'AAL2 antigo após remover fator negado',
+  );
+  localSql(`update cali_workspace.profiles set active = false where id = '${admin.id}';`);
+  check(
+    (await request(rpc, session.access_token, payload)).status === 403,
+    'perfil inativo corta escrita com JWT válido',
   );
   check(
     localSql(

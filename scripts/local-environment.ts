@@ -87,7 +87,12 @@ enroll_enabled = false
 verify_enabled = false
 
 [edge_runtime]
-enabled = false
+enabled = true
+policy = "per_worker"
+
+[functions.workspace-access]
+verify_jwt = false
+entrypoint = "./.temp/workspace-access/index.ts"
 
 [analytics]
 enabled = false

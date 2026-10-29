@@ -15,5 +15,12 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },
-  "include": ["src", "tests", "vite.config.ts", "vitest.config.ts"]
+  "include": [
+    "src",
+    "tests",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "supabase/functions",
+    "scripts/build-local-functions.ts"
+  ]
 }

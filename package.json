@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "docs:check": "node scripts/check-docs.mjs",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run local:config:check && npm run docs:check && npm run build",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run local:config:check && npm run docs:check && npm run build && npm run local:functions:build",
     "local:config:check": "node scripts/local-environment.ts --check-config",
     "local:preflight": "node scripts/local-environment.ts --preflight",
     "local:db:inspect": "node scripts/local-database.ts --inspect",
@@ -22,7 +22,9 @@
     "local:db:test": "node scripts/local-database.ts --test",
     "local:isolation:test": "node scripts/local-isolation.ts",
     "local:adhesion:test": "node scripts/local-adhesion-api.ts",
-    "local:mail:test": "node scripts/local-mail.ts"
+    "local:mail:test": "node scripts/local-mail.ts",
+    "local:functions:build": "node scripts/build-local-functions.ts",
+    "local:access:test": "node scripts/local-access-test.ts"
   },
   "dependencies": {
     "@tanstack/react-form": "1.33.5",

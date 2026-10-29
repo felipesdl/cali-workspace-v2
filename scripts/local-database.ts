@@ -7,8 +7,14 @@ import { z } from 'zod';
 import { localEnvironment, validateLocalConfiguration } from './local-environment.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const baselineVersion = '20261029090000';
-const baselineFile = 'supabase/migrations/20261029090000_access_adhesion_baseline.sql';
+const migrations = [
+  {
+    version: '20261029090000',
+    file: 'supabase/migrations/20261029090000_access_adhesion_baseline.sql',
+  },
+  { version: '20261029120000', file: 'supabase/migrations/20261029120000_codes_terms.sql' },
+  { version: '20261029123000', file: 'supabase/migrations/20261029123000_access_revocation.sql' },
+] as const;
 const databaseContainer = `supabase_db_${localEnvironment.projectId}`;
 const ingressName = 'cali-workspace-v2-ingress';
 const ingressImage =
@@ -206,30 +212,33 @@ export function localSql(sql: string) {
 }
 
 function applyBaseline() {
-  const sql = readFileSync(resolve(root, baselineFile), 'utf8');
-  const digest = createHash('sha256').update(sql).digest('hex');
-  // Sem reset, drop ou execução implícita de outros arquivos SQL.
-  const installed = localSql("select to_regclass('cali_private.baseline_revisions') is not null;");
-  if (installed === 't') {
-    const previous = localSql(
-      `select digest from cali_private.baseline_revisions where version = '${baselineVersion}';`,
+  for (const migration of migrations) {
+    const sql = readFileSync(resolve(root, migration.file), 'utf8');
+    const digest = createHash('sha256').update(sql).digest('hex');
+    const installed = localSql(
+      "select to_regclass('cali_private.baseline_revisions') is not null;",
     );
-    if (previous !== digest)
-      throw new Error(
-        'Baseline aplicada diverge do arquivo; criar migration explícita, sem reaplicar/resetar.',
+    if (installed === 't') {
+      const previous = localSql(
+        `select digest from cali_private.baseline_revisions where version = '${migration.version}';`,
       );
-    process.stdout.write('Baseline já aplicada, digest confere; nenhuma escrita repetida.\n');
-    return;
+      if (previous) {
+        if (previous !== digest)
+          throw new Error('Migration aplicada diverge do arquivo; não reaplicar/resetar.');
+        process.stdout.write(`Migration ${migration.version}: digest confere; sem escrita.\n`);
+        continue;
+      }
+    } else if (
+      migration !== migrations[0] ||
+      localSql("select to_regnamespace('cali_workspace') is not null;") === 't'
+    ) {
+      throw new Error('Schema sem journal/ordem de baseline inválida; não sobrescrever.');
+    }
+    localSql(
+      `begin; select pg_advisory_xact_lock(29090000);\n${sql}\ninsert into cali_private.baseline_revisions(version, digest) values ('${migration.version}', '${digest}');\nnotify pgrst, 'reload schema'; commit;`,
+    );
+    process.stdout.write(`Migration ${migration.version}: aplicada em transação local.\n`);
   }
-  if (localSql("select to_regnamespace('cali_workspace') is not null;") === 't') {
-    throw new Error('Schema existente sem registro da baseline; não sobrescrever.');
-  }
-  localSql(
-    `begin; select pg_advisory_xact_lock(29090000);\n${sql}\ninsert into cali_private.baseline_revisions(version, digest) values ('${baselineVersion}', '${digest}');\nnotify pgrst, 'reload schema'; commit;`,
-  );
-  process.stdout.write(
-    `Baseline ${baselineVersion} aplicada em transação no Postgres CALI local.\n`,
-  );
 }
 
 function main() {
@@ -239,9 +248,9 @@ function main() {
   const names = assertLocalDatabase();
   if (command === '--apply') applyBaseline();
   if (command === '--test') {
-    process.stdout.write(
-      `${localSql(readFileSync(resolve(root, 'supabase/tests/adhesion.sql'), 'utf8'))}\n`,
-    );
+    for (const file of ['supabase/tests/adhesion.sql', 'supabase/tests/access.sql']) {
+      process.stdout.write(`${localSql(readFileSync(resolve(root, file), 'utf8'))}\n`);
+    }
   }
   if (command === '--inspect')
     process.stdout.write(
