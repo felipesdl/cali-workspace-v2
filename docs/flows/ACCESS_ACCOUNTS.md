@@ -20,6 +20,10 @@ As tabelas abaixo continuam descrevendo fontes oficiais, inclusive a guarda anti
 
 No laboratório, Admin ativo com AAL2 e fator TOTP verificado registra adesão por RPC; empresa/referência vêm da request, autoria/instante do servidor. Referência vazia, autoria extra, escrita direta, Cliente A/B, Admin inativo/sem MFA e fator removido são negados; histórico não pode ser reescrito/apagado. [Contrato e limites](../contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910). Frontend permanece desconectado; convite, comprovação documental, aceite individual e sessão completa continuam pendentes. Tabelas abaixo preservam a evidência histórica do oficial.
 
+## Códigos/termos e estado no servidor — 29/10
+
+Edge local e banco implementam código/limites/consumo, troca por sessão Auth, versões/aceites e revogação; [contrato detalhado](../contracts/ACCESS_COMPANIES.md#códigos-termos-e-guarda-de-sessão--2910). Sessão e guardas do frontend estão preparadas por injeção; adapter/eventos/telas reais ainda pendentes. Textos de teste são sintéticos e não aprovam conteúdo jurídico. A referência histórica abaixo não descreve o runtime novo.
+
 ## FLOW-01 — Convite, código, sessão, MFA e aceite
 
 **Objetivo/atores:** pessoa autorizada acessa o workspace adequado como Cliente ou Admin. Empresa e papel vêm do perfil; não da seleção demonstrativa da V2. Adesão comercial e aceite de uso são eventos diferentes.

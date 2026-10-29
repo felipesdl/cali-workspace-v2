@@ -1,6 +1,6 @@
 # Contratos mínimos de acesso e empresas
 
-Atualização: 29/10/2026. Recorte da fase 1, FLOW-01/02. **Schemas de fronteira e persistência mínima de adesão implementados/testados no laboratório local; frontend sem serviço de autenticação, SDK ou sessão real. As provas não abrangem todo o fluxo de acesso.** Transições e experiência continuam na [ficha](../flows/ACCESS_ACCOUNTS.md); matriz em [Permissões](../PERMISSIONS.md).
+Atualização: 29/10/2026. Recorte da fase 1, FLOW-01/02. **Adesão, códigos/termos e estado/revogação de sessão implementados/testados no laboratório local; frontend sem serviço de autenticação, SDK ou sessão real. As provas não abrangem todo o fluxo de acesso.** Transições e experiência continuam na [ficha](../flows/ACCESS_ACCOUNTS.md); matriz em [Permissões](../PERMISSIONS.md).
 
 ## Proveniência e limites
 
@@ -99,11 +99,49 @@ SQL real testa claims sintéticos com rollback; API testa JWT emitido pelo Auth 
 | Lacuna | Evidência e ação antes de integrar |
 | --- | --- |
 | Criação de conta | Obter definição versionada de `create_client_account` por arquivo/exportação sanitizada fornecida pelo responsável. Há somente comentário de correção no [registro SQL](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/supabase/migrations/20261020150000_fix_client_hours_policy_and_create_client.sql). Não conectar ao oficial para obtê-la. Não bloqueia ler perfis/empresa preparados para teste |
-| Tabela de códigos | `workspace_access_codes` aparece na Edge Function, mas seu DDL não foi localizado no conjunto SQL versionado inspecionado. Obter definição de colunas, constraints, índices, RLS/grants e expurgo sem dados, ou desenhar baseline V2 explicitamente como nova implementação; não fingir reprodução do banco ativo |
+| Tabela de códigos | `workspace_access_codes` aparece na Edge Function, mas seu DDL não foi localizado no conjunto SQL versionado inspecionado. Nova implementação V2 foi criada/testada no laboratório, com locks/grants/consumo; não é reprodução do banco ativo. Expurgo/retenção ainda dependem de política validada |
 | Registro da adesão | Investigado/autorizado em DEC-23; persistência/servidor do recorte de adesão implementados/testados localmente em 29/10. O [texto legal](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/legal/legalTexts.ts#L1) distingue material interno dos termos apresentados. Preservar a persistência/auditoria local e completar comprovação da referência no fluxo 2A; não confundir anexo, accepted_at de convite ou aceite individual com esse registro |
 | Predicados e RLS acumulados | Comparar baseline de teste com os helpers/grants/policies necessários, incluindo profile.active, vínculo e MFA obrigatório. Fonte estática não demonstra estado aplicado; não exportar dados/clientes ou identidades reais |
 | Revogar/reativar acesso | Reconciliar convite/perfil e preservar revogação individual; a atualização em lote da UI não prova esse requisito |
-| MFA/termos | MFA real e negações testados no servidor da adesão; UI/sessão, termos, recuperação segura e demais superfícies ainda pendentes. A versão legal da referência não autoriza novos textos/prazos de guarda |
-| E-mail e concorrência do código | Captura SMTP local testada sem Resend; adaptar workspace-access e testar uso único/falhas/race antes da sessão no frontend. TTL do código não define prazo de guarda dos registros/logs |
+| MFA/termos | MFA, termos e negações testados no servidor; UI/adapter/eventos de sessão, conteúdo jurídico aprovado, recuperação segura e demais superfícies ainda pendentes. A versão legal da referência não autoriza novos textos/prazos de guarda |
+| E-mail e concorrência do código | Captura local e workspace-access testados com concorrência/uso único; Resend e canais externos não foram portados. TTL do código não define prazo de guarda dos registros/logs |
 
 Testar no ambiente isolado: código incorreto/expirado/repetido, perfil inativo, A/B/Admin, cliente sem vínculo, conta pausada versus bloqueada/encerrada/arquivada, Admin sem MFA/AAL1/AAL2/erro, aceite ausente/antigo/erro, requisição direta ao backend e logout sem dados remanescentes. Publicar somente a evidência realmente executada.
+
+## Códigos, termos e guarda de sessão — 29/10
+
+Implementação nova local nas migrations `20261029120000_codes_terms.sql` e `20261029123000_access_revocation.sql`. O DDL de códigos não foi recuperado do oficial; não é reprodução do banco ativo. [Procedimento e limites do laboratório](../LOCAL_ENVIRONMENT.md).
+
+### Código e primeiro fator
+
+`supabase/functions/workspace-access` contém handler e adapter Edge locais. Request/verify reutilizam os schemas Zod da V2; origem aceita é somente `http://127.0.0.1:5173`. Runtime rejeita URL de backend fora dos dois nomes internos conhecidos. Vite empacota Zod/contratos em arquivo ignorado antes de iniciar o Edge; não há download de imports dentro da rede internal. Nenhum SDK ou segredo foi adicionado à SPA.
+
+- Código aleatório de seis dígitos, preservando zeros, com validade de dez minutos. Banco recebe HMAC-SHA256 com contexto próprio, calculado no runtime com chave local de serviço; não armazena código aberto. Código aparece somente na mensagem sintética do Mailpit, nunca no JSON de sucesso ou logs do handler.
+- Request serializa por e-mail normalizado com advisory lock; intervalo de 120 segundos entre solicitações elegíveis, inclusive falha de entrega. Novo pedido invalida os códigos anteriores. Limite de cinco tentativas; quinta falha impede acerto posterior. Expirado, pendente de entrega, falha de entrega, usado ou revogado não autentica.
+- Usuários precisam estar previamente preparados no Auth/perfil ativo. Cliente exige empresa active/paused e adesão; Partner, perfil ausente/inativo e empresa blocked/closed/archived não são provisionados por este endpoint. Não há leitura de convites ou criação automática de perfil: cadastro/convite completo permanece 2A.
+- Captura é exclusivamente a API interna do Mailpit. Entrega é confirmada no banco antes do retorno de desafio. Falha marca o código indisponível; resultado incerto permanece bloqueado. Não foi portado Resend nem criado transporte externo.
+- Verificação concorrente é serializada no banco: um único consumidor vence. O código é consumido **antes** de pedir `hashed_token` ao Auth; erro/timeout posterior não reabre o código. Isso é fail-closed, não atomicidade distribuída entre banco, Auth e entrega. Usuário solicita outro código respeitando o intervalo; não repetir automaticamente verify.
+- Hash de token é trocado por sessão no Auth com `type: email`, também de uso único. Role do JSON não libera acesso; sessão vigente, perfil, empresa, MFA e termos são conferidos novamente no servidor.
+- Grants de issue/delivery/consume são exclusivos do adapter de serviço. Anônimo/Cliente/Admin autenticados não acessam tabela privada de hashes nem chamam essas RPCs diretamente. Chave de serviço não concede autoria Admin na RPC de adesão.
+
+### Termos versionados
+
+`legal_versions` guarda título, texto, SHA-256 calculado no servidor e instante. Conteúdo/versão são imutáveis; publicação seleciona a versão corrente por registro privado. Não existe versão aprovada/publicada de produção nesta implementação. Drivers locais preparam textos explicitamente sintéticos; publicação e conteúdo CALI exigem recorte próprio.
+
+`get_current_terms` disponibiliza somente conteúdo corrente, inclusive antes do login. `accept_current_terms` recebe **version/contentHash**, sem user_id/instante fornecidos pelo navegador. Exige sessão vigente e perfil elegível; Admin conclui MFA antes do aceite. Versão/hash apresentados precisam coincidir com o conteúdo corrente. O aceite é usuário/versão, imutável e idempotente; repetição preserva o instante original. Publicação de versão nova e aceite são serializados, sem atribuir o aceite anterior ao novo conteúdo.
+
+Sem publicação, estado é terms_unavailable; aceite ausente/antigo é terms_required; falha de leitura/validação bloqueia. O predicado Admin de negócio passou a exigir aceite corrente além de MFA/sessão. Consulta Cliente de empresa só permite a própria empresa elegível e com aceite corrente. Não abre acesso aos demais domínios.
+
+### Estado de sessão e revogação
+
+`workspace_access_state` retorna status signed_out/blocked/mfa_required/terms_unavailable/terms_required/ready, perfil mínimo, situação de empresa e conteúdo/aceite corrente. JWT precisa corresponder a sessão ainda existente e não expirada em Auth; role/empresa da tela ou metadata não substituem perfil persistido. Logout, inativação do perfil e bloqueio/encerramento/arquivamento da empresa retiram liberação. Corte por perfil/empresa revoga sessões e códigos pendentes; reativar não recupera essas credenciais nem muda a revogação individual. Pausa mantém consulta.
+
+No frontend, `src/api/modules/access/session.ts` valida o contrato; `src/app/session` controla carregamento/erro/logout, cancelamento, cache e respostas atrasadas por geração. Router recebe controller por contexto e faz beforeLoad em Cliente/Admin; App invalida as rotas quando o estado muda. Retorno aceita somente caminhos internos Cliente/Admin. Página de bloqueio mostra mensagem por motivo e não simula login ou aceite.
+
+**Limite:** a fonte real do controller, telas de código/MFA/termos, persistência/refresh de token e eventos Auth ainda não estão conectados à SPA. Bootstrap continua demo e rejeita URL real. Injeção de sessão é usada nos testes das guardas; não há alternador de demonstração que conceda autorização real. Keys/adapters de empresas ainda são demonstrativos; não tratá-los como consultas autenticadas.
+
+### Evidência e pendências
+
+Driver API local passou em 76 verificações de código/concorrência, Auth real, duas versões/aceites, empresa/isolamento, logout e revogação. Regressão de adesão passou em 31 verificações com MFA e aceite. SQL cobre grants, entrega pendente/falha e imutabilidade com rollback; unitários cobrem falha de adapter/Auth e guardas/continuidade. Não extrapolar para entrega externa, concorrência entre todos os serviços, conteúdo jurídico aprovado ou sessão completa no navegador. Registro final e limitações no [changelog](../CHANGELOG.md).
+
+Permanecem: adapter/eventos e UI do frontend, comprovação da referência/gate de convite, cadastro completo/quatro acessos, recuperação de fator e ampliação de RLS por domínio. TTL do código não define retenção; expurgo de registros de código/aceites e textos de finalidade/guarda precisam de política validada, sem prazo inventado.

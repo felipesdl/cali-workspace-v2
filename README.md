@@ -1,6 +1,6 @@
 # CALI Workspace V2
 
-Base escolhida para evolução do sistema, conforme confirmação do usuário em 25/10/2026. Frontend React/TypeScript/Vite continua com mocks e estado em memória; laboratório Supabase local dedicado possui baseline mínima e persistência de adesão testadas, sem integração ao frontend ou ao oficial.
+Base escolhida para evolução do sistema, conforme confirmação do usuário em 25/10/2026. Frontend React/TypeScript/Vite continua com mocks e estado em memória; laboratório Supabase local dedicado possui adesão, códigos de acesso, termos versionados e guardas de servidor testados, sem conexão da SPA ao backend ou ao oficial.
 
 **CALI administra; cliente acompanha, participa, valida e avalia.** Equipe cadastrada não equivale a usuários com acesso.
 
@@ -8,13 +8,14 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 
 - Cliente: Início, Equipe, Horas, Calendário, Ocorrências, Documentos, Relatórios, Projetos/Entregáveis e Avisos têm composições demonstrativas.
 - Admin: prévia com 11 seções, incluindo contas, propostas e equipe.
-- TanStack Router controla URLs Cliente/Admin; composições legadas continuam como ponte de migração. Autenticação e permissões reais ainda não existem.
+- TanStack Router controla URLs Cliente/Admin; composições legadas continuam como ponte de migração. Controller/guardas aceitam fonte de sessão injetada nos testes; adapter Auth e telas de acesso ainda não estão conectados.
 - Empresas em `/admin/clientes` usa TanStack Form/Query, Axios com adapter local e Zod; filtros/empresa na URL, cache separado e até quatro acessos fictícios equivalentes. Sem cadastro, convite ou alteração real.
 - API organizada por módulos em `src/api/modules`, com schemas, services, hooks e query keys `as const`. DS inicial contém tokens, Button e Field; demais componentes continuam propostos.
 - Tailwind 4 integrado ao Vite; Button, Field e empresas migrados. Legado migra por fluxo, com limpeza global após retirar seus consumidores. Ver [política e inventário](docs/DESIGN_SYSTEM.md#inventário-da-migração-de-estilos).
 - Mocks executados pela aplicação ficam em `src/mocks`; cenários exclusivos ficam em `tests/fixtures` e `tests/mocks`. Aplicação não importa testes. Ver [organização e fronteiras](docs/ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes).
 - Tipos de contratos são inferidos dos schemas Zod; props/modelos locais ficam no consumidor. Ver [tipagem](docs/ARCHITECTURE.md#tipagem-e-validação) e [restrições de lint](docs/RUNBOOK.md#regras-de-lint-implantadas).
-- [Contratos mínimos de acesso/empresa](docs/contracts/ACCESS_COMPANIES.md) e persistência local de adesão, com autoria/instante do servidor, histórico e RLS; Auth/MFA reais testados apenas pelo driver local. Frontend continua desconectado. Admin exige os dois passos (DEC-21).
+- [Contratos mínimos de acesso/empresa](docs/contracts/ACCESS_COMPANIES.md) e persistência local de adesão, com autoria/instante do servidor, histórico e RLS; Auth/MFA reais testados apenas pelo driver local. Frontend continua desconectado. Admin exige os dois passos e aceite corrente no servidor (DEC-21/26).
+- Códigos locais usam Edge/Mailpit/Auth, consumo único e limites no banco. Termos têm versões imutáveis, hash/aceite do servidor e bloqueio por ausência/nova versão; conteúdo dos testes é sintético, sem aprovação jurídica de produção. Ver [contrato](docs/contracts/ACCESS_COMPANIES.md#códigos-termos-e-guarda-de-sessão--2910).
 - [Ambiente local dedicado](docs/LOCAL_ENVIRONMENT.md) executado/testado, com serviços em rede internal e proxy de loopback; procedimentos, parada e limites registrados. Não inicia como efeito do build.
 - Formulários e interações locais não comprovam persistência, envio, aprovação ou ciência.
 - Escopo confirmado: padronizar todos os fluxos de Cliente e Admin e consolidar identidade bordô, marfim e dourado.

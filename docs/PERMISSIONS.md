@@ -53,6 +53,10 @@ Não transportar divergências como nova política aprovada da V2. Ver [dúvidas
 
 Adesão: Admin de perfil persistido ativo + JWT AAL2 + fator TOTP verificado pode registrar/ler; Cliente A/B, Partner, perfil ausente/inativo, anônimo e service role não registram. Cliente não recebe evidências; INSERT direto/UPDATE/DELETE são negados. SQL com rollback e API/Auth local verificaram esse recorte; [contrato](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910). Não é prova de permissão dos demais domínios, convites, termos ou do frontend. Leitura do próprio perfil não libera entrada no workspace.
 
+## Códigos/termos e sessão local — 29/10
+
+RPCs de issue/delivery/consume são exclusivas de serviço; papéis do navegador não consultam hashes privados. Conteúdo legal corrente pode ser consultado antes do login; aceite exige sessão/perfil elegíveis e, para Admin, MFA concluído, sem autoria/instante informados pelo cliente. Negócio exige aceite corrente e sessão vigente. Cliente consulta somente própria empresa active/paused com adesão; blocked/closed/archived cortam sessões/códigos. Logout/inativação também bloqueiam JWT antigo. [Contrato e limites](contracts/ACCESS_COMPANIES.md#códigos-termos-e-guarda-de-sessão--2910). Isso não comprova os demais domínios nem sessão completa na SPA; tabelas seguintes continuam estáticas do oficial.
+
 ## Acesso, conta e proposta — FLOW-01/02/03
 
 | Operação/superfície | Admin | Cliente | Condições e fonte |

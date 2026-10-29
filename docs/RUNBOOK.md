@@ -30,8 +30,10 @@ npm run dev -- --host 127.0.0.1
 | `local:config:check` | Integridade da configuração versionada do laboratório; sem Docker, CLI ou banco |
 | `local:preflight` | Preparação em leitura, antes do proxy: vínculo/overrides, versões, rede e portas livres |
 | `local:db:inspect` | Alvo/topologia ativos, proxy e digests de configuração, sem SQL de negócio |
-| `local:db:apply` | Baseline local explícita em transação, journal/digest; não executa outros SQLs nem reset |
-| `local:db:test` | Cenários SQL reais de adesão, com fixtures/claims sintéticos e rollback |
+| `local:db:apply` | Lista revisada de migrations locais em ordem, transações/journal/digest; não executa SQL desconhecido nem reset |
+| `local:db:test` | Suítes SQL de adesão, códigos/termos, grants e imutabilidade; fixtures com rollback |
+| `local:functions:build` | Vite gera bundle Edge autocontido, sem Docker/rede/segredos; integra verify |
+| `local:access:test` | Código/Mailpit/Auth, concorrência, versões/aceites, RLS e revogação reais locais; fixtures persistentes |
 | `local:isolation:test` | Controle interno e negativas de IP externo/canário próprio do host por serviço |
 | `local:adhesion:test` | Driver API/Auth/TOTP local; cria fixtures sintéticas persistentes, não inicia o frontend |
 | `local:mail:test` | Mensagem sintética no SMTP local e conferência da captura Mailpit |
@@ -88,7 +90,7 @@ As variáveis `VITE_DATA_MODE=demo` e `VITE_DEMO_MODE=true` continuam identifica
 
 Ler [Ambiente isolado](LOCAL_ENVIRONMENT.md) para bootstrap/parada reproduzíveis. CLI 2.122.0 foi usado em diretório temporário com checksum conferido. Serviços de negócio ficam somente na rede internal; proxy dedicado publica quatro portas em loopback, com destinos fixos/forwarding desligado. Primeiro bootstrap exclui PostgREST até criar o schema, sem ignorar healthcheck. Migrations/seeds automáticos de negócio continuam desabilitados; o CLI/Auth fazem seu bootstrap interno, distinto dos SQLs oficiais, que não foram executados.
 
-Baseline mínima de empresa/perfil/adesão aplicada pelo runner; SQL com rollback e driver API/Auth/TOTP passaram, assim como captura local e negativas de rede. Digests de proxy/compose e journal da baseline bloqueiam divergência/reaplicação acidental. Comandos de runtime são explícitos e ficam fora de `verify`/CI comum. Driver API preserva fixtures sintéticas locais; não apaga histórico. O frontend permanece somente com mocks. Contratos, lacunas e limites de comprovação documental: [Acesso/empresas](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910).
+Baseline mínima de empresa/perfil/adesão aplicada pelo runner; SQL com rollback e driver API/Auth/TOTP passaram, assim como captura local e negativas de rede. Digests de proxy/compose e journal da baseline bloqueiam divergência/reaplicação acidental. Comandos de runtime são explícitos e ficam fora de `verify`/CI comum. O build do bundle Edge integra verify, sem iniciar serviços; gerar antes de subir o sexto serviço (Edge Runtime). Driver API preserva fixtures sintéticas locais; não apaga histórico. O frontend permanece somente com mocks. Contratos, lacunas e limites de comprovação documental: [Acesso/empresas](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910).
 
 ## CI configurada
 

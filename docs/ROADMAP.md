@@ -80,19 +80,27 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 - [x] Testar SQL permitidos/negados e API com Auth/TOTP reais: 30 verificações; provar captura SMTP local e negativas de IP externo/canário do host nos cinco serviços.
 - [ ] Integrar esses contratos à sessão/guardas/frontend e completar comprovação da referência/gate de convite no fluxo respectivo. Persistência local não encerra a jornada.
 
+**Avanço de 29/10 — códigos/termos e preparação de sessão (DEC-26):**
+
+- [x] Implementar DDL novo V2, Edge local, captura Mailpit, locks/uso único/limites e troca de token pelo Auth; sem provisioning por convite ou envio externo.
+- [x] Implementar versões/conteúdo/digest imutáveis, aceite corrente idempotente por servidor e bloqueio por ausência/versão antiga. Testes usam textos sintéticos; conteúdo CALI ainda não foi aprovado/publicado.
+- [x] Implementar estado de sessão/empresa e corte no servidor; inativação/bloqueio/encerramento/arquivamento revogam sessões/códigos sem reativação automática das credenciais antigas.
+- [x] Preparar controller de sessão, contrato validado, cache/cancelamento/gerações, beforeLoad Cliente/Admin e invalidação de rota no logout, com fonte injetada nos testes.
+- [ ] Conectar fonte/eventos/refresh Auth e telas de código/MFA/termos à SPA; bootstrap permanece demo, sem SDK/URL real.
+
 **Falta para fechar a fase 1:**
 
-- [ ] Completar lacunas de contrato e baseline por operação: DDL de códigos e autorização dos próximos contratos; persistência da adesão e predicado unificado já testados no recorte local, sem equivaler à cobertura de todos os domínios; create_client_account segue ausente para 2A, sem impedir preparação sintética. MFA decidido em DEC-21 e testado no servidor da adesão; UI/sessão e demais superfícies pendentes. TEC-01/02 não foram declarados resolvidos globalmente.
-- [ ] Ampliar a baseline/provas do laboratório já executado: termos/códigos, estados de empresa, revogação e os consumidores de sessão. CLI/rede/bindings/negativas de rede/captura e RLS de adesão foram testados em 29/10; OPEN-10 continua parcial para o fluxo completo. Nenhuma conexão ao oficial está autorizada.
-- [ ] Implementar autenticação/sessão e contexto reais, login/callback, guardas por papel/empresa/ativo e tratamento de MFA conforme contrato reconciliado.
-- [ ] Implementar adesão como pré-condição e aceite de termos obrigatório por versão, com informação de privacidade e bloqueio em falha de comprovação. Usar contas/adesões preparadas para teste, sem antecipar o cadastro completo da fase 2A.
+- [ ] Completar lacunas de contrato e baseline por operação: autorização dos próximos contratos e integração da SPA; DDL novo de códigos/termos já implementado/testado localmente; persistência da adesão e predicado unificado já testados no recorte local, sem equivaler à cobertura de todos os domínios; create_client_account segue ausente para 2A, sem impedir preparação sintética. MFA decidido em DEC-21 e testado no servidor da adesão; UI/sessão e demais superfícies pendentes. TEC-01/02 não foram declarados resolvidos globalmente.
+- [ ] Ampliar os consumidores reais do laboratório já testado para código/termos/estado/revogação: conectar sessão e UI da SPA. CLI/rede/bindings/negativas de rede/captura e RLS de adesão foram testados em 29/10; OPEN-10 continua parcial para o fluxo completo. Nenhuma conexão ao oficial está autorizada.
+- [ ] Conectar autenticação/sessão/eventos e login/callback no frontend; controller/guardas já preparados por injeção. Integrar MFA e retorno seguro sem tratar mock-admin como identidade.
+- [ ] Completar comprovação/gate de adesão antes do convite e apresentar/validar conteúdo de uso/privacidade no frontend; aceite obrigatório por versão já testado no servidor. Usar contas/adesões preparadas para teste, sem antecipar o cadastro completo da fase 2A.
 - [ ] Provar isolamento no servidor para Cliente A/B/Admin, perfil inativo, empresa bloqueada, expiração/revogação, logout e cancelamento/limpeza de cache/contexto.
 - [ ] Validar URL direta/retorno após login e teclado/mobile dos estados de acesso reais; fixtures não encerram esse aceite.
 - [ ] Executar/revisar CI no GitHub para a revisão enviada e concluir a revisão técnica do recorte; workflow definido não é execução comprovada.
 
 Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de ponta a ponta são a entrega 2A. O DS e as demais extrações crescem junto dos fluxos; não são um catálogo completo a terminar antes de 2A. Fontes de evidência: [arquitetura](ARCHITECTURE.md), [runbook](RUNBOOK.md), [changelog](CHANGELOG.md) e [ficha de acesso/contas](flows/ACCESS_ACCOUNTS.md).
 
-**Próximo passo técnico:** ampliar a baseline para código/termos e implementar sessão/guardas/frontend sobre o laboratório já testado; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial; sessão/MFA/termos no frontend, estados de empresa, expiração/revogação/logout e RLS além da adesão continuam pendentes. Não tratar demonstração Admin como autenticação.
+**Próximo passo técnico:** conectar adapter/eventos/refresh de sessão e telas de código/MFA/termos ao laboratório já testado; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial para jornada integrada; sessão/MFA/termos no navegador e RLS dos demais domínios continuam pendentes. Estado/expiração/revogação/logout e RLS de empresa foram exercitados no servidor local. Não tratar demonstração Admin como autenticação.
 
 **Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 

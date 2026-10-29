@@ -1,6 +1,6 @@
 # Arquitetura de desenvolvimento
 
-Atualização: 29/10/2026. **Fundação local iniciada; fase 1 em andamento.** A base sincronizada é `c9baea7` da `main`, após merge do PR documental. Rotas, Query/Form, módulo demonstrativo de empresas, tokens e duas primitivas existem; sessão no frontend e integração de produto continuam pendentes. Laboratório local já testa Auth/MFA e RLS/persistência do recorte de adesão, sem cobrir todos os fluxos.
+Atualização: 29/10/2026. **Fundação local iniciada; fase 1 em andamento.** A base sincronizada é `c9baea7` da `main`, após merge do PR documental. Rotas, Query/Form, módulo demonstrativo de empresas, tokens e duas primitivas existem; sessão no frontend e integração de produto continuam pendentes. Laboratório local já testa Auth/MFA, código, termos, adesão, estado/revogação de sessão e RLS do recorte. Controller/guardas do frontend estão preparados por injeção; adapter e telas reais permanecem pendentes.
 
 Ler [Regras de produto](PRODUCT_RULES.md), [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md), [fichas](flows/README.md) e [roadmap](ROADMAP.md). Estrutura de código não aprova regra nova. A V2 é a base, o oficial permanece somente leitura.
 
@@ -75,6 +75,14 @@ O lint restringe `any`, `unknown` fora dessas entradas justificadas, casts de ob
 `src/api/modules/access/schemas.ts` contém requests/respostas de workspace-access e projeções mínimas planejadas de perfil/aceite. `companies/records.ts` separa records de empresa/convite do DTO de demonstração. Schemas não habilitam Auth, transportes, guardas ou RLS; [contrato e lacunas](contracts/ACCESS_COMPANIES.md). Admin exige os dois passos em DEC-21.
 
 DEC-22/25 usam Supabase local dedicado com serviços internal e proxy de loopback. `local-environment.ts` confere configuração; `local-database.ts` confere alvo/topologia e aplica somente baseline conhecida com journal/digest. `supabase/migrations/20261029090000_access_adhesion_baseline.sql` contém empresa/perfil/adesão, helpers privados e RLS; testes SQL e driver API/Auth provam esse recorte. Scripts de runtime são explícitos e não fazem parte do verify/CI comum. A SPA permanece em modo demo; [ambiente, comandos e limites](LOCAL_ENVIRONMENT.md).
+
+## Código, termos e preparação de sessão — 29/10
+
+`supabase/functions/workspace-access` é backend local: handler compartilha os schemas Zod de entrada, ports explícitos e adapter Edge com destinos internos fixos. `scripts/build-local-functions.ts` usa Vite para bundle autocontido ignorado; nenhum npm import é resolvido em execução na rede internal. O build está no verify sem Docker/rede/segredos; runtime e testes continuam comandos explícitos.
+
+Migrations `20261029120000_codes_terms.sql` e `20261029123000_access_revocation.sql` adicionam códigos privados, serialização/uso único, versões/aceites imutáveis, estado de acesso e revogação. Runner aceita apenas lista revisada em ordem com journal/digest; não altera migrations já aplicadas. Schema de códigos é novo da V2, não recuperação do DDL ausente. [Contrato e limites](contracts/ACCESS_COMPANIES.md#códigos-termos-e-guarda-de-sessão--2910).
+
+`src/api/modules/access/session.ts` é dono do contrato validado do estado/conteúdo corrente. `src/app/session/controller.ts` recebe fonte por injeção, controla cancelamento/gerações/cache e não guarda tokens. `guard.ts` decide por status/papel e saneia retorno; Router beforeLoad e assinatura no App têm consumidores reais nos testes. Nenhum context global foi adicionado. Fonte Auth/refresh/eventos e telas de acesso ainda não estão conectados; bootstrap demo continua recusando configuração real. A composição/mock-admin de empresas não virou identidade autenticada.
 
 ## Mocks da aplicação e suporte exclusivo de testes
 
