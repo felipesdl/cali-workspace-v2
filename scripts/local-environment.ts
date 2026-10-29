@@ -70,7 +70,7 @@ enable_signup = false
 enable_anonymous_sign_ins = false
 
 [auth.email]
-enable_signup = false
+enable_signup = true
 otp_length = 6
 otp_expiry = 600
 max_frequency = "120s"
