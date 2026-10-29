@@ -14,7 +14,11 @@ As tabelas abaixo continuam descrevendo fontes oficiais, inclusive a guarda anti
 
 ## Contratos mínimos reconciliados — 28/10
 
-[Contratos de acesso/empresas](../contracts/ACCESS_COMPANIES.md) detalham payloads, projeções, códigos de erro, fontes e lacunas por operação. Schemas de fronteira existem, sem service/Auth conectado. DEC-21 fecha MFA obrigatório Admin, incluindo primeiro uso e bloqueio em falha; tabelas de evidência abaixo preservam as exceções observadas no oficial. DEC-22 define ambiente local dedicado, cuja ativação/prova continuam pendentes. Não considerar contratos totalmente fechados: corpo de create_client_account, DDL de códigos, persistência do novo registro de adesão e predicados acumulados ainda exigem reconciliação.
+[Contratos de acesso/empresas](../contracts/ACCESS_COMPANIES.md) detalham payloads, projeções, códigos de erro, fontes e lacunas por operação. Schemas de fronteira existem, sem service/Auth conectado. DEC-21 fecha MFA obrigatório Admin, incluindo primeiro uso e bloqueio em falha; tabelas de evidência abaixo preservam as exceções observadas no oficial. DEC-22/25 definem laboratório executado e prova do recorte de adesão em 29/10. Não considerar contratos totalmente fechados: corpo de create_client_account, DDL de códigos, termos/sessão e predicados dos demais domínios ainda exigem implementação/reconciliação.
+
+## Persistência local verificada — 29/10
+
+No laboratório, Admin ativo com AAL2 e fator TOTP verificado registra adesão por RPC; empresa/referência vêm da request, autoria/instante do servidor. Referência vazia, autoria extra, escrita direta, Cliente A/B, Admin inativo/sem MFA e fator removido são negados; histórico não pode ser reescrito/apagado. [Contrato e limites](../contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910). Frontend permanece desconectado; convite, comprovação documental, aceite individual e sessão completa continuam pendentes. Tabelas abaixo preservam a evidência histórica do oficial.
 
 ## FLOW-01 — Convite, código, sessão, MFA e aceite
 

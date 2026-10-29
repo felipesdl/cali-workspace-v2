@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Novo contrato V2 autorizado em DEC-23; não representa tabela/RPC já existente.
+// Contrato V2 autorizado em DEC-23; RPC/persistência testadas no laboratório local, sem service na SPA.
 export const registerWorkspaceAdhesionSchema = z.strictObject({
   companyId: z.uuid(),
   evidenceReference: z.string().trim().min(1, 'Informe a referência da adesão.'),

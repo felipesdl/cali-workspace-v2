@@ -1,12 +1,12 @@
 # Plano de padronização por fluxos completos
 
-Atualização: 28/10/2026. **Fase 1 em andamento localmente; demais entregas planejadas.** V2 é a base; oficial somente leitura. Referência: aplicativo funcionando em 26/10, testado pela Patrícia, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
+Atualização: 29/10/2026. **Fase 1 em andamento localmente; demais entregas planejadas.** V2 é a base; oficial somente leitura. Referência: aplicativo funcionando em 26/10, testado pela Patrícia, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
 
 Objetivo: padronizar todos os fluxos Cliente/Admin sem passar várias fases construindo camadas antes da primeira jornada utilizável. Cada entrega fecha uma tarefa com interface, dados, regra, autorização, histórico, falhas e comunicação quando aplicável. “Fluxo completo” é unidade de construção; não cria fluxo novo nem significa que toda tela dispara e-mail. Chat não gera e-mail. Produção, migrations e canais externos exigem escopo próprio.
 
 ## Estado e cobertura
 
-Já existem levantamento, 18 fichas, matriz estática, DS/UX/arquitetura propostos e decisões. Não repetir inventário como se estivesse vazio. Código segue demonstrativo. Router, Query/Form, API modular de empresas, tokens e Button/Field existem; lint, testes, formatação, links e build compõem `npm run verify`. Workflow definido ainda não executado no GitHub. SDK, sessão real e RLS permanecem pendentes. Bibliotecas foram escolhidas pelo usuário em DEC-20.
+Já existem levantamento, 18 fichas, matriz estática, DS/UX/arquitetura propostos e decisões. Não repetir inventário como se estivesse vazio. Código segue demonstrativo. Router, Query/Form, API modular de empresas, tokens e Button/Field existem; lint, testes, formatação, links e build compõem `npm run verify`. Workflow definido ainda não executado no GitHub. SDK e sessão no frontend permanecem pendentes; RLS/persistência de adesão foram testados no laboratório, sem cobrir os demais domínios. Bibliotecas foram escolhidas pelo usuário em DEC-20.
 
 O SHA `f3d3f14043a6abc38636f0340fe831e621d8b357` das fontes já corresponde à publicação 83. Os links continuam válidos; código/migrations não comprovam configuração ou aplicação no banco ativo. As 29 chamadas sem corpo localizado permanecem lacunas técnicas por operação, não motivo para inventar contrato.
 
@@ -61,7 +61,7 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 **Avanço de 28/10 — contratos e definição do ambiente:**
 
 - [x] Reconciliar superfícies mínimas e versionar schemas de request/response e records planejados de perfil/aceite/empresa/convite; [contrato detalhado](contracts/ACCESS_COMPANIES.md).
-- [x] Investigar cadastro/primeiro acesso e criar contrato mínimo próprio de adesão, sem confundir com aceite de termos — DEC-23; persistência ainda pendente.
+- [x] Investigar cadastro/primeiro acesso e criar contrato mínimo próprio de adesão, sem confundir com aceite de termos — DEC-23; persistência concluída no laboratório em 29/10, comprovação/fluxo ainda pendentes.
 - [x] Fechar regra de MFA com Felipe: Admin só entra após os dois passos, inclusive primeiro uso, com bloqueio em falha — DEC-21.
 - [x] Definir Supabase local dedicado, CLI/portas/rede e configuração versionada com migrations/seeds desligados — DEC-22; [ambiente](LOCAL_ENVIRONMENT.md).
 - [x] Implementar checagem estática da configuração e preflight somente de leitura. Docker/portas conferidos; preflight não passou porque CLI e rede dedicada ainda não existem.
@@ -72,10 +72,18 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 - [x] Registrar coexistência sem Preflight, prefixo `tw:` e inventário dos oito CSS legados no [DS](DESIGN_SYSTEM.md#inventário-da-migração-de-estilos).
 - [ ] Migrar os demais consumidores junto dos respectivos fluxos; retirar regras/imports substituídos a cada recorte e concluir limpeza global após todos migrarem. Trabalho transversal das fases, sem bloquear a primeira entrega por catálogo visual completo.
 
+**Avanço de 29/10 — baseline e adesão no laboratório (DEC-25):**
+
+- [x] Instalar CLI fixado temporariamente, conferir checksum, criar redes exclusivas e executar bootstrap revisado, sem conexão remota.
+- [x] Preservar serviços de negócio em rede internal; publicar somente proxy TCP dedicado em loopback, com destinos fixos e restrições verificadas.
+- [x] Aplicar baseline nova de empresa/perfil/adesão, com journal/digest, autoria/instante do servidor, histórico imutável, RLS e autoridade Admin unificada no recorte.
+- [x] Testar SQL permitidos/negados e API com Auth/TOTP reais: 30 verificações; provar captura SMTP local e negativas de IP externo/canário do host nos cinco serviços.
+- [ ] Integrar esses contratos à sessão/guardas/frontend e completar comprovação da referência/gate de convite no fluxo respectivo. Persistência local não encerra a jornada.
+
 **Falta para fechar a fase 1:**
 
-- [ ] Completar lacunas de contrato e baseline por operação: DDL de códigos, persistência do novo registro de adesão e unificação de predicados perfil/allowlist/ativo; create_client_account segue ausente para 2A, sem impedir preparação sintética. MFA já decidido em DEC-21; implementação/prova pendentes. TEC-01/02 não foram declarados resolvidos globalmente.
-- [ ] Ativar e comprovar o ambiente local definido: instalar CLI/rede, revisar baseline, iniciar somente stack dedicado, preparar atores e testar bindings/egress/captura local/RLS; OPEN-10 parcialmente encaminhado. Nenhuma conexão ao oficial está autorizada.
+- [ ] Completar lacunas de contrato e baseline por operação: DDL de códigos e autorização dos próximos contratos; persistência da adesão e predicado unificado já testados no recorte local, sem equivaler à cobertura de todos os domínios; create_client_account segue ausente para 2A, sem impedir preparação sintética. MFA decidido em DEC-21 e testado no servidor da adesão; UI/sessão e demais superfícies pendentes. TEC-01/02 não foram declarados resolvidos globalmente.
+- [ ] Ampliar a baseline/provas do laboratório já executado: termos/códigos, estados de empresa, revogação e os consumidores de sessão. CLI/rede/bindings/negativas de rede/captura e RLS de adesão foram testados em 29/10; OPEN-10 continua parcial para o fluxo completo. Nenhuma conexão ao oficial está autorizada.
 - [ ] Implementar autenticação/sessão e contexto reais, login/callback, guardas por papel/empresa/ativo e tratamento de MFA conforme contrato reconciliado.
 - [ ] Implementar adesão como pré-condição e aceite de termos obrigatório por versão, com informação de privacidade e bloqueio em falha de comprovação. Usar contas/adesões preparadas para teste, sem antecipar o cadastro completo da fase 2A.
 - [ ] Provar isolamento no servidor para Cliente A/B/Admin, perfil inativo, empresa bloqueada, expiração/revogação, logout e cancelamento/limpeza de cache/contexto.
@@ -84,7 +92,7 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 
 Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de ponta a ponta são a entrega 2A. O DS e as demais extrações crescem junto dos fluxos; não são um catálogo completo a terminar antes de 2A. Fontes de evidência: [arquitetura](ARCHITECTURE.md), [runbook](RUNBOOK.md), [changelog](CHANGELOG.md) e [ficha de acesso/contas](flows/ACCESS_ACCOUNTS.md).
 
-**Próximo passo técnico:** completar a baseline mínima e o registro de adesão, instalar/verificar a infraestrutura local definida e provar seu isolamento antes da integração do frontend. OPEN-10, sessão/MFA/termos, atores A/B/Admin, expiração/revogação/logout e RLS continuam pendentes. Não tratar demonstração Admin como autenticação.
+**Próximo passo técnico:** ampliar a baseline para código/termos e implementar sessão/guardas/frontend sobre o laboratório já testado; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial; sessão/MFA/termos no frontend, estados de empresa, expiração/revogação/logout e RLS além da adesão continuam pendentes. Não tratar demonstração Admin como autenticação.
 
 **Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 

@@ -1,6 +1,6 @@
 # Contratos mínimos de acesso e empresas
 
-Atualização: 28/10/2026. Recorte da fase 1, FLOW-01/02. **Contratos documentados e schemas de fronteira implementados; sem serviço de autenticação, cliente Supabase, banco iniciado ou permissão real comprovada.** Transições e experiência continuam na [ficha](../flows/ACCESS_ACCOUNTS.md); matriz em [Permissões](../PERMISSIONS.md).
+Atualização: 29/10/2026. Recorte da fase 1, FLOW-01/02. **Schemas de fronteira e persistência mínima de adesão implementados/testados no laboratório local; frontend sem serviço de autenticação, SDK ou sessão real. As provas não abrangem todo o fluxo de acesso.** Transições e experiência continuam na [ficha](../flows/ACCESS_ACCOUNTS.md); matriz em [Permissões](../PERMISSIONS.md).
 
 ## Proveniência e limites
 
@@ -44,7 +44,7 @@ Não repetir automaticamente a verificação de um código consumido. A fonte ma
 
 1. **Identidade:** sessão válida e perfil ativo; Cliente vinculado à própria empresa. Perfil/convite ausente ou consulta inválida não autoriza. O schema de record aceita representar perfil inativo/sem vínculo para tratamento explícito; isso não o torna elegível.
 2. **Admin e MFA — DEC-21:** cadastro e confirmação do segundo fator antes de liberar a área/poderes Admin, inclusive primeiro uso. Sem fator, permanece no cadastro; erro permanece bloqueado com retry. Não transportar a exceção SQL de ausência de fator, o desvio por nome de ambiente QA ou os caminhos de erro que liberam a UI. Recuperação de fator exige operação própria autorizada, não fallback que concede acesso.
-3. **Autoridade Admin:** a UI/algumas funções usam perfil, mas `is_admin` posterior usa uma allowlist de e-mails do JWT e não confere active nesse corpo. A identidade/allowlist real não será copiada para testes; a unificação dos predicados ainda exige baseline e prova. DEC-21 fecha MFA, não certifica todas as guardas existentes.
+3. **Autoridade Admin:** na referência há divergência entre perfil e allowlist de e-mails do JWT. A baseline local V2 adota um predicado único de perfil persistido ativo/Admin, AAL2 e fator TOTP verificado existente; não confia em papel/e-mail fornecido por metadata, nem copia identidades da allowlist. DEC-25 registra a implementação/prova do recorte de adesão; isso não certifica guardas dos demais domínios.
 4. **Adesão e termos — DEC-08:** adesão registrada antes do convite; aceite corrente obrigatório no primeiro acesso e a cada nova versão; informação de privacidade consultável; falha de comprovação bloqueia. Aceite jurídico e `client_invites.accepted_at` são eventos diferentes.
 5. **Empresa:** `paused` mantém consulta na referência; `blocked/closed/archived` cortam acesso Cliente. Cadastro, vigência, estado de conta e eliminação são dimensões distintas. Nenhuma matriz nova de transições de escrita foi inventada.
 6. **Quatro acessos — DEC-05:** equivalência e revogação individual preservadas, inclusive ao reativar empresa. Um contato denominado principal não ganha manutenção exclusiva. A fonte representa um `company_id` por perfil; não foi aprovada navegação multivínculo de um mesmo usuário.
@@ -72,7 +72,20 @@ Criado [contrato mínimo V2](../../src/api/modules/access/adhesion.ts), explicit
 
 É um contrato de operação administrativa, não assinatura eletrônica nem certificação jurídica. Não se exigiu um novo PDF, formato de anexo, prazo ou aceite comercial por suposição; a referência poderá apontar para a evidência formalizada pela CALI conforme o fluxo a implementar. Validar a existência/formato dessa referência e armazenar o registro com proteção no servidor permanecem trabalho da baseline/2A. Parse de texto não verifica um documento.
 
-A adesão é da empresa e antecede convite (DEC-08). O aceite de termos continua individual/versionado no primeiro acesso. Não criar adesão automaticamente ao entrar, marcar convite como adesão ou atribuir ao Cliente poder de confirmar essa condição administrativa. O contrato existe e é testado; gravação, UI e guardas de banco ainda não foram implementados.
+A adesão é da empresa e antecede convite (DEC-08). O aceite de termos continua individual/versionado no primeiro acesso. Não criar adesão automaticamente ao entrar, marcar convite como adesão ou atribuir ao Cliente poder de confirmar essa condição administrativa. O contrato existe e é testado; gravação e guardas do recorte foram implementadas/testadas no laboratório em 29/10; UI, comprovação documental e gate de convite continuam pendentes.
+
+## Persistência local de adesão — 29/10
+
+Baseline nova em `supabase/migrations/20261029090000_access_adhesion_baseline.sql`, sem executar migrations/dados do oficial. Aplicada somente pelo [runner local](../../scripts/local-database.ts), com target/topologia verificados, transação e journal/digest. O laboratório e seus comandos ficam em [Ambiente isolado](../LOCAL_ENVIRONMENT.md).
+
+- `companies` contém a identidade mínima e os cinco status observados; `profiles` contém vínculo/papel/ativo e FK para Auth. São a fundação deste teste, não cadastro completo de conta/convites ou cópia integral das tabelas oficiais.
+- `workspace_adhesions` contém id, empresa, referência, autor e instante; FK impede autoria/empresa inexistentes. Escrita é somente pela RPC `register_workspace_adhesion`, com `companyId/evidenceReference`; resposta camelCase coincide com o schema Zod. Autoria vem de `auth.uid()`, instante de `clock_timestamp()`, referência é aparada/rejeitada se vazia.
+- Wrapper exposto é invoker; operação definer e predicado ficam em `cali_private`, fora dos schemas expostos, com search_path vazio e grants explícitos. Admin exige perfil persistido ativo/Admin, JWT AAL2 e fator TOTP verificado ainda existente. JWT/metadata/e-mail não criam papel. Sem exceção QA ou ausência de fator.
+- RLS permite leitura da evidência somente a Admin autorizado. Cliente não recebeu nova projeção de referência/documento. A leitura do próprio perfil serve ao tratamento do acesso; consulta Cliente de empresas/negócio aguarda termos/sessão/guards correspondentes.
+- INSERT direto, UPDATE e DELETE não são concedidos aos papéis da API. Trigger impede reescrever/apagar adesões; novos registros não apagam anteriores. Não há endpoint de correção nem regra inventada para escolher uma evidência vigente. Autoria/histórico têm FK restritiva; revisão de retenção/eliminação exige recorte próprio.
+- A referência é declarada pelo Admin; persistência não verifica existência, assinatura ou validade jurídica de documento externo, nem faz fetch de URL. Comprovação/formato no fluxo CALI e pré-condição na emissão de convite pertencem à 2A. Não interpretar sucesso da RPC como convite emitido ou aceite individual registrado.
+
+SQL real testa claims sintéticos com rollback; API testa JWT emitido pelo Auth local, TOTP incorreto/confirmado, autoria, negações e remoção de fator. Senha usada pelo driver sintético não muda o contrato de workspace-access por código. Evidências/limites estão no [changelog](../CHANGELOG.md); sessão no frontend, termos e acesso aos demais domínios continuam pendentes.
 
 ## Tipos implementados e fronteira com os mocks
 
@@ -87,10 +100,10 @@ A adesão é da empresa e antecede convite (DEC-08). O aceite de termos continua
 | --- | --- |
 | Criação de conta | Obter definição versionada de `create_client_account` por arquivo/exportação sanitizada fornecida pelo responsável. Há somente comentário de correção no [registro SQL](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/supabase/migrations/20261020150000_fix_client_hours_policy_and_create_client.sql). Não conectar ao oficial para obtê-la. Não bloqueia ler perfis/empresa preparados para teste |
 | Tabela de códigos | `workspace_access_codes` aparece na Edge Function, mas seu DDL não foi localizado no conjunto SQL versionado inspecionado. Obter definição de colunas, constraints, índices, RLS/grants e expurgo sem dados, ou desenhar baseline V2 explicitamente como nova implementação; não fingir reprodução do banco ativo |
-| Registro da adesão | Investigado e autorizado novo registro em DEC-23; contrato mínimo implementado, persistência/servidor pendentes. O [texto legal](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/legal/legalTexts.ts#L1) distingue material interno dos termos apresentados. Implementar persistência/auditoria e comprovação da referência na baseline local; não confundir anexo, accepted_at de convite ou aceite individual com esse registro |
+| Registro da adesão | Investigado/autorizado em DEC-23; persistência/servidor do recorte de adesão implementados/testados localmente em 29/10. O [texto legal](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/legal/legalTexts.ts#L1) distingue material interno dos termos apresentados. Preservar a persistência/auditoria local e completar comprovação da referência no fluxo 2A; não confundir anexo, accepted_at de convite ou aceite individual com esse registro |
 | Predicados e RLS acumulados | Comparar baseline de teste com os helpers/grants/policies necessários, incluindo profile.active, vínculo e MFA obrigatório. Fonte estática não demonstra estado aplicado; não exportar dados/clientes ou identidades reais |
 | Revogar/reativar acesso | Reconciliar convite/perfil e preservar revogação individual; a atualização em lote da UI não prova esse requisito |
-| MFA/termos | Decisões fechadas; implementação, recuperação segura e provas permitidas/negadas ainda pendentes. A versão legal da referência não autoriza novos textos/prazos de guarda |
-| E-mail e concorrência do código | Implementar captura local sem Resend e testar uso único/falhas/race antes da sessão real. TTL do código não define prazo de guarda dos registros/logs |
+| MFA/termos | MFA real e negações testados no servidor da adesão; UI/sessão, termos, recuperação segura e demais superfícies ainda pendentes. A versão legal da referência não autoriza novos textos/prazos de guarda |
+| E-mail e concorrência do código | Captura SMTP local testada sem Resend; adaptar workspace-access e testar uso único/falhas/race antes da sessão no frontend. TTL do código não define prazo de guarda dos registros/logs |
 
 Testar no ambiente isolado: código incorreto/expirado/repetido, perfil inativo, A/B/Admin, cliente sem vínculo, conta pausada versus bloqueada/encerrada/arquivada, Admin sem MFA/AAL1/AAL2/erro, aceite ausente/antigo/erro, requisição direta ao backend e logout sem dados remanescentes. Publicar somente a evidência realmente executada.

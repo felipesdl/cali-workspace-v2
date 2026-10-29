@@ -1,6 +1,6 @@
 # Arquitetura de desenvolvimento
 
-Atualização: 28/10/2026. **Fundação local iniciada; fase 1 em andamento.** A base sincronizada é `c9baea7` da `main`, após merge do PR documental. Rotas, Query/Form, módulo demonstrativo de empresas, tokens e duas primitivas existem; autenticação real, backend isolado e prova de permissões não foram implementados.
+Atualização: 29/10/2026. **Fundação local iniciada; fase 1 em andamento.** A base sincronizada é `c9baea7` da `main`, após merge do PR documental. Rotas, Query/Form, módulo demonstrativo de empresas, tokens e duas primitivas existem; sessão no frontend e integração de produto continuam pendentes. Laboratório local já testa Auth/MFA e RLS/persistência do recorte de adesão, sem cobrir todos os fluxos.
 
 Ler [Regras de produto](PRODUCT_RULES.md), [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md), [fichas](flows/README.md) e [roadmap](ROADMAP.md). Estrutura de código não aprova regra nova. A V2 é a base, o oficial permanece somente leitura.
 
@@ -74,7 +74,7 @@ O lint restringe `any`, `unknown` fora dessas entradas justificadas, casts de ob
 
 `src/api/modules/access/schemas.ts` contém requests/respostas de workspace-access e projeções mínimas planejadas de perfil/aceite. `companies/records.ts` separa records de empresa/convite do DTO de demonstração. Schemas não habilitam Auth, transportes, guardas ou RLS; [contrato e lacunas](contracts/ACCESS_COMPANIES.md). Admin exige os dois passos em DEC-21.
 
-DEC-22 escolhe Supabase local dedicado. `scripts/local-environment.ts` define e confere `supabase/config.toml`; preflight somente lê pré-condições e não inicia nada. Configuração estática integra verify; Docker/CLI/rede/bindings/egress/baseline reais continuam gates separados. A SPA permanece em modo demo; [ambiente e evidências](LOCAL_ENVIRONMENT.md).
+DEC-22/25 usam Supabase local dedicado com serviços internal e proxy de loopback. `local-environment.ts` confere configuração; `local-database.ts` confere alvo/topologia e aplica somente baseline conhecida com journal/digest. `supabase/migrations/20261029090000_access_adhesion_baseline.sql` contém empresa/perfil/adesão, helpers privados e RLS; testes SQL e driver API/Auth provam esse recorte. Scripts de runtime são explícitos e não fazem parte do verify/CI comum. A SPA permanece em modo demo; [ambiente, comandos e limites](LOCAL_ENVIRONMENT.md).
 
 ## Mocks da aplicação e suporte exclusivo de testes
 

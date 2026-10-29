@@ -1,6 +1,6 @@
 # Operação local e verificação
 
-Atualização: 28/10/2026. Fase 1 iniciada na branch local `codex/fase-1-base`, a partir de `main` `c9baea7`. O pacote está em revisão no [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) em rascunho, conforme solicitação de 27/10; o acompanhamento de concluído/pendente fica no [roadmap](ROADMAP.md#acompanhamento-da-fase-1--pacote-para-revisão). Commits/push/PR são etapas de revisão distintas de merge/deploy. Sem conexão ao Supabase oficial ou publicação da aplicação.
+Atualização: 29/10/2026. Fase 1 iniciada na branch local `codex/fase-1-base`, a partir de `main` `c9baea7`. O pacote está em revisão no [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) em rascunho, conforme solicitação de 27/10; o acompanhamento de concluído/pendente fica no [roadmap](ROADMAP.md#acompanhamento-da-fase-1--pacote-para-revisão). Commits/push/PR são etapas de revisão distintas de merge/deploy. Sem conexão ao Supabase oficial ou publicação da aplicação.
 
 ## Runtime e instalação
 
@@ -28,7 +28,13 @@ npm run dev -- --host 127.0.0.1
 | `build` | TypeScript e Vite; artefatos em dist |
 | `preview` | Servidor local do build; não publica nem comprova hosting |
 | `local:config:check` | Integridade da configuração versionada do laboratório; sem Docker, CLI ou banco |
-| `local:preflight` | Pré-condições em leitura: vínculo/overrides, versões, rede e portas; sem iniciar serviços |
+| `local:preflight` | Preparação em leitura, antes do proxy: vínculo/overrides, versões, rede e portas livres |
+| `local:db:inspect` | Alvo/topologia ativos, proxy e digests de configuração, sem SQL de negócio |
+| `local:db:apply` | Baseline local explícita em transação, journal/digest; não executa outros SQLs nem reset |
+| `local:db:test` | Cenários SQL reais de adesão, com fixtures/claims sintéticos e rollback |
+| `local:isolation:test` | Controle interno e negativas de IP externo/canário próprio do host por serviço |
+| `local:adhesion:test` | Driver API/Auth/TOTP local; cria fixtures sintéticas persistentes, não inicia o frontend |
+| `local:mail:test` | Mensagem sintética no SMTP local e conferência da captura Mailpit |
 | `verify` | Format check, lint, typecheck, testes, local config check, docs check e build |
 
 Formatação exclui Markdown e TSX/CSS legados explicitados em `.prettierignore`. As oito composições de prévia enumeradas no ESLint mantêm exceção de variáveis/imports não usados; regras de hooks continuam ativas. Não chamar isso de normalização integral do legado. Ao migrar uma feature, remover sua exceção e validar no mesmo recorte.
@@ -78,9 +84,11 @@ Mocks executados pela aplicação ficam em `src/mocks`: adapters, fixtures de em
 
 As variáveis `VITE_DATA_MODE=demo` e `VITE_DEMO_MODE=true` continuam identificando o modo demonstrativo, agora organizado como mocks; não houve alteração do contrato de configuração nem habilitação de backend.
 
-## Laboratório local definido em 28/10
+## Laboratório local executado em 29/10
 
-Ler [Ambiente isolado](LOCAL_ENVIRONMENT.md) antes de instalar/ativar qualquer serviço. Supabase local dedicado, CLI 2.122.0 e rede internal/loopback; `supabase/config.toml` existe, com migrations/seeds automáticos desabilitados. `local:preflight` não passou por CLI e rede ausentes; nenhum stack ou SQL foi iniciado. A aplicação segue somente com mocks. Contratos mínimos e lacunas por operação: [Acesso/empresas](contracts/ACCESS_COMPANIES.md).
+Ler [Ambiente isolado](LOCAL_ENVIRONMENT.md) para bootstrap/parada reproduzíveis. CLI 2.122.0 foi usado em diretório temporário com checksum conferido. Serviços de negócio ficam somente na rede internal; proxy dedicado publica quatro portas em loopback, com destinos fixos/forwarding desligado. Primeiro bootstrap exclui PostgREST até criar o schema, sem ignorar healthcheck. Migrations/seeds automáticos de negócio continuam desabilitados; o CLI/Auth fazem seu bootstrap interno, distinto dos SQLs oficiais, que não foram executados.
+
+Baseline mínima de empresa/perfil/adesão aplicada pelo runner; SQL com rollback e driver API/Auth/TOTP passaram, assim como captura local e negativas de rede. Digests de proxy/compose e journal da baseline bloqueiam divergência/reaplicação acidental. Comandos de runtime são explícitos e ficam fora de `verify`/CI comum. Driver API preserva fixtures sintéticas locais; não apaga histórico. O frontend permanece somente com mocks. Contratos, lacunas e limites de comprovação documental: [Acesso/empresas](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910).
 
 ## CI configurada
 

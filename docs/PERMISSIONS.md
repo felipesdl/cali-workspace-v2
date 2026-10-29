@@ -27,7 +27,7 @@ Revisão vigente: [regras de produto](PRODUCT_RULES.md), [referência funcional 
 | Receber resumo diário das 19h | Admin ativo com e-mail; ações elegíveis/horas por empresa | Não recebe; staff também não; versão Partner posterior, sem público/projeção definidos ainda | DEC-19 |
 | Ativar acesso Cliente | Adesão registrada antes de emitir convite | Aceite de uso no primeiro acesso e a cada nova versão; sem entrada se verificação falhar | DEC-08 |
 
-Decisões anteriores continuam vigentes, exceto DEC-07 substituída por DEC-13. Fonte: [registro](DECISIONS.md). Resumo diário Admin segue DEC-19/RESUMO-01: Cliente e staff não recebem; conteúdo Partner ainda será definido na fase dele. Não alterar schema/policy nesta etapa. Histórico de aprovação/ciência não é atribuído automaticamente ao conteúdo corrigido; pessoa focal não cria privilégio principal. Finalidades/guarda e informação de acesso estão em [Dados pessoais](DATA_PRIVACY.md).
+Decisões anteriores continuam vigentes, exceto DEC-07 substituída por DEC-13. Fonte: [registro](DECISIONS.md). Resumo diário Admin segue DEC-19/RESUMO-01: Cliente e staff não recebem; conteúdo Partner ainda será definido na fase dele. Esta matriz estática não autoriza alteração de produção; o recorte local de 29/10 abaixo registra somente a implementação autorizada/testada. Histórico de aprovação/ciência não é atribuído automaticamente ao conteúdo corrigido; pessoa focal não cria privilégio principal. Finalidades/guarda e informação de acesso estão em [Dados pessoais](DATA_PRIVACY.md).
 
 ## Legenda e limites
 
@@ -48,6 +48,10 @@ Cada célula vale para a **operação e superfície indicadas**. Permitir SELECT
 5. **Cliente principal:** manutenção de pessoas/revisão mensal exige `role=client`, active, is_primary e própria empresa; adicional não herda essa escrita. Até quatro convites ativos são previstos em migration posterior, não quatro acessos com permissões idênticas em todas as operações. [Limite](flows/SOURCES.md#access-limit), [Equipe](flows/SOURCES.md#team-save).
 
 Não transportar divergências como nova política aprovada da V2. Ver [dúvidas REF](DECISIONS.md).
+
+## Recorte local implementado — 29/10
+
+Adesão: Admin de perfil persistido ativo + JWT AAL2 + fator TOTP verificado pode registrar/ler; Cliente A/B, Partner, perfil ausente/inativo, anônimo e service role não registram. Cliente não recebe evidências; INSERT direto/UPDATE/DELETE são negados. SQL com rollback e API/Auth local verificaram esse recorte; [contrato](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910). Não é prova de permissão dos demais domínios, convites, termos ou do frontend. Leitura do próprio perfil não libera entrada no workspace.
 
 ## Acesso, conta e proposta — FLOW-01/02/03
 

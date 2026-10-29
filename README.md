@@ -1,10 +1,10 @@
 # CALI Workspace V2
 
-Base escolhida para evolução do sistema, conforme confirmação do usuário em 25/10/2026. Implementação atual: protótipo React, TypeScript e Vite, com dados fictícios e estado em memória. Ainda não há integração Supabase neste checkout.
+Base escolhida para evolução do sistema, conforme confirmação do usuário em 25/10/2026. Frontend React/TypeScript/Vite continua com mocks e estado em memória; laboratório Supabase local dedicado possui baseline mínima e persistência de adesão testadas, sem integração ao frontend ou ao oficial.
 
 **CALI administra; cliente acompanha, participa, valida e avalia.** Equipe cadastrada não equivale a usuários com acesso.
 
-## Estado atual — 28/10/2026
+## Estado atual — 29/10/2026
 
 - Cliente: Início, Equipe, Horas, Calendário, Ocorrências, Documentos, Relatórios, Projetos/Entregáveis e Avisos têm composições demonstrativas.
 - Admin: prévia com 11 seções, incluindo contas, propostas e equipe.
@@ -14,8 +14,8 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 - Tailwind 4 integrado ao Vite; Button, Field e empresas migrados. Legado migra por fluxo, com limpeza global após retirar seus consumidores. Ver [política e inventário](docs/DESIGN_SYSTEM.md#inventário-da-migração-de-estilos).
 - Mocks executados pela aplicação ficam em `src/mocks`; cenários exclusivos ficam em `tests/fixtures` e `tests/mocks`. Aplicação não importa testes. Ver [organização e fronteiras](docs/ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes).
 - Tipos de contratos são inferidos dos schemas Zod; props/modelos locais ficam no consumidor. Ver [tipagem](docs/ARCHITECTURE.md#tipagem-e-validação) e [restrições de lint](docs/RUNBOOK.md#regras-de-lint-implantadas).
-- [Contratos mínimos de acesso/empresa](docs/contracts/ACCESS_COMPANIES.md) reconciliados com schemas de fronteira; nenhum service/Auth conectado. Admin exige os dois passos antes de entrar (DEC-21).
-- [Ambiente local dedicado](docs/LOCAL_ENVIRONMENT.md) definido, com configuração e preflight; stack/baseline ainda não ativos.
+- [Contratos mínimos de acesso/empresa](docs/contracts/ACCESS_COMPANIES.md) e persistência local de adesão, com autoria/instante do servidor, histórico e RLS; Auth/MFA reais testados apenas pelo driver local. Frontend continua desconectado. Admin exige os dois passos (DEC-21).
+- [Ambiente local dedicado](docs/LOCAL_ENVIRONMENT.md) executado/testado, com serviços em rede internal e proxy de loopback; procedimentos, parada e limites registrados. Não inicia como efeito do build.
 - Formulários e interações locais não comprovam persistência, envio, aprovação ou ciência.
 - Escopo confirmado: padronizar todos os fluxos de Cliente e Admin e consolidar identidade bordô, marfim e dourado.
 - O código de `patricia258/app.cali` foi consultado somente em leitura como referência de contratos. Não é o destino da refatoração.
