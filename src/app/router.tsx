@@ -13,8 +13,14 @@ import { AdminWorkspace } from './AdminWorkspace';
 import ClientWorkspace from './ClientWorkspace';
 import { NotFoundPage } from './routes/NotFoundPage';
 import { RouteErrorPage } from './routes/RouteErrorPage';
+import { AccessGatePage } from './routes/AccessGatePage';
+import { type SessionController } from './session/controller';
+import { safeReturnPath, sessionGuard } from './session/guard';
 
-const rootRoute = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+const rootRoute = createRootRouteWithContext<{
+  queryClient: QueryClient;
+  session: SessionController | null;
+}>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
   errorComponent: RouteErrorPage,
@@ -29,11 +35,29 @@ const indexRoute = createRoute({
 const clientRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/cliente',
+  beforeLoad: async ({ context, location }) => {
+    if (!context.session) return; // Modo demonstrativo; configuração real continua proibida no bootstrap.
+    const reason = sessionGuard(await context.session.resolve(), 'client');
+    if (reason !== 'allowed')
+      throw redirect({
+        to: '/acesso',
+        search: { reason, returnTo: safeReturnPath(location.href) },
+      });
+  },
   component: ClientWorkspace,
 });
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
+  beforeLoad: async ({ context, location }) => {
+    if (!context.session) return;
+    const reason = sessionGuard(await context.session.resolve(), 'admin');
+    if (reason !== 'allowed')
+      throw redirect({
+        to: '/acesso',
+        search: { reason, returnTo: safeReturnPath(location.href) },
+      });
+  },
   component: AdminWorkspace,
 });
 
@@ -74,14 +98,34 @@ export const companiesRoute = createRoute({
   validateSearch: (search) => companySearchSchema.parse(search),
 });
 
+const accessGateRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/acesso',
+  validateSearch: (search) => ({
+    reason: typeof search.reason === 'string' ? search.reason : 'unavailable',
+    returnTo: safeReturnPath(typeof search.returnTo === 'string' ? search.returnTo : '/cliente'),
+  }),
+  component: AccessGatePage,
+});
+
 const routeTree = rootRoute.addChildren([
+  accessGateRoute,
   indexRoute,
   clientRoute.addChildren(clientChildren),
   adminRoute.addChildren([...adminChildren, companiesRoute]),
 ]);
 
-export function createAppRouter(history?: RouterHistory, queryClient = createQueryClient()) {
-  return createRouter({ routeTree, history, context: { queryClient }, defaultPreload: false });
+export function createAppRouter(
+  history?: RouterHistory,
+  queryClient = createQueryClient(),
+  session: SessionController | null = null,
+) {
+  return createRouter({
+    routeTree,
+    history,
+    context: { queryClient, session },
+    defaultPreload: false,
+  });
 }
 
 declare module '@tanstack/react-router' {
