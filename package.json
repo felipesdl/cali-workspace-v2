@@ -16,7 +16,13 @@
     "docs:check": "node scripts/check-docs.mjs",
     "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run local:config:check && npm run docs:check && npm run build",
     "local:config:check": "node scripts/local-environment.ts --check-config",
-    "local:preflight": "node scripts/local-environment.ts --preflight"
+    "local:preflight": "node scripts/local-environment.ts --preflight",
+    "local:db:inspect": "node scripts/local-database.ts --inspect",
+    "local:db:apply": "node scripts/local-database.ts --apply",
+    "local:db:test": "node scripts/local-database.ts --test",
+    "local:isolation:test": "node scripts/local-isolation.ts",
+    "local:adhesion:test": "node scripts/local-adhesion-api.ts",
+    "local:mail:test": "node scripts/local-mail.ts"
   },
   "dependencies": {
     "@tanstack/react-form": "1.33.5",
