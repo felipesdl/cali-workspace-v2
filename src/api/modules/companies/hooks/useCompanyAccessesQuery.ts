@@ -1,10 +1,12 @@
 import { skipToken, useQuery } from '@tanstack/react-query';
-import { companiesService, mockActorId } from '../api';
 import { companyKeys } from '../keys';
+import { useCompaniesScope } from './useCompaniesScope';
 
 export function useCompanyAccessesQuery(companyId?: string) {
+  const scope = useCompaniesScope();
   return useQuery({
-    queryKey: companyKeys.accesses(mockActorId, companyId ?? 'unselected'),
-    queryFn: companyId ? ({ signal }) => companiesService.accesses(companyId, signal) : skipToken,
+    queryKey: companyKeys.accesses(scope.actor, companyId ?? 'unselected'),
+    enabled: scope.enabled,
+    queryFn: companyId ? ({ signal }) => scope.service.accesses(companyId, signal) : skipToken,
   });
 }

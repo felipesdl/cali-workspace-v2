@@ -5,9 +5,18 @@ import { useEffect } from 'react';
 
 export function App({ router }: { router: ReturnType<typeof createAppRouter> }) {
   useEffect(() => {
-    return router.options.context.session?.subscribe(() => {
+    const { session, access } = router.options.context;
+    const stopRouter = session?.subscribe(() => {
       void router.invalidate();
     });
+    const stopAuth = access?.subscribe((invalidate) => {
+      if (invalidate) void session?.refresh();
+      else void session?.revalidate();
+    });
+    return () => {
+      stopRouter?.();
+      stopAuth?.();
+    };
   }, [router]);
   return (
     <QueryClientProvider client={router.options.context.queryClient}>

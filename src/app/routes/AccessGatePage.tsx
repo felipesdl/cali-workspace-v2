@@ -1,7 +1,10 @@
-import { useSearch } from '@tanstack/react-router';
+import { useSearch, useRouteContext } from '@tanstack/react-router';
+import { AccessFlow } from '../../features/access/AccessFlow';
 
 export function AccessGatePage() {
-  const { reason } = useSearch({ from: '/acesso' });
+  const { reason, returnTo } = useSearch({ from: '/acesso' });
+  const { access, session } = useRouteContext({ from: '__root__' });
+  if (access && session) return <AccessFlow api={access} session={session} returnTo={returnTo} />;
   const message =
     reason === 'signed_out'
       ? 'Confirme seu acesso para continuar.'

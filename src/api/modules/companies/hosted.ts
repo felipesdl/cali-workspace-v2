@@ -1,0 +1,89 @@
+import { z } from 'zod';
+import { type WorkspaceClient } from '../../supabase';
+import { companySchema, companyAccessSchema, normalizeCompanyFilters } from './schemas';
+import { companyIdentityRecordSchema, clientInviteIdentityRecordSchema } from './records';
+import { type CompaniesService } from './service';
+
+const companyRecord = companyIdentityRecordSchema.extend({
+  service_plan: z.string().nullable(),
+  service_type: z.string().nullable(),
+  created_at: z.iso.datetime({ offset: true }),
+});
+const inviteRecord = clientInviteIdentityRecordSchema.extend({
+  invited_at: z.iso.datetime({ offset: true }).nullable(),
+});
+const companyFields = 'id,display_name,legal_name,status,service_plan,service_type,created_at';
+const inviteFields = 'id,company_id,email,full_name,active,platform_access,is_primary,invited_at';
+const unavailable = () => new Error('Não foi possível consultar os dados. Tente novamente.');
+function mapCompany(row: z.infer<typeof companyRecord>) {
+  const plan = row.service_plan?.toLowerCase();
+  return companySchema.parse({
+    id: row.id,
+    displayName: row.display_name,
+    status: row.status,
+    plan: plan === 'full' || plan === 'partner' || plan === 'build' ? plan : null,
+    createdOn: row.created_at.slice(0, 10),
+  });
+}
+export function createHostedCompaniesService(client: WorkspaceClient): CompaniesService {
+  return {
+    async list(filters, signal) {
+      const normalized = normalizeCompanyFilters(filters);
+      const rows: z.infer<typeof companyRecord>[] = [];
+      for (let offset = 0; ; offset += 200) {
+        signal?.throwIfAborted();
+        let query = client
+          .from('companies')
+          .select(companyFields)
+          .order('display_name')
+          .order('id')
+          .range(offset, offset + 199);
+        if (normalized.status !== 'all') query = query.eq('status', normalized.status);
+        if (signal) query = query.abortSignal(signal);
+        const { data, error } = await query;
+        if (error) throw unavailable();
+        const page = z.array(companyRecord).parse(data);
+        rows.push(...page);
+        if (page.length < 200) break;
+      }
+      return rows
+        .map(mapCompany)
+        .filter((c) => c.displayName.toLocaleLowerCase('pt-BR').includes(normalized.q));
+    },
+    async detail(companyId, signal) {
+      const id = z.uuid().parse(companyId);
+      let query = client.from('companies').select(companyFields).eq('id', id);
+      if (signal) query = query.abortSignal(signal);
+      const { data, error } = await query.single();
+      if (error) throw unavailable();
+      const row = companyRecord.parse(data);
+      if (row.id !== id) throw unavailable();
+      return mapCompany(row);
+    },
+    async accesses(companyId, signal) {
+      const id = z.uuid().parse(companyId);
+      let query = client
+        .from('client_invites')
+        .select(inviteFields)
+        .eq('company_id', id)
+        .order('created_at');
+      if (signal) query = query.abortSignal(signal);
+      const { data, error } = await query;
+      if (error) throw unavailable();
+      return z
+        .array(inviteRecord)
+        .parse(data)
+        .map((row) => {
+          if (row.company_id !== id) throw unavailable();
+          return companyAccessSchema.parse({
+            id: row.id,
+            companyId: row.company_id,
+            name: row.full_name,
+            email: row.email,
+            status: row.active && row.platform_access ? 'active' : 'revoked',
+            invitedOn: row.invited_at?.slice(0, 10) ?? null,
+          });
+        });
+    },
+  };
+}

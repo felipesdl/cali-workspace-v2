@@ -27,21 +27,49 @@ export function createSessionController(source: SessionSource, cache: QueryClien
     await cache.cancelQueries();
     cache.clear();
   }
-  async function refresh() {
+  function sameReadyIdentity(previous: SessionState, next: WorkspaceAccessState) {
+    return (
+      previous.phase === 'resolved' &&
+      previous.access.status === 'ready' &&
+      next.status === 'ready' &&
+      previous.access.profile?.id === next.profile?.id &&
+      previous.access.profile?.company_id === next.profile?.company_id &&
+      previous.access.profile?.role === next.profile?.role
+    );
+  }
+  async function load(background: boolean) {
     const revision = ++generation;
+    const previous = state;
     request?.abort();
     const current = new AbortController();
     request = current;
-    publish({ phase: 'loading' });
-    await reset();
+    const preserve =
+      background && previous.phase === 'resolved' && previous.access.status === 'ready';
+    if (!preserve) {
+      publish({ phase: 'loading' });
+      await reset();
+    }
     try {
       const access = workspaceAccessStateSchema.parse(await source.read(current.signal));
-      if (revision === generation && !current.signal.aborted)
-        publish({ phase: 'resolved', access });
+      if (revision === generation && !current.signal.aborted) {
+        if (preserve && !sameReadyIdentity(previous, access)) await reset();
+        if (revision === generation) publish({ phase: 'resolved', access });
+      }
     } catch {
-      if (revision === generation) publish({ phase: 'error' });
+      if (revision === generation) {
+        await reset();
+        if (revision === generation) publish({ phase: 'error' });
+      }
     }
     return state;
+  }
+  function refresh(background = false) {
+    const task = load(background);
+    pending = task;
+    void task.finally(() => {
+      if (pending === task) pending = null;
+    });
+    return task;
   }
   return {
     getSnapshot: () => state,
@@ -51,15 +79,11 @@ export function createSessionController(source: SessionSource, cache: QueryClien
         listeners.delete(listener);
       };
     },
-    refresh,
+    refresh: () => refresh(),
+    revalidate: () => refresh(true),
     async resolve() {
-      if (state.phase !== 'idle') return pending ?? state;
-      pending = refresh();
-      try {
-        return await pending;
-      } finally {
-        pending = null;
-      }
+      if (state.phase === 'idle') return refresh();
+      return state.phase === 'loading' ? (pending ?? state) : state;
     },
     async signOut() {
       generation += 1;

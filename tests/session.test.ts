@@ -76,3 +76,39 @@ describe('sessão preparada para fonte validada do servidor', () => {
     expect(safeReturnPath(path)).toBe('/cliente');
   });
 });
+
+describe('revalidação de sessão sem descartar trabalho do mesmo ator', () => {
+  it('mantém cache em revalidação válida; revogação o remove', async () => {
+    const source: SessionSource = { read: async () => ready(), signOut: async () => {} };
+    const cache = createQueryClient();
+    const session = createSessionController(source, cache);
+    await session.resolve();
+    cache.setQueryData(['private'], 'empresa atual');
+    await session.revalidate();
+    expect(cache.getQueryData(['private'])).toBe('empresa atual');
+    source.read = async () => ({ ...ready(), status: 'blocked' });
+    await session.revalidate();
+    expect(cache.getQueryData(['private'])).toBeUndefined();
+    expect(sessionGuard(session.getSnapshot(), 'admin')).toBe('blocked');
+  });
+  it('troca de identidade e falha de verificação eliminam cache anterior', async () => {
+    const source: SessionSource = { read: async () => ready(), signOut: async () => {} };
+    const cache = createQueryClient();
+    const session = createSessionController(source, cache);
+    await session.resolve();
+    cache.setQueryData(['private'], 'anterior');
+    source.read = async () => ({
+      ...ready(),
+      profile: { ...ready().profile!, id: '20000000-0000-4000-8000-000000000002' },
+    });
+    await session.revalidate();
+    expect(cache.getQueryData(['private'])).toBeUndefined();
+    cache.setQueryData(['private'], 'atual');
+    source.read = async () => {
+      throw Error('rede indisponível');
+    };
+    await session.revalidate();
+    expect(cache.getQueryData(['private'])).toBeUndefined();
+    expect(session.getSnapshot().phase).toBe('error');
+  });
+});

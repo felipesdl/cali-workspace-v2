@@ -10,16 +10,22 @@ import { type QueryClient } from '@tanstack/react-query';
 import { companySearchSchema } from '../api/modules/companies/schemas';
 import { createQueryClient } from '../api/query-client';
 import { AdminWorkspace } from './AdminWorkspace';
-import ClientWorkspace from './ClientWorkspace';
+import { ClientEntry } from './routes/ClientEntry';
 import { NotFoundPage } from './routes/NotFoundPage';
 import { RouteErrorPage } from './routes/RouteErrorPage';
 import { AccessGatePage } from './routes/AccessGatePage';
 import { type SessionController } from './session/controller';
 import { safeReturnPath, sessionGuard } from './session/guard';
+import { type HostedAccessApi } from '../api/modules/access/api';
+import { type CompaniesService } from '../api/modules/companies/service';
+import { companiesService } from '../api/modules/companies/api';
+import { AuthCallbackPage } from './routes/AuthCallbackPage';
 
 const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient;
   session: SessionController | null;
+  access: HostedAccessApi | null;
+  companies: CompaniesService;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -28,7 +34,10 @@ const rootRoute = createRootRouteWithContext<{
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  beforeLoad: () => {
+  beforeLoad: async ({ context }) => {
+    const state = await context.session?.resolve();
+    if (state?.phase === 'resolved' && state.access.profile?.role === 'admin')
+      throw redirect({ to: '/admin/clientes', search: { q: '', status: 'all' } });
     throw redirect({ to: '/cliente' });
   },
 });
@@ -36,7 +45,7 @@ const clientRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/cliente',
   beforeLoad: async ({ context, location }) => {
-    if (!context.session) return; // Modo demonstrativo; configuração real continua proibida no bootstrap.
+    if (!context.session) return; // Permitido somente na composição demonstrativa explícita.
     const reason = sessionGuard(await context.session.resolve(), 'client');
     if (reason !== 'allowed')
       throw redirect({
@@ -44,8 +53,9 @@ const clientRoute = createRoute({
         search: { reason, returnTo: safeReturnPath(location.href) },
       });
   },
-  component: ClientWorkspace,
+  component: ClientEntry,
 });
+
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
@@ -108,8 +118,16 @@ const accessGateRoute = createRoute({
   component: AccessGatePage,
 });
 
+const callbackRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/auth/callback',
+  validateSearch: (search) => ({ code: typeof search.code === 'string' ? search.code : '' }),
+  component: AuthCallbackPage,
+});
+
 const routeTree = rootRoute.addChildren([
   accessGateRoute,
+  callbackRoute,
   indexRoute,
   clientRoute.addChildren(clientChildren),
   adminRoute.addChildren([...adminChildren, companiesRoute]),
@@ -119,11 +137,17 @@ export function createAppRouter(
   history?: RouterHistory,
   queryClient = createQueryClient(),
   session: SessionController | null = null,
+  services?: { access: HostedAccessApi; companies: CompaniesService },
 ) {
   return createRouter({
     routeTree,
     history,
-    context: { queryClient, session },
+    context: {
+      queryClient,
+      session,
+      access: services?.access ?? null,
+      companies: services?.companies ?? companiesService,
+    },
     defaultPreload: false,
   });
 }

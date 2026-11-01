@@ -11,7 +11,7 @@ export const companyStatus = {
 export const companySchema = z.object({
   id: z.uuid(),
   displayName: z.string().min(1),
-  plan: z.enum(['partner', 'full']),
+  plan: z.enum(['partner', 'full', 'build']).nullable(),
   status: z.enum(companyStatus),
   createdOn: z.iso.date(),
 });
@@ -22,7 +22,7 @@ export const companyAccessSchema = z.object({
   name: z.string().min(1),
   email: z.email(),
   status: z.enum(['active', 'revoked']),
-  invitedOn: z.iso.date(),
+  invitedOn: z.iso.date().nullable(),
 });
 
 export const companyFilterSchema = z.object({

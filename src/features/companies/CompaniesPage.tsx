@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from '@tanstack/react-form';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useRouteContext } from '@tanstack/react-router';
 import { companiesRoute } from '../../app/router';
 import { useCompaniesQuery } from '../../api/modules/companies/hooks/useCompaniesQuery';
 import { useCompanyAccessesQuery } from '../../api/modules/companies/hooks/useCompanyAccessesQuery';
@@ -20,6 +20,7 @@ const statusLabels = {
 } as const;
 
 export function CompaniesPage() {
+  const { access } = useRouteContext({ from: '__root__' });
   const search = companiesRoute.useSearch();
   const navigate = useNavigate({ from: '/admin/clientes' });
   const companies = useCompaniesQuery({ q: search.q, status: search.status });
@@ -157,7 +158,15 @@ export function CompaniesPage() {
                 {companies.data.map((company) => (
                   <tr key={company.id}>
                     <th scope="row">{company.displayName}</th>
-                    <td>{company.plan === 'full' ? 'CALI Full' : 'CALI Partner'}</td>
+                    <td>
+                      {company.plan === 'full'
+                        ? 'CALI Full'
+                        : company.plan === 'partner'
+                          ? 'CALI Partner'
+                          : company.plan === 'build'
+                            ? 'CALI Build'
+                            : 'Não informado'}
+                    </td>
                     <td>{statusLabels[company.status]}</td>
                     <td>{formatCalendarDate(company.createdOn)}</td>
                     <td>
@@ -220,7 +229,7 @@ export function CompaniesPage() {
                   <span>{access.email}</span>
                   <span>
                     {access.status === 'active' ? 'Ativo' : 'Revogado'} · Convite em{' '}
-                    {formatCalendarDate(access.invitedOn)}
+                    {access.invitedOn ? formatCalendarDate(access.invitedOn) : 'não enviado'}
                   </span>
                 </li>
               ))}
@@ -229,8 +238,9 @@ export function CompaniesPage() {
         </section>
       )}
       <p className="tw:m-0 tw:text-caption tw:leading-note tw:text-muted-copy">
-        Demonstração local com dados fictícios. Cadastro, convites e alterações reais serão
-        disponibilizados após a integração e validação de acesso.
+        {access
+          ? 'Cadastro e manutenção dos acessos estão em preparação.'
+          : 'Demonstração local com dados fictícios. Cadastro, convites e alterações reais serão disponibilizados após a integração e validação de acesso.'}
       </p>
     </div>
   );

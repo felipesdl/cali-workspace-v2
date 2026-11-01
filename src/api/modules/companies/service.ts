@@ -37,3 +37,4 @@ export function createCompaniesService(client: AxiosInstance) {
     },
   };
 }
+export type CompaniesService = ReturnType<typeof createCompaniesService>;
