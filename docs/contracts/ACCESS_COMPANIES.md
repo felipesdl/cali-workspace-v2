@@ -1,6 +1,19 @@
 # Contratos mínimos de acesso e empresas
 
-Atualização: 29/10/2026. Recorte da fase 1, FLOW-01/02. **Adesão, códigos/termos e estado/revogação de sessão implementados/testados no laboratório local; frontend sem serviço de autenticação, SDK ou sessão real. As provas não abrangem todo o fluxo de acesso.** Transições e experiência continuam na [ficha](../flows/ACCESS_ACCOUNTS.md); matriz em [Permissões](../PERMISSIONS.md).
+Atualização: 01/11/2026. Recorte da fase 1, FLOW-01/02. **Baseline local testada em 29/10; adapter/telas da V2 conectados ao hospedado em 01/11, com jornada autenticada ainda em validação.** Transições e experiência continuam na [ficha](../flows/ACCESS_ACCOUNTS.md); matriz em [Permissões](../PERMISSIONS.md).
+
+## Integração hospedada vigente — 01/11
+
+DEC-27 autoriza dados/atores sintéticos no backend hospedado existente, sem publicação da V2 ou aplicação da baseline local. `access/api.ts` adapta Edge, Auth/MFA, perfil, empresa e aceite legados; `access/service.ts` agrega o estado com validação de identidade/vínculo e falha bloqueante. A agregação é guarda frontend, não nova RPC nem comprovação de uniformidade das policies hospedadas.
+
+- Sessão é persistida/renovada pelo SDK em namespace próprio da V2. Eventos de login/logout invalidam acesso e cache; refresh de token, foco/visibilidade e intervalo de 60 segundos revalidam o servidor. Mesmo ator/contexto válido mantém cache e formulário; troca, bloqueio ou erro de verificação limpam o cache. Chamadas atrasadas não restauram estado anterior.
+- Admin exige nível AAL2 e fator TOTP verificado na UI, inclusive primeiro uso; erro bloqueia. Enrollment depende de ação explícita; recuperação/remoção de fator não foram acrescentadas como bypass. Cliente exige próprio perfil ativo e empresa `active/paused`; Partner continua fora do recorte.
+- `workspace-access` mantém request/verify por POST, com schemas existentes e sem retry automático de consumo. Token hash é trocado pelo Auth, sem ser persistido/logado pela feature. Callback PKCE é consumidor separado; callback válido ainda precisa de prova no navegador e configuração do destino.
+- Termos reproduzem literalmente a versão oficial `2026-10-15` de `src/legal/legalTexts.ts`, blob `490782fb0918846201c443b6e8d08c1914527261`, sem publicar texto sintético. A revisão de 15/10 é declarada na fonte, não auditoria jurídica da V2. Há linguagem de cliente principal/restrição de privados que precisa ser reconciliada com DEC-05/09 antes da entrega desses campos; não editar mantendo a mesma versão.
+- No hospedado, `terms_acceptances` registra usuário/versão/instante do servidor; o digest calculado pela V2 identifica o texto apresentado, **não é persistido por esse contrato**. A ausência/erro do aceite bloqueia a V2; não alegar que isso já bloqueia todas as APIs do hospedado. Nova versão e texto dependem de validação CALI.
+- Empresas usam projeções reais, paginação de leitura, filtros e detalhe/acessos por vínculo. Plano desconhecido permanece não informado; convite sem `invited_at` não ganha data fabricada. As keys usam ator/vínculo reais, sem `mock-admin` na composição conectada. Cadastro/convite de produto, comprovação/gate de adesão e limite/revogação completos continuam 2A.
+
+Evidência de preparação GET/POST/PATCH e comparação online/local em [ambiente](../LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27). Nenhum contrato local novo foi declarado presente no hospedado sem prova.
 
 ## Proveniência e limites
 
@@ -103,7 +116,7 @@ SQL real testa claims sintéticos com rollback; API testa JWT emitido pelo Auth 
 | Registro da adesão | Investigado/autorizado em DEC-23; persistência/servidor do recorte de adesão implementados/testados localmente em 29/10. O [texto legal](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/legal/legalTexts.ts#L1) distingue material interno dos termos apresentados. Preservar a persistência/auditoria local e completar comprovação da referência no fluxo 2A; não confundir anexo, accepted_at de convite ou aceite individual com esse registro |
 | Predicados e RLS acumulados | Comparar baseline de teste com os helpers/grants/policies necessários, incluindo profile.active, vínculo e MFA obrigatório. Fonte estática não demonstra estado aplicado; não exportar dados/clientes ou identidades reais |
 | Revogar/reativar acesso | Reconciliar convite/perfil e preservar revogação individual; a atualização em lote da UI não prova esse requisito |
-| MFA/termos | MFA, termos e negações testados no servidor; UI/adapter/eventos de sessão, conteúdo jurídico aprovado, recuperação segura e demais superfícies ainda pendentes. A versão legal da referência não autoriza novos textos/prazos de guarda |
+| MFA/termos | Baseline local testada; adapter/eventos/telas hospedados e jornada Admin/aceite observados em DEC-27. Ainda faltam primeiro enrollment UI, recuperação segura, callback e demais cenários/permissões. Texto vigente foi reproduzido; revisão de compatibilidade V2 e novo versionamento precisam de validação, sem inventar prazos |
 | E-mail e concorrência do código | Captura local e workspace-access testados com concorrência/uso único; Resend e canais externos não foram portados. TTL do código não define prazo de guarda dos registros/logs |
 
 Testar no ambiente isolado: código incorreto/expirado/repetido, perfil inativo, A/B/Admin, cliente sem vínculo, conta pausada versus bloqueada/encerrada/arquivada, Admin sem MFA/AAL1/AAL2/erro, aceite ausente/antigo/erro, requisição direta ao backend e logout sem dados remanescentes. Publicar somente a evidência realmente executada.

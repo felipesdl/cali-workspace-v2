@@ -4,6 +4,14 @@ Atualização: 28/10/2026. Registra estado e evidência; regras completas perman
 
 ## Decisões de produto e escopo
 
+## DEC-27 — Desenvolvimento no backend hospedado e atores de teste
+
+Em 01/11/2026, Felipe esclareceu que a plataforma ainda não foi lançada e autorizou continuar a implementação no mesmo ambiente hospedado, incluindo criação de contas e manipulação de dados sintéticos para verificar GET/POST. Esta decisão substitui a restrição anterior de somente leitura do backend neste recorte; o repositório `patricia258/app.cali` continua referência somente em leitura. Não autoriza apagar dados existentes, publicar a aplicação, executar automaticamente a baseline local sobre o banco hospedado ou ampliar permissões para contornar falhas.
+
+Dois e-mails controlados por Felipe foram indicados para Clientes A/B; seus valores ficam fora do Git. Admin inicialmente usa o acesso existente. Empresas/convites de teste devem ser identificáveis, reaproveitados sem duplicação e vinculados exclusivamente aos atores indicados; comunicações de teste somente para esses destinatários. Provisão sintética não comprova adesão jurídica real. A baseline local de DEC-22/25/26 permanece como laboratório histórico, sem equivalência automática com o schema hospedado. Integração precisa conferir contratos efetivos e registrar diferenças de sessão, MFA, termos e RLS.
+
+A leitura autenticada de 31/10 retornou HTTP 200 para o próprio perfil Admin ativo e duas empresas, com AAL2 e token inalterado. Isso não comprova escrita, permissões Cliente, implantação da baseline V2 ou todos os domínios. Fase 1 permanece aberta até as provas aplicáveis da jornada integrada.
+
 | ID | Decisão | Evidência na conversa | Documento dono |
 | --- | --- | --- | --- |
 | DEC-01 | Esta V2 é a base de evolução | “esse repo que coloquei aqui é o v2, ele é a base do sistema agora” | [Arquitetura](ARCHITECTURE.md) |

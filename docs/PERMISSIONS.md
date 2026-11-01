@@ -2,6 +2,12 @@
 
 Data: 25/10/2026. Oficial consultado em `f3d3f14043a6abc38636f0340fe831e621d8b357`, somente leitura. **Matriz de evidência estática, não certificação de permissões em produção.** Fontes: [índice imutável](flows/SOURCES.md). Fluxos: [fichas](flows/README.md).
 
+## Integração hospedada — DEC-27
+
+Em 01/11, a V2 passou a consultar perfil/empresa/termos e Auth/MFA reais no backend autorizado. Guarda frontend bloqueia perfil ausente/inativo, vínculo inconsistente, Partner fora do recorte, Admin sem AAL2/fator verificado e aceite ausente/erro. Não comprova predicado unificado no servidor hospedado: guards/policies da baseline local não foram aplicados nele. Comparação/Admin e dados sintéticos em [Ambiente](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27); matriz abaixo continua referência estática, salvo evidências explicitamente atualizadas.
+
+Duas fixtures A/B receberam um vínculo Cliente ativo cada, com autorização específica; e-mails fora do Git. Isso não concede acesso a empresas existentes nem comprova ainda a negativa de RLS entre Clientes A/B. Até a conclusão dessa prova, não declarar isolamento hospedado homologado.
+
 ## Contrato alvo confirmado pelo usuário — atualizado em 28/10/2026
 
 Esta seção prevalece para o desenho futuro da V2. As tabelas posteriores preservam o que foi observado no oficial; não representam implementação dessas decisões.

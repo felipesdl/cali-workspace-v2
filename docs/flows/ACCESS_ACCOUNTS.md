@@ -24,6 +24,16 @@ No laboratório, Admin ativo com AAL2 e fator TOTP verificado registra adesão p
 
 Edge local e banco implementam código/limites/consumo, troca por sessão Auth, versões/aceites e revogação; [contrato detalhado](../contracts/ACCESS_COMPANIES.md#códigos-termos-e-guarda-de-sessão--2910). Sessão e guardas do frontend estão preparadas por injeção; adapter/eventos/telas reais ainda pendentes. Textos de teste são sintéticos e não aprovam conteúdo jurídico. A referência histórica abaixo não descreve o runtime novo.
 
+## Integração hospedada e comparação — 01/11
+
+DEC-27 autoriza dados sintéticos no backend existente. A V2 tem SDK/adapter, eventos/revalidação, guardas, telas de código/MFA/termos/callback e leitura real de empresas/acessos. Usuário concluiu a jornada Admin/aceite e chegou às quatro empresas do banco. Busca, detalhe de A e limpeza de filtros foram observados na V2; código/MFA/callback/expiração/logout e negações A/B precisam de evidência por cenário. A existência da tela não encerra esses testes.
+
+O aceite inicialmente falhou antes do POST por receber conteúdo/título além do payload estrito `version/contentHash`. Corrigido no consumidor; teste verifica transição após confirmação e permanência no bloqueio quando a gravação falha. Aceite real foi concluído pelo próprio usuário, sem inserir registro fora da UI.
+
+Comparação com `/admin/clientes` online: mesmas quatro empresas e situação ativa. O online exibe dois acessos habilitados nas duas fixtures, mas há um vínculo de teste em cada uma. Fonte `AdminClientsPageV3.tsx`, blob `46265a2723530f10d26f81a4d1d86a5e8004277d`, linha 477, calcula `1 + extras habilitados`, mesmo sem principal. V2 lista vínculos recebidos, sem adicionar um acesso fictício. Não transportar essa soma para o limite de quatro equivalentes. Campos de contrato/horas/NPS/Drive, edição/ciclo e navegação global existem no online e ainda não foram migrados para o shell conectado; permanecem no escopo das fases, não foram removidos do produto.
+
+Termos hospedados permanecem na versão oficial 2026-10-15; redação de principal/campos privados precisa da reconciliação indicada no [contrato vigente](../contracts/ACCESS_COMPANIES.md#integração-hospedada-vigente--0111). Baseline local não foi aplicada no hospedado. Ver [ambiente/evidências](../LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27).
+
 ## FLOW-01 — Convite, código, sessão, MFA e aceite
 
 **Objetivo/atores:** pessoa autorizada acessa o workspace adequado como Cliente ou Admin. Empresa e papel vêm do perfil; não da seleção demonstrativa da V2. Adesão comercial e aceite de uso são eventos diferentes.

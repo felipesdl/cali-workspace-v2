@@ -1,8 +1,8 @@
 # Arquitetura de desenvolvimento
 
-Atualização: 29/10/2026. **Fundação local iniciada; fase 1 em andamento.** A base sincronizada é `c9baea7` da `main`, após merge do PR documental. Rotas, Query/Form, módulo demonstrativo de empresas, tokens e duas primitivas existem; sessão no frontend e integração de produto continuam pendentes. Laboratório local já testa Auth/MFA, código, termos, adesão, estado/revogação de sessão e RLS do recorte. Controller/guardas do frontend estão preparados por injeção; adapter e telas reais permanecem pendentes.
+Atualização: 01/11/2026. **Fase 1 em andamento: sessão/guardas/telas e leitura de empresas conectadas ao hospedado conforme DEC-27.** A base é `c9baea7` da `main`. Laboratório local preserva provas próprias de Auth/MFA, código, termos, adesão e RLS; nenhuma migration local foi aplicada no hospedado. Provas de jornada e limites estão no [ambiente](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27).
 
-Ler [Regras de produto](PRODUCT_RULES.md), [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md), [fichas](flows/README.md) e [roadmap](ROADMAP.md). Estrutura de código não aprova regra nova. A V2 é a base, o oficial permanece somente leitura.
+Ler [Regras de produto](PRODUCT_RULES.md), [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md), [fichas](flows/README.md) e [roadmap](ROADMAP.md). Estrutura de código não aprova regra nova. A V2 é a base, o repositório oficial permanece somente leitura; uso do backend hospedado segue DEC-27.
 
 ## Bibliotecas escolhidas
 
@@ -14,17 +14,21 @@ Versões são fixadas em package/lockfile; Node e npm estão documentados no [ru
 
 ## Fronteiras e estado implementado
 
-Fluxo atual de dados: **view → hook de consulta do módulo → service → Axios com adapter local → fixtures**. Zod valida filtros, datas e retorno; Query controla ciclo assíncrono/cache. Os caminhos virtuais do adapter são contrato interno dos mocks de desenvolvimento, não endpoints oficiais nem substitutos de RPC Supabase.
+Fluxo atual de dados: **view → hook de consulta do módulo → service → adapter Supabase ou Axios/fixtures, selecionado na composição**. Zod valida filtros, datas e retorno; Query controla ciclo assíncrono/cache. Os caminhos virtuais do adapter são contrato interno dos mocks de desenvolvimento, não endpoints oficiais nem substitutos de RPC Supabase.
 
 | Dono | Responsabilidade e estado |
 | --- | --- |
-| `src/main.tsx` | Bootstrap e validação da configuração demo; sem JSX de negócio |
+| `src/main.tsx` | Bootstrap, validação demo/Supabase e composição dos serviços/controller; sem JSX de negócio |
 | `src/app` | Router, Query provider e ponte de navegação para composições existentes |
 | `src/app/ClientWorkspace.tsx` | Composição cliente extraída do bootstrap, ainda com estado/fixtures legados a migrar por fluxo |
 | `src/AdminPreview.tsx` | Layout/prévias Admin existentes com seção controlada pela URL; empresas usa o novo consumidor |
-| `src/features/companies` | Formulário de filtros, lista e consulta de acessos locais; sem SDK, Axios ou fixture importados diretamente |
-| `src/api/modules/companies` | Schema/tipos, keys, service, composição do adapter mock e hooks Query com consumidores reais |
+| `src/features/companies` | Formulário de filtros, lista e consulta de acessos por composição; sem SDK, Axios ou fixture importados diretamente |
+| `src/api/modules/companies` | Schemas/tipos, keys por ator/vínculo, service mock, adapter hospedado e hooks Query |
 | `src/mocks/http/client.ts` | Axios com adapter obrigatório; destinos, baseURL e transporte alternativos recusados; nenhum modo de rede nesta etapa |
+| `src/api/supabase.ts` | Cliente oficial com chave pública, namespace Auth próprio e refresh; SDK restrito à fronteira de dados |
+| `src/api/modules/access` | Contratos e adapter Auth/Edge/MFA/termos, agregação de acesso e hook de snapshot |
+| `src/features/access` | Formulários de código/MFA/aceite; sem SDK ou tokens |
+| `src/app/WorkspaceLayout.tsx` | Shell conectado mínimo, sem métricas demonstrativas ou troca fictícia de papel |
 | `src/api/query-client.ts` | Configuração do QueryClient, criado por instância do router; não guarda dados em context |
 | `src/components/ds` | Button/Field com utilities Tailwind e variantes tipadas; sem dependência de app, feature ou API |
 | `src/styles/tokens.css` | Tokens iniciais consumidos pelas peças e página de empresas; não substitui ainda toda a cascata legada |
@@ -55,7 +59,7 @@ src/api/
 - `api.ts`: composição da instância utilizada pela SPA com mocks de desenvolvimento; `mock-admin` é ator sintético fixo, não autenticação.
 - Escrita futura: adicionar service e hook `use...Mutation` quando houver operação/consumidor reais, com mutation key tipada, confirmação do resultado e invalidação dos leitores afetados. Não criar mutation genérica ou arquivo vazio para aparentar estrutura.
 
-As consultas de lista, detalhe e acessos têm cache separado. Não usar dados anteriores de outra empresa como placeholder. Na integração real, ator/vínculo virão da sessão autenticada e logout/revogação deverão cancelar/limpar cache e detalhes; isso ainda não está implementado nem comprovado pelo isolamento de chaves demo.
+As consultas de lista, detalhe e acessos têm cache separado. Não usar dados anteriores de outra empresa como placeholder. Na composição hospedada, ator/vínculo vêm do snapshot autenticado. Login/logout/troca invalidam e limpam cache; revalidação válida do mesmo contexto preserva trabalho. Bloqueio/erro removem dados. Testes de controller/rotas não equivalem à prova completa de revogação no servidor hospedado.
 
 ## Tipagem e validação
 
@@ -74,7 +78,7 @@ O lint restringe `any`, `unknown` fora dessas entradas justificadas, casts de ob
 
 `src/api/modules/access/schemas.ts` contém requests/respostas de workspace-access e projeções mínimas planejadas de perfil/aceite. `companies/records.ts` separa records de empresa/convite do DTO de demonstração. Schemas não habilitam Auth, transportes, guardas ou RLS; [contrato e lacunas](contracts/ACCESS_COMPANIES.md). Admin exige os dois passos em DEC-21.
 
-DEC-22/25 usam Supabase local dedicado com serviços internal e proxy de loopback. `local-environment.ts` confere configuração; `local-database.ts` confere alvo/topologia e aplica somente baseline conhecida com journal/digest. `supabase/migrations/20261029090000_access_adhesion_baseline.sql` contém empresa/perfil/adesão, helpers privados e RLS; testes SQL e driver API/Auth provam esse recorte. Scripts de runtime são explícitos e não fazem parte do verify/CI comum. A SPA permanece em modo demo; [ambiente, comandos e limites](LOCAL_ENVIRONMENT.md).
+DEC-22/25 usam Supabase local dedicado com serviços internal e proxy de loopback. `local-environment.ts` confere configuração; `local-database.ts` confere alvo/topologia e aplica somente baseline conhecida com journal/digest. `supabase/migrations/20261029090000_access_adhesion_baseline.sql` contém empresa/perfil/adesão, helpers privados e RLS; testes SQL e driver API/Auth provam esse recorte. Scripts de runtime são explícitos e não fazem parte do verify/CI comum. O recorte descrito neste histórico usou SPA demo; DEC-27 integra a SPA ao hospedado, sem reutilizar automaticamente o SQL do laboratório; [ambiente, comandos e limites](LOCAL_ENVIRONMENT.md).
 
 ## Código, termos e preparação de sessão — 29/10
 
@@ -82,7 +86,7 @@ DEC-22/25 usam Supabase local dedicado com serviços internal e proxy de loopbac
 
 Migrations `20261029120000_codes_terms.sql` e `20261029123000_access_revocation.sql` adicionam códigos privados, serialização/uso único, versões/aceites imutáveis, estado de acesso e revogação. Runner aceita apenas lista revisada em ordem com journal/digest; não altera migrations já aplicadas. Schema de códigos é novo da V2, não recuperação do DDL ausente. [Contrato e limites](contracts/ACCESS_COMPANIES.md#códigos-termos-e-guarda-de-sessão--2910).
 
-`src/api/modules/access/session.ts` é dono do contrato validado do estado/conteúdo corrente. `src/app/session/controller.ts` recebe fonte por injeção, controla cancelamento/gerações/cache e não guarda tokens. `guard.ts` decide por status/papel e saneia retorno; Router beforeLoad e assinatura no App têm consumidores reais nos testes. Nenhum context global foi adicionado. Fonte Auth/refresh/eventos e telas de acesso ainda não estão conectados; bootstrap demo continua recusando configuração real. A composição/mock-admin de empresas não virou identidade autenticada.
+`src/api/modules/access/session.ts` é dono do contrato validado do estado/conteúdo corrente. `src/app/session/controller.ts` recebe fonte por injeção, controla cancelamento/gerações/cache e não guarda tokens. `guard.ts` decide por status/papel e saneia retorno; Router beforeLoad e assinatura no App têm consumidores reais nos testes. Nenhum context global foi adicionado. Fonte Auth/refresh/eventos e telas de acesso ainda não estão conectados; DEC-27 conecta adapter/telas e composição por ator real. `mock-admin` continua exclusivo da demonstração; a agregação hospedada não equivale à RPC/policies da baseline local.
 
 ## Mocks da aplicação e suporte exclusivo de testes
 

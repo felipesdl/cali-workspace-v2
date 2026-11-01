@@ -1,6 +1,6 @@
 # Índice da documentação
 
-Atualização: 29/10/2026. Base de desenvolvimento: este repositório V2. Escopo: diagnóstico, contratos alvo decididos e padronização de todos os fluxos; fase 1 local em andamento.
+Atualização: 01/11/2026. Base de desenvolvimento: este repositório V2. Escopo: diagnóstico, contratos alvo decididos e padronização de todos os fluxos; fase 1 em integração hospedada autorizada por DEC-27.
 
 | Pergunta | Fonte canônica |
 | --- | --- |
@@ -64,7 +64,7 @@ Pedidos expressos atuais definem o trabalho. Código comprova implementação; d
 
 O contrato alvo confirmado orienta a arquitetura e a identidade CALI. Handoff de 08/10 permanece intacto como histórico; divergências estão no baseline.
 
-Produção, Auth, RLS, integrações e migrations ativas não foram verificadas. Código oficial foi lido na revisão fixada no baseline.
+Baseline e fontes históricas são leitura estática. DEC-27 registra as verificações pontuais e integração hospedada autorizadas posteriormente; isso não homologa autorização integral, migrations ativas ou todos os domínios. Código oficial da referência foi lido na revisão fixada no baseline.
 
 ## Cruzamento de fichas — 25/10/2026
 
@@ -74,4 +74,4 @@ Revisão oficial fixada em `f3d3f14043a6abc38636f0340fe831e621d8b357`, sem escri
 
 PROD-01 a PROD-08 foram respondidas; a revisão da Patrícia substituiu PROD-03 por DEC-13. Regras foram refletidas nas fichas/matriz sem alterar código ou fonte oficial. TEC-01/02/03 continuam como investigação/prova de engenharia. OPEN-13 registra o resumo Admin resolvido por DEC-19, com conteúdo Partner adiado; OPEN-14 acompanha conteúdo de finalidade/guarda/informação no acesso. Não transformar essas pendências em bloqueios globais artificiais.
 
-O roadmap atual fecha tarefas de ponta a ponta após fundação mínima: primeiro empresas/acessos, Equipe e dados mensais; depois DISC e demais fluxos; Partner posterior. DS, rotas, hooks/adaptadores e validação crescem junto dos consumidores. Os 18 IDs têm dependências e aceite. O código `f3d3f14` já identifica a publicação 83; o registro de 26/10 explicita o funcionamento oficial testado como referência. Fase 1 iniciada em 27/10: router, Query/Form, módulo demonstrativo de empresas e DS inicial existem. Gates locais e workflow estão definidos; Auth/TOTP, adesão, códigos/termos e estado/revogação/RLS do recorte foram testados no laboratório em 29/10. Controller/guardas da SPA estão preparados; adapter/eventos/telas e fluxos completos continuam pendentes. Estado executável e limites estão no runbook e na arquitetura.
+O roadmap atual fecha tarefas de ponta a ponta após fundação mínima: primeiro empresas/acessos, Equipe e dados mensais; depois DISC e demais fluxos; Partner posterior. DS, rotas, hooks/adaptadores e validação crescem junto dos consumidores. Os 18 IDs têm dependências e aceite. O código `f3d3f14` já identifica a publicação 83; o registro de 26/10 explicita o funcionamento oficial testado como referência. Fase 1 iniciada em 27/10: router, Query/Form, módulo demonstrativo de empresas e DS inicial existem. Gates locais e workflow estão definidos; Auth/TOTP, adesão, códigos/termos e estado/revogação/RLS do recorte foram testados no laboratório em 29/10. Adapter/eventos/telas de acesso e empresas foram conectados em 01/11 (DEC-27); a jornada Admin e comparação com o online estão em validação. Isolamento Cliente A/B, demais operações e fluxos completos continuam pendentes. Estado executável e limites estão no runbook e na arquitetura.

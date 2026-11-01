@@ -1,6 +1,16 @@
 # Operação local e verificação
 
-Atualização: 29/10/2026. Fase 1 iniciada na branch local `codex/fase-1-base`, a partir de `main` `c9baea7`. O pacote está em revisão no [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) em rascunho, conforme solicitação de 27/10; o acompanhamento de concluído/pendente fica no [roadmap](ROADMAP.md#acompanhamento-da-fase-1--pacote-para-revisão). Commits/push/PR são etapas de revisão distintas de merge/deploy. Sem conexão ao Supabase oficial ou publicação da aplicação.
+Atualização: 01/11/2026. Fase 1 iniciada na branch local `codex/fase-1-base`, a partir de `main` `c9baea7`. O pacote está em revisão no [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) em rascunho, conforme solicitação de 27/10; o acompanhamento de concluído/pendente fica no [roadmap](ROADMAP.md#acompanhamento-da-fase-1--pacote-para-revisão). Commits/push/PR são etapas de revisão distintas de merge/deploy. DEC-27 autoriza integração ao backend hospedado e fixtures sintéticas identificadas; não houve publicação da aplicação.
+
+## Execução conectada e comparação
+
+Configuração e atores sintéticos estão em [Ambiente hospedado](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27). `.env` e arquivos `*.env` ficam ignorados. Nunca enviar chaves privadas/service role ao Vite; o schema aceita somente URL hospedada HTTPS e chave `sb_publishable_`, sem fallback de configuração inválida para mocks. `demo` mantém a composição de fixtures quando não há backend configurado.
+
+O SDK mantém sessão/refresh em namespace exclusivo; login/MFA/aceite acontecem pela UI. Não usar código de console para registrar aceite nem pedir tokens por chat. Callback PKCE está implementado, mas configuração/caminho de callback bem-sucedido ainda exigem prova. No modo conectado, apenas os módulos integrados mostram dados reais; demais módulos não exibem estatísticas fictícias.
+
+`npm run verify` continua sem conexão de runtime, Docker, migrations ou envio de e-mail. O build pode incorporar URL/chave pública configuradas, como esperado para cliente Supabase; não distribuir artefato nem considerar build autorização de deploy. Scripts `local:*` continuam restritos ao laboratório e recusam o `.env` hospedado no preflight; não relaxar essas guardas para iniciar o laboratório.
+
+Após alterar a interface do controller durante desenvolvimento, uma instância antiga preservada pelo hot reload pode exigir uma atualização da aba. Isso foi observado/corrigido no teste de 01/11; não adicionar reload automático como tratamento de erro do produto.
 
 ## Runtime e instalação
 

@@ -1,6 +1,22 @@
 # Ambiente isolado da fase 1
 
-Atualização: 29/10/2026. **Adesão, códigos, termos e guarda de servidor aplicados/testados no laboratório local; controller/guardas da SPA preparados por injeção. Frontend continua somente com mocks, sem SDK/URL/chave Supabase.** Não houve conexão ao oficial, importação de seus dados/SQL, comunicação externa ou publicação. A fase 1 permanece em andamento.
+Atualização: 01/11/2026. **DEC-27 autoriza a continuidade no backend hospedado existente, ainda não lançado, com atores e dados sintéticos identificados.** A V2 local possui adapter Auth/empresas e telas de código, MFA, termos e callback. O laboratório descrito abaixo permanece como evidência histórica e opção de teste, sem que suas migrations tenham sido aplicadas no hospedado. Não houve deploy da aplicação.
+
+## Backend hospedado — DEC-27
+
+- Configuração local fica em `.env`, ignorado pelo Git, com `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`. Sem modo explícito, a presença de ambos seleciona Supabase. `demo` é composição com fixtures, não outro projeto hospedado; configuração parcial/contraditória ou chave privilegiada é rejeitada, sem fallback.
+- Somente chave pública no frontend. Sessão pertence ao namespace `cali-v2-<project-ref>-auth`, separado da referência online e de outros aplicativos. Login pela V2 é necessário; não copiar tokens do navegador para arquivos/chat nem importar a sessão do oficial automaticamente.
+- Auth usa o SDK oficial 2.118.0; códigos usam a Edge existente `workspace-access`, sem deploy de função nova. A origem localhost está prevista no código consultado; entrega efetiva e cada transição precisam de teste. Cadastro Auth do Cliente ocorre na primeira solicitação de código elegível, não ao inserir um convite.
+- Duas empresas `[TESTE V2] Empresa A/B` foram criadas por POST (HTTP 201), com marcadores `CALI_V2_TEST_A_20261101` / `CALI_V2_TEST_B_20261101` em `notes` e automações de empresa desabilitadas. Dois vínculos foram criados inicialmente inativos (201) e ativados (PATCH 200 + GET de confirmação) após aprovação específica de Felipe. Destinatários foram fornecidos na sessão e não são versionados. Nenhum perfil/vínculo preexistente foi alterado; solicitação de código posterior retornou 200 para A/B, com perfil Cliente ativo/vinculado confirmado por GET. Sessão Admin ficou inalterada. Isso não comprova recebimento do e-mail, verificação do código pelo Cliente nem isolamento A/B, ainda pendentes.
+- Preparação é fixture autorizada, não comprovação de adesão jurídica real ou implementação do cadastro completo de 2A. Sem assinatura, aceite ou data de adesão fictícios. Não executar expurgo/reset para repetir testes; consultar marcador/vínculo antes de criar e parar em colisão.
+- Nenhuma migration, grant, policy ou configuração Auth hospedada foi alterada. Falha de consulta não autoriza ampliar privilégios nem aplicar o SQL do laboratório. O catálogo OpenAPI retornou 401; leituras autenticadas de usuário/perfil e empresas funcionaram, portanto esse retorno não foi tratado como indisponibilidade geral do banco.
+- Para repetir testes, usar a V2 local (`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`), os atores aprovados e a própria interface. Evitar disparos repetidos de código: a Edge limita a 120 segundos. Nunca imprimir código, token, segredo MFA ou resposta Auth integral.
+
+### Comparação da V2 local com o online
+
+O online é referência funcional, não o artefato deste PR. Comparar o mesmo ator/empresa e os mesmos registros; sessão em cada origem é independente. A V2 apresenta acesso real e leitura de empresas no novo shell; módulos ainda não integrados ficam em preparação, sem métricas sintéticas no modo conectado. O modo demo preserva a navegação legada para inventário/migração. Diferença planejada de cobertura não é paridade comprovada nem regressão por si só.
+
+O usuário concluiu login Admin e aceite pela V2; a lista conectada mostrou quatro empresas, busca `[TESTE V2]` mostrou duas, detalhe de A mostrou um vínculo do destinatário esperado e limpeza restaurou quatro. Comparação por nomes no DOM confirmou o mesmo conjunto de quatro empresas. Layout conferido em 1440 e 390 px; em 390, documento permaneceu com 390 px e tabela em região horizontal própria. Online mostrou as mesmas quatro empresas; o contador legado de acessos soma um principal fixo, divergência rastreada em FLOW-02. Sem erros/warnings no console da página após a correção/atualização. Logout, callback válido, expiração/revogação e Cliente A/B ainda precisam de provas próprias; não estender a evidência Admin a esses cenários. Escopo atual do teste anterior: próprio perfil Admin e amostra de empresas, HTTP 200, AAL2 e token inalterado em 31/10.
 
 ## Topologia vigente — DEC-22 e DEC-25
 
@@ -35,7 +51,7 @@ Os seis namespaces dos serviços, incluindo Edge, passaram no controle de conex�
 - [Teste SQL](../supabase/tests/adhesion.sql) usa claims sintéticos e rollback. [Driver API/Auth](../scripts/local-adhesion-api.ts) usa Auth local, JWT verificado pelo PostgREST e TOTP real. Chaves, senhas, tokens e segredo TOTP ficam somente em memória.
 - [Prova de isolamento](../scripts/local-isolation.ts) usa controles positivos e canário próprio; erro de ferramenta não conta como bloqueio. [Captura local](../scripts/local-mail.ts) envia somente mensagem sintética ao SMTP local e confere Mailpit.
 
-Convites/cadastro completo, limite de quatro acessos e sessão/adapter/telas do frontend permanecem pendentes. Códigos/termos/estado de sessão e RLS da própria empresa foram implementados/testados no servidor local. Leitura Cliente da referência de adesão continua negada; o próprio perfil exige sessão vigente. Não ampliar grants para satisfazer a demonstração.
+Neste laboratório, cadastro/convite completos, limite de quatro acessos e integração das telas ao contrato local continuam pendentes; a composição hospedada de DEC-27 usa adapter próprio. Códigos/termos/estado de sessão e RLS da própria empresa foram implementados/testados no servidor local. Leitura Cliente da referência de adesão continua negada; o próprio perfil exige sessão vigente. Não ampliar grants para satisfazer a demonstração.
 
 ## Ativação reproduzível
 

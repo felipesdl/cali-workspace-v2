@@ -2,6 +2,12 @@
 
 Atualização: 28/10/2026. **Contrato documental a completar e validar conforme o uso real; nenhum dado migrado ou coletado nesta entrega.** Dono de campos/operações: [Dados e contratos](DATA_CONTRACTS.md). Leitores autorizados: [matriz alvo](PERMISSIONS.md). Entrada/aceite: FLOW-01 e DEC-08.
 
+## Integração e texto apresentado — 01/11
+
+DEC-27 autoriza atores sintéticos com dois e-mails controlados por Felipe, mantidos fora do repositório. A V2 exibe a versão 2026-10-15 existente no oficial e registra aceite individual somente por ação explícita, com confirmação posterior. Nenhum aceite foi inserido pelo agente em nome do usuário. O contrato hospedado persiste versão/instante, sem digest; a baseline local mais estrita não foi aplicada nele.
+
+A fonte oficial declara revisão da proprietária em 15/10, mas contém referências a cliente principal e leitores de campos privados diferentes de DEC-05/09. A reprodução não substitui revisão de compatibilidade para a V2; alterações exigem nova versão e validação CALI, sem inventar finalidades ou prazos. Esta pendência antecede a migração desses campos, não invalida a prova técnica de leitura de empresas. Detalhes no [contrato](contracts/ACCESS_COMPANIES.md#integração-hospedada-vigente--0111).
+
 ## Escopo confirmado
 
 Documentar por que cada dado é coletado, onde é utilizado, quem o recebe e como é tratado ao longo do ciclo de vida. A informação correspondente deve estar disponível ao usuário no acesso à plataforma, integrada aos textos de uso/privacidade e à validação da versão vigente. Não inventar finalidade, período de guarda ou validação já realizada.

@@ -136,3 +136,8 @@ A migração acompanha os commits dos fluxos no mesmo PR enquanto aberto. Retira
 ## Critério de consolidação
 
 DS só está implementado quando componentes têm consumidores reais em Cliente/Admin, estados e contratos documentados, sem variantes duplicadas por módulo. Conferir 1440/1280/1024/390 px, teclado, foco, contraste real, overflow, zoom e movimento reduzido. O registro de execução e seus limites ficam no changelog. QA do consumidor inicial não representa homologação global de todos os componentes, telas, zoom ou leitores de tela.
+
+
+## Consumidores conectados — 01/11/2026
+
+As telas de acesso (código, MFA, termos/callback), shell mínimo conectado e empresas usam os tokens/primitivas existentes com Tailwind `tw:`. Nenhuma paleta/CSS paralelos foram acrescentados. Composição demo mantém os oito CSS legados até a migração de seus consumidores. QA de empresas conectadas em 1440/390 px confirmou ausência de overflow no documento; tabela usa região horizontal própria. Isso não constitui homologação visual dos módulos ainda não migrados nem paridade do menu completo online.

@@ -6,6 +6,12 @@ Referência funcional vigente: [publicação 83 de referência em 26/10](BASELIN
 
 Vocabulário: [Contexto de produto](PRODUCT_CONTEXT.md). Operações se vinculam aos IDs do [Catálogo de fluxos](FLOW_CATALOG.md), às [fichas reconciliadas](flows/README.md) e à [matriz Cliente/Admin](PERMISSIONS.md). Essa matriz é evidência estática; permissões efetivas e contratos ausentes continuam pendentes de prova. Decisões/conflitos estão no [registro](DECISIONS.md).
 
+## Integração hospedada vigente — 01/11
+
+DEC-27 autoriza o backend hospedado existente com fixtures A/B identificadas. O módulo de acesso adapta Edge/Auth/MFA/perfil/empresa/aceite; empresas tem leitura real por lista/detalhe/acessos e keys por ator/vínculo. Fonte canônica: [contrato atualizado](contracts/ACCESS_COMPANIES.md#integração-hospedada-vigente--0111). Caminhos virtuais de mocks descritos abaixo continuam exclusivos da composição demonstrativa; não são novos endpoints do servidor.
+
+Não aplicar baseline local para suprir RPC ausente, inferir transação de criação de conta ou tratar guarda frontend como RLS. Hosteado persiste versão/instante do aceite sem digest; campos de contrato e criação/ciclo da conta permanecem na 2A. GET/POST/PATCH de fixtures e comparação com o online constam no [ambiente](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27).
+
 ## Recorte de acesso/empresa — 28/10/2026
 
 [Contrato mínimo reconciliado](contracts/ACCESS_COMPANIES.md): request/verify por código, troca de token, perfil, empresa, convite, termos, diferenças aprovadas e definições ausentes por operação. Há schemas de fronteira e records mínimos planejados, sem transporte Supabase conectado. DEC-21 exige MFA Admin antes de liberar acesso; DEC-22 define [ambiente local dedicado](LOCAL_ENVIRONMENT.md), ainda sem stack/baseline ativos. DEC-23 autoriza registro próprio de adesão após investigação: contrato mínimo criado, gravação/persistência pendentes, separado de aceite de termos. O DTO demo de empresas não substitui projeção real; archived foi incorporado ao catálogo de estados conhecido.
