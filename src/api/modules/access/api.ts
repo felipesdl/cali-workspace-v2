@@ -188,8 +188,13 @@ export function createHostedAccessApi(
       return callback;
     },
     subscribe(listener: (invalidate: boolean) => void) {
-      const { data } = client.auth.onAuthStateChange((event) => {
-        setTimeout(() => listener(event !== 'TOKEN_REFRESHED'), 0);
+      let observedUserId: string | null | undefined;
+      const { data } = client.auth.onAuthStateChange((event, session) => {
+        const userId = session?.user.id ?? null;
+        const invalidate =
+          event === 'SIGNED_OUT' || (observedUserId !== undefined && observedUserId !== userId);
+        observedUserId = userId;
+        setTimeout(() => listener(invalidate), 0);
       });
       const focus = () => listener(false);
       const visibility = () => {

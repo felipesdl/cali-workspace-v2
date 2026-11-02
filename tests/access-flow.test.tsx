@@ -12,25 +12,34 @@ import {
   type WorkspaceAccessState,
 } from '../src/api/modules/access/session';
 
-function fixture(fail = false) {
+function fixture(fail = false, signedOut = false) {
   let accepted = false;
-  const read = async (): Promise<WorkspaceAccessState> => ({
-    status: accepted ? 'ready' : 'terms_required',
-    profile: {
-      id: '20000000-0000-4000-8000-000000000001',
-      company_id: null,
-      role: 'admin',
-      active: true,
-    },
-    companyStatus: null,
-    termsAccepted: accepted,
-    terms: {
-      version: 'test-only',
-      contentHash: 'a'.repeat(64),
-      title: 'Termos sintéticos',
-      content: 'Documento exclusivo do teste.',
-    },
-  });
+  const read = async (): Promise<WorkspaceAccessState> =>
+    signedOut
+      ? {
+          status: 'signed_out',
+          profile: null,
+          companyStatus: null,
+          terms: null,
+          termsAccepted: false,
+        }
+      : {
+          status: accepted ? 'ready' : 'terms_required',
+          profile: {
+            id: '20000000-0000-4000-8000-000000000001',
+            company_id: null,
+            role: 'admin',
+            active: true,
+          },
+          companyStatus: null,
+          termsAccepted: accepted,
+          terms: {
+            version: 'test-only',
+            contentHash: 'a'.repeat(64),
+            title: 'Termos sintéticos',
+            content: 'Documento exclusivo do teste.',
+          },
+        };
   const acceptTerms = vi.fn(async (input: Parameters<HostedAccessApi['acceptTerms']>[0]) => {
     acceptCurrentTermsSchema.parse(input);
     if (fail) throw Error('falha de servidor');
@@ -58,7 +67,7 @@ function fixture(fail = false) {
     session,
     { access: api, companies: companiesService },
   );
-  return { router, acceptTerms };
+  return { router, acceptTerms, session, api };
 }
 
 describe('aceite explícito na jornada de acesso', () => {
@@ -96,5 +105,45 @@ describe('aceite explícito na jornada de acesso', () => {
       'Não foi possível registrar o aceite. Tente novamente.',
     );
     expect(screen.queryByRole('form', { name: 'Filtrar empresas' })).toBeNull();
+  });
+});
+
+describe('continuidade antes da autenticação', () => {
+  it('revalidação ao voltar do e-mail preserva etapa e código digitado', async () => {
+    const { router, session, api } = fixture(false, true);
+    await act(async () => {
+      await router.load();
+    });
+    render(<App router={router} />);
+    fireEvent.change(await screen.findByRole('textbox', { name: 'E-mail' }), {
+      target: { value: 'fixture@example.test' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Receber código' }));
+    const code = await screen.findByRole('textbox', { name: 'Código de acesso' });
+    fireEvent.change(code, { target: { value: '012345' } });
+    const originalRead = api.read;
+    let finish = () => {};
+    api.read = (signal) =>
+      new Promise((resolve) => {
+        finish = () => {
+          void originalRead(signal).then(resolve);
+        };
+      });
+    const pending = { task: Promise.resolve(session.getSnapshot()) };
+    await act(async () => {
+      pending.task = session.revalidate();
+    });
+    await act(async () => {
+      finish();
+      await pending.task;
+    });
+    expect(screen.getByRole('textbox', { name: 'Código de acesso' })).toHaveProperty(
+      'value',
+      '012345',
+    );
+    expect(screen.getByRole('textbox', { name: 'E-mail' })).toHaveProperty(
+      'value',
+      'fixture@example.test',
+    );
   });
 });

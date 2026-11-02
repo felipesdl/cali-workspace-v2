@@ -21,6 +21,7 @@
     "vite.config.ts",
     "vitest.config.ts",
     "supabase/functions",
-    "scripts/build-local-functions.ts"
+    "scripts/build-local-functions.ts",
+    "scripts/hosted-access-probe.ts"
   ]
 }

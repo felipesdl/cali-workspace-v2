@@ -43,8 +43,8 @@ export function createSessionController(source: SessionSource, cache: QueryClien
     request?.abort();
     const current = new AbortController();
     request = current;
-    const preserve =
-      background && previous.phase === 'resolved' && previous.access.status === 'ready';
+    // Código/MFA/aceite também têm rascunho: foco/intervalo não devem desmontá-los.
+    const preserve = background && previous.phase === 'resolved';
     if (!preserve) {
       publish({ phase: 'loading' });
       await reset();
