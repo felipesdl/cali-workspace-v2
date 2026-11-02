@@ -77,4 +77,67 @@ describe('projeções de empresas do hospedado', () => {
       backend({ code: '42501' }, 403).service.list({ q: '', status: 'all' }),
     ).rejects.toThrow('Não foi possível consultar');
   });
+  it('edita somente os nomes com comparação atômica e confirma a linha retornada', async () => {
+    const { service, request } = backend({
+      ...row,
+      display_name: 'Novo nome',
+      legal_name: 'Nova razão',
+    });
+    const result = await service.updateBasics({
+      companyId: id,
+      expected: { displayName: row.display_name, legalName: row.legal_name },
+      values: { displayName: '  Novo nome  ', legalName: ' Nova razão ' },
+    });
+    expect(result).toMatchObject({ id, displayName: 'Novo nome', legalName: 'Nova razão' });
+    const [input, init] = request.mock.calls[0];
+    const url = new URL(String(input));
+    expect(init?.method).toBe('PATCH');
+    expect(JSON.parse(String(init?.body))).toEqual({
+      display_name: 'Novo nome',
+      legal_name: 'Nova razão',
+    });
+    expect(url.searchParams.get('id')).toBe(`eq.${id}`);
+    expect(url.searchParams.get('display_name')).toBe('eq.Teste A');
+    expect(url.searchParams.get('legal_name')).toBe('eq.Teste A');
+  });
+  it('não confirma zero linhas, retorno alheio ou alteração diferente da solicitada', async () => {
+    const input = {
+      companyId: id,
+      expected: { displayName: 'Teste A', legalName: 'Teste A' },
+      values: { displayName: 'Novo', legalName: '' },
+    };
+    await expect(backend([]).service.updateBasics(input)).rejects.toThrow(
+      'edição não foi confirmada',
+    );
+    await expect(
+      backend({
+        ...row,
+        display_name: 'Novo',
+        legal_name: 'Novo',
+        id: '10000000-0000-4000-8000-000000000002',
+      }).service.updateBasics(input),
+    ).rejects.toThrow('confirmar a alteração');
+    await expect(backend(row).service.updateBasics(input)).rejects.toThrow('confirmar a alteração');
+  });
+  it('razão social vazia acompanha nome; entrada inválida não dispara PATCH', async () => {
+    const { service, request } = backend({ ...row, display_name: 'Novo', legal_name: 'Novo' });
+    await service.updateBasics({
+      companyId: id,
+      expected: { displayName: 'Teste A', legalName: 'Teste A' },
+      values: { displayName: 'Novo', legalName: '' },
+    });
+    expect(JSON.parse(String(request.mock.calls[0][1]?.body))).toEqual({
+      display_name: 'Novo',
+      legal_name: 'Novo',
+    });
+    request.mockClear();
+    await expect(
+      service.updateBasics({
+        companyId: id,
+        expected: { displayName: 'Teste A', legalName: 'Teste A' },
+        values: { displayName: ' ', legalName: '' },
+      }),
+    ).rejects.toThrow();
+    expect(request).not.toHaveBeenCalled();
+  });
 });

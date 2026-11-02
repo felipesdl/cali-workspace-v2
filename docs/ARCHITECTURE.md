@@ -22,8 +22,8 @@ Fluxo atual de dados: **view → hook de consulta do módulo → service → ada
 | `src/app` | Router, Query provider e ponte de navegação para composições existentes |
 | `src/app/ClientWorkspace.tsx` | Composição cliente extraída do bootstrap, ainda com estado/fixtures legados a migrar por fluxo |
 | `src/AdminPreview.tsx` | Layout/prévias Admin existentes com seção controlada pela URL; empresas usa o novo consumidor |
-| `src/features/companies` | Formulário de filtros, lista e consulta de acessos por composição; sem SDK, Axios ou fixture importados diretamente |
-| `src/api/modules/companies` | Schemas/tipos, keys por ator/vínculo, service mock, adapter hospedado e hooks Query |
+| `src/features/companies` | Filtros, lista, detalhe/acessos e formulário de edição básica da empresa por composição; sem SDK, Axios ou fixture importados diretamente |
+| `src/api/modules/companies` | Schemas/tipos, keys por ator/vínculo, service mock, adapter hospedado, hooks Query e mutation de nomes com confirmação/preimagem |
 | `src/mocks/http/client.ts` | Axios com adapter obrigatório; destinos, baseURL e transporte alternativos recusados; nenhum modo de rede nesta etapa |
 | `src/api/supabase.ts` | Cliente oficial com chave pública, namespace Auth próprio e refresh; SDK restrito à fronteira de dados |
 | `src/api/modules/access` | Contratos e adapter Auth/Edge/MFA/termos, agregação de acesso e hook de snapshot |
@@ -60,6 +60,12 @@ src/api/
 - Escrita futura: adicionar service e hook `use...Mutation` quando houver operação/consumidor reais, com mutation key tipada, confirmação do resultado e invalidação dos leitores afetados. Não criar mutation genérica ou arquivo vazio para aparentar estrutura.
 
 As consultas de lista, detalhe e acessos têm cache separado. Não usar dados anteriores de outra empresa como placeholder. Na composição hospedada, ator/vínculo vêm do snapshot autenticado. Login/logout/troca invalidam e limpam cache; revalidação válida do mesmo contexto preserva trabalho. Bloqueio/erro removem dados. Testes de controller/rotas não equivalem à prova completa de revogação no servidor hospedado.
+
+## Edição básica de empresas — 02/11
+
+`CompanyBasics` contém a tarefa inline; `useCompanyQuery` lê o detalhe e `useUpdateCompanyBasics` coordena a gravação/invalidação. `CompanyBasicsEditor` mantém o snapshot original e rascunho local: refetch de fundo não sobrescreve campos editados; conflito exige descarte/reconsulta explícitos. Estado transitório não vira context. URL continua dona da empresa selecionada.
+
+A fronteira hospedada atualiza somente os dois nomes, com filtros de preimagem e retorno validado; não modifica plano/convites/perfis/automações. Mocks de runtime têm estado por instância. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a-iniciada--edição-básica-da-empresa-0211). Integração e mutação existem no código, sem prova nova de escrita/RLS hospedada.
 
 ## Tipagem e validação
 

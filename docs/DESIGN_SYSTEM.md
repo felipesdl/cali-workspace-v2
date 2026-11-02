@@ -141,3 +141,7 @@ DS só está implementado quando componentes têm consumidores reais em Cliente/
 ## Consumidores conectados — 01/11/2026
 
 As telas de acesso (código, MFA, termos/callback), shell mínimo conectado e empresas usam os tokens/primitivas existentes com Tailwind `tw:`. Nenhuma paleta/CSS paralelos foram acrescentados. Composição demo mantém os oito CSS legados até a migração de seus consumidores. QA de empresas conectadas em 1440/390 px confirmou ausência de overflow no documento; tabela usa região horizontal própria. Isso não constitui homologação visual dos módulos ainda não migrados nem paridade do menu completo online.
+
+## Consumidor 2A — edição básica de empresa, 02/11
+
+`CompanyBasics` reutiliza Button/Field e tokens existentes, sem nova primitiva ou CSS. Composição inline com leitura, edição e ações explícitas; duas colunas em desktop e uma no mobile. Foco inicial no nome; após salvar/cancelar retorna ao título da seção; erros são anunciados e o rascunho permanece. Razão social tem descrição associada. QA demonstrativo em 1440/1280/1024/390 px, campos em uma coluna no mobile e documento 390/390 px sem overflow. Foco inicial e Tab conferidos, console sem erros/warnings. Capturas em `output/playwright/cali-2a-*`; não homologa os demais módulos ou o shell completo.

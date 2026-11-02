@@ -1,6 +1,12 @@
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
-import { companySchema, companyAccessSchema, normalizeCompanyFilters } from './schemas';
+import {
+  companySchema,
+  companyDetailsSchema,
+  companyAccessSchema,
+  normalizeCompanyFilters,
+  updateCompanyBasicsSchema,
+} from './schemas';
 import { companyIdentityRecordSchema, clientInviteIdentityRecordSchema } from './records';
 import { type CompaniesService } from './service';
 
@@ -58,7 +64,30 @@ export function createHostedCompaniesService(client: WorkspaceClient): Companies
       if (error) throw unavailable();
       const row = companyRecord.parse(data);
       if (row.id !== id) throw unavailable();
-      return mapCompany(row);
+      return companyDetailsSchema.parse({ ...mapCompany(row), legalName: row.legal_name });
+    },
+    async updateBasics(input) {
+      const value = updateCompanyBasicsSchema.parse(input);
+      const { data, error } = await client
+        .from('companies')
+        .update({ display_name: value.values.displayName, legal_name: value.values.legalName })
+        .eq('id', value.companyId)
+        .eq('display_name', value.expected.displayName)
+        .eq('legal_name', value.expected.legalName)
+        .select(companyFields)
+        .maybeSingle();
+      if (error || !data)
+        throw new Error(
+          'A edição não foi confirmada. Os dados podem ter mudado ou seu acesso não permite esta ação. Recarregue antes de tentar novamente.',
+        );
+      const row = companyRecord.parse(data);
+      if (
+        row.id !== value.companyId ||
+        row.display_name !== value.values.displayName ||
+        row.legal_name !== value.values.legalName
+      )
+        throw new Error('Não foi possível confirmar a alteração da empresa. Atualize os dados.');
+      return companyDetailsSchema.parse({ ...mapCompany(row), legalName: row.legal_name });
     },
     async accesses(companyId, signal) {
       const id = z.uuid().parse(companyId);

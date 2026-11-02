@@ -67,4 +67,22 @@ describe('módulo empresas', () => {
     ).toBeUndefined();
     cache.clear();
   });
+  it('mantém alterações demonstrativas na instância e recusa rascunho desatualizado', async () => {
+    const service = createService();
+    const original = await service.detail(mockCompanyIds.Aurora);
+    const input = {
+      companyId: original.id,
+      expected: { displayName: original.displayName, legalName: original.legalName },
+      values: { displayName: 'Aurora revisada', legalName: '' },
+    };
+    await expect(service.updateBasics(input)).resolves.toMatchObject({
+      displayName: 'Aurora revisada',
+      legalName: 'Aurora revisada',
+    });
+    await expect(
+      service.updateBasics({ ...input, values: { displayName: 'Sobrescrita', legalName: '' } }),
+    ).rejects.toThrow('edição não foi confirmada');
+    expect((await createService().detail(original.id)).displayName).toBe('Aurora Tecnologia');
+    expect(await service.accesses(original.id)).toHaveLength(4);
+  });
 });

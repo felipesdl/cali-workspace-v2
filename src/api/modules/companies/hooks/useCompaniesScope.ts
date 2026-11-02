@@ -11,6 +11,6 @@ export function useCompaniesScope() {
     actor: session
       ? `${access?.profile?.id ?? 'unauthorized'}:${access?.profile?.company_id ?? 'admin'}`
       : 'mock-admin',
-    enabled: !session || Boolean(access?.profile),
+    enabled: !session || access?.profile?.role === 'admin',
   };
 }

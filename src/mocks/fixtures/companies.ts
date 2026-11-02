@@ -1,4 +1,4 @@
-import { type Company, type CompanyAccess } from '../../api/modules/companies/schemas';
+import { type CompanyDetails, type CompanyAccess } from '../../api/modules/companies/schemas';
 
 export const mockCompanyIds = {
   Aurora: '11111111-1111-4111-8111-111111111111',
@@ -6,10 +6,11 @@ export const mockCompanyIds = {
   Horizonte: '33333333-3333-4333-8333-333333333333',
 } as const;
 
-export const companies: Company[] = [
+export const companies: CompanyDetails[] = [
   {
     id: mockCompanyIds.Aurora,
     displayName: 'Aurora Tecnologia',
+    legalName: 'Aurora Tecnologia Ltda.',
     plan: 'partner',
     status: 'active',
     createdOn: '2026-10-01',
@@ -17,6 +18,7 @@ export const companies: Company[] = [
   {
     id: mockCompanyIds.Norte,
     displayName: 'Norte Digital',
+    legalName: 'Norte Digital Ltda.',
     plan: 'full',
     status: 'paused',
     createdOn: '2026-09-15',
@@ -24,6 +26,7 @@ export const companies: Company[] = [
   {
     id: mockCompanyIds.Horizonte,
     displayName: 'Ateliê Horizonte',
+    legalName: 'Ateliê Horizonte Ltda.',
     plan: 'partner',
     status: 'blocked',
     createdOn: '2026-08-20',

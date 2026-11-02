@@ -1,5 +1,13 @@
 # Registro de mudanças
 
+## 02/11/2026 — Início da 2A: edição básica de empresa
+
+- **Autor/escopo:** Codex; continuidade autorizada pelo Felipe após correção local/documentação/PR. Fase 1 continua aberta; 2A iniciada, sem declarar cadastro/acessos completos. Oficial somente lido na revisão de referência; nenhum SQL, comunicação, merge ou deploy.
+- **Código:** detalhe separado inclui razão social; formulário inline de nome/razão social com Form/Zod/DS, cancelamento, bloqueio pendente, erro com rascunho e confirmação. Razão social vazia acompanha nome, conforme saveClient da referência. Hook não repete escrita nem insere retorno tardio no cache; invalida queries do ator. Consultas/mutation conectadas exigem Admin pronto.
+- **Transporte:** PATCH somente de display_name/legal_name, condicionado por id e preimagem dos dois campos; exige linha retornada e confere id/valores. Nenhuma alteração de contrato, plano, automações, convite, perfil ou ciclo. Mocks em memória por instância; fixtures globais preservadas. Erro/zero linhas não registra sucesso; descarte/reconsulta exige ação explícita.
+- **Validação:** `npm run verify` passou com 131 testes/17 arquivos, formatação/lint/tipos, configuração local, 32 documentos/658 links e builds SPA/Edge; diff sem erros. QA visual demonstrativo em 1440/1280/1024/390 px: formulário em duas/uma coluna, sem overflow do documento em 390 px (390/390), foco inicial/Tab e zero erros/warnings no console; capturas em `output/playwright/cali-2a-*`. Avisos conhecidos de build Zod/bundle permanecem. Nenhum PATCH hospedado executado; persistência/RLS/triggers/auditoria efetivos dessa escrita não homologados. Bateria de sessão/revogação permanece suspensa.
+- **Pendente/rollback:** cadastro composto, adesão/gate de convite, quatro acessos equivalentes, contrato/documentos/ciclo/histórico e aceite global. Reverter código remove esta edição, sem desfazer eventual nome gravado pelo usuário; rollback de dados exige preimagem/escopo próprio.
+
 ## 02/11/2026 — Troca de sessão e admissão local; runtime suspenso
 
 - **Autor/escopo:** Codex; Felipe autorizou corrigir o achado sem retomar a bateria, atualizar documentação/PR #2 e avançar em 2A. Nenhum Docker/SQL/Auth hospedado, envio, merge ou deploy nesta continuidade.

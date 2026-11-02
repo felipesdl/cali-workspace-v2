@@ -67,6 +67,18 @@ Após o teste SQL, repetir com Auth/JWT reais: login novo posterior ao marco per
 
 Antes de aplicar, registrar preimagem dos objetos existentes, revisão/digests, destino e escopo autorizado. Antes do commit de DDL, falha reverte toda a transação. Depois de aplicada, **não remover policies ou apagar marcos para fazer rollback**, pois isso reabre o acesso das sessões antigas: bloquear superfícies afetadas e corrigir para frente, ou encerrar sessões afetadas pelo mecanismo Auth autorizado antes de uma reversão revisada. Nesta entrega, rollback é apenas reverter arquivos/documentação, sem dados a desfazer.
 
+## Fase 2A iniciada — edição básica da empresa, 02/11
+
+**Implementado no código:** Admin abre a empresa já existente pela seleção na URL, consulta nome de apresentação/razão social e edita esses dois campos. Formulário preserva rascunho em erro, permite cancelar sem gravar e bloqueia novo submit enquanto aguarda. Razão social vazia usa o nome de apresentação, preservando o comportamento da [referência, saveClient linha 418](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/pages/admin/AdminClientsPageV3.tsx#L418). Não transporta a gravação composta de contato, contrato e acessos daquele formulário.
+
+`companyDetailsSchema` acrescenta `legalName` somente ao detalhe; lista mantém a projeção anterior. `updateCompanyBasicsSchema` aceita somente companyId, snapshot original dos dois nomes e novos valores. Adapter hospedado envia PATCH `companies` com `display_name/legal_name`, condicionado por id e pelos dois valores originais na mesma operação; exige retorno por SELECT e valida identidade/valores. Zero linhas, erro ou confirmação incompatível não produzem sucesso. É comparação de preimagem desses dois campos, sem prometer controle de versão global ou histórico novo.
+
+`useUpdateCompanyBasics` exige estado Admin pronto na composição conectada, sem retry de escrita ou atualização otimista. Confirmação invalida queries existentes do ator, sem inserir payload tardio no cache após logout/troca. Queries de empresas também exigem Admin pronto. O servidor continua responsável pela permissão; guardas frontend não homologam RLS. O adapter demonstrativo mantém alterações somente em memória por instância, sem modificar fixtures globais ou convites.
+
+**Verificação:** regressões de transporte conferem PATCH mínimo, condições, retorno alheio/divergente/vazio, normalização e entrada inválida; testes de UI cobrem salvar/reconsultar, cancelar e erro preservando rascunho sem retry. QA visual usa somente demo. Nenhum PATCH hospedado foi executado para homologar essa nova operação nesta rodada; contrato/policies/triggers/auditoria efetivos continuam sem prova nova.
+
+**Pendente na 2A:** cadastro completo (`create_client_account` sem corpo reconciliado), comprovação/registro de adesão e gate de convite, quatro acessos equivalentes com manutenção/revogação efetivas, demais dados contratuais/financeiros/documentais, histórico e ciclo da empresa. Não criar convite, reativar perfil, alterar plano/automações ou improvisar cadastro com várias chamadas como efeito dessa edição. Reverter este recorte remove o formulário/operação; não desfaz nomes já gravados em eventual uso autorizado.
+
 ## Proveniência e limites
 
 - Referência funcional: publicação 83, `app.cali@f3d3f14043a6abc38636f0340fe831e621d8b357`, conforme DEC-14. Fontes baixadas somente para leitura; 586 arquivos de src/supabase/docs conferidos contra os blobs da árvore desse SHA. Nenhum código/SQL importado foi executado.

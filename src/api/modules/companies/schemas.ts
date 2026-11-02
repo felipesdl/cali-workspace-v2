@@ -16,6 +16,27 @@ export const companySchema = z.object({
   createdOn: z.iso.date(),
 });
 
+// Detalhe separado da lista; valores originais preservados para comparação atômica.
+export const companyDetailsSchema = companySchema.extend({ legalName: z.string() });
+const companyBasicSnapshotSchema = z.strictObject({
+  displayName: z.string(),
+  legalName: z.string(),
+});
+export const companyBasicFieldsSchema = z.strictObject({
+  displayName: z.string().trim().min(1, 'Informe o nome da empresa.'),
+  legalName: z.string().trim(),
+});
+export const updateCompanyBasicsSchema = z.strictObject({
+  companyId: z.uuid(),
+  expected: companyBasicSnapshotSchema,
+  values: companyBasicFieldsSchema.transform((value) => ({
+    displayName: value.displayName,
+    legalName: value.legalName || value.displayName,
+  })),
+});
+export type CompanyDetails = z.infer<typeof companyDetailsSchema>;
+export type UpdateCompanyBasics = z.input<typeof updateCompanyBasicsSchema>;
+
 export const companyAccessSchema = z.object({
   id: z.uuid(),
   companyId: z.uuid(),

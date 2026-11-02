@@ -3,6 +3,9 @@ import { z } from 'zod';
 import {
   companyAccessSchema,
   companySchema,
+  companyDetailsSchema,
+  updateCompanyBasicsSchema,
+  type UpdateCompanyBasics,
   normalizeCompanyFilters,
   type CompanyFilters,
 } from './schemas';
@@ -11,11 +14,24 @@ export function createCompaniesService(client: AxiosInstance) {
   return {
     async detail(companyId: string, signal?: AbortSignal) {
       const id = z.uuid().parse(companyId);
-      // eslint-disable-next-line no-restricted-syntax -- Resposta bruta; companySchema valida antes de retornar ao domínio.
+      // eslint-disable-next-line no-restricted-syntax -- Resposta bruta; companyDetailsSchema valida antes de retornar ao domínio.
       const response = await client.get<unknown>(`/companies/${id}`, { signal });
-      const company = companySchema.parse(response.data);
+      const company = companyDetailsSchema.parse(response.data);
       if (company.id !== id) throw new Error('Resposta incompatível com a empresa selecionada.');
       return company;
+    },
+    async updateBasics(input: UpdateCompanyBasics) {
+      const value = updateCompanyBasicsSchema.parse(input);
+      // eslint-disable-next-line no-restricted-syntax -- Resposta bruta validada antes de retornar ao domínio.
+      const response = await client.patch<unknown>(`/companies/${value.companyId}`, value);
+      const result = companyDetailsSchema.parse(response.data);
+      if (
+        result.id !== value.companyId ||
+        result.displayName !== value.values.displayName ||
+        result.legalName !== value.values.legalName
+      )
+        throw new Error('Não foi possível confirmar a alteração da empresa. Atualize os dados.');
+      return result;
     },
     async list(filters: CompanyFilters, signal?: AbortSignal) {
       // eslint-disable-next-line no-restricted-syntax -- Resposta bruta; o array é validado por Zod antes do consumo.

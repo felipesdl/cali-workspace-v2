@@ -18,7 +18,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | --- | --- | --- | --- |
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
 | 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; sessão/telas hospedadas e leitura real de empresas, aceite global pendente |
-| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | Planejada |
+| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A iniciada em 02/11 pela edição básica de empresa; demais recortes planejados; fase 1 ainda aberta |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
 | 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
@@ -135,6 +135,14 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 **Aceite:** instalação limpa e comandos implantados passam na revisão registrada; configuração inválida não toca produção; sessão ativa/inativa/expirada e atores A/B/Admin exercitados no ambiente autorizado; URL direta/retorno/logout e limpeza de contexto funcionam; UI básica legível/mobile/teclado. Fundação isolada não é declarada fluxo de produto completo; o primeiro resultado de uso fecha em 2A.
 
 ## Fase 2 — Rotina Admin/Cliente completa
+
+**Acompanhamento 2A — iniciado em 02/11, sem encerramento da fase 1:**
+
+- [x] Implementar detalhe com razão social e formulário inline de edição básica; Admin pronto na composição conectada, validação, cancelamento, estado pendente/erro/confirmado e manutenção do rascunho.
+- [x] Implementar PATCH dos dois nomes com comparação atômica de preimagem, confirmação de linha e invalidação por ator; mocks isolados por instância e regressões de transporte/UI.
+- [ ] Homologar escrita/permissão/persistência e efeitos de servidor no ambiente autorizado. Não houve PATCH hospedado nessa continuidade; QA visual é demonstrativo.
+- [ ] Reconciliar operação de cadastro, comprovação de adesão/gate de convite e manutenção dos quatro acessos equivalentes antes de habilitá-los.
+- [ ] Completar contrato/financeiro/documentos, ciclo da empresa, histórico e aceite completo da 2A.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
 
@@ -254,4 +262,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. Fase 1 tem execução local parcial; as entregas de produto das fases 2–7 permanecem planejadas. Não encerrar fase 1 com base apenas em mocks, lint e build.
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. Fase 1 tem execução local parcial; 2A tem edição básica implementada, sem homologação de escrita hospedada; demais entregas das fases 2–7 permanecem planejadas. Não encerrar fase 1 com base apenas em mocks, lint e build.

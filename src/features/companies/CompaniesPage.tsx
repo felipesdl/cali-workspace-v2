@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { CompanyBasics } from './CompanyBasics';
 import { useForm } from '@tanstack/react-form';
 import { useNavigate, useRouteContext } from '@tanstack/react-router';
 import { companiesRoute } from '../../app/router';
@@ -193,6 +194,7 @@ export function CompaniesPage() {
         )}
       </section>
 
+      {search.companyId && <CompanyBasics key={search.companyId} companyId={search.companyId} />}
       {search.companyId && (
         <section
           className="tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
@@ -239,7 +241,7 @@ export function CompaniesPage() {
       )}
       <p className="tw:m-0 tw:text-caption tw:leading-note tw:text-muted-copy">
         {access
-          ? 'Cadastro e manutenção dos acessos estão em preparação.'
+          ? 'Convites, novos acessos e demais operações da conta estão em preparação.'
           : 'Demonstração local com dados fictícios. Cadastro, convites e alterações reais serão disponibilizados após a integração e validação de acesso.'}
       </p>
     </div>
