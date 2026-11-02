@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatCalendarDate } from '../src/lib/dates';
+import { formatCalendarDate, formatServerInstant } from '../src/lib/dates';
 
 describe('datas civis', () => {
   it('preserva o dia sem converter meia-noite UTC para a véspera', () => {
@@ -12,4 +12,12 @@ describe('datas civis', () => {
       expect(formatCalendarDate(date)).toBe('Data indisponível');
     },
   );
+});
+
+describe('instantes de servidor', () => {
+  it('usa Brasília, incluindo a virada de dia UTC', () => {
+    expect(formatServerInstant('2026-11-02T01:05:00Z')).toContain('01/11/2026');
+    expect(formatServerInstant('2026-11-02T01:05:00Z')).toContain('22:05');
+    expect(formatServerInstant('invalid')).toBe('Data indisponível');
+  });
 });

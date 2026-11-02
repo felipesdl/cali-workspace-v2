@@ -33,6 +33,7 @@ function mapCompany(row: z.infer<typeof companyRecord>) {
 }
 export function createHostedCompaniesService(client: WorkspaceClient): CompaniesService {
   return {
+    management: null, // Cadastro/adesão/acessos aguardam contratos efetivos; sem fallback para mocks.
     async list(filters, signal) {
       const normalized = normalizeCompanyFilters(filters);
       const rows: z.infer<typeof companyRecord>[] = [];

@@ -8,6 +8,18 @@ A bateria de sessão/revogação permanece suspensa por solicitação de Felipe.
 
 `npm run verify` segue autorizado e sem Docker/rede/SQL: seus unitários não substituem essa validação suspensa. O driver experimental anterior foi preservado como texto em `output/runtime/session-cut/history`, ignorado pelo Git.
 
+## Demonstração da 2A — cadastro, adesão e acessos
+
+A jornada nova é somente em memória. Para revisar a interface sem usar a configuração hospedada, iniciar explicitamente o frontend demo:
+
+```bash
+VITE_DATA_MODE=demo VITE_DEMO_MODE=true VITE_SUPABASE_URL= VITE_SUPABASE_PUBLISHABLE_KEY= VITE_API_URL= npm run dev -- --host 127.0.0.1 --port 5193 --strictPort
+```
+
+Em `/admin/clientes`, cadastrar uma identidade sintética; a ficha abre sem acessos. Registrar referência de formalização sintética e autorizar até quatro acessos com e-mails `example.test`. O quinto é recusado; revogar um libera uma vaga sem remover registro/histórico; reautorizar exige vaga e referência. Edição de nome não troca e-mail. As solicitações virtuais têm proteção de repetição; não enviam convites nem operam Auth.
+
+Recarregar descarta empresas/referências/autorizações/eventos desta instância; não há persistência local ou remota nova. No modo hospedado, esses formulários não são oferecidos, sem fallback para demo. [Contrato do recorte](contracts/ACCESS_COMPANIES.md#fase-2a--cadastro-adesão-e-quatro-acessos-demonstrativos). Essa revisão de frontend não inicia Edge, Docker ou a bateria suspensa.
+
 ## Execução conectada e comparação
 
 Configuração e atores sintéticos estão em [Ambiente hospedado](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27). `.env` e arquivos `*.env` ficam ignorados. Nunca enviar chaves privadas/service role ao Vite; o schema aceita somente URL hospedada HTTPS e chave `sb_publishable_`, sem fallback de configuração inválida para mocks. `demo` mantém a composição de fixtures quando não há backend configurado.

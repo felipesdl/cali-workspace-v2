@@ -10,6 +10,10 @@ Duas fixtures A/B receberam um vínculo Cliente ativo cada, com autorização es
 
 **Lacuna confirmada:** logout removeu armazenamento local, Auth recusou JWT antigo (403) e refresh antigo (400), porém PostgREST ainda retornou próprio perfil/empresa com JWT não vencido para A/B. Inativação de A impediu consulta de empresa, mas reativação recuperou acesso com o mesmo JWT, sem login novo. Outra empresa continuou negada. Perfis A/B ficaram ativos como antes e ambos fizeram logout; expiração natural dos JWTs A/B comprovada (banco 401/PGRST303), sem provar refresh/expiração da SPA ativa. Evidência e bloqueio de revogação no [ambiente](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
 
+## Capacidade demonstrativa da 2A — 02/11
+
+Cadastro de identidade mínima, referências de adesão e gestão de quatro autorizações têm modelo/UI demonstrativos. Não introduzem permissões hospedadas: capacidade management é null nessa composição, sem fallback. Todos os quatro registros contam igualmente, sem principal; revogar um preserva demais e histórico. Nova autorização/reativação exige referência da mesma empresa, situação elegível e vaga no mock. Edição de nome não troca e-mail/vínculo nem reativa acesso. Nenhum desses comandos opera Auth, e-mail ou sessão real. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a--cadastro-adesão-e-quatro-acessos-demonstrativos).
+
 ## Contrato alvo confirmado pelo usuário — atualizado em 28/10/2026
 
 Esta seção prevalece para o desenho futuro da V2. As tabelas posteriores preservam o que foi observado no oficial; não representam implementação dessas decisões.

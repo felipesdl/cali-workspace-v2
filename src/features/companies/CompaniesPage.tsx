@@ -1,5 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { CompanyBasics } from './CompanyBasics';
+import { CompanyRegistration } from './CompanyRegistration';
+import { CompanyAdhesions } from './CompanyAdhesions';
+import { CompanyAccessManagement } from './CompanyAccessManagement';
+import { useCompanyManagementAvailable } from '../../api/modules/companies/hooks/useCompanyManagement';
 import { useForm } from '@tanstack/react-form';
 import { useNavigate, useRouteContext } from '@tanstack/react-router';
 import { companiesRoute } from '../../app/router';
@@ -21,6 +25,8 @@ const statusLabels = {
 } as const;
 
 export function CompaniesPage() {
+  const [createdCompanyId, setCreatedCompanyId] = useState<string | null>(null);
+  const canManage = useCompanyManagementAvailable();
   const { access } = useRouteContext({ from: '__root__' });
   const search = companiesRoute.useSearch();
   const navigate = useNavigate({ from: '/admin/clientes' });
@@ -42,6 +48,23 @@ export function CompaniesPage() {
 
   return (
     <div data-feature="companies" className="tw:grid tw:gap-4 tw:text-body tw:text-copy">
+      {canManage && (
+        <p
+          role="note"
+          className="tw:m-0 tw:border-l-2 tw:border-brand tw:pl-4 tw:text-caption tw:leading-note"
+        >
+          Demonstração local: cadastros, referências e autorizações ficam somente na memória desta
+          sessão. Recarregar a página descarta essas alterações. Nenhuma conta de autenticação é
+          criada e nenhum convite é enviado.
+        </p>
+      )}
+      <CompanyRegistration
+        key={`registration:${search.companyId ?? 'new-company'}`}
+        onCreated={async (companyId) => {
+          setCreatedCompanyId(companyId);
+          await navigate({ search: { q: '', status: 'all', companyId } });
+        }}
+      />
       <form
         className="tw:grid tw:grid-cols-[minmax(160px,1fr)_minmax(150px,220px)_auto] tw:items-end tw:gap-4 tw:compact:grid-cols-2 tw:mobile:grid-cols-1"
         aria-label="Filtrar empresas"
@@ -194,7 +217,16 @@ export function CompaniesPage() {
         )}
       </section>
 
-      {search.companyId && <CompanyBasics key={search.companyId} companyId={search.companyId} />}
+      {search.companyId && (
+        <CompanyBasics
+          key={`basics:${search.companyId}`}
+          companyId={search.companyId}
+          focusOnMount={createdCompanyId === search.companyId}
+        />
+      )}
+      {search.companyId && (
+        <CompanyAdhesions key={`adhesions:${search.companyId}`} companyId={search.companyId} />
+      )}
       {search.companyId && (
         <section
           className="tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
@@ -222,8 +254,17 @@ export function CompaniesPage() {
           {accesses.isError && (
             <p role="alert">Não foi possível carregar os acessos desta empresa.</p>
           )}
-          {accesses.isSuccess && accesses.data.length === 0 && <p>Nenhum acesso nesta empresa.</p>}
-          {accesses.isSuccess && accesses.data.length > 0 && (
+          {accesses.isSuccess && canManage && (
+            <CompanyAccessManagement
+              key={search.companyId}
+              companyId={search.companyId}
+              accesses={accesses.data}
+            />
+          )}
+          {accesses.isSuccess && !canManage && accesses.data.length === 0 && (
+            <p>Nenhum acesso nesta empresa.</p>
+          )}
+          {accesses.isSuccess && !canManage && accesses.data.length > 0 && (
             <ul className="tw:m-0 tw:mt-4 tw:grid tw:list-none tw:gap-3 tw:p-0 tw:[&_li]:grid tw:[&_li]:gap-1 tw:[&_li]:border-b tw:[&_li]:border-border-default tw:[&_li]:py-3 tw:[&_li]:wrap-anywhere tw:[&_li_span]:text-caption tw:[&_li_span]:text-muted-copy">
               {accesses.data.map((access) => (
                 <li key={access.id}>

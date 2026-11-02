@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Contrato V2 autorizado em DEC-23; RPC/persistência testadas no laboratório local, sem service na SPA.
+// Contrato DEC-23: persistência testada no laboratório; SPA demonstrativa consome a referência, sem integração hospedada.
 export const registerWorkspaceAdhesionSchema = z.strictObject({
   companyId: z.uuid(),
   evidenceReference: z.string().trim().min(1, 'Informe a referência da adesão.'),

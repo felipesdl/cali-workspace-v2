@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useCompanyQuery } from '../../api/modules/companies/hooks/useCompanyQuery';
 import { useUpdateCompanyBasics } from '../../api/modules/companies/hooks/useUpdateCompanyBasics';
@@ -107,9 +107,18 @@ function CompanyBasicsEditor({
   );
 }
 
-export function CompanyBasics({ companyId }: { companyId: string }) {
+export function CompanyBasics({
+  companyId,
+  focusOnMount = false,
+}: {
+  companyId: string;
+  focusOnMount?: boolean;
+}) {
   const company = useCompanyQuery(companyId);
   const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (focusOnMount) heading.current?.focus();
+  }, [focusOnMount]);
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
   return (

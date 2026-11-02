@@ -79,6 +79,29 @@ Antes de aplicar, registrar preimagem dos objetos existentes, revisão/digests, 
 
 **Pendente na 2A:** cadastro completo (`create_client_account` sem corpo reconciliado), comprovação/registro de adesão e gate de convite, quatro acessos equivalentes com manutenção/revogação efetivas, demais dados contratuais/financeiros/documentais, histórico e ciclo da empresa. Não criar convite, reativar perfil, alterar plano/automações ou improvisar cadastro com várias chamadas como efeito dessa edição. Reverter este recorte remove o formulário/operação; não desfaz nomes já gravados em eventual uso autorizado.
 
+## Fase 2A — cadastro, adesão e quatro acessos demonstrativos
+
+Continuidade autorizada por Felipe em 02/11: avançar o que independe do catálogo, sem retomar a bateria suspensa. **Código implementado na composição demonstrativa; sem novas operações hospedadas.** Cadastro é de identidade mínima (nome/razão social), não cadastro comercial/contratual completo. Empresa criada recebe identificador da fronteira mock, sem acessos, adesão, contato ou perfil Auth automáticos; plano permanece não informado. Razão social vazia acompanha o nome, conforme a referência já reconciliada.
+
+`CompaniesService.management` declara uma capacidade opcional. A composição demonstrativa fornece `createCompanyManagement`; `createHostedCompaniesService` retorna `management: null`. Formulários novos e comandos não aparecem no hospedado; nenhuma falha de servidor seleciona mocks. Leitura e edição básica existentes continuam independentes. A futura implementação hospedada precisa do contrato de cada operação, incluindo gate de adesão, limite, idempotência, autoria/histórico e consistência de convite/perfil/sessão; não basta trocar essa capacidade por um valor verdadeiro.
+
+| Comando/consulta virtual | Entrada mínima | Resultado e condição do modelo demonstrativo |
+| --- | --- | --- |
+| Criar identidade | requestId e valores de nome/razão social | Identificador/linha confirmados; abre ficha pela URL; nenhum convite ou perfil é criado |
+| Registrar adesão | Contrato DEC-23 (companyId/evidenceReference) com requestId do transporte virtual | Registro append-only; autor/instante sintéticos na fronteira mock; UI não fornece autoria/data; referência não verifica documento nem gera aceite individual |
+| Ler adesões | companyId | Histórico da mesma empresa; nenhum registro vigente/expiração foi inventado; existência de registro antecede nova autorização no modelo |
+| Autorizar acesso | requestId, companyId, nome/e-mail normalizados | Exige referência da mesma empresa, empresa active/paused e vaga entre quatro ativos; e-mail repetido da mesma empresa é recusado inclusive se revogado; invitedOn fica null |
+| Alterar acesso | requestId, companyId, accessId, snapshot anterior e novo nome/status | Confere vínculo e preimagem; e-mail não é reatribuído; revogar preserva demais, registro e histórico; reautorizar é explícito e repete gate/limite |
+| Ler histórico | companyId | Eventos de autorização/nome/revogação/reautorização com snapshots e autor/instante sintéticos; retorno de outra empresa é recusado |
+
+As rotas `/companies`, `/companies/:id/adhesions`, `/companies/:id/accesses` e `/companies/:id/access-history` pertencem exclusivamente ao adapter Axios em memória; **não são endpoints ou RPCs oficiais**. Nenhum e-mail é enviado e nenhuma credencial/sessão é criada, trocada ou revogada. O histórico começa com as alterações desta demonstração; não fabrica eventos anteriores das fixtures.
+
+Novos comandos virtuais têm requestId: repetição do mesmo comando retorna o resultado original sem duplicar efeitos; reutilização com payload/rota diferentes é recusada. A execução síncrona do adapter aplica gate/limite/registro de evento antes de responder, incluindo cinco tentativas concorrentes que não excedem quatro autorizações. Isso não comprova transação, corrida ou idempotência no backend real. Estado e ledger ficam por instância e são descartados ao recarregar a página.
+
+**Experiência:** cadastro/adesão/autorizações têm formulários inline com Form/Zod/DS, erros mantendo rascunho, pendência bloqueando novo submit e cancelamento explícito. Após cadastro, abre a ficha e foca o título; resultado tardio depois de sair da página não restaura a rota anterior. Revogar exige confirmação; novas autorizações ficam indisponíveis enquanto adesão/situação não são confirmadas ou as quatro vagas estão ocupadas. Mutations não fazem retry automático ou atualização otimista; invalidam leitores existentes do ator/empresa. Histórico apresenta instantes em Brasília.
+
+**Pendente no hospedado:** corpo/retorno de create_client_account, comprovação documental e integração da adesão, manutenção atômica de quatro vínculos/perfis, revogação efetiva, históricos/triggers/permissões e demais dados de contrato/financeiro/documentos/ciclo. A checagem de referência do mock não homologa formalização CALI. Fase 1 e 2A permanecem abertas.
+
 ## Proveniência e limites
 
 - Referência funcional: publicação 83, `app.cali@f3d3f14043a6abc38636f0340fe831e621d8b357`, conforme DEC-14. Fontes baixadas somente para leitura; 586 arquivos de src/supabase/docs conferidos contra os blobs da árvore desse SHA. Nenhum código/SQL importado foi executado.
@@ -149,7 +172,7 @@ Criado [contrato mínimo V2](../../src/api/modules/access/adhesion.ts), explicit
 
 É um contrato de operação administrativa, não assinatura eletrônica nem certificação jurídica. Não se exigiu um novo PDF, formato de anexo, prazo ou aceite comercial por suposição; a referência poderá apontar para a evidência formalizada pela CALI conforme o fluxo a implementar. Validar a existência/formato dessa referência e armazenar o registro com proteção no servidor permanecem trabalho da baseline/2A. Parse de texto não verifica um documento.
 
-A adesão é da empresa e antecede convite (DEC-08). O aceite de termos continua individual/versionado no primeiro acesso. Não criar adesão automaticamente ao entrar, marcar convite como adesão ou atribuir ao Cliente poder de confirmar essa condição administrativa. O contrato existe e é testado; gravação e guardas do recorte foram implementadas/testadas no laboratório em 29/10; UI, comprovação documental e gate de convite continuam pendentes.
+A adesão é da empresa e antecede convite (DEC-08). O aceite de termos continua individual/versionado no primeiro acesso. Não criar adesão automaticamente ao entrar, marcar convite como adesão ou atribuir ao Cliente poder de confirmar essa condição administrativa. O contrato existe e é testado; gravação e guardas do recorte foram implementadas/testadas no laboratório em 29/10; UI e gate de referência demonstrativos foram implementados em 02/11; comprovação documental e integração efetiva no servidor/convite continuam pendentes.
 
 ## Persistência local de adesão — 29/10
 
@@ -166,8 +189,8 @@ SQL real testa claims sintéticos com rollback; API testa JWT emitido pelo Auth 
 
 ## Tipos implementados e fronteira com os mocks
 
-- [access/schemas.ts](../../src/api/modules/access/schemas.ts): requests explícitas, respostas verificadas e projeções mínimas de perfil/aceite. Tipos inferidos; nenhum service, token, hook ou provider foi conectado ao runtime.
-- [companies/records.ts](../../src/api/modules/companies/records.ts): projeções mínimas planejadas para leitura de empresa/convite. Não são um Database manual nem prova de que o banco aplicado retorna esses campos.
+- [access/schemas.ts](../../src/api/modules/access/schemas.ts): requests explícitas, respostas verificadas e projeções mínimas de perfil/aceite. Tipos inferidos; adapter/eventos/telas hospedados estão registrados no recorte de 01/11, e protocolo local de sessão admitida em 02/11, sem equivalência entre os servidores.
+- [companies/records.ts](../../src/api/modules/companies/records.ts): projeções mínimas usadas pelo adapter hospedado na leitura de empresa/convite. Não são um Database manual nem prova de que o banco aplicado retorna esses campos.
 - [companies/schemas.ts](../../src/api/modules/companies/schemas.ts) continua a projeção demonstrativa usada pela tela. `plan`, `createdOn`, `invitedOn` e status simplificado de acesso não equivalem automaticamente a `service_plan/service_type`, timestamps ou flags reais. Campos financeiros/contratuais ficam na 2A. O catálogo de status agora inclui archived; não há ação nova de arquivamento.
 - Respostas de sucesso incompletas, papel desconhecido, campos de autorização forjados na request e aceite sem instante/versão são rejeitados nos testes de contrato. Parse válido não constitui autenticação, MFA ou RLS.
 

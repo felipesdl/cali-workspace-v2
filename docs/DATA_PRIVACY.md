@@ -8,6 +8,12 @@ DEC-27 autoriza atores sintéticos com dois e-mails controlados por Felipe, mant
 
 A fonte oficial declara revisão da proprietária em 15/10, mas contém referências a cliente principal e leitores de campos privados diferentes de DEC-05/09. A reprodução não substitui revisão de compatibilidade para a V2; alterações exigem nova versão e validação CALI, sem inventar finalidades ou prazos. Esta pendência antecede a migração desses campos, não invalida a prova técnica de leitura de empresas. Detalhes no [contrato](contracts/ACCESS_COMPANIES.md#integração-hospedada-vigente--0111).
 
+## Recorte demonstrativo de cadastro/adesão/acessos — 02/11
+
+Somente dados sintéticos locais, sem coleta hospedada nesta continuidade. Identidade mínima organiza a ficha da empresa; referência de formalização vincula o registro administrativo à empresa; nome/e-mail identificam autorizações equivalentes; snapshots/eventos permitem acompanhar alterações sem apagar revogações. O Admin demonstrativo é o único operador desta composição. Autoria/data vêm da fronteira mock e não são enviadas pelos formulários.
+
+Referências são texto; não são buscadas, abertas automaticamente ou tratadas como documento validado. Registros não geram assinatura, aceite individual, mensagem ou perfil Auth. Histórico contém nome/e-mail anterior/atual quando necessário e não é exposto por novo consumidor Cliente. Estado/ledger permanecem em memória por instância, descartados ao recarregar; isso descreve o mock, não define prazo de guarda real. Não usar essa composição com dados pessoais reais. Antes da futura coleta hospedada, confirmar finalidade/leitores/guarda, informação apresentada e contrato de adesão/acessos com a CALI, sem inventar prazos.
+
 ## Escopo confirmado
 
 Documentar por que cada dado é coletado, onde é utilizado, quem o recebe e como é tratado ao longo do ciclo de vida. A informação correspondente deve estar disponível ao usuário no acesso à plataforma, integrada aos textos de uso/privacidade e à validação da versão vigente. Não inventar finalidade, período de guarda ou validação já realizada.

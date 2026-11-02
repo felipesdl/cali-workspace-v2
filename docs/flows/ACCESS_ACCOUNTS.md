@@ -69,6 +69,16 @@ A cópia da referência executou 40 verificações locais e revelou hash Auth pe
 
 **Dúvidas:** `REF-01` (MFA e identidade administrativa não uniformes), `REF-02` (gate jurídico fail-open e adesão), `REF-03` (reativação/convites). Não transformar fallback encontrado em padrão desejado da V2.
 
+## Recorte 2A autorizado — cadastro, adesão e quatro acessos
+
+**Código implementado na demonstração, 02/11:** continuar sem depender do catálogo e sem retomar runtime suspenso. Na composição demonstrativa, Admin pode cadastrar identidade mínima da empresa sem criar contato/perfil/convite, registrar referências de adesão em histórico e gerir até quatro autorizações equivalentes. Esse transporte é exclusivamente virtual/em memória; nenhum novo endpoint/RPC hospedado será presumido.
+
+**Jornada/aceite do recorte:** cadastro começa por ação explícita e abre a empresa criada pela URL após confirmação; empresa nasce sem acessos. Registrar referência não comprova documento nem aceite jurídico. Sem registro de adesão da mesma empresa, criação/reativação de acesso fica bloqueada no modelo demonstrativo. Todos os acessos contam pelo mesmo critério; o quinto ativo é recusado também na fronteira de dados. Revogar preserva registro/histórico e demais acessos; reautorizar é explícito e respeita o limite. E-mail existente não é reatribuído por edição de nome. Nenhum envio/provisioning Auth ocorre; permissões simuladas não revogam sessões reais.
+
+**Continuidade:** formulários inline com Button/Field/tokens, validação, foco, cancelamento, erro mantendo rascunho, ação pendente bloqueada e confirmação de revogação. Troca de empresa limpa estado transitório; URL é dona da seleção, Query invalida leitores do ator. Histórico registra autoria/instante sintéticos na fronteira mock, sem campos de autoria aceitos da UI. Identidade de solicitação protege repetição dos novos comandos virtuais, sem prometer idempotência hospedada.
+
+**Limites:** no hospedado, essas capacidades continuam indisponíveis até reconciliar cadastro, adesão e manutenção atômica dos acessos. Leitura e edição básica existentes permanecem na composição conectada. Testes do modelo/UI e QA demonstrativo foram executados; SQL/Auth/laboratório suspensos não foram executados. Gate/evidências no changelog.
+
 ## FLOW-02 — Conta, contrato, acessos e ciclo de vida
 
 **Estado V2 em 27/10:** `/admin/clientes` consulta três empresas e acessos sintéticos por módulo/hook, com filtros e seleção na URL. Quatro acessos equivalentes aparecem na fixture inicial, sem conta principal. Isso prepara a interface/contrato local; não implementa cadastro, adesão, convite, revogação, autenticação, persistência ou limites no servidor. Demais transições abaixo descrevem referência/alvo a portar, não comportamento já entregue. Ver [arquitetura](../ARCHITECTURE.md) e [runbook](../RUNBOOK.md).

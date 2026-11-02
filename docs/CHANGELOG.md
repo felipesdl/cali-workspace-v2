@@ -1,5 +1,14 @@
 # Registro de mudanças
 
+## 02/11/2026 — Cadastro, adesão e quatro acessos demonstrativos da 2A
+
+- **Autor/escopo:** Codex; Felipe autorizou continuar essas tarefas no que independe do catálogo, mantendo PR/documentação e suspensão de runtime. Nenhuma chamada hospedada, SQL/Docker/Auth, envio, merge ou deploy nesta continuidade.
+- **Implementação:** capacidade opcional management disponível somente no transporte demonstrativo. Cadastro de identidade mínima sem perfil/convite automático, referências de adesão append-only com autor/instante sintéticos e autorizações equivalentes; hospedado permanece null e não seleciona mocks em erro.
+- **Regras do modelo:** referência da mesma empresa antes de nova autorização, situação active/paused, até quatro ativos, e-mail normalizado único na empresa, alteração condicionada à preimagem, revogação preservando demais/histórico, reautorização explícita e e-mail imutável na edição de nome. Comandos virtuais têm requestId e ledger por instância, sem duplicar efeitos na repetição; isso não comprova idempotência/transação hospedada.
+- **Interface:** formulários inline com DS/Form/Zod, confirmação de revogação, estados/erro mantendo rascunho, cancelamento e bloqueio pendente. Cadastro abre ficha pela URL e move foco; resposta tardia após sair não restaura rota. Histórico usa Brasília; aviso de memória volátil e ausência de Auth/e-mail permanece visível. Referência não comprova documento/aceite.
+- **Validação:** `npm run verify` final passou com 146 testes/19 arquivos, formatação/lint/tipos, configuração local e builds SPA/Edge; checagem documental final com 32 documentos/662 links e diff sem erros. QA demonstrativo em 1440/1280/1024/390 px: cadastro/autorização e confirmação sem overflow do documento (largura igual ao viewport nas quatro), foco e estados conferidos; console final zero erros/warnings, sem requests de API hospedada. Capturas locais ignoradas em `output/playwright/cali-2a-registration-*`, `management-*` e `confirmation-*`. QA detectou colisão de keys entre seções e a correção usa identidades por seção; jornada em StrictMode verifica console limpo. Avisos conhecidos de build Zod/bundle permanecem. Bateria de sessão/revogação não foi retomada.
+- **Limites/rollback:** dados somente em memória por instância, descartados ao recarregar. Integração efetiva de cadastro/adesão/convites/perfis/limite/histórico e contrato/financeiro/documentos/ciclo continuam pendentes. Reverter o lote retira as novas capacidades demonstrativas, sem dados hospedados a desfazer e sem tocar propostas de sessão.
+
 ## 02/11/2026 — Início da 2A: edição básica de empresa
 
 - **Autor/escopo:** Codex; continuidade autorizada pelo Felipe após correção local/documentação/PR. Fase 1 continua aberta; 2A iniciada, sem declarar cadastro/acessos completos. Oficial somente lido na revisão de referência; nenhum SQL, comunicação, merge ou deploy.

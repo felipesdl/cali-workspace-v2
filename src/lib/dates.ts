@@ -7,3 +7,15 @@ export function formatCalendarDate(value: string) {
   const date = parseISO(value);
   return isValid(date) ? format(date, 'dd/MM/yyyy', { locale: ptBR }) : 'Data indisponível';
 }
+
+// Instantes de servidor são apresentados no fuso operacional CALI, independentemente do host.
+export function formatServerInstant(value: string) {
+  const date = new Date(value);
+  return isValid(date)
+    ? new Intl.DateTimeFormat('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        dateStyle: 'short',
+        timeStyle: 'short',
+      }).format(date)
+    : 'Data indisponível';
+}

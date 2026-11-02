@@ -140,4 +140,9 @@ describe('projeções de empresas do hospedado', () => {
     ).rejects.toThrow();
     expect(request).not.toHaveBeenCalled();
   });
+  it('não oferece transporte de cadastro/adesão/acessos sem contrato hospedado', () => {
+    const { service, request } = backend([]);
+    expect(service.management).toBeNull();
+    expect(request).not.toHaveBeenCalled();
+  });
 });

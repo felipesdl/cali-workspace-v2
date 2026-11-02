@@ -18,7 +18,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | --- | --- | --- | --- |
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
 | 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; sessão/telas hospedadas e leitura real de empresas, aceite global pendente |
-| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A iniciada em 02/11 pela edição básica de empresa; demais recortes planejados; fase 1 ainda aberta |
+| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A com edição básica e jornada demonstrativa de cadastro/adesão/quatro acessos; integração completa pendente; fase 1 ainda aberta |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
 | 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
@@ -140,8 +140,11 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 
 - [x] Implementar detalhe com razão social e formulário inline de edição básica; Admin pronto na composição conectada, validação, cancelamento, estado pendente/erro/confirmado e manutenção do rascunho.
 - [x] Implementar PATCH dos dois nomes com comparação atômica de preimagem, confirmação de linha e invalidação por ator; mocks isolados por instância e regressões de transporte/UI.
+- [x] Implementar identidade mínima, referências de adesão e autorizações equivalentes no transporte demonstrativo, sem efeitos Auth/e-mail; composição hospedada declara capacidade indisponível, sem fallback.
+- [x] Implementar gate de referência por empresa, limite de quatro na fronteira mock, bloqueio de duplicados, preimagem, reautorização explícita, histórico e proteção de repetição de comandos virtuais.
+- [x] Implementar formulários/estados/cancelamento/confirmar revogação e continuidade por URL; testes do modelo/UI sem executar a bateria suspensa.
 - [ ] Homologar escrita/permissão/persistência e efeitos de servidor no ambiente autorizado. Não houve PATCH hospedado nessa continuidade; QA visual é demonstrativo.
-- [ ] Reconciliar operação de cadastro, comprovação de adesão/gate de convite e manutenção dos quatro acessos equivalentes antes de habilitá-los.
+- [ ] Reconciliar operação de cadastro, comprovação de adesão/gate de convite e manutenção dos quatro acessos equivalentes antes de habilitá-los no hospedado. Implementação demonstrativa não comprova esses controles no servidor.
 - [ ] Completar contrato/financeiro/documentos, ciclo da empresa, histórico e aceite completo da 2A.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.

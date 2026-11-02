@@ -67,6 +67,14 @@ As consultas de lista, detalhe e acessos têm cache separado. Não usar dados an
 
 A fronteira hospedada atualiza somente os dois nomes, com filtros de preimagem e retorno validado; não modifica plano/convites/perfis/automações. Mocks de runtime têm estado por instância. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a-iniciada--edição-básica-da-empresa-0211). Integração e mutação existem no código, sem prova nova de escrita/RLS hospedada.
 
+## Cadastro, adesão e acessos demonstrativos — 02/11
+
+A capacidade opcional `CompaniesService.management` mantém a composição explícita: adapter demonstrativo fornece transporte virtual tipado; hospedado usa null até reconciliar contratos. A feature só recebe disponibilidade e hooks, sem SDK, Axios ou fixtures. Não há contexto global novo nem seleção de mock em hooks/services.
+
+`management-schemas.ts` define comandos virtuais/requestId e evento de acesso; reutiliza schemas de identidade/acesso e adesão de DEC-23. `management.ts` valida respostas e vínculo por empresa. `useCompanyManagement.ts` coordena consultas/mutations e invalidação por ator, sem optimistic updates/retry. `CompanyRegistration`, `CompanyAdhesions` e `CompanyAccessManagement` compõem as tarefas; a página continua dona da seleção por URL. Drafts/transitórios ficam locais e são desmontados ao trocar empresa. Resultado tardio de cadastro não restaura navegação após unmount.
+
+`src/mocks/adapters/companies.ts` é o único dono do estado mutável demonstrativo: empresas, referências, autorizações, eventos e ledger de solicitações por instância. Gate/limite/preimagem/histórico são executados nessa fronteira antes da resposta, sem chamadas externas. Recarregar descarta tudo; não é backend alternativo persistente nem certificação de RLS. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a--cadastro-adesão-e-quatro-acessos-demonstrativos).
+
 ## Tipagem e validação
 
 Tipos ficam junto do dono: contratos de empresas em `src/api/modules/companies/schemas.ts`; props e modelos exclusivos de uma composição permanecem locais. Não criar uma pasta global `types` sem consumidores que justifiquem compartilhamento.

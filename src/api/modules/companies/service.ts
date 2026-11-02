@@ -1,5 +1,6 @@
 import { type AxiosInstance } from 'axios';
 import { z } from 'zod';
+import { createCompanyManagement, type CompanyManagement } from './management';
 import {
   companyAccessSchema,
   companySchema,
@@ -8,10 +9,14 @@ import {
   type UpdateCompanyBasics,
   normalizeCompanyFilters,
   type CompanyFilters,
+  type Company,
+  type CompanyDetails,
+  type CompanyAccess,
 } from './schemas';
 
-export function createCompaniesService(client: AxiosInstance) {
+export function createCompaniesService(client: AxiosInstance): CompaniesService {
   return {
+    management: createCompanyManagement(client),
     async detail(companyId: string, signal?: AbortSignal) {
       const id = z.uuid().parse(companyId);
       // eslint-disable-next-line no-restricted-syntax -- Resposta bruta; companyDetailsSchema valida antes de retornar ao domínio.
@@ -53,4 +58,10 @@ export function createCompaniesService(client: AxiosInstance) {
     },
   };
 }
-export type CompaniesService = ReturnType<typeof createCompaniesService>;
+export type CompaniesService = {
+  management: CompanyManagement | null;
+  detail: (companyId: string, signal?: AbortSignal) => Promise<CompanyDetails>;
+  list: (filters: CompanyFilters, signal?: AbortSignal) => Promise<Company[]>;
+  accesses: (companyId: string, signal?: AbortSignal) => Promise<CompanyAccess[]>;
+  updateBasics: (input: UpdateCompanyBasics) => Promise<CompanyDetails>;
+};
