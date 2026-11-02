@@ -26,6 +26,12 @@ Usar abas locais separadas (5181 para A, 5182 para B), mesmo checkout/backend e 
 
 O módulo não aplica SQL/policies nem transforma HTTP negado em permissão. Resultados hospedados devem ser registrados no changelog/roadmap após execução; testes de fixture/controller não os substituem. Logout Supabase pode deixar JWT válido até `exp`; guardas/policies devem ser verificadas com a credencial anterior, sem confundir logout visual com recusa imediata no banco.
 
+## Candidata de corte no servidor — sem execução
+
+[Contrato e sequência de revisão](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada). `supabase/proposals/session-cut` contém catálogo somente leitura, candidata e aceite SQL futuro. Não é migration nem comando npm; runner local conserva a lista fechada das três migrations do laboratório. Nada foi aplicado ou executado em banco nesta preparação.
+
+Não executar candidate/acceptance como diagnóstico. A candidata exige opt-in de revisão `cali.session_cut_review=reviewed-v1` e owner postgres com bypass; esse opt-in não é autorização de aplicação. Suíte exige `cali.session_cut_test=isolated-only` e configurações UUID `cali.qa.a_profile`, `cali.qa.a_session`, `cali.qa.b_profile`, `cali.qa.b_session`, nunca JWT/e-mail. Usar somente cópia isolada com outbound bloqueado e executor que aborte no primeiro erro; rollback SQL não desfaz efeitos externos de triggers. Catálogo revisado, suíte SQL/Auth real e autorização de aplicação continuam pendentes.
+
 ## Runtime e instalação
 
 Node `24.22.1` em `.nvmrc`; npm `11.19.1` em `packageManager`. `engines`/`.npmrc` recusam runtime incompatível. Dependências diretas são fixas e a resolução completa está em `package-lock.json`.

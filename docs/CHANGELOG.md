@@ -1,5 +1,15 @@
 # Registro de mudanças
 
+## 01/11/2026 — Expiração confirmada e candidata de corte no servidor
+
+- **Escopo autorizado:** coletar expiração dos JWTs retidos e preparar correção para revisão no PR #2. Nenhum SQL foi executado, nem no laboratório; sem alteração de banco, sessão Admin, configuração Auth, comunicação, merge ou deploy.
+- **Evidência hospedada:** leituras únicas A/B registraram `remainingTokenSeconds=-62`, Auth 403 e 401/PGRST303 nas seis projeções do banco. Coleta dos logs às 22:18–22:19 de Brasília; timestamp de coleta não identifica instante exato da requisição. Tokens originais, sem novo login/refresh, adulteração de relógio/assinatura/TTL ou envio de código. Referências da ferramenta descartadas ao terminar. Não prova refresh/expiração de uma SPA ainda autenticada.
+- **Preparação concreta:** `supabase/proposals/session-cut/catalog.sql` inventaria metadados em transação read only; `candidate.sql` propõe sessão Auth vigente e marco privado por usuário, com restritivas em profiles/companies/client_invites/terms_acceptances e triggers de corte/restauração. Fora de migrations/runners, bloqueada sem opt-in de revisão e owner esperado. Não escreve no Auth, não concede ações de negócio nem substitui MFA/termos/isolamento existentes. `acceptance.sql` prepara casos de banco com claims de teste e rollback, sem execução ou garantia de QA aprovado.
+- **Bloqueios preservados:** catálogo ativo ainda não obtido; funções DEFINER/Edge/service_role podem ignorar RLS. Referência workspace-access permite upsert active=true por convite ativo em resolveOrCreateProfile; observado na fonte, sem novo teste que dispare e-mail. Revogação de convite/códigos/refresh, concorrência, novo login após marco, performance e demais superfícies precisam de reconciliação/teste em cópia isolada antes de aplicação. Candidata não encerra a fase 1.
+- **Documentação:** contrato dono detalha mecanismo, dependências, validação/rollback; roadmap, ambiente, matriz/ficha, privacidade, README/índice/AGENTS/runbook refletem expiração comprovada e correção somente preparada. Nenhum prazo de guarda inventado.
+- **Validação:** `npm run verify` passou com 120 testes em 15 arquivos, formatação/lint/tipos, configuração local, 32 documentos/648 links e builds SPA/Edge; `git diff --check` passou. SQL não executado nem validado por engine PostgreSQL; testes da aplicação não certificam essa candidata. Permanecem os avisos conhecidos do Zod e tamanho do bundle.
+- **Rollback:** nesta entrega, reverter apenas proposta/documentação. Após eventual aplicação futura, não remover restritivas/marcos como reversão automática, pois reabriria acesso de sessões anteriores; plano de contenção/correção e invalidação Auth devem ser revisados antes.
+
 ## 01/11/2026 — Continuidade do código e prova A/B no hospedado
 
 - **Escopo:** validar Clientes A/B, isolamento, logout, expiração e revogação no hospedado, sem publicação. Sessões de teste em origens locais 5181/5182, mesmo backend; Admin em 5173 preservado. Nenhuma mudança de TTL, grant/policy ou schema.
@@ -10,7 +20,7 @@
 
 - **Prova hospedada:** usuário concluiu código/aceite A/B. Próprio perfil/empresa: uma linha; perfil/empresa/convites da outra empresa: zero linhas para ambos; URL Admin redirecionada para Cliente. Inativação de A bloqueou SPA/empresa sem afetar B; A restaurado ao estado ativo original. Escopo limitado às tabelas consultadas.
 - **Bloqueio confirmado:** logout de A/B limpou armazenamento; Auth recusou JWT (403) e refresh (400) anteriores, mas PostgREST ainda leu próprio perfil/empresa (200/uma linha) com JWT não vencido. Restaurar A também recuperou acesso com o mesmo JWT. Outra empresa continuou negada. Servidor hospedado ainda não atende ao corte/revogação do contrato local; nenhuma policy/schema alterada. [Evidências](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
-- **Expiração:** pendente de resultado natural. Leituras únicas agendadas nas abas B/A para 22:15:47/22:16:55 de Brasília em 01/11, sem novo login, refresh automático da ferramenta ou alteração de TTL/relógio. Agendamento não é prova de expiração.
+- **Expiração na preparação desta rodada:** leituras únicas foram agendadas para 22:15:47/22:16:55 de Brasília; resultado posterior comprovado na entrada acima. Sem novo login, refresh automático da ferramenta ou alteração de TTL/relógio.
 - **Estado/rollback:** perfis A/B ativos como antes, ambos deslogados; Admin preservado. Reverter o lote desfaz correção/ferramenta, sem apagar fixtures/aceites ou alterar servidor. Não revogar Admin nem aplicar baseline local para contornar o achado. Fase 1 permanece aberta.
 
 ## 01/11/2026 — Sessão hospedada, empresas e atores de teste

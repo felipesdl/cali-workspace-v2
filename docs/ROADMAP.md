@@ -105,7 +105,9 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 - [x] Registrar login/aceite A/B; próprio perfil/empresa acessíveis, perfil/empresa/convites alheios com zero linhas e rota Admin redirecionada para ambos. Não equivale à cobertura dos demais domínios.
 - [x] Registrar inativação/restauração de A e logout real de A/B: Auth recusou JWT/refresh antigos, mas PostgREST ainda leu dados próprios com JWT não vencido. A foi restaurado e B preservado; ambos estão deslogados.
 - [ ] Fechar lacuna de corte no servidor: logout ainda permite leitura pelo JWT até vencer e reativação do perfil recupera a mesma sessão. Nenhuma policy/schema alterada; ver [evidência e limites](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
-- [ ] Observar expiração real do token retido sem mudança de relógio/TTL; leituras únicas programadas para 22:15:47 B/22:16:55 A de Brasília em 01/11. Agendamento ainda não comprova resultado.
+- [x] Observar expiração natural dos JWTs retidos A/B: 62 segundos além do prazo, Auth 403 e seis projeções do banco 401/PGRST303. Sem login, mudança de relógio/TTL ou código novo. Não prova refresh/expiração da SPA ativa.
+- [x] Preparar candidata de corte no servidor, inventário somente leitura e suíte SQL em `supabase/proposals/session-cut`, fora de migrations/runners; nada executado em banco.
+- [ ] Obter/revisar catálogo ativo, testar candidata em cópia isolada e reconciliar RPC/Edge/convite/códigos/Auth antes de promover aplicação. [Proposta e limites](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada).
 
 **Falta para fechar a fase 1:**
 
@@ -119,7 +121,7 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 
 Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de ponta a ponta são a entrega 2A. O DS e as demais extrações crescem junto dos fluxos; não são um catálogo completo a terminar antes de 2A. Fontes de evidência: [arquitetura](ARCHITECTURE.md), [runbook](RUNBOOK.md), [changelog](CHANGELOG.md) e [ficha de acesso/contas](flows/ACCESS_ACCOUNTS.md).
 
-**Próximo passo técnico:** observar expiração natural e preparar correção revisável do corte/revogação no servidor, sem aplicar alterações implicitamente; A/B/Admin e isolamento de leitura das três tabelas já têm prova hospedada; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial para jornada integrada; sessão/MFA/termos no navegador e RLS dos demais domínios continuam pendentes. Estado/expiração/revogação/logout e RLS de empresa foram exercitados no servidor local. Não tratar demonstração Admin como autenticação.
+**Próximo passo técnico:** conferir catálogo ativo e revisar/testar a candidata de corte em cópia isolada antes de autorizar aplicação; expiração de JWT A/B já comprovada; A/B/Admin e isolamento de leitura das três tabelas já têm prova hospedada; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial para jornada integrada; sessão/MFA/termos no navegador e RLS dos demais domínios continuam pendentes. Estado/expiração/revogação/logout e RLS de empresa foram exercitados no servidor local. Não tratar demonstração Admin como autenticação.
 
 **Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 

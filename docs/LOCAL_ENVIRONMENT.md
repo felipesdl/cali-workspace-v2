@@ -16,7 +16,7 @@ Atualização: 01/11/2026. **DEC-27 autoriza a continuidade no backend hospedado
 
 O online é referência funcional, não o artefato deste PR. Comparar o mesmo ator/empresa e os mesmos registros; sessão em cada origem é independente. A V2 apresenta acesso real e leitura de empresas no novo shell; módulos ainda não integrados ficam em preparação, sem métricas sintéticas no modo conectado. O modo demo preserva a navegação legada para inventário/migração. Diferença planejada de cobertura não é paridade comprovada nem regressão por si só.
 
-O usuário concluiu login Admin e aceite pela V2; a lista conectada mostrou quatro empresas, busca `[TESTE V2]` mostrou duas, detalhe de A mostrou um vínculo do destinatário esperado e limpeza restaurou quatro. Comparação por nomes no DOM confirmou o mesmo conjunto de quatro empresas. Layout conferido em 1440 e 390 px; em 390, documento permaneceu com 390 px e tabela em região horizontal própria. Online mostrou as mesmas quatro empresas; o contador legado de acessos soma um principal fixo, divergência rastreada em FLOW-02. Sem erros/warnings no console da página após a correção/atualização. A rodada A/B abaixo acrescenta provas próprias de Cliente/logout/inativação; callback válido e expiração natural ainda permanecem pendentes. Escopo atual do teste anterior: próprio perfil Admin e amostra de empresas, HTTP 200, AAL2 e token inalterado em 31/10.
+O usuário concluiu login Admin e aceite pela V2; a lista conectada mostrou quatro empresas, busca `[TESTE V2]` mostrou duas, detalhe de A mostrou um vínculo do destinatário esperado e limpeza restaurou quatro. Comparação por nomes no DOM confirmou o mesmo conjunto de quatro empresas. Layout conferido em 1440 e 390 px; em 390, documento permaneceu com 390 px e tabela em região horizontal própria. Online mostrou as mesmas quatro empresas; o contador legado de acessos soma um principal fixo, divergência rastreada em FLOW-02. Sem erros/warnings no console da página após a correção/atualização. A rodada A/B abaixo acrescenta provas próprias de Cliente/logout/inativação; callback válido e refresh/expiração da SPA ativa ainda permanecem pendentes. Escopo atual do teste anterior: próprio perfil Admin e amostra de empresas, HTTP 200, AAL2 e token inalterado em 31/10.
 
 ### Rodada Cliente A/B — 01/11
 
@@ -30,13 +30,17 @@ Duas instâncias da mesma revisão local usam origens `127.0.0.1:5181` e `:5182`
 | Restaurar A | PATCH condicionado recompôs `active=true`; B permaneceu inalterado. Mesmo JWT antigo voltou a ler a própria empresa e SPA retornou ao Workspace sem código novo |
 | Logout real A e B | Botão Sair retornou à tela de acesso; namespace Auth removido, comprovado também pela pré-condição da prova de refresh. JWT antigo: Auth 403; refresh antigo: POST 400 para ambos |
 | API do banco após logout | JWT antigo continuou recebendo 200/uma linha para próprio perfil/empresa/lista nos dois atores. Outra empresa/perfil/convites continuaram retornando zero linhas. Não houve leitura cruzada no recorte testado |
-| Expiração natural | Ainda pendente. Leituras únicas programadas no navegador para 22:15:47 (B) e 22:16:55 (A), horário de Brasília em 01/11, um minuto após o vencimento dos JWTs originais. Agendamento não comprova execução; depende de abas/processo preservados |
+| Expiração natural | Confirmada A/B: saídas CALI_AB_EXPIRED registraram remainingTokenSeconds=-62, Auth 403 e banco 401/PGRST303 nas seis projeções. Leituras únicas agendadas para 22:15:47 B/22:16:55 A de Brasília em 01/11; coleta dos logs às 22:18–22:19. Timestamp da coleta não é instante exato da requisição. Sem mudança de relógio/TTL ou novo login |
+
+Prova de expiração usa JWTs originais já deslogados, retidos somente em memória até a leitura; a ferramenta descartou suas referências ao terminar. Não comprova ciclo de refresh/expiração de uma SPA ainda autenticada. Nenhuma requisição adicional de código ou mutação de dados nesta coleta.
 
 **Lacunas técnicas bloqueantes:** logout retirou a sessão no Auth, mas a API do banco ainda aceitou o JWT não vencido; inativação restringiu dados sem revogar a sessão, que recuperou acesso após reativação. Diferem do corte de sessão testado no laboratório. Revisar predicados de sessão vigente e operação de revogação no servidor; correção frontend não substitui esse controle. Não alterar schema/policies nem aplicar a baseline local por consequência desta prova.
 
 **Estado ao encerrar a rodada:** perfis A/B ativos como antes; A foi restaurado, B não foi alterado. Ambos fizeram logout; Admin preservado. Nenhum convite foi revogado nem empresa bloqueada. Prova de inativação não equivale à revogação completa de convite/conta. Escopo de leitura limita-se a profiles/companies/client_invites, sem homologação dos demais domínios, escritas ou Storage.
 
 **Envios:** auditoria confirmou quatro pedidos de código para A e três para B desde 20:40 de Brasília. Agente fez três por ator entre preparação e recuperação do formulário; quarto de A veio da origem A sem autoria identificável. Log confirma aceite do provedor, não recebimento em caixa. Novos disparos suspensos; nenhuma tentativa nova de login para repetir o teste.
+
+Correção preparada, não aplicada: [proposta, limites, catálogo e aceite](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada). SQL fora de migrations; nenhuma execução de banco, inclusive no laboratório, autorizada por esta preparação.
 
 ## Topologia vigente — DEC-22 e DEC-25
 

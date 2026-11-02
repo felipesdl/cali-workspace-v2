@@ -8,7 +8,7 @@ Em 01/11, a V2 passou a consultar perfil/empresa/termos e Auth/MFA reais no back
 
 Duas fixtures A/B receberam um vínculo Cliente ativo cada, com autorização específica; e-mails fora do Git. Em 01/11, ambos concluíram login/aceite e provaram leitura do próprio perfil/empresa e negativa para perfil/empresa/convites alheios (200/zero linhas). Rota Admin retornou ambos à área Cliente. Somente esse recorte foi comprovado, sem estender a outros domínios/escritas.
 
-**Lacuna confirmada:** logout removeu armazenamento local, Auth recusou JWT antigo (403) e refresh antigo (400), porém PostgREST ainda retornou próprio perfil/empresa com JWT não vencido para A/B. Inativação de A impediu consulta de empresa, mas reativação recuperou acesso com o mesmo JWT, sem login novo. Outra empresa continuou negada. Perfis A/B ficaram ativos como antes e ambos fizeram logout; expiração natural permanece pendente. Evidência e bloqueio de revogação no [ambiente](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
+**Lacuna confirmada:** logout removeu armazenamento local, Auth recusou JWT antigo (403) e refresh antigo (400), porém PostgREST ainda retornou próprio perfil/empresa com JWT não vencido para A/B. Inativação de A impediu consulta de empresa, mas reativação recuperou acesso com o mesmo JWT, sem login novo. Outra empresa continuou negada. Perfis A/B ficaram ativos como antes e ambos fizeram logout; expiração natural dos JWTs A/B comprovada (banco 401/PGRST303), sem provar refresh/expiração da SPA ativa. Evidência e bloqueio de revogação no [ambiente](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
 
 ## Contrato alvo confirmado pelo usuário — atualizado em 28/10/2026
 
