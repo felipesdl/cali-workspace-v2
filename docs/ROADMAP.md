@@ -6,7 +6,7 @@ Objetivo: padronizar todos os fluxos Cliente/Admin sem passar várias fases cons
 
 ## Estado e cobertura
 
-Já existem levantamento, 18 fichas, matriz estática, DS/UX/arquitetura propostos e decisões. Não repetir inventário como se estivesse vazio. Código segue demonstrativo. Router, Query/Form, API modular de empresas, tokens e Button/Field existem; lint, testes, formatação, links e build compõem `npm run verify`. Workflow definido ainda não executado no GitHub. SDK, sessão e telas de acesso foram conectados em 01/11; jornada Admin em validação, demais atores/cenários ainda pendentes; RLS/persistência de adesão foram testados no laboratório, sem cobrir os demais domínios. Bibliotecas foram escolhidas pelo usuário em DEC-20.
+Já existem levantamento, 18 fichas, matriz estática, DS/UX/arquitetura propostos e decisões. Não repetir inventário como se estivesse vazio. Composição demonstrativa preservada junto da integração hospedada. Router, Query/Form, API modular de empresas, tokens e Button/Field existem; lint, testes, formatação, links e build compõem `npm run verify`. Workflow definido ainda não executado no GitHub. SDK, sessão e telas de acesso foram conectados em 01/11; jornada Admin em validação, demais atores/cenários ainda pendentes; RLS/persistência de adesão foram testados no laboratório, sem cobrir os demais domínios. Bibliotecas foram escolhidas pelo usuário em DEC-20.
 
 O SHA `f3d3f14043a6abc38636f0340fe831e621d8b357` das fontes já corresponde à publicação 83. Os links continuam válidos; código/migrations não comprovam configuração ou aplicação no banco ativo. As 29 chamadas sem corpo localizado permanecem lacunas técnicas por operação, não motivo para inventar contrato.
 
@@ -98,6 +98,15 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 - [x] Usuário concluiu jornada Admin e aceite pela V2; lista real mostrou quatro empresas, busca de teste mostrou duas, detalhe de A mostrou somente seu vínculo e limpeza restaurou quatro. Comparação online leu as mesmas quatro empresas; não é cobertura de todos os fluxos.
 - [ ] Completar comparação de estados/teclado/mobile, logout/expiração/revogação e Clientes A/B no hospedado; conferir diferenças de termos/MFA/RLS da baseline local.
 
+**Rodada A/B — 01/11, em execução:**
+
+- [x] Corrigir desmontagem do formulário por foco/intervalo e comprovar regressão com leitura assíncrona antes/depois; 120 testes no gate.
+- [x] Preparar ferramenta manual de consultas/replay com credenciais somente em memória e restrição às fixtures, sem alterar TTL/schema/policies.
+- [x] Registrar login/aceite A/B; próprio perfil/empresa acessíveis, perfil/empresa/convites alheios com zero linhas e rota Admin redirecionada para ambos. Não equivale à cobertura dos demais domínios.
+- [x] Registrar inativação/restauração de A e logout real de A/B: Auth recusou JWT/refresh antigos, mas PostgREST ainda leu dados próprios com JWT não vencido. A foi restaurado e B preservado; ambos estão deslogados.
+- [ ] Fechar lacuna de corte no servidor: logout ainda permite leitura pelo JWT até vencer e reativação do perfil recupera a mesma sessão. Nenhuma policy/schema alterada; ver [evidência e limites](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
+- [ ] Observar expiração real do token retido sem mudança de relógio/TTL; leituras únicas programadas para 22:15:47 B/22:16:55 A de Brasília em 01/11. Agendamento ainda não comprova resultado.
+
 **Falta para fechar a fase 1:**
 
 - [ ] Completar lacunas de contrato e baseline por operação: autorização dos próximos contratos e integração da SPA; DDL novo de códigos/termos já implementado/testado localmente; persistência da adesão e predicado unificado já testados no recorte local, sem equivaler à cobertura de todos os domínios; create_client_account segue ausente para 2A, sem impedir preparação sintética. MFA decidido em DEC-21 e testado no servidor da adesão; UI/sessão e demais superfícies pendentes. TEC-01/02 não foram declarados resolvidos globalmente.
@@ -110,7 +119,7 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 
 Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de ponta a ponta são a entrega 2A. O DS e as demais extrações crescem junto dos fluxos; não são um catálogo completo a terminar antes de 2A. Fontes de evidência: [arquitetura](ARCHITECTURE.md), [runbook](RUNBOOK.md), [changelog](CHANGELOG.md) e [ficha de acesso/contas](flows/ACCESS_ACCOUNTS.md).
 
-**Próximo passo técnico:** completar comparação do online com a V2 conectada, provar atores A/B/Admin e sessão/negações no hospedado; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial para jornada integrada; sessão/MFA/termos no navegador e RLS dos demais domínios continuam pendentes. Estado/expiração/revogação/logout e RLS de empresa foram exercitados no servidor local. Não tratar demonstração Admin como autenticação.
+**Próximo passo técnico:** observar expiração natural e preparar correção revisável do corte/revogação no servidor, sem aplicar alterações implicitamente; A/B/Admin e isolamento de leitura das três tabelas já têm prova hospedada; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial para jornada integrada; sessão/MFA/termos no navegador e RLS dos demais domínios continuam pendentes. Estado/expiração/revogação/logout e RLS de empresa foram exercitados no servidor local. Não tratar demonstração Admin como autenticação.
 
 **Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 

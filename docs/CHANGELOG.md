@@ -1,5 +1,18 @@
 # Registro de mudanças
 
+## 01/11/2026 — Continuidade do código e prova A/B no hospedado
+
+- **Escopo:** validar Clientes A/B, isolamento, logout, expiração e revogação no hospedado, sem publicação. Sessões de teste em origens locais 5181/5182, mesmo backend; Admin em 5173 preservado. Nenhuma mudança de TTL, grant/policy ou schema.
+- **Defeito reproduzido:** foco/visibilidade/intervalo publicavam `loading` durante estado ainda não autenticado, desmontando formulário de código/MFA/aceite. O teste com leitura assíncrona reproduziu perda da etapa/código no controller anterior; passou após preservar snapshots resolvidos na revalidação. Eventos Auth do mesmo ator revalidam sem invalidar todo o fluxo; logout/troca de identidade continuam invalidando.
+- **Ferramenta:** `scripts/hosted-access-probe.ts`, manual e fora do bundle da SPA, confere ator/vínculo/marcador e coleta apenas HTTP/contagens. Retém credenciais somente em memória para replay antes/depois do logout e expiração; não autentica, não renova automaticamente e não modifica policies. Consultas sem cache comprovaram somente profiles/companies/client_invites; não fazem homologação global.
+- **Envios de código auditados:** três solicitações por ator feitas pelo agente entre a preparação e a recuperação da etapa perdida. Histórico `workspace_access_code_requested` desde 20:40 de Brasília confirmou quatro eventos para A e três para B, todos com aceite do provedor; quarto de A às 21:15 veio da aba A, sem identificação de quem acionou. Não foi certificado recebimento em caixa por esse log. Novos envios foram suspensos após o relato; sem atribuir o quarto evento a retry automático.
+- **Validação do recorte:** `npm run verify` final passou com 120 testes em 15 arquivos, formatação/lint/tipos e builds SPA/Edge; checagem documental posterior passou com 32 documentos/640 links, e `git diff --check` passou. Resultado local é separado da prova hospedada abaixo.
+
+- **Prova hospedada:** usuário concluiu código/aceite A/B. Próprio perfil/empresa: uma linha; perfil/empresa/convites da outra empresa: zero linhas para ambos; URL Admin redirecionada para Cliente. Inativação de A bloqueou SPA/empresa sem afetar B; A restaurado ao estado ativo original. Escopo limitado às tabelas consultadas.
+- **Bloqueio confirmado:** logout de A/B limpou armazenamento; Auth recusou JWT (403) e refresh (400) anteriores, mas PostgREST ainda leu próprio perfil/empresa (200/uma linha) com JWT não vencido. Restaurar A também recuperou acesso com o mesmo JWT. Outra empresa continuou negada. Servidor hospedado ainda não atende ao corte/revogação do contrato local; nenhuma policy/schema alterada. [Evidências](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
+- **Expiração:** pendente de resultado natural. Leituras únicas agendadas nas abas B/A para 22:15:47/22:16:55 de Brasília em 01/11, sem novo login, refresh automático da ferramenta ou alteração de TTL/relógio. Agendamento não é prova de expiração.
+- **Estado/rollback:** perfis A/B ativos como antes, ambos deslogados; Admin preservado. Reverter o lote desfaz correção/ferramenta, sem apagar fixtures/aceites ou alterar servidor. Não revogar Admin nem aplicar baseline local para contornar o achado. Fase 1 permanece aberta.
+
 ## 01/11/2026 — Sessão hospedada, empresas e atores de teste
 
 - **Autorização/escopo:** Felipe informou que a plataforma ainda não foi lançada e autorizou usar o backend hospedado existente para desenvolvimento e manipulação de fixtures, incluindo dois destinatários Cliente controlados por ele. DEC-27 substitui o limite de leitura do backend neste recorte; repositório oficial continua somente leitura. Nenhuma migration, grant/policy, configuração Auth, merge ou deploy foi executado.

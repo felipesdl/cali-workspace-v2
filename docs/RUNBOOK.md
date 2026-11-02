@@ -12,6 +12,20 @@ O SDK mantém sessão/refresh em namespace exclusivo; login/MFA/aceite acontecem
 
 Após alterar a interface do controller durante desenvolvimento, uma instância antiga preservada pelo hot reload pode exigir uma atualização da aba. Isso foi observado/corrigido no teste de 01/11; não adicionar reload automático como tratamento de erro do produto.
 
+## QA manual de sessão Cliente A/B
+
+Usar abas locais separadas (5181 para A, 5182 para B), mesmo checkout/backend e sessões por origem, preservando o Admin em 5173. Isso não cria outro banco/ambiente. Não reenviar código apenas porque a aba mudou de foco: a etapa deve permanecer montada durante revalidação. Recebimento de código, login e aceite são passos distintos, concluídos pelo próprio usuário.
+
+`/scripts/hosted-access-probe.ts` é módulo manual importado pelo DevTools da aba de teste; não integra a SPA nem autentica/renova a sessão. `prepareFixtureProbe` exige UUIDs dos dois perfis/empresas sintéticos, confirma sessão Cliente ativa, vínculo e marcador da própria empresa antes de testar. Só aceita as duas origens locais dedicadas. Saída contém HTTP/contagens/flags, nunca tokens, códigos ou corpo Auth integral.
+
+- `read('active')`: Auth, próprio perfil/empresa, perfil/empresa do outro ator, lista visível e convites da outra empresa. Resultado vazio ou negado deve ser avaliado por operação; HTTP 200 sozinho não comprova isolamento.
+- `read('revoked')` / `read('restored')`: repetir com o JWT retido em memória durante inativação/recomposição exclusivamente da fixture. Registrar separadamente guarda da SPA, permissão do banco e eventual recuperação do JWT antigo. Não alterar company_id, papel ou contas existentes.
+- `captureBeforeLogout()`: captura a credencial corrente apenas em memória e informa a expiração. Depois do logout pela UI, `read('after_logout')` verifica o JWT anterior; `verifyRefreshRevoked()` exige armazenamento local vazio e tenta o refresh anterior uma vez. Se o servidor emitir sessão inesperadamente, a ferramenta tenta encerrá-la e reporta essa limpeza, sem persisti-la.
+- `read('expired')`: somente depois do `exp` real do token retido. Não mudar relógio, assinatura ou TTL global para fabricar prova de expiração; negativa por assinatura inválida não é negativa por prazo. Ausência dessa execução permanece pendência explícita.
+- `forget()`: descarta referências às credenciais na ferramenta. Não imprimir o objeto de sessão nem persistir arquivos com credenciais para repetir provas.
+
+O módulo não aplica SQL/policies nem transforma HTTP negado em permissão. Resultados hospedados devem ser registrados no changelog/roadmap após execução; testes de fixture/controller não os substituem. Logout Supabase pode deixar JWT válido até `exp`; guardas/policies devem ser verificadas com a credencial anterior, sem confundir logout visual com recusa imediata no banco.
+
 ## Runtime e instalação
 
 Node `24.22.1` em `.nvmrc`; npm `11.19.1` em `packageManager`. `engines`/`.npmrc` recusam runtime incompatível. Dependências diretas são fixas e a resolução completa está em `package-lock.json`.
@@ -100,7 +114,7 @@ As variáveis `VITE_DATA_MODE=demo` e `VITE_DEMO_MODE=true` continuam identifica
 
 Ler [Ambiente isolado](LOCAL_ENVIRONMENT.md) para bootstrap/parada reproduzíveis. CLI 2.122.0 foi usado em diretório temporário com checksum conferido. Serviços de negócio ficam somente na rede internal; proxy dedicado publica quatro portas em loopback, com destinos fixos/forwarding desligado. Primeiro bootstrap exclui PostgREST até criar o schema, sem ignorar healthcheck. Migrations/seeds automáticos de negócio continuam desabilitados; o CLI/Auth fazem seu bootstrap interno, distinto dos SQLs oficiais, que não foram executados.
 
-Baseline mínima de empresa/perfil/adesão aplicada pelo runner; SQL com rollback e driver API/Auth/TOTP passaram, assim como captura local e negativas de rede. Digests de proxy/compose e journal da baseline bloqueiam divergência/reaplicação acidental. Comandos de runtime são explícitos e ficam fora de `verify`/CI comum. O build do bundle Edge integra verify, sem iniciar serviços; gerar antes de subir o sexto serviço (Edge Runtime). Driver API preserva fixtures sintéticas locais; não apaga histórico. O frontend permanece somente com mocks. Contratos, lacunas e limites de comprovação documental: [Acesso/empresas](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910).
+Baseline mínima de empresa/perfil/adesão aplicada pelo runner; SQL com rollback e driver API/Auth/TOTP passaram, assim como captura local e negativas de rede. Digests de proxy/compose e journal da baseline bloqueiam divergência/reaplicação acidental. Comandos de runtime são explícitos e ficam fora de `verify`/CI comum. O build do bundle Edge integra verify, sem iniciar serviços; gerar antes de subir o sexto serviço (Edge Runtime). Driver API preserva fixtures sintéticas locais; não apaga histórico. A composição do laboratório continua sem integração à SPA; DEC-27 conecta a SPA ao hospedado por adapter próprio. Contratos, lacunas e limites de comprovação documental: [Acesso/empresas](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910).
 
 ## CI configurada
 

@@ -6,7 +6,9 @@ Data: 25/10/2026. Oficial consultado em `f3d3f14043a6abc38636f0340fe831e621d8b35
 
 Em 01/11, a V2 passou a consultar perfil/empresa/termos e Auth/MFA reais no backend autorizado. Guarda frontend bloqueia perfil ausente/inativo, vínculo inconsistente, Partner fora do recorte, Admin sem AAL2/fator verificado e aceite ausente/erro. Não comprova predicado unificado no servidor hospedado: guards/policies da baseline local não foram aplicados nele. Comparação/Admin e dados sintéticos em [Ambiente](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27); matriz abaixo continua referência estática, salvo evidências explicitamente atualizadas.
 
-Duas fixtures A/B receberam um vínculo Cliente ativo cada, com autorização específica; e-mails fora do Git. Isso não concede acesso a empresas existentes nem comprova ainda a negativa de RLS entre Clientes A/B. Até a conclusão dessa prova, não declarar isolamento hospedado homologado.
+Duas fixtures A/B receberam um vínculo Cliente ativo cada, com autorização específica; e-mails fora do Git. Em 01/11, ambos concluíram login/aceite e provaram leitura do próprio perfil/empresa e negativa para perfil/empresa/convites alheios (200/zero linhas). Rota Admin retornou ambos à área Cliente. Somente esse recorte foi comprovado, sem estender a outros domínios/escritas.
+
+**Lacuna confirmada:** logout removeu armazenamento local, Auth recusou JWT antigo (403) e refresh antigo (400), porém PostgREST ainda retornou próprio perfil/empresa com JWT não vencido para A/B. Inativação de A impediu consulta de empresa, mas reativação recuperou acesso com o mesmo JWT, sem login novo. Outra empresa continuou negada. Perfis A/B ficaram ativos como antes e ambos fizeram logout; expiração natural permanece pendente. Evidência e bloqueio de revogação no [ambiente](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
 
 ## Contrato alvo confirmado pelo usuário — atualizado em 28/10/2026
 

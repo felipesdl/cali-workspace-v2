@@ -26,7 +26,11 @@ Edge local e banco implementam código/limites/consumo, troca por sessão Auth, 
 
 ## Integração hospedada e comparação — 01/11
 
-DEC-27 autoriza dados sintéticos no backend existente. A V2 tem SDK/adapter, eventos/revalidação, guardas, telas de código/MFA/termos/callback e leitura real de empresas/acessos. Usuário concluiu a jornada Admin/aceite e chegou às quatro empresas do banco. Busca, detalhe de A e limpeza de filtros foram observados na V2; código/MFA/callback/expiração/logout e negações A/B precisam de evidência por cenário. A existência da tela não encerra esses testes.
+DEC-27 autoriza dados sintéticos no backend existente. A V2 tem SDK/adapter, eventos/revalidação, guardas, telas de código/MFA/termos/callback e leitura real de empresas/acessos. Usuário concluiu a jornada Admin/aceite e chegou às quatro empresas do banco. Busca, detalhe de A e limpeza de filtros foram observados na V2; primeiro enrollment MFA, callback e expiração natural precisam de evidência por cenário. A existência da tela não encerra esses testes.
+
+Clientes A/B concluíram login/aceite; API direta retornou somente empresa/perfil próprios, negando empresa/perfil/convites alheios. Rota Admin redirecionou ambos para Cliente. Logout de ambos limpou sessão local; Auth recusou JWT/refresh antigos, porém a API do banco ainda leu a própria empresa com JWT não vencido. Inativação/restauração de A também recuperou a sessão anterior. **Corte no servidor permanece bloqueio da fase 1**; nenhum ajuste de policy/schema foi executado. Expiração natural ainda pendente. Resultados e limites no [ambiente](../LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
+
+Foco/intervalo desmontavam o formulário de código antes do login; corrigido no controller para preservar snapshots resolvidos durante revalidação. Teste assíncrono reproduziu no código anterior e passou após correção. Logout/troca de identidade continuam invalidando cache/rota. Auditoria dos códigos: quatro pedidos A/três B; novos envios suspensos.
 
 O aceite inicialmente falhou antes do POST por receber conteúdo/título além do payload estrito `version/contentHash`. Corrigido no consumidor; teste verifica transição após confirmação e permanência no bloqueio quando a gravação falha. Aceite real foi concluído pelo próprio usuário, sem inserir registro fora da UI.
 
