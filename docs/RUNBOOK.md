@@ -2,6 +2,12 @@
 
 Atualização: 01/11/2026. Fase 1 iniciada na branch local `codex/fase-1-base`, a partir de `main` `c9baea7`. O pacote está em revisão no [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) em rascunho, conforme solicitação de 27/10; o acompanhamento de concluído/pendente fica no [roadmap](ROADMAP.md#acompanhamento-da-fase-1--pacote-para-revisão). Commits/push/PR são etapas de revisão distintas de merge/deploy. DEC-27 autoriza integração ao backend hospedado e fixtures sintéticas identificadas; não houve publicação da aplicação.
 
+## Suspensão do laboratório de acesso — 02/11
+
+A bateria de sessão/revogação permanece suspensa por solicitação de Felipe. Não executar `local:access:test`, o runner experimental anterior ou iniciar Edge/laboratório nesta continuidade. O Edge V2 agora exige consumo/admissão de sessão no servidor; SQLs complementares estão somente em `supabase/proposals/session-cut`, sem aplicação. Antes de uma futura retomada autorizada, reconciliar schema, drivers e protocolo; não aplicar propostas por conveniência. [Contrato e limites](contracts/ACCESS_COMPANIES.md#correção-local-da-troca-e-admissão--0211).
+
+`npm run verify` segue autorizado e sem Docker/rede/SQL: seus unitários não substituem essa validação suspensa. O driver experimental anterior foi preservado como texto em `output/runtime/session-cut/history`, ignorado pelo Git.
+
 ## Execução conectada e comparação
 
 Configuração e atores sintéticos estão em [Ambiente hospedado](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27). `.env` e arquivos `*.env` ficam ignorados. Nunca enviar chaves privadas/service role ao Vite; o schema aceita somente URL hospedada HTTPS e chave `sb_publishable_`, sem fallback de configuração inválida para mocks. `demo` mantém a composição de fixtures quando não há backend configurado.

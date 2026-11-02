@@ -107,7 +107,14 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 - [ ] Fechar lacuna de corte no servidor: logout ainda permite leitura pelo JWT até vencer e reativação do perfil recupera a mesma sessão. Nenhuma policy/schema alterada; ver [evidência e limites](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
 - [x] Observar expiração natural dos JWTs retidos A/B: 62 segundos além do prazo, Auth 403 e seis projeções do banco 401/PGRST303. Sem login, mudança de relógio/TTL ou código novo. Não prova refresh/expiração da SPA ativa.
 - [x] Preparar candidata de corte no servidor, inventário somente leitura e suíte SQL em `supabase/proposals/session-cut`, fora de migrations/runners; nada executado em banco.
-- [ ] Obter/revisar catálogo ativo, testar candidata em cópia isolada e reconciliar RPC/Edge/convite/códigos/Auth antes de promover aplicação. [Proposta e limites](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada).
+- [ ] Obter/revisar catálogo ativo e reconciliar RPC/Edge/convite/códigos/Auth antes de promover aplicação. Teste da projeção local anterior executado; revisão de admissão ainda sem runtime. [Proposta e limites](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada).
+
+**Continuidade de 02/11 — correção local, sem repetir runtime:**
+
+- [x] Recuperar resultado da cópia sintética anterior: 40 verificações, SQL/Auth/PostgREST reais, RPC/convite e janela adicional de hash pendente; sem equivalência com o catálogo hospedado.
+- [x] Corrigir o código da troca no Edge V2: hash permanece no servidor; sessão só retorna após admissão vinculada à autorização do código; SPA aceita sessão admitida e mantém contrato legado hospedado explícito.
+- [x] Preparar complemento SQL de admissão e adapter exclusivo do schema local conhecido; preservar runner experimental como texto ignorado e suspender drivers de runtime até reconciliação.
+- [ ] Conferir catálogo/adapter hospedado e validar/aplicar correção em recorte autorizado. Novos SQLs não executados; bateria anterior suspensa a pedido de Felipe. Fase 1 continua aberta; desenvolvimento independente de 2A pode avançar.
 
 **Falta para fechar a fase 1:**
 

@@ -11,9 +11,14 @@ function ports(): AccessPorts {
     hash: async () => 'hash',
     issue: async () => ({ status: 'issued', id: 'id' }),
     delivered: vi.fn(async () => {}),
-    consume: async () => ({ email: 'user@example.test', role: 'client' }),
+    consume: async () => ({
+      email: 'user@example.test',
+      role: 'client',
+      userId: '20000000-0000-4000-8000-000000000001',
+      authorizationId: '30000000-0000-4000-8000-000000000001',
+    }),
     send: vi.fn(async () => {}),
-    token: async () => 'hash-de-token',
+    session: async () => ({ access_token: 'access', refresh_token: 'refresh' }),
   };
 }
 function request(body: object, origin = 'http://127.0.0.1:5173') {
@@ -65,7 +70,7 @@ describe('fronteira pública de código', () => {
   it('falha de geração Auth mantém consumo e não retorna token', async () => {
     const dependencies = ports();
     dependencies.consume = vi.fn(dependencies.consume);
-    dependencies.token = async () => {
+    dependencies.session = async () => {
       throw new Error('segredo interno');
     };
     const result = await createAccessHandler(dependencies)(
@@ -79,7 +84,7 @@ describe('fronteira pública de código', () => {
     const dependencies = ports();
     dependencies.issue = async () => ({ status: 'unavailable' });
     dependencies.consume = async () => null;
-    dependencies.token = vi.fn(dependencies.token);
+    dependencies.session = vi.fn(dependencies.session);
     const handler = createAccessHandler(dependencies);
     expect(
       await (await handler(request({ action: 'request', email: 'user@example.test' }))).json(),
@@ -88,6 +93,6 @@ describe('fronteira pública de código', () => {
       (await handler(request({ action: 'verify', email: 'user@example.test', code: '001234' })))
         .status,
     ).toBe(400);
-    expect(dependencies.token).not.toHaveBeenCalled();
+    expect(dependencies.session).not.toHaveBeenCalled();
   });
 });

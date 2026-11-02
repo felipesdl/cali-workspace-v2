@@ -40,6 +40,10 @@ Comparação com `/admin/clientes` online: mesmas quatro empresas e situação a
 
 Termos hospedados permanecem na versão oficial 2026-10-15; redação de principal/campos privados precisa da reconciliação indicada no [contrato vigente](../contracts/ACCESS_COMPANIES.md#integração-hospedada-vigente--0111). Baseline local não foi aplicada no hospedado. Ver [ambiente/evidências](../LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27).
 
+## Continuidade de 02/11 — FLOW-01
+
+A cópia da referência executou 40 verificações locais e revelou hash Auth pendente capaz de gerar sessão após corte/reativação. Correção de código troca o hash dentro da Edge e devolve sessão somente após admissão vinculada à origem do código; complemento SQL exige essa admissão após marcos de corte. Código implementado, novos SQLs não executados nem aplicados no hospedado. Cliente mantém compatibilidade com a Edge hospedada legada, que continua pendente de correção. Bateria de runtime suspensa pelo Felipe; [mecanismo, contratos e limites](../contracts/ACCESS_COMPANIES.md#correção-local-da-troca-e-admissão--0211).
+
 ## FLOW-01 — Convite, código, sessão, MFA e aceite
 
 **Objetivo/atores:** pessoa autorizada acessa o workspace adequado como Cliente ou Admin. Empresa e papel vêm do perfil; não da seleção demonstrativa da V2. Adesão comercial e aceite de uso são eventos diferentes.

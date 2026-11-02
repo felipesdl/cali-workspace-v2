@@ -129,10 +129,11 @@ export function createHostedAccessApi(
         ),
       );
       if ('error' in result) throw unavailable();
-      const { error } = await client.auth.verifyOtp({
-        token_hash: result.token_hash,
-        type: 'email',
-      });
+      // Compatibilidade com a Edge hospedada atual; o laboratório V2 devolve sessão admitida.
+      const { error } =
+        'session' in result
+          ? await client.auth.setSession(result.session)
+          : await client.auth.verifyOtp({ token_hash: result.token_hash, type: 'email' });
       if (error) throw unavailable();
     },
     async factors() {

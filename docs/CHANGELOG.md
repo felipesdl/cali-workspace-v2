@@ -1,5 +1,14 @@
 # Registro de mudanças
 
+## 02/11/2026 — Troca de sessão e admissão local; runtime suspenso
+
+- **Autor/escopo:** Codex; Felipe autorizou corrigir o achado sem retomar a bateria, atualizar documentação/PR #2 e avançar em 2A. Nenhum Docker/SQL/Auth hospedado, envio, merge ou deploy nesta continuidade.
+- **Evidência recuperada:** rodada anterior concluiu 40 verificações locais às 00:02 de Brasília, com SQL/Auth/PostgREST reais em projeção da referência. Incluiu reprodução da janela do hash pendente; não homologou o catálogo hospedado nem a correção completa.
+- **Correção de código:** Edge troca hash no servidor, exige admissão ligada ao código e confere identidade/sessão; falha não devolve credenciais e solicita logout. SPA aceita sessão admitida e preserva compatibilidade explícita com a Edge hospedada legada. SQL de admissão e adapter exclusivo do schema de códigos local foram preparados, não executados. RPC/convites da rodada anterior permanecem candidatos, fora de migrations.
+- **Operação:** migrations/digests históricos preservados. Runtime/driver antigo suspensos até reconciliação; runner experimental preservado como texto ignorado. Nenhuma correção foi aplicada no hospedado; catálogo/adapter efetivo e revalidação continuam pendentes.
+- **Validação:** quatro regressões unitárias da troca e cinco do handler passaram. `npm run verify` passou com 124 testes/16 arquivos, formatação/lint/tipos, 32 documentos/653 links e builds SPA/Edge; `git diff --check` passou. Não executou a bateria suspensa; avisos conhecidos de Zod/bundle permanecem.
+- **Rollback:** reverter código/propostas restaura protocolo anterior local, mas reabre a janela se usado. Não remover futuros marcos/policies/admissões automaticamente nem reverter servidor sem contenção/autorização.
+
 ## 01/11/2026 — Expiração confirmada e candidata de corte no servidor
 
 - **Escopo autorizado:** coletar expiração dos JWTs retidos e preparar correção para revisão no PR #2. Nenhum SQL foi executado, nem no laboratório; sem alteração de banco, sessão Admin, configuração Auth, comunicação, merge ou deploy.

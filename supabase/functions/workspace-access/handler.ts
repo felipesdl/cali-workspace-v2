@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { loginSubjectSchema } from './session-exchange.ts';
 import {
   requestAccessCodeSchema,
   verifyAccessCodeSchema,
@@ -9,9 +10,7 @@ export const codeIssueResultSchema = z.discriminatedUnion('status', [
   z.object({ status: z.literal('unavailable') }),
   z.object({ status: z.literal('limited') }),
 ]);
-export const codeSubjectSchema = z
-  .object({ email: z.email(), role: z.enum(['admin', 'client']) })
-  .nullable();
+export const codeSubjectSchema = loginSubjectSchema.nullable();
 type Issue = z.infer<typeof codeIssueResultSchema>;
 export type AccessPorts = {
   randomCode: () => string;
@@ -20,7 +19,10 @@ export type AccessPorts = {
   delivered: (id: string, delivered: boolean) => Promise<void>;
   consume: (email: string, hash: string) => Promise<z.infer<typeof codeSubjectSchema>>;
   send: (email: string, code: string) => Promise<void>;
-  token: (email: string) => Promise<string>;
+  session: (subject: z.infer<typeof loginSubjectSchema>) => Promise<{
+    access_token: string;
+    refresh_token: string;
+  }>;
 };
 
 const accessRequest = z.discriminatedUnion('action', [
@@ -68,7 +70,7 @@ export function createAccessHandler(ports: AccessPorts) {
       const subject = await ports.consume(body.email, await ports.hash(body.email, body.code));
       if (!subject) return json({ error: 'Código inválido ou expirado.' }, 400);
       // Consumo precede emissão Auth: falha/resultado incerto não reabre código já consumido.
-      return json({ ok: true, token_hash: await ports.token(subject.email), role: subject.role });
+      return json({ ok: true, session: await ports.session(subject), role: subject.role });
     } catch {
       return json({ error: 'Não foi possível concluir o acesso. Tente novamente.' }, 500);
     }

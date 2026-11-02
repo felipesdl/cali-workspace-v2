@@ -4,7 +4,7 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 
 **CALI administra; cliente acompanha, participa, valida e avalia.** Equipe cadastrada não equivale a usuários com acesso.
 
-## Estado atual — 01/11/2026
+## Estado atual — 02/11/2026
 
 - Cliente: Início, Equipe, Horas, Calendário, Ocorrências, Documentos, Relatórios, Projetos/Entregáveis e Avisos têm composições demonstrativas.
 - Admin: prévia com 11 seções, incluindo contas, propostas e equipe.
@@ -13,6 +13,7 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 - API organizada por módulos em `src/api/modules`, com schemas, services, hooks e query keys `as const`. DS inicial contém tokens, Button e Field; demais componentes continuam propostos.
 - Tailwind 4 integrado ao Vite; Button, Field e empresas migrados. Legado migra por fluxo, com limpeza global após retirar seus consumidores. Ver [política e inventário](docs/DESIGN_SYSTEM.md#inventário-da-migração-de-estilos).
 - Clientes A/B concluíram login/aceite e provaram isolamento de leitura no recorte perfil/empresa/convites. Logout limpou a V2 e impediu refresh, mas JWT não vencido ainda leu dados próprios pela API; reativação também recuperou a sessão antiga. Corte/revogação no servidor bloqueia o aceite da fase 1; expiração natural dos JWTs A/B comprovada (banco 401/PGRST303). [Provas e limites](docs/LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
+- Correção local do hash pendente: Edge troca/admite sessão no servidor; novos SQLs continuam candidatos não executados. Runtime de acesso suspenso por solicitação do Felipe; hospedado segue no contrato legado, sem correção aplicada. [Limites e protocolo](docs/contracts/ACCESS_COMPANIES.md#correção-local-da-troca-e-admissão--0211).
 - Mocks executados pela aplicação ficam em `src/mocks`; cenários exclusivos ficam em `tests/fixtures` e `tests/mocks`. Aplicação não importa testes. Ver [organização e fronteiras](docs/ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes).
 - Tipos de contratos são inferidos dos schemas Zod; props/modelos locais ficam no consumidor. Ver [tipagem](docs/ARCHITECTURE.md#tipagem-e-validação) e [restrições de lint](docs/RUNBOOK.md#regras-de-lint-implantadas).
 - [Contratos mínimos de acesso/empresa](docs/contracts/ACCESS_COMPANIES.md) e persistência local de adesão, com autoria/instante do servidor, histórico e RLS; Auth/MFA reais foram testados pelo driver local; jornada Admin/aceite e Clientes A/B têm evidência hospedada no recorte descrito abaixo. Admin exige os dois passos e aceite corrente na V2. Predicados/RLS do laboratório não comprovam as mesmas guardas no hospedado; ver contrato vigente DEC-27.

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { createSessionExchange, issuedSessionSchema } from './session-exchange.ts';
 import { createAccessHandler, codeIssueResultSchema, codeSubjectSchema } from './handler.ts';
 
 // Interface mínima do runtime. O bundle é typechecked localmente e executado no Edge local.
@@ -11,14 +12,14 @@ const internalApi = z
   .parse(Deno.env.get('SUPABASE_URL'));
 const serviceKey = z.string().min(1).parse(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'));
 
-async function api(path: string, body: object) {
+async function api(path: string, body: object, token = serviceKey) {
   const response = await fetch(`${internalApi}${path}`, {
     method: 'POST',
     redirect: 'error',
     signal: AbortSignal.timeout(10_000),
     headers: {
       apikey: serviceKey,
-      Authorization: `Bearer ${serviceKey}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
       'Content-Profile': 'cali_workspace',
     },
@@ -66,7 +67,7 @@ Deno.serve(
     },
     async consume(email, hash) {
       return codeSubjectSchema.parse(
-        await rpc('consume_workspace_code', { p_email: email, p_hash: hash }),
+        await rpc('consume_workspace_code_v2', { p_email: email, p_hash: hash }),
       );
     },
     async send(email, code) {
@@ -87,10 +88,26 @@ Deno.serve(
       );
       if (!response.ok) throw new Error('Captura local indisponível.');
     },
-    async token(email) {
-      const response = await api('/auth/v1/admin/generate_link', { type: 'magiclink', email });
-      return z.object({ hashed_token: z.string().min(1) }).parse(await response.json())
-        .hashed_token;
-    },
+    session: createSessionExchange({
+      async authenticate(email) {
+        const response = await api('/auth/v1/admin/generate_link', { type: 'magiclink', email });
+        const { hashed_token } = z
+          .object({ hashed_token: z.string().min(1) })
+          .parse(await response.json());
+        const verified = await api('/auth/v1/verify', { token_hash: hashed_token, type: 'email' });
+        return issuedSessionSchema.parse(await verified.json());
+      },
+      async admit(authorizationId, sessionId) {
+        return z.boolean().parse(
+          await rpc('admit_workspace_session_v2', {
+            p_authorization_id: authorizationId,
+            p_session_id: sessionId,
+          }),
+        );
+      },
+      async revoke(token) {
+        await api('/auth/v1/logout?scope=local', {}, token);
+      },
+    }),
   }),
 );

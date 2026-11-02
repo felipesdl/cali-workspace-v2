@@ -33,6 +33,11 @@ export const requestAccessCodeResponseSchema = z.union([
 export const verifyAccessCodeResponseSchema = z.union([
   z.strictObject({
     ok: z.literal(true),
+    session: z.strictObject({ access_token: z.string().min(1), refresh_token: z.string().min(1) }),
+    role: z.enum(workspaceRole),
+  }),
+  z.strictObject({
+    ok: z.literal(true),
     token_hash: z.string().min(1),
     role: z.enum(workspaceRole),
   }),

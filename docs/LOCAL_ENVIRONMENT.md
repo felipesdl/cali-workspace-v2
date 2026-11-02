@@ -42,6 +42,16 @@ Prova de expiração usa JWTs originais já deslogados, retidos somente em memó
 
 Correção preparada, não aplicada: [proposta, limites, catálogo e aceite](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada). SQL fora de migrations; nenhuma execução de banco, inclusive no laboratório, autorizada por esta preparação.
 
+## Continuidade isolada e suspensão de runtime — 02/11
+
+Relatório local preservado em `output/runtime/session-cut/026e9d79/result.json`, concluído em 02/11 às 00:02 de Brasília: 40 verificações, SQL com rollback, Auth/PostgREST reais, corte de leitura após logout/reativação, refresh sem recuperar dados, novo login, RPC e convite no recorte. Projeção sintética da referência, não catálogo/dump ativo; owners/ACL precisaram de adaptação local. Cinco serviços passaram no controle interno e nas negativas de IP externo/canário do host. Nenhuma escrita hospedada ou e-mail externo nessa rodada.
+
+A execução reproduziu hash Auth pendente que ainda gerava sessão após corte/reativação; `readyForHosted=false`. O resultado inclui reprodução de falhas esperadas e não significa aprovação global. A conversa foi interrompida pela plataforma antes de registrar o fechamento no PR.
+
+A pedido de Felipe, a bateria de runtime não foi retomada. A correção local de troca/admissão está no [contrato dono](contracts/ACCESS_COMPANIES.md#correção-local-da-troca-e-admissão--0211), com regressões unitárias, sem executar seus SQLs. O novo Edge exige `consume_workspace_code_v2` e `admit_workspace_session_v2`: não iniciar laboratório/Edge nem executar drivers antigos até reconciliar esse protocolo com o destino isolado. Builds continuam autocontidos e sem ativação de serviços. Runner experimental preservado como texto privado ignorado, fora do typecheck e sem entrypoint de execução.
+
+Catálogo hospedado, adapter de códigos efetivo e aplicação permanecem pendentes. Chave pública de `.env` e papel Admin da aplicação não concedem leitura do catálogo PostgreSQL. Não solicitar credenciais no chat nem ampliar grants para obter metadados.
+
 ## Topologia vigente — DEC-22 e DEC-25
 
 | Item | Estado/definição |
