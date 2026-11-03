@@ -80,4 +80,6 @@ Continuidade de 02/11: correção local da troca/admissão sem nova bateria de r
 
 A continuidade de cadastro/adesão/quatro acessos da 2A está implementada somente na composição demonstrativa, com capacidade indisponível no hospedado. [Contrato do recorte](contracts/ACCESS_COMPANIES.md#fase-2a--cadastro-adesão-e-quatro-acessos-demonstrativos); integração depende dos contratos efetivos e mantém a bateria suspensa.
 
-Continuidade da 2A: ficha administrativa de contrato/financeiro/referências documentais implementada somente na demonstração, com revisão/histórico, sem cobrança ou upload. Demais dados/arquivos/ciclo e integração permanecem pendentes. [Contrato do recorte](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).
+Continuidade da 2A: ficha administrativa de contrato/financeiro/referências documentais implementada somente na demonstração, com revisão/histórico, sem cobrança ou upload. Dados complementares passaram ao recorte demonstrativo de 03/11; arquivos, comprovação, financeiro/ciclo operacionais e integração permanecem pendentes. [Contrato do recorte](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).
+
+Dados cadastrais complementares da 2A também estão demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local; arquivos/comprovação, financeiro/ciclo reais e integração seguem pendentes. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--dados-cadastrais-complementares-demonstrativos).

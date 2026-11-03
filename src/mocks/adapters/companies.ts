@@ -1,3 +1,10 @@
+import { createRegistrationState } from './company-registration';
+import {
+  updateRegistrationSchema,
+  planForCompanyService,
+  type CompanyRegistrationRecord,
+  type RegistrationEvent,
+} from '../../api/modules/companies/registration-schemas';
 import { createAdministrationState } from './company-administration';
 import {
   updateAdministrationSchema,
@@ -23,11 +30,16 @@ import { type WorkspaceAdhesionRecord } from '../../api/modules/access/adhesion'
 import { companies, accesses } from '../fixtures/companies';
 
 type ManagementResult =
-  CompanyDetails | WorkspaceAdhesionRecord | CompanyAccess | CompanyAdministration;
+  | CompanyDetails
+  | WorkspaceAdhesionRecord
+  | CompanyAccess
+  | CompanyAdministration
+  | CompanyRegistrationRecord;
 const demoAdmin = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 
 // Transações virtuais síncronas: nunca representam RLS/RPC ou persistência hospedadas.
 export function createCompaniesMockAdapter(): AxiosAdapter {
+  const registration = createRegistrationState();
   const administration = createAdministrationState();
   const currentCompanies = structuredClone(companies);
   const currentAccesses = structuredClone(accesses);
@@ -96,7 +108,8 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
         | CompanyAccess[]
         | WorkspaceAdhesionRecord[]
         | CompanyAccessEvent[]
-        | AdministrationEvent[],
+        | AdministrationEvent[]
+        | RegistrationEvent[],
     ) => ({ config, data: structuredClone(data), headers: {}, status: 200, statusText: 'OK' });
     const body = () => (typeof config.data === 'string' ? JSON.parse(config.data) : config.data);
     const signature = (value: object) => JSON.stringify([config.method, config.url, value]);
@@ -130,7 +143,7 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
       );
     }
     const match =
-      /^\/companies\/([^/]+)(?:\/(adhesions|accesses|access-history|administration|administration-history)(?:\/([^/]+))?)?$/.exec(
+      /^\/companies\/([^/]+)(?:\/(adhesions|accesses|access-history|administration|administration-history|registration|registration-history)(?:\/([^/]+))?)?$/.exec(
         config.url ?? '',
       );
     const company = currentCompanies.find((item) => item.id === match?.[1]);
@@ -151,10 +164,24 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
         return respond(currentAccesses.filter((item) => item.companyId === company.id));
       if (resource === 'adhesions')
         return respond(adhesions.filter((item) => item.companyId === company.id));
+      if (resource === 'registration') return respond(registration.read(company));
+      if (resource === 'registration-history') return respond(registration.history(company.id));
       if (resource === 'administration') return respond(administration.read(company.id));
       if (resource === 'administration-history') return respond(administration.history(company.id));
       if (resource === 'access-history')
         return respond(history.filter((item) => item.companyId === company.id));
+    }
+    if (config.method === 'patch' && resource === 'registration' && !match[3]) {
+      const value = updateRegistrationSchema.parse(body());
+      if (value.companyId !== company.id) throw new Error('Empresa incompatível com o cadastro.');
+      return respond(
+        perform(value.requestId, signature(value), () => {
+          const record = registration.update(value, company);
+          const plan = planForCompanyService(record.values.service);
+          if (plan) company.plan = plan;
+          return record;
+        }),
+      );
     }
     if (config.method === 'patch' && resource === 'administration' && !match[3]) {
       const value = updateAdministrationSchema.parse(body());

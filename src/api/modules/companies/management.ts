@@ -1,3 +1,4 @@
+import { createCompanyRegistration } from './registration';
 import { createCompanyAdministration } from './administration';
 import { type AxiosInstance } from 'axios';
 import { z } from 'zod';
@@ -19,6 +20,7 @@ import {
 export function createCompanyManagement(client: AxiosInstance) {
   return {
     administration: createCompanyAdministration(client),
+    registration: createCompanyRegistration(client),
     async create(input: CreateCompany) {
       const value = createCompanySchema.parse(input);
       // eslint-disable-next-line no-restricted-syntax -- Entrada de transporte validada por Zod.

@@ -8,10 +8,18 @@ export const companyStatus = {
   Archived: 'archived',
 } as const;
 
+export const companyPlan = {
+  Partner: 'partner',
+  Full: 'full',
+  Build: 'build',
+  BuildEssential: 'build_essential',
+  BuildComplete: 'build_complete',
+} as const;
+
 export const companySchema = z.object({
   id: z.uuid(),
   displayName: z.string().min(1),
-  plan: z.enum(['partner', 'full', 'build']).nullable(),
+  plan: z.enum(companyPlan).nullable(),
   status: z.enum(companyStatus),
   createdOn: z.iso.date(),
 });

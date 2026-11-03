@@ -9,14 +9,9 @@ import {
 } from '../../api/modules/companies/administration-schemas';
 import { type AdministrationDraft } from './administration-draft';
 
-type Option = { value: string; label: string };
-type FieldBase = { name: keyof AdministrationDraft; label: string; help?: string };
-export type AdministrationFieldDefinition = FieldBase &
-  (
-    | { control: 'select'; options: readonly Option[] }
-    | { control: 'text' | 'date' | 'decimal' | 'integer' | 'textarea' }
-  );
-const options = (labels: Record<string, string>): Option[] =>
+import { type CompanyFieldDefinition } from './CompanyField';
+export type AdministrationFieldDefinition = CompanyFieldDefinition<keyof AdministrationDraft>;
+const options = (labels: Record<string, string>) =>
   Object.entries(labels).map(([value, label]) => ({ value, label }));
 const optionalOptions = (labels: Record<string, string>) => [
   { value: '', label: 'Não informado' },

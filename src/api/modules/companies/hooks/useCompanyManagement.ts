@@ -1,3 +1,4 @@
+import { type UpdateRegistration } from '../registration-schemas';
 import { type UpdateAdministration } from '../administration-schemas';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type CompanyManagement } from '../management';
@@ -89,5 +90,33 @@ export function useAdministrationHistory(companyId: string) {
 export function useUpdateAdministration() {
   return useManagementMutation((service, input: UpdateAdministration) =>
     service.administration.update(input),
+  );
+}
+
+export function useCompanyRegistration(companyId: string) {
+  const scope = useCompaniesScope();
+  const management = scope.service.management;
+  return useQuery({
+    queryKey: companyKeys.registration(scope.actor, companyId),
+    enabled: scope.enabled,
+    queryFn: management
+      ? ({ signal }) => management.registration.read(companyId, signal)
+      : skipToken,
+  });
+}
+export function useRegistrationHistory(companyId: string) {
+  const scope = useCompaniesScope();
+  const management = scope.service.management;
+  return useQuery({
+    queryKey: companyKeys.registrationHistory(scope.actor, companyId),
+    enabled: scope.enabled,
+    queryFn: management
+      ? ({ signal }) => management.registration.history(companyId, signal)
+      : skipToken,
+  });
+}
+export function useUpdateRegistration() {
+  return useManagementMutation((service, input: UpdateRegistration) =>
+    service.registration.update(input),
   );
 }

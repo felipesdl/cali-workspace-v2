@@ -147,7 +147,8 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [ ] Homologar escrita/permissão/persistência e efeitos de servidor no ambiente autorizado. Não houve PATCH hospedado nessa continuidade; QA visual é demonstrativo.
 - [ ] Reconciliar operação de cadastro, comprovação de adesão/gate de convite e manutenção dos quatro acessos equivalentes antes de habilitá-los no hospedado. Implementação demonstrativa não comprova esses controles no servidor.
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
-- [ ] Completar lacunas de cadastro (logo, serviço/plano/capacidade, endereço/filiais e contato comercial), arquivos de contrato/aditivo e comprovação documental, financeiro operacional e ciclo da empresa; homologar integração/histórico e aceite completo da 2A.
+- [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
+- [ ] Completar arquivos de contrato/aditivo e comprovação documental, financeiro operacional e ciclo da empresa; reconciliar demais dados efetivamente necessários, homologar integração/histórico e aceite completo da 2A.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
 
@@ -267,4 +268,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. Fase 1 tem execução local parcial; 2A tem edição básica implementada e cadastro/adesão/acessos/ficha administrativa demonstrativos, sem homologação de escrita hospedada; demais entregas das fases 2–7 permanecem planejadas. Não encerrar fase 1 com base apenas em mocks, lint e build.
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. Fase 1 tem execução local parcial; 2A tem edição básica implementada e cadastro/adesão/acessos/ficha administrativa/dados complementares demonstrativos, sem homologação de escrita hospedada; demais entregas das fases 2–7 permanecem planejadas. Não encerrar fase 1 com base apenas em mocks, lint e build.

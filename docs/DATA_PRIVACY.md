@@ -20,6 +20,12 @@ Condições de contrato/financeiro organizam a configuração da empresa; refer�
 
 Histórico mantém preimagem/pós-imagem para acompanhar revisões; autoria/instante são sintéticos na fronteira mock. Valores e eventos ficam em memória por instância, descartados no reload; isso não define retenção real. Não há novo consumidor Cliente, coleta hospedada, upload, envio ou consulta a arquivo externo. Antes de habilitar coleta real, reconciliar finalidade/leitores/guarda/informação apresentada e contratos efetivos, sem inferir aprovação jurídica desta demonstração.
 
+## Dados cadastrais complementares demonstrativos — 03/11
+
+Serviço/horas/segmento e localização/filiais organizam o cadastro empresarial; nome/cargo/e-mail/telefone/WhatsApp/aniversário identificam contato comercial, sem concessão de acesso ou envio. Não usar dados pessoais reais nesta composição. Logo e seu nome original são preparados somente no navegador, registrados em memória após salvar e preservados nos snapshots de histórico quando alterados/removidos. Autoria/instante são sintéticos; projeção é somente Admin demonstrativo.
+
+Nenhum contato é associado a perfil/convite, nenhuma URL de telefone/mensagem é aberta, nenhum aniversário gera automação. Dados/imagens e histórico desaparecem ao recarregar; Blob URLs de preparo são liberados. Esse ciclo descreve o mock e não define guarda/consentimento reais. Antes da integração, confirmar finalidade, necessidade de aniversário/canais, leitores, informação apresentada e retenção; não transportar a antiga hierarquia de principal ou automações implicitamente.
+
 ## Escopo confirmado
 
 Documentar por que cada dado é coletado, onde é utilizado, quem o recebe e como é tratado ao longo do ciclo de vida. A informação correspondente deve estar disponível ao usuário no acesso à plataforma, integrada aos textos de uso/privacidade e à validação da versão vigente. Não inventar finalidade, período de guarda ou validação já realizada.

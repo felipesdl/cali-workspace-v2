@@ -1,3 +1,4 @@
+import { CompanyRegistrationData } from './CompanyRegistrationData';
 import { CompanyAdministration } from './CompanyAdministration';
 import { useState } from 'react';
 import { useNavigate, useRouteContext } from '@tanstack/react-router';
@@ -46,6 +47,10 @@ export function CompaniesPage() {
             key={`basics:${search.companyId}`}
             companyId={search.companyId}
             focusOnMount={createdCompanyId === search.companyId}
+          />
+          <CompanyRegistrationData
+            key={`registration-data:${search.companyId}`}
+            companyId={search.companyId}
           />
           <CompanyAdministration
             key={`administration:${search.companyId}`}

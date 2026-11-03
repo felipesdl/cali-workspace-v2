@@ -89,6 +89,10 @@ Reutilizar esse vocabulário entre componentes que compartilhem a mesma hierarqu
 
 O cadastro administrativo reutiliza Button, Field e FeedbackState. Field passa a aplicar a mesma aparência/token a textarea nativa, preservando label/erro e descrições no consumidor. Grupos são fieldsets com legend, grid de duas colunas/uma no mobile; consulta usa details/summary nativos por assunto. Controles recorrentes de texto, data, seleção e observação ficam no componente de campos da feature, com configuração tipada e sem wrappers sem comportamento. Foco inicia no primeiro campo e retorna ao título da ficha ao salvar/cancelar/descartar; pendente desabilita os fieldsets. Não há overlay, tabs ou paleta paralela.
 
+## Cadastro complementar — 03/11
+
+Field explicita herança da família tipográfica nos controles nativos, incluindo textarea, sem depender de Preflight. Cadastro e administração compartilham `CompanyField`, componente local da feature que centraliza label/erro/ajuda e controles nativos; o DS continua independente. Segmento usa datalist com entrada livre, preservando valores personalizados. Grupos usam fieldsets/legend e grid de duas colunas/uma no mobile. Logo reutiliza token media de 7 px, formato quadrado e object-contain; prévia não corta o arquivo. Seleção/preparo/remoção têm estados próprios; salvar é bloqueado durante preparo/gravação, cancelar durante preparo invalida resultado tardio. Foco inicia no serviço e retorna ao título após salvar/cancelar/descartar. Consulta/histórico usam details nativos, sem nova paleta ou CSS paralelo.
+
 ## Catálogo mínimo e contratos
 
 | Peça | Contrato obrigatório | Primeiros consumidores |

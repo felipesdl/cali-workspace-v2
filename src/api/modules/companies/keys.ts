@@ -8,6 +8,8 @@ export const companyQueryKey = {
   Accesses: 'accesses',
   Adhesions: 'adhesions',
   AccessHistory: 'access-history',
+  Registration: 'registration',
+  RegistrationHistory: 'registration-history',
   Administration: 'administration',
   AdministrationHistory: 'administration-history',
 } as const;
@@ -23,6 +25,10 @@ export const companyKeys = {
     [...companyKeys.all(actorId), companyId, companyQueryKey.Adhesions] as const,
   accessHistory: (actorId: string, companyId: string) =>
     [...companyKeys.all(actorId), companyId, companyQueryKey.AccessHistory] as const,
+  registration: (actorId: string, companyId: string) =>
+    [...companyKeys.all(actorId), companyId, companyQueryKey.Registration] as const,
+  registrationHistory: (actorId: string, companyId: string) =>
+    [...companyKeys.all(actorId), companyId, companyQueryKey.RegistrationHistory] as const,
   administration: (actorId: string, companyId: string) =>
     [...companyKeys.all(actorId), companyId, companyQueryKey.Administration] as const,
   administrationHistory: (actorId: string, companyId: string) =>

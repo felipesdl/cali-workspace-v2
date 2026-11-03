@@ -91,6 +91,12 @@ A seleção de etapas de `AccessFlow` usa branches explícitos; motivos de acess
 
 `CompanyAdministration` controla consulta/edição e retorno de foco. `AdministrationEditor` compõe grupos/campos e ações; `useAdministrationEditor` guarda snapshot/requestId/rascunho. `AdministrationSummary` e `AdministrationHistory` apresentam dados, sem lógica de transporte. Configuração tipada de campos/labels fica local à feature e reutiliza vocabulários do schema; `Field` recebe controles nativos incluindo textarea. Valores do formulário são strings e transformados/validados explicitamente antes da mutation. Revisão antiga não é trocada por refetch de fundo; conflito mantém rascunho até descarte/reconsulta. Não foi criado context, dependência ou runtime novo. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).
 
+## Dados cadastrais complementares — 03/11
+
+`registration-schemas.ts` possui serviços/planos, valores, logo preparada, registros/revisões/comandos/eventos; tipos são inferidos. Transporte virtual em `registration.ts` compõe a capacidade existente; keys/hooks ficam no módulo de empresas. Estado de cadastro/histórico fica por instância em `mocks/adapters/company-registration.ts`, com o ledger já existente do adapter principal. Mapeamento de plano roda dentro do comando vencedor, sem tocar Auth ou ficha financeira. Não foi estendido o DTO hospedado com campos não verificados.
+
+Feature separa `CompanyRegistrationData`, editor/hook, campos, resumo/histórico e logo. `CompanyField` compartilha controle/label/erro/ajuda entre cadastro e administração, sem importar hooks de formulário; binders continuam tipados por dono. `useLogoSelection` coordena preparo/cancelamento/gerações; `company-logo.ts` usa APIs nativas, limites da referência e rasterização SVG, sem dependência/runtime novo. Prévia é data URL validada em memória, não endereço de storage. Formulário guarda snapshot/revisão original durante refetch; histórico compara arrays/logos por conteúdo para evitar mudanças falsas. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a--dados-cadastrais-complementares-demonstrativos).
+
 ## Tipagem e validação
 
 Tipos ficam junto do dono: contratos de empresas em `src/api/modules/companies/schemas.ts`; props e modelos exclusivos de uma composição permanecem locais. Não criar uma pasta global `types` sem consumidores que justifiquem compartilhamento.

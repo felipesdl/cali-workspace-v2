@@ -12,6 +12,8 @@ Duas fixtures A/B receberam um vínculo Cliente ativo cada, com autorização es
 
 A ficha administrativa demonstrativa de contrato/financeiro/referências documentais usa a mesma capacidade indisponível no hospedado. UI Admin permite consulta/edição e histórico; comparação de revisão e ledger do mock não são autorização real. Não altera plano, situação, vínculos ou sessões, nem inicia cobrança/upload. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).
 
+Dados cadastrais complementares seguem a mesma capacidade demonstrativa: contato comercial não cria usuário/principal nem altera os quatro acessos; serviço não ativa agenda/automações; logo não tem storage real. Revisão/ledger/histórico são do mock, sem nova permissão hospedada. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--dados-cadastrais-complementares-demonstrativos).
+
 ## Capacidade demonstrativa da 2A — 02/11
 
 Cadastro de identidade mínima, referências de adesão e gestão de quatro autorizações têm modelo/UI demonstrativos. Não introduzem permissões hospedadas: capacidade management é null nessa composição, sem fallback. Todos os quatro registros contam igualmente, sem principal; revogar um preserva demais e histórico. Nova autorização/reativação exige referência da mesma empresa, situação elegível e vaga no mock. Edição de nome não troca e-mail/vínculo nem reativa acesso. Nenhum desses comandos opera Auth, e-mail ou sessão real. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a--cadastro-adesão-e-quatro-acessos-demonstrativos).
