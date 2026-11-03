@@ -38,6 +38,19 @@ async function register(user: ReturnType<typeof userEvent.setup>) {
   await user.type(screen.getByLabelText('Referência da formalização'), 'Contrato sintético A');
   await user.click(screen.getByRole('button', { name: 'Registrar referência' }));
   await screen.findByText('Contrato sintético A');
+  await user.click(screen.getByRole('button', { name: 'Conferir adesão' }));
+  await user.selectOptions(screen.getByLabelText('Referência a comprovar'), 'Contrato sintético A');
+  await user.type(
+    screen.getByLabelText('Como a adesão foi conferida'),
+    'Conferência sintética externa',
+  );
+  await user.click(
+    screen.getByRole('checkbox', {
+      name: 'Confirmo que conferi a formalização indicada para esta empresa.',
+    }),
+  );
+  await user.click(screen.getByRole('button', { name: 'Confirmar comprovação' }));
+  await screen.findByText(/Vigente para novas autorizações/);
 }
 async function add(user: ReturnType<typeof userEvent.setup>, email = 'novo@example.test') {
   await user.click(screen.getByRole('button', { name: 'Adicionar acesso' }));

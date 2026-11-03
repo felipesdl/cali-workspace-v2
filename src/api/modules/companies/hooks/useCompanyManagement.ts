@@ -1,3 +1,4 @@
+import { type ConfirmAdhesionEvidence, type RetractAdhesionEvidence } from '../evidence-schemas';
 import {
   type AttachCompanyDocument,
   type CompanyDocument,
@@ -166,4 +167,24 @@ export function useDownloadCompanyDocument() {
     },
     retry: false,
   });
+}
+
+export function useAdhesionEvidence(companyId: string) {
+  const scope = useCompaniesScope();
+  const management = scope.service.management;
+  return useQuery({
+    queryKey: companyKeys.evidence(scope.actor, companyId),
+    enabled: scope.enabled,
+    queryFn: management ? ({ signal }) => management.evidence.list(companyId, signal) : skipToken,
+  });
+}
+export function useConfirmAdhesionEvidence() {
+  return useManagementMutation((service, input: ConfirmAdhesionEvidence) =>
+    service.evidence.confirm(input),
+  );
+}
+export function useRetractAdhesionEvidence() {
+  return useManagementMutation((service, input: RetractAdhesionEvidence) =>
+    service.evidence.retract(input),
+  );
 }

@@ -20,12 +20,22 @@ async function newCompany() {
     values: { displayName: 'Empresa teste', legalName: '' },
   };
   const company = await management.create(request);
-  const register = () =>
-    management.registerAdhesion({
+  const register = async () => {
+    const reference = await management.registerAdhesion({
       requestId: crypto.randomUUID(),
       companyId: company.id,
       evidenceReference: 'Formalização sintética 01',
     });
+    await management.evidence.confirm({
+      requestId: crypto.randomUUID(),
+      companyId: company.id,
+      adhesionId: reference.id,
+      documentVersionId: null,
+      reviewNote: 'Conferência externa sintética',
+      confirmed: true,
+    });
+    return reference;
+  };
   const add = (number: number) =>
     management.addAccess({
       requestId: crypto.randomUUID(),
@@ -73,6 +83,7 @@ describe('gestão demonstrativa de empresas, adesão e quatro acessos', () => {
     expect(first.recordedBy).toMatch(/^[a-f0-9-]{36}$/);
     expect(Number.isFinite(Date.parse(first.recordedAt))).toBe(true);
     expect(await management.registerAdhesion(input)).toEqual(first);
+    await expect(add(1)).rejects.toThrow('comprovação administrativa');
     await register();
     expect(await management.adhesions(company.id)).toHaveLength(2);
     const forged = { ...input, requestId: crypto.randomUUID(), recordedBy: crypto.randomUUID() };

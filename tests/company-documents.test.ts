@@ -117,7 +117,7 @@ describe('arquivos contratuais demonstrativos', () => {
     await expect(documents.attach(input, file(''))).rejects.toThrow('vazio');
     await expect(
       documents.attach(input, new File(['abc'], 'x.exe', { type: 'application/octet-stream' })),
-    ).rejects.toThrow();
+    ).rejects.toEqual(new Error('Use PDF, DOC, DOCX ou uma das imagens aceitas.'));
     await expect(
       documents.attach(
         input,

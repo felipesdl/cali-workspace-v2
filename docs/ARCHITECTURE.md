@@ -200,3 +200,9 @@ Referências primárias consultadas: [TanStack Router](https://tanstack.com/rout
 ## Arquivos contratuais — 03/11
 
 `document-schemas.ts`, `document-files.ts` e `documents.ts` pertencem ao módulo companies; a capacidade `management.documents` é exclusivamente demonstrativa. `company-documents.ts` guarda bytes e versões por instância; o adapter principal coordena ledger e vínculo com empresa. DTOs/Query cache carregam somente metadados. FormData e Blob usam APIs nativas, sem dependência ou contexto novos. `CompanyContractDocuments`, formulário/hook, lista, retirada e histórico têm tarefas separadas; `useDocumentDownload` limita URLs ao download explícito e limpa resultados tardios. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--contratos-e-aditivos-demonstrativos).
+
+## Comprovação administrativa — 03/11
+
+`evidence-schemas.ts` e `evidence.ts` definem contratos/transportes exclusivos de `management.evidence` demonstrativo. `adhesion-evidence.ts` deriva vigência do snapshot imutável, retirada e versão documental corrente. Adapter principal aplica gate de acesso junto do limite/preimagem/ledger; nenhuma condição exclusivamente visual autoriza o comando. Referência DEC-23, termos individuais e arquivos mantêm donos independentes.
+
+Feature separa `AdhesionReferenceForm`, `AdhesionEvidencePanel`, formulário/hook, lista/histórico e retirada. Checkbox se invalida quando conteúdo conferido muda; queries de empresa/ator são invalidadas após confirmação de mutation. Hospedado permanece sem `management`, sem novo contexto ou dependência. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--comprovação-administrativa-da-adesão).

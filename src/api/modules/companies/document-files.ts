@@ -22,6 +22,8 @@ export async function describeCompanyFile(file: File): Promise<CompanyDocumentFi
   };
   const contentType = file.type || inferred[file.name.split('.').pop()?.toLowerCase() ?? ''];
   const fields = { fileName: file.name, contentType, bytes: file.size, sha256: '0'.repeat(64) };
-  documentFileSchema.parse(fields); // Recusar tipo/tamanho antes de ler bytes.
-  return documentFileSchema.parse({ ...fields, sha256: await companyFileDigest(file) });
+  const validated = documentFileSchema.safeParse(fields); // Recusar tipo/tamanho antes de ler bytes.
+  if (!validated.success)
+    throw new Error(validated.error.issues[0]?.message ?? 'Arquivo inválido.');
+  return { ...validated.data, sha256: await companyFileDigest(file) };
 }

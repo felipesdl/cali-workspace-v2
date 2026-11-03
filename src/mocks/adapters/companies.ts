@@ -1,3 +1,9 @@
+import { createAdhesionEvidenceState } from './adhesion-evidence';
+import {
+  confirmAdhesionEvidenceSchema,
+  retractAdhesionEvidenceSchema,
+  type AdhesionEvidence,
+} from '../../api/modules/companies/evidence-schemas';
 import { createCompanyDocumentState } from './company-documents';
 import {
   documentUploadSchema,
@@ -43,7 +49,8 @@ type ManagementResult =
   | CompanyAccess
   | CompanyAdministration
   | CompanyRegistrationRecord
-  | CompanyDocument;
+  | CompanyDocument
+  | AdhesionEvidence;
 const demoAdmin = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 
 // Transações virtuais síncronas: nunca representam RLS/RPC ou persistência hospedadas.
@@ -54,6 +61,7 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
   const currentCompanies = structuredClone(companies);
   const currentAccesses = structuredClone(accesses);
   const adhesions: WorkspaceAdhesionRecord[] = [];
+  const evidence = createAdhesionEvidenceState(documents, adhesions);
   const history: CompanyAccessEvent[] = [];
   const requests = new Map<string, { signature: string; result: ManagementResult }>();
   function perform(requestId: string, signature: string, operation: () => ManagementResult) {
@@ -74,6 +82,10 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
       throw new Error('Registre a referência da adesão antes de autorizar acessos.');
     if (!['active', 'paused'].includes(company.status))
       throw new Error('Esta empresa não está disponível para autorizar acessos.');
+    if (!evidence.canAuthorize(company.id))
+      throw new Error(
+        'Confirme a comprovação administrativa da adesão antes de autorizar acessos.',
+      );
   }
   function requireSlot(companyId: string, exceptId?: string) {
     if (
@@ -121,7 +133,8 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
         | AdministrationEvent[]
         | RegistrationEvent[]
         | CompanyDocument[]
-        | CompanyDocumentEvent[],
+        | CompanyDocumentEvent[]
+        | AdhesionEvidence[],
     ) => ({ config, data: structuredClone(data), headers: {}, status: 200, statusText: 'OK' });
     const body = () => (typeof config.data === 'string' ? JSON.parse(config.data) : config.data);
     const signature = (value: object) => JSON.stringify([config.method, config.url, value]);
@@ -200,7 +213,7 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
       throw new Error('Operação documental indisponível nesta demonstração.');
     }
     const match =
-      /^\/companies\/([^/]+)(?:\/(adhesions|accesses|access-history|administration|administration-history|registration|registration-history)(?:\/([^/]+))?)?$/.exec(
+      /^\/companies\/([^/]+)(?:\/(adhesions|adhesion-evidence|accesses|access-history|administration|administration-history|registration|registration-history)(?:\/([^/]+))?)?$/.exec(
         config.url ?? '',
       );
     const company = currentCompanies.find((item) => item.id === match?.[1]);
@@ -215,6 +228,26 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
       throw new AxiosError(response.data.message, 'ERR_BAD_REQUEST', config, undefined, response);
     }
     const resource = match[2];
+    if (resource === 'adhesion-evidence') {
+      if (config.method === 'get' && !match[3]) return respond(evidence.list(company.id));
+      if (config.method === 'post' && !match[3]) {
+        const command = confirmAdhesionEvidenceSchema.parse(body());
+        if (command.companyId !== company.id)
+          throw new Error('Empresa da comprovação incompatível.');
+        return respond(
+          perform(command.requestId, signature(command), () => evidence.confirm(command)),
+        );
+      }
+      if (config.method === 'post' && match[3]) {
+        const command = retractAdhesionEvidenceSchema.parse(body());
+        if (command.companyId !== company.id || command.evidenceId !== match[3])
+          throw new Error('Vínculo da comprovação incompatível.');
+        return respond(
+          perform(command.requestId, signature(command), () => evidence.retract(command)),
+        );
+      }
+      throw new Error('Operação de comprovação indisponível.');
+    }
     if (config.method === 'get' && !match[3]) {
       if (!resource) return respond(company);
       if (resource === 'accesses')

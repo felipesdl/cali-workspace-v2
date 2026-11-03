@@ -30,6 +30,12 @@ Nenhum contato é associado a perfil/convite, nenhuma URL de telefone/mensagem �
 
 Somente arquivos sintéticos, operados pelo Admin demonstrativo. Bytes/nome/tipo/data identificam contrato ou aditivo e sua revisão; digest confere integridade do download. Autoria/instante e motivos permitem acompanhar versões e retiradas. Não existe prévia, leitura automática de URL, publicação Cliente ou envio a storage/terceiros. Retirar preserva bytes e histórico na instância; reload descarta ambos. Isso não define retenção real. Blob URLs são temporárias e revogadas. Antes de coleta real: reconciliar necessidade, leitores, storage privado, validação de conteúdo, guarda e informação ao usuário, sem presumir assinatura ou aprovação jurídica.
 
+## Comprovação administrativa demonstrativa — 03/11
+
+Observação da conferência e referência vinculam a formalização à empresa; snapshot de arquivo é opcional e contém somente metadados/digest, sem duplicar bytes no registro da comprovação. Autor/instante sintéticos e motivo de retirada permitem rastrear revisão administrativa. Histórico imutável e retirada são mostrados ao Admin demonstrativo; nenhum novo leitor Cliente ou envio é criado. Usar texto/arquivos sintéticos, sem conteúdo pessoal desnecessário. A declaração não substitui assinatura, validação jurídica ou aceite de termos individual.
+
+Troca/retirada da versão vinculada invalida sua comprovação para novas autorizações na demonstração; não elimina registro nem revoga acesso existente. Todo estado é volátil por instância. Retenção, critérios materiais da conferência, leitores e informação correspondente precisam de validação CALI antes de coleta real; sem prazo inventado.
+
 ## Escopo confirmado
 
 Documentar por que cada dado é coletado, onde é utilizado, quem o recebe e como é tratado ao longo do ciclo de vida. A informação correspondente deve estar disponível ao usuário no acesso à plataforma, integrada aos textos de uso/privacidade e à validação da versão vigente. Não inventar finalidade, período de guarda ou validação já realizada.

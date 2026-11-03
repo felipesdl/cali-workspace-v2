@@ -141,7 +141,7 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Implementar detalhe com razão social e formulário inline de edição básica; Admin pronto na composição conectada, validação, cancelamento, estado pendente/erro/confirmado e manutenção do rascunho.
 - [x] Implementar PATCH dos dois nomes com comparação atômica de preimagem, confirmação de linha e invalidação por ator; mocks isolados por instância e regressões de transporte/UI.
 - [x] Implementar identidade mínima, referências de adesão e autorizações equivalentes no transporte demonstrativo, sem efeitos Auth/e-mail; composição hospedada declara capacidade indisponível, sem fallback.
-- [x] Implementar gate de referência por empresa, limite de quatro na fronteira mock, bloqueio de duplicados, preimagem, reautorização explícita, histórico e proteção de repetição de comandos virtuais.
+- [x] Implementar gate demonstrativo de comprovação vigente por empresa (referência isolada não libera), limite de quatro na fronteira mock, bloqueio de duplicados, preimagem, reautorização explícita, histórico e proteção de repetição de comandos virtuais.
 - [x] Implementar formulários/estados/cancelamento/confirmar revogação e continuidade por URL; testes do modelo/UI sem executar a bateria suspensa.
 - [x] Consolidar composição técnica de acesso/empresas: coordenação em hooks, etapas e tarefas separadas, mapas tipados e primitivas de checkbox/feedback. Não encerra migração global do frontend nem homologa backend.
 - [ ] Homologar escrita/permissão/persistência e efeitos de servidor no ambiente autorizado. Não houve PATCH hospedado nessa continuidade; QA visual é demonstrativo.
@@ -149,7 +149,8 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
 - [x] Implementar arquivos contratuais demonstrativos: anexo, versões imutáveis, download explícito, retirada com motivo/histórico e integridade dos bytes, sem storage hospedado.
-- [ ] Completar comprovação administrativa da adesão na demonstração e sua integração efetiva, financeiro operacional e ciclo da empresa; reconciliar demais dados efetivamente necessários, homologar integração/histórico e aceite completo da 2A.
+- [x] Implementar comprovação administrativa demonstrativa: referência/observação, versão documental opcional, confirmação explícita, retirada preservando histórico e gate de novas autorizações/reativações; sem upload obrigatório nem revogação implícita.
+- [ ] Completar integração efetiva de arquivos/comprovação, financeiro operacional e ciclo da empresa; reconciliar demais dados efetivamente necessários, homologar integração/histórico e aceite completo da 2A.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
 

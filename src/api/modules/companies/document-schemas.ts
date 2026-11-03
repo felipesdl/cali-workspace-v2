@@ -13,7 +13,9 @@ export const acceptedDocumentTypes = [
 ] as const;
 export const documentFileSchema = z.strictObject({
   fileName: z.string().trim().min(1, 'Selecione um arquivo.'),
-  contentType: z.enum(acceptedDocumentTypes),
+  contentType: z.enum(acceptedDocumentTypes, {
+    error: 'Use PDF, DOC, DOCX ou uma das imagens aceitas.',
+  }),
   bytes: z
     .number()
     .int()

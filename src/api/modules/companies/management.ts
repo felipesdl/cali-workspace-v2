@@ -1,3 +1,4 @@
+import { createAdhesionEvidence } from './evidence';
 import { createCompanyDocuments } from './documents';
 import { createCompanyRegistration } from './registration';
 import { createCompanyAdministration } from './administration';
@@ -21,6 +22,7 @@ import {
 export function createCompanyManagement(client: AxiosInstance) {
   return {
     documents: createCompanyDocuments(client),
+    evidence: createAdhesionEvidence(client),
     administration: createCompanyAdministration(client),
     registration: createCompanyRegistration(client),
     async create(input: CreateCompany) {
