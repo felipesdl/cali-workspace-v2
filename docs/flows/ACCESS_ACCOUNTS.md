@@ -107,6 +107,14 @@ Acesso foi decomposto em código, MFA e termos, com coordenação de sessão/cal
 
 **Frontend/aceite:** painel/lista, anexação/versionamento, retirada, download e conferência separados por tarefa/hooks; erros mantêm rascunho, pendente bloqueia duplicação, troca de empresa descarta transitórios/resultados tardios; foco e mobile preservados. Provar repetição, concorrência, vínculo por empresa, arquivos/versões imutáveis, retirada, falha de transporte e gate na fronteira mock. Bateria suspensa permanece intocada; backend/storage/assinatura/retenção reais continuam pendentes.
 
+## Recorte Cliente 2A — consulta da própria empresa, 03/11
+
+**Implementado no código, sem nova prova hospedada:** substituído o aviso único da composição conectada por navegação de Início, Minha empresa e Termos e privacidade. Consulta mínima de identidade (id, nome de apresentação, razão social e situação) na tabela companies existente; vínculo vem exclusivamente do perfil autenticado, nunca de search params. Publicação 83 e contrato de leitura já reconciliado sustentam essa projeção; não transportar notas/comprovações internas, financeiro ou gestão de acessos ao Cliente.
+
+**Tarefa/aceite:** Cliente com sessão ready consulta a própria empresa, inclusive pausada, lê a versão jurídica corrente já usada no acesso e retorna pelo menu/Back/Forward. Sem aceite novo ou data fabricada. Loading, falha com retry, linha ausente, retorno divergente, vínculo/papel alterados e encerramento de sessão não mantêm dados anteriores visíveis. Conta indisponível não exibe identidade retornada e oferece revalidar acesso. Rotas de outros módulos informam indisponibilidade por módulo, sem métricas fictícias.
+
+**Banco e limites:** composição hospedada usa GET autenticado e projeção mínima já existente, sem fallback de erro para fixtures; não exige nova fase ou migration. Demonstração legada é explícita e permanece separada. Escritas de cadastro/arquivos/comprovação/acessos continuam sem contratos/permissões efetivos e com management null. Não remover mocks de testes nem habilitar transporte por flag. QA do navegador com transporte sintético não equivale a nova prova hospedada de RLS; códigos/Edge/laboratório e bateria suspensa permanecem intocados.
+
 ## FLOW-02 — Conta, contrato, acessos e ciclo de vida
 
 **Estado V2 em 27/10:** `/admin/clientes` consulta três empresas e acessos sintéticos por módulo/hook, com filtros e seleção na URL. Quatro acessos equivalentes aparecem na fixture inicial, sem conta principal. Isso prepara a interface/contrato local; não implementa cadastro, adesão, convite, revogação, autenticação, persistência ou limites no servidor. Demais transições abaixo descrevem referência/alvo a portar, não comportamento já entregue. Ver [arquitetura](../ARCHITECTURE.md) e [runbook](../RUNBOOK.md).

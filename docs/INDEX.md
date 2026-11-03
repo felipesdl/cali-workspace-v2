@@ -1,6 +1,6 @@
 # Índice da documentação
 
-Atualização: 02/11/2026. Base de desenvolvimento: este repositório V2. Escopo: diagnóstico, contratos alvo decididos e padronização de todos os fluxos; fase 1 em integração hospedada autorizada por DEC-27.
+Atualização: 03/11/2026. Base de desenvolvimento: este repositório V2. Escopo: diagnóstico, contratos alvo decididos e padronização de todos os fluxos; fase 1 em integração hospedada autorizada por DEC-27.
 
 | Pergunta | Fonte canônica |
 | --- | --- |
@@ -80,6 +80,8 @@ Continuidade de 02/11: correção local da troca/admissão sem nova bateria de r
 
 A continuidade de cadastro/adesão/quatro acessos da 2A está implementada somente na composição demonstrativa, com capacidade indisponível no hospedado. [Contrato do recorte](contracts/ACCESS_COMPANIES.md#fase-2a--cadastro-adesão-e-quatro-acessos-demonstrativos); integração depende dos contratos efetivos e mantém a bateria suspensa.
 
-Continuidade da 2A: ficha administrativa de contrato/financeiro/referências documentais implementada somente na demonstração, com revisão/histórico, sem cobrança ou upload. Dados complementares passaram ao recorte demonstrativo de 03/11; arquivos, comprovação, financeiro/ciclo operacionais e integração permanecem pendentes. [Contrato do recorte](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).
+Continuidade da 2A: ficha administrativa de contrato/financeiro/referências documentais implementada somente na demonstração, com revisão/histórico, sem cobrança ou upload. Dados complementares, arquivos contratuais e comprovação administrativa têm recortes demonstrativos de 03/11; financeiro/ciclo operacionais e integração permanecem pendentes. [Contrato do recorte](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).
 
-Dados cadastrais complementares da 2A também estão demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local; arquivos/comprovação, financeiro/ciclo reais e integração seguem pendentes. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--dados-cadastrais-complementares-demonstrativos).
+Dados cadastrais complementares da 2A também estão demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local; arquivos/comprovação têm recortes demonstrativos; financeiro/ciclo reais e integração seguem pendentes. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--dados-cadastrais-complementares-demonstrativos).
+
+Ponta Cliente 2A: Início, Minha empresa e Termos e privacidade possuem composição conectada, com consulta mínima da própria empresa sobre o contrato de leitura existente. Testes de transporte/UI são sintéticos; validação autenticada da nova tela permanece pendente, sem retomar a bateria suspensa. [Contrato e integração por operação](contracts/ACCESS_COMPANIES.md#cliente-2a--consulta-conectada-da-própria-empresa).

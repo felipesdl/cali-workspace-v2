@@ -1,8 +1,8 @@
 import { useRouteContext } from '@tanstack/react-router';
 import ClientWorkspace from '../ClientWorkspace';
-import { HostedClientWorkspace } from '../WorkspaceLayout';
+import { ConnectedClientWorkspace } from '../ConnectedClientWorkspace';
 
 export function ClientEntry() {
-  const { access } = useRouteContext({ from: '__root__' });
-  return access ? <HostedClientWorkspace /> : <ClientWorkspace />;
+  const { session } = useRouteContext({ from: '__root__' });
+  return session ? <ConnectedClientWorkspace /> : <ClientWorkspace />;
 }

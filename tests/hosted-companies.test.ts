@@ -140,6 +140,49 @@ describe('projeções de empresas do hospedado', () => {
     ).rejects.toThrow();
     expect(request).not.toHaveBeenCalled();
   });
+  it('consulta Cliente usa projeção mínima, filtro de vínculo e GET sem gestão', async () => {
+    const identity = {
+      id,
+      display_name: 'Empresa própria',
+      legal_name: 'Razão própria',
+      status: 'paused',
+    };
+    const { service, request } = backend(identity);
+    const controller = new AbortController();
+    expect(await service.account(id, controller.signal)).toEqual({
+      id,
+      displayName: 'Empresa própria',
+      legalName: 'Razão própria',
+      status: 'paused',
+    });
+    const [input, init] = request.mock.calls[0];
+    const url = new URL(String(input));
+    expect(url.searchParams.get('select')).toBe('id,display_name,legal_name,status');
+    expect(url.searchParams.get('id')).toBe(`eq.${id}`);
+    expect(init?.method).toBe('GET');
+    expect(init?.signal).toBe(controller.signal);
+    expect(new Headers(init?.headers).get('Accept-Profile')).toBe('cali_workspace');
+    expect(service.management).toBeNull();
+  });
+  it('consulta Cliente distingue linha ausente, falha e empresa divergente; não traz fixtures', async () => {
+    expect(await backend([]).service.account(id)).toBeNull();
+    await expect(backend({ code: '42501' }, 403).service.account(id)).rejects.toThrow('consultar');
+    await expect(
+      backend({
+        id: '10000000-0000-4000-8000-000000000002',
+        display_name: 'Outra',
+        legal_name: 'Outra',
+        status: 'active',
+      }).service.account(id),
+    ).rejects.toThrow('incompatível');
+    const { service, request } = backend([]);
+    await expect(service.account('invalid')).rejects.toThrow();
+    expect(request).not.toHaveBeenCalled();
+    const controller = new AbortController();
+    controller.abort();
+    await expect(service.account(id, controller.signal)).rejects.toThrow();
+    expect(request).not.toHaveBeenCalled();
+  });
   it('não oferece transporte de cadastro/adesão/acessos sem contrato hospedado', () => {
     const { service, request } = backend([]);
     expect(service.management).toBeNull();

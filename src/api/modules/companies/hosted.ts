@@ -1,8 +1,10 @@
+import { readHostedCompanyIdentity } from './identity';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 import {
   companySchema,
   companyDetailsSchema,
+  companyAccountSchema,
   companyAccessSchema,
   normalizeCompanyFilters,
   updateCompanyBasicsSchema,
@@ -34,6 +36,16 @@ function mapCompany(row: z.infer<typeof companyRecord>) {
 export function createHostedCompaniesService(client: WorkspaceClient): CompaniesService {
   return {
     management: null, // Cadastro/adesão/acessos aguardam contratos efetivos; sem fallback para mocks.
+    async account(companyId, signal) {
+      const row = await readHostedCompanyIdentity(client, companyId, signal);
+      if (!row) return null;
+      return companyAccountSchema.parse({
+        id: row.id,
+        displayName: row.display_name,
+        legalName: row.legal_name,
+        status: row.status,
+      });
+    },
     async list(filters, signal) {
       const normalized = normalizeCompanyFilters(filters);
       const rows: z.infer<typeof companyRecord>[] = [];

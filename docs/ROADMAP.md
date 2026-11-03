@@ -128,7 +128,7 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 
 Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de ponta a ponta são a entrega 2A. O DS e as demais extrações crescem junto dos fluxos; não são um catálogo completo a terminar antes de 2A. Fontes de evidência: [arquitetura](ARCHITECTURE.md), [runbook](RUNBOOK.md), [changelog](CHANGELOG.md) e [ficha de acesso/contas](flows/ACCESS_ACCOUNTS.md).
 
-**Próximo passo técnico:** conferir catálogo ativo e revisar/testar a candidata de corte em cópia isolada antes de autorizar aplicação; expiração de JWT A/B já comprovada; A/B/Admin e isolamento de leitura das três tabelas já têm prova hospedada; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial para jornada integrada; sessão/MFA/termos no navegador e RLS dos demais domínios continuam pendentes. Estado/expiração/revogação/logout e RLS de empresa foram exercitados no servidor local. Não tratar demonstração Admin como autenticação.
+**Próximo passo técnico de integração:** obter catálogo ativo e reconciliar os contratos por operação, mantendo a bateria suspensa; revisão/aplicação da candidata de corte exige recorte próprio autorizado; expiração de JWT A/B já comprovada; A/B/Admin e isolamento de leitura das três tabelas já têm prova hospedada; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial para jornada integrada; sessão/MFA/termos no navegador e RLS dos demais domínios continuam pendentes. Estado/expiração/revogação/logout e RLS de empresa foram exercitados no servidor local. Não tratar demonstração Admin como autenticação.
 
 **Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 
@@ -150,6 +150,8 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
 - [x] Implementar arquivos contratuais demonstrativos: anexo, versões imutáveis, download explícito, retirada com motivo/histórico e integridade dos bytes, sem storage hospedado.
 - [x] Implementar comprovação administrativa demonstrativa: referência/observação, versão documental opcional, confirmação explícita, retirada preservando histórico e gate de novas autorizações/reativações; sem upload obrigatório nem revogação implícita.
+- [x] Implementar ponta Cliente de consulta: Minha empresa com GET mínimo do vínculo autenticado, navegação/retorno, termos correntes somente leitura e estados/falhas sem fallback para mocks; teste sintético não homologa leitura autenticada da tela.
+
 - [ ] Completar integração efetiva de arquivos/comprovação, financeiro operacional e ciclo da empresa; reconciliar demais dados efetivamente necessários, homologar integração/histórico e aceite completo da 2A.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.

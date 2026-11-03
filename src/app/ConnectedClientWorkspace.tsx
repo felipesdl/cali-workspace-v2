@@ -1,0 +1,42 @@
+import { Link, Outlet, useLocation } from '@tanstack/react-router';
+import { WorkspaceLayout } from './WorkspaceLayout';
+import { clientAccountPaths, clientPaths } from './navigation';
+const navigation = [
+  { to: clientPaths.overview, label: 'Início' },
+  { to: clientAccountPaths.company, label: 'Minha empresa' },
+  { to: clientAccountPaths.terms, label: 'Termos e privacidade' },
+] as const;
+const titles: Readonly<Record<string, string>> = {
+  [clientPaths.overview]: 'Seu Workspace',
+  [clientAccountPaths.company]: 'Minha empresa',
+  [clientAccountPaths.terms]: 'Termos e privacidade',
+  [clientPaths.team]: 'Equipe',
+  [clientPaths.hours]: 'Horas',
+  [clientPaths.calendar]: 'Calendário',
+  [clientPaths.records]: 'Ocorrências',
+  [clientPaths.documents]: 'Documentos',
+  [clientPaths.reports]: 'Relatórios',
+  [clientPaths.projects]: 'Projetos e entregáveis',
+  [clientPaths.notices]: 'Avisos',
+};
+export function ConnectedClientWorkspace() {
+  const pathname = useLocation({ select: (location) => location.pathname });
+  return (
+    <WorkspaceLayout
+      title={titles[pathname] ?? 'Seu Workspace'}
+      navigation={navigation.map((item) => (
+        <Link
+          key={item.to}
+          className="tw:text-brand tw:underline-offset-4 tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+          activeOptions={{ exact: true, includeSearch: false }}
+          activeProps={{ 'aria-current': 'page', className: 'tw:font-semibold tw:underline' }}
+          to={item.to}
+        >
+          {item.label}
+        </Link>
+      ))}
+    >
+      <Outlet />
+    </WorkspaceLayout>
+  );
+}

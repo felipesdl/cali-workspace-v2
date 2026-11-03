@@ -36,6 +36,12 @@ Observação da conferência e referência vinculam a formalização à empresa;
 
 Troca/retirada da versão vinculada invalida sua comprovação para novas autorizações na demonstração; não elimina registro nem revoga acesso existente. Todo estado é volátil por instância. Retenção, critérios materiais da conferência, leitores e informação correspondente precisam de validação CALI antes de coleta real; sem prazo inventado.
 
+## Consulta Cliente da própria empresa — 03/11
+
+Identidade empresarial é consultada para contextualizar o acesso: nome de apresentação, razão social e situação. Identificadores de ator/empresa servem à validação/cache, sem exposição como dado de apresentação. Leitor é Cliente ready/ativo vinculado à própria empresa; nenhum contato, convite, outro perfil, nota interna, condição financeira, arquivo ou evidência de adesão é projetado. Sem edição, exportação, novo envio ou armazenamento persistente adicional.
+
+Cache é separado por ator/vínculo e eliminado/cancelado na troca de identidade, falha de sessão e logout. Consulta de termos reutiliza conteúdo/versão do acesso, sem registrar aceite novo ou inventar instante. Guarda e revisão jurídica continuam nos contratos respectivos. Testes sintéticos não comprovam políticas efetivas no hospedado; nova validação autenticada da tela permanece pendente.
+
 ## Escopo confirmado
 
 Documentar por que cada dado é coletado, onde é utilizado, quem o recebe e como é tratado ao longo do ciclo de vida. A informação correspondente deve estar disponível ao usuário no acesso à plataforma, integrada aos textos de uso/privacidade e à validação da versão vigente. Não inventar finalidade, período de guarda ou validação já realizada.

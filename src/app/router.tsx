@@ -1,3 +1,8 @@
+import { type ReactElement } from 'react';
+import { ClientOverview } from '../features/client-account/ClientOverview';
+import { ClientCompanyPage } from '../features/client-account/ClientCompanyPage';
+import { ClientTermsPage } from '../features/client-account/ClientTermsPage';
+import { ClientModulePending } from '../features/client-account/ClientModulePending';
 import {
   createRootRouteWithContext,
   createRoute,
@@ -73,14 +78,29 @@ const adminRoute = createRoute({
 });
 
 // Ponte para composições existentes. O layout resolve a seção; filhos não criam páginas vazias.
-function clientChild<const Path extends string>(path: Path) {
-  return createRoute({ getParentRoute: () => clientRoute, path });
+function clientChild<const Path extends string>(
+  path: Path,
+  component: () => ReactElement = ClientModulePending,
+) {
+  return createRoute({ getParentRoute: () => clientRoute, path, component });
+}
+function clientAccountChild<const Path extends string>(path: Path, component: () => ReactElement) {
+  return createRoute({
+    getParentRoute: () => clientRoute,
+    path,
+    component,
+    beforeLoad: ({ context }) => {
+      if (!context.session) throw redirect({ to: '/cliente' });
+    },
+  });
 }
 function adminChild<const Path extends string>(path: Path) {
   return createRoute({ getParentRoute: () => adminRoute, path });
 }
 const clientChildren = [
-  clientChild('/'),
+  clientChild('/', ClientOverview),
+  clientAccountChild('empresa', ClientCompanyPage),
+  clientAccountChild('termos', ClientTermsPage),
   clientChild('equipe'),
   clientChild('horas'),
   clientChild('cronograma'),

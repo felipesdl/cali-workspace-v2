@@ -26,6 +26,10 @@ export const companySchema = z.object({
 
 // Detalhe separado da lista; valores originais preservados para comparação atômica.
 export const companyDetailsSchema = companySchema.extend({ legalName: z.string() });
+export const companyAccountSchema = companyDetailsSchema
+  .pick({ id: true, displayName: true, legalName: true, status: true })
+  .strict();
+export type CompanyAccount = z.infer<typeof companyAccountSchema>;
 const companyBasicSnapshotSchema = z.strictObject({
   displayName: z.string(),
   legalName: z.string(),

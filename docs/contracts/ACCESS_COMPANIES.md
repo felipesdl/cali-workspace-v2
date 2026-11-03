@@ -138,7 +138,7 @@ Registro inicial tem revisão 0 e configuração não informada, sem inventar va
 
 **Interface:** ficha em componentes próprios de leitura, edição, grupos/campos e histórico; hook de edição possui formulário/snapshot/requestId. Field/FeedbackState/Button existentes e controles nativos preservam semântica, labels/erros, pendente, foco, cancelamento e rascunho. Troca de empresa desmonta estado transitório; refetch não substitui edição ativa. Dados permanecem em memória por instância e recarregar descarta alterações.
 
-**Continuidade/lacunas:** logo, serviço/plano/horas, endereço/filiais e contato comercial passaram a ter o recorte demonstrativo descrito acima em 03/11. Uploads de contrato/aditivo/data/versão, comprovação da adesão, financeiro operacional, projeção/distrato, ciclo e integração efetiva continuam pendentes. Configurar tipo de contrato não altera o plano da lista nem concede acesso. Não habilitar essa capacidade no hospedado por flag. Testes/QA locais não comprovam permissões ou efeito de servidor; fase 1/2A permanecem abertas.
+**Continuidade/lacunas:** logo, serviço/plano/horas, endereço/filiais e contato comercial passaram a ter o recorte demonstrativo descrito acima em 03/11. Arquivos de contrato/aditivo e comprovação da adesão têm implementação demonstrativa descrita neste documento; financeiro operacional, projeção/distrato, ciclo e integração efetiva continuam pendentes. Configurar tipo de contrato não altera o plano da lista nem concede acesso. Não habilitar essa capacidade no hospedado por flag. Testes/QA locais não comprovam permissões ou efeito de servidor; fase 1/2A permanecem abertas.
 
 ## Proveniência e limites
 
@@ -307,3 +307,26 @@ Estados tipados: vigente, retirada, documento com nova versão e documento retir
 Ledger compartilhado confere requestId/rota/payload; repetição não duplica, reuso com conteúdo alterado falha. Duas confirmações concorrentes da mesma referência/versão não geram comprovações vigentes duplicadas. Retirada repetida com outro requestId exige recarregar. Serviço valida vínculo/projeção/resposta antes de invalidar leitores por ator; sem retry automático ou atualização otimista.
 
 Frontend separa referência, painel, formulário/hook, lista/histórico e retirada. Estados de carregamento/erro/retry, rascunho preservado, pendência, seleção stale recusada e foco no título após salvar/cancelar são cobertos. Trocar empresa desmonta transitórios; falha de listagem não libera autorização. Não há novo consumidor Cliente. Este modelo prepara a jornada administrativa; critérios de comprovação reais, permissões/storage/consistência/visibilidade e aceite pela CALI continuam pendentes antes da integração efetiva. Fases 1/2A abertas.
+
+## Cliente 2A — consulta conectada da própria empresa
+
+Implementado em 03/11: `/cliente/empresa` consulta `CompaniesService.account` no modo hospedado. Projeção exata GET `id,display_name,legal_name,status` de companies, filtrada pelo company_id do perfil ready/Cliente ativo. Sem busca de carteira, convites, perfis alheios, notas internas, financeiro, arquivos ou comprovação administrativa. Nenhum campo/endpoint/policy/migration novo. `readHostedCompanyIdentity` é compartilhado pela composição de sessão e serviço de empresas; valida schema e identificador retornado. A autorização efetiva continua responsabilidade do backend.
+
+Hook sem entrada de empresa por props/URL; query key separa ator/vínculo e projeção Cliente. Usa AbortSignal e nenhum placeholder de empresa anterior. Conta active/paused permite consulta; demais situações ocultam identidade e oferecem revalidar acesso. Erro não cai em fixture nem aparece como lista vazia. Linha ausente tem mensagem própria; revalidação confirma sessão e invalida somente o leitor ainda pertencente ao mesmo ator/vínculo. Troca de identidade/vínculo, falha de sessão e logout cancelam/limpam cache pelo controller existente.
+
+Composição conectada usa navegação Início/Minha empresa/Termos e privacidade, com página e título próprios e Back/Forward. URLs antigas de módulos mantêm destino/título e aviso específico de preparação; não mostram métricas demonstrativas. Novas rotas de conta/termos exigem composição autenticada; no modo de demonstração retornam ao início legado, sem inventar vínculo. O menu Cliente não tem alternador para Admin ou seleção de outra empresa.
+
+`/cliente/termos` consulta somente a versão/conteúdo e confirmação de aceite já presentes no estado de acesso. Reutiliza TermsContent do fluxo de aceite, sem INSERT novo, data presumida ou alteração do documento jurídico. Conteúdo oficial vigente ainda diverge de DEC-05/09 no vocabulário principal/privados; revisão CALI e nova versão permanecem pendentes. Exibir conteúdo não sana a divergência nem homologa o texto.
+
+### Uso do banco e retirada gradual dos mocks
+
+Não há uma fase obrigatória separada para trocar mock por banco. A integração ocorre por operação com contrato, projeção e permissão reconciliados:
+
+| Operação | Composição hospedada | Estado da prova |
+| --- | --- | --- |
+| Acesso/sessão/MFA/termos e leituras básicas de empresas | Adapter hospedado existente, sem fallback de erro | Evidências anteriores e limites em LOCAL_ENVIRONMENT; bateria suspensa continua intocada |
+| Minha empresa do Cliente | GET mínimo autenticado sobre contrato existente | Transporte, guarda e UI testados sinteticamente; nova validação autenticada da tela ainda pendente |
+| Edição Admin dos dois nomes | PATCH com preimagem já implementado | Nenhum PATCH hospedado foi executado nesta continuidade |
+| Cadastro completo, dados complementares, contrato/arquivos/comprovação e quatro acessos | management permanece null; somente demonstração explícita implementada | Catálogo/contratos/permissões/consistência e efeitos de servidor ainda precisam ser reconciliados por operação |
+
+Manter mocks de testes e a demonstração explícita não significa usá-los no caminho conectado. Remover fixtures globalmente ou habilitar management por flag não substitui contrato de banco. Nenhuma nova leitura de dados reais, autenticação/código, SQL, Edge/laboratório ou comunicação foi executada para este lote. Testes de SDK e navegador usam respostas sintéticas; não comprovam RLS hospedada. Fases 1/2A abertas.

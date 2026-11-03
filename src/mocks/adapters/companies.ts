@@ -31,6 +31,7 @@ import {
   updateCompanyBasicsSchema,
   type Company,
   type CompanyDetails,
+  type CompanyAccount,
   type CompanyAccess,
 } from '../../api/modules/companies/schemas';
 import {
@@ -45,6 +46,7 @@ import { companies, accesses } from '../fixtures/companies';
 
 type ManagementResult =
   | CompanyDetails
+  | CompanyAccount
   | WorkspaceAdhesionRecord
   | CompanyAccess
   | CompanyAdministration
@@ -213,7 +215,7 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
       throw new Error('Operação documental indisponível nesta demonstração.');
     }
     const match =
-      /^\/companies\/([^/]+)(?:\/(adhesions|adhesion-evidence|accesses|access-history|administration|administration-history|registration|registration-history)(?:\/([^/]+))?)?$/.exec(
+      /^\/companies\/([^/]+)(?:\/(account|adhesions|adhesion-evidence|accesses|access-history|administration|administration-history|registration|registration-history)(?:\/([^/]+))?)?$/.exec(
         config.url ?? '',
       );
     const company = currentCompanies.find((item) => item.id === match?.[1]);
@@ -250,6 +252,13 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
     }
     if (config.method === 'get' && !match[3]) {
       if (!resource) return respond(company);
+      if (resource === 'account')
+        return respond({
+          id: company.id,
+          displayName: company.displayName,
+          legalName: company.legalName,
+          status: company.status,
+        });
       if (resource === 'accesses')
         return respond(currentAccesses.filter((item) => item.companyId === company.id));
       if (resource === 'adhesions')

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
-import { companyIdentityRecordSchema } from '../companies/records';
+import { readHostedCompanyIdentity } from '../companies/identity';
 import {
   requestAccessCodeSchema,
   requestAccessCodeResponseSchema,
@@ -58,16 +58,7 @@ export function createHostedAccessApi(
       if (error) throw unavailable();
       return data ? workspaceProfileRecordSchema.parse(data) : null;
     },
-    async company(id, signal) {
-      const { data, error } = await client
-        .from('companies')
-        .select('id,display_name,legal_name,status')
-        .eq('id', id)
-        .abortSignal(signal)
-        .maybeSingle();
-      if (error) throw unavailable();
-      return data ? companyIdentityRecordSchema.parse(data) : null;
-    },
+    company: (id, signal) => readHostedCompanyIdentity(client, id, signal),
     async adminMfaReady() {
       const factors = await client.auth.mfa.listFactors();
       const level = await client.auth.mfa.getAuthenticatorAssuranceLevel();

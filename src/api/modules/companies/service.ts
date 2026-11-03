@@ -5,6 +5,8 @@ import {
   companyAccessSchema,
   companySchema,
   companyDetailsSchema,
+  companyAccountSchema,
+  type CompanyAccount,
   updateCompanyBasicsSchema,
   type UpdateCompanyBasics,
   normalizeCompanyFilters,
@@ -38,6 +40,15 @@ export function createCompaniesService(client: AxiosInstance): CompaniesService 
         throw new Error('Não foi possível confirmar a alteração da empresa. Atualize os dados.');
       return result;
     },
+    async account(companyId: string, signal?: AbortSignal) {
+      const id = z.uuid().parse(companyId);
+      // eslint-disable-next-line no-restricted-syntax -- Projeção bruta validada por schema e vínculo antes do consumo.
+      const response = await client.get<unknown>(`/companies/${id}/account`, { signal });
+      if (response.data === null) return null;
+      const result = companyAccountSchema.parse(response.data);
+      if (result.id !== id) throw new Error('Resposta da empresa incompatível com este acesso.');
+      return result;
+    },
     async list(filters: CompanyFilters, signal?: AbortSignal) {
       // eslint-disable-next-line no-restricted-syntax -- Resposta bruta; o array é validado por Zod antes do consumo.
       const response = await client.get<unknown>('/companies', {
@@ -60,6 +71,7 @@ export function createCompaniesService(client: AxiosInstance): CompaniesService 
 }
 export type CompaniesService = {
   management: CompanyManagement | null;
+  account: (companyId: string, signal?: AbortSignal) => Promise<CompanyAccount | null>;
   detail: (companyId: string, signal?: AbortSignal) => Promise<CompanyDetails>;
   list: (filters: CompanyFilters, signal?: AbortSignal) => Promise<Company[]>;
   accesses: (companyId: string, signal?: AbortSignal) => Promise<CompanyAccess[]>;

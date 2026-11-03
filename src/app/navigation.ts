@@ -11,6 +11,11 @@ export const clientPaths = {
   notices: '/cliente/avisos',
 } as const;
 
+export const clientAccountPaths = {
+  company: '/cliente/empresa',
+  terms: '/cliente/termos',
+} as const;
+
 export const adminPaths = {
   overview: '/admin',
   accounts: '/admin/clientes',

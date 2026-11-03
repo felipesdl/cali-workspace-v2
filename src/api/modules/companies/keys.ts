@@ -5,6 +5,7 @@ export const companyQueryKey = {
   Companies: 'companies',
   List: 'list',
   Detail: 'detail',
+  ClientAccount: 'client-account',
   Accesses: 'accesses',
   Adhesions: 'adhesions',
   Evidence: 'adhesion-evidence',
@@ -22,6 +23,8 @@ export const companyKeys = {
     [companyQueryKey.Workspace, actorId, companyQueryKey.Companies] as const,
   list: (actorId: string, filters: CompanyFilters) =>
     [...companyKeys.all(actorId), companyQueryKey.List, normalizeCompanyFilters(filters)] as const,
+  clientAccount: (actorId: string, companyId: string) =>
+    [...companyKeys.all(actorId), companyId, companyQueryKey.ClientAccount] as const,
   detail: (actorId: string, companyId: string) =>
     [...companyKeys.all(actorId), companyId, companyQueryKey.Detail] as const,
   adhesions: (actorId: string, companyId: string) =>
