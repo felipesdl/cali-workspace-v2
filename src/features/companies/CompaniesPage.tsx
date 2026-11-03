@@ -1,3 +1,4 @@
+import { CompanyContractDocuments } from './CompanyContractDocuments';
 import { CompanyRegistrationData } from './CompanyRegistrationData';
 import { CompanyAdministration } from './CompanyAdministration';
 import { useState } from 'react';
@@ -54,6 +55,10 @@ export function CompaniesPage() {
           />
           <CompanyAdministration
             key={`administration:${search.companyId}`}
+            companyId={search.companyId}
+          />
+          <CompanyContractDocuments
+            key={`contract-documents:${search.companyId}`}
             companyId={search.companyId}
           />
           <CompanyAdhesions key={`adhesions:${search.companyId}`} companyId={search.companyId} />

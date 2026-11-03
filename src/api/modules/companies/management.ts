@@ -1,3 +1,4 @@
+import { createCompanyDocuments } from './documents';
 import { createCompanyRegistration } from './registration';
 import { createCompanyAdministration } from './administration';
 import { type AxiosInstance } from 'axios';
@@ -19,6 +20,7 @@ import {
 // Apenas transporte virtual em memória. A composição hospedada não instancia este serviço.
 export function createCompanyManagement(client: AxiosInstance) {
   return {
+    documents: createCompanyDocuments(client),
     administration: createCompanyAdministration(client),
     registration: createCompanyRegistration(client),
     async create(input: CreateCompany) {

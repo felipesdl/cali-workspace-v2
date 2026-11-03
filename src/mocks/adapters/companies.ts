@@ -1,3 +1,11 @@
+import { createCompanyDocumentState } from './company-documents';
+import {
+  documentUploadSchema,
+  withdrawDocumentSchema,
+  type CompanyDocument,
+  type CompanyDocumentEvent,
+} from '../../api/modules/companies/document-schemas';
+import { describeCompanyFile } from '../../api/modules/companies/document-files';
 import { createRegistrationState } from './company-registration';
 import {
   updateRegistrationSchema,
@@ -34,11 +42,13 @@ type ManagementResult =
   | WorkspaceAdhesionRecord
   | CompanyAccess
   | CompanyAdministration
-  | CompanyRegistrationRecord;
+  | CompanyRegistrationRecord
+  | CompanyDocument;
 const demoAdmin = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 
 // Transações virtuais síncronas: nunca representam RLS/RPC ou persistência hospedadas.
 export function createCompaniesMockAdapter(): AxiosAdapter {
+  const documents = createCompanyDocumentState();
   const registration = createRegistrationState();
   const administration = createAdministrationState();
   const currentCompanies = structuredClone(companies);
@@ -109,7 +119,9 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
         | WorkspaceAdhesionRecord[]
         | CompanyAccessEvent[]
         | AdministrationEvent[]
-        | RegistrationEvent[],
+        | RegistrationEvent[]
+        | CompanyDocument[]
+        | CompanyDocumentEvent[],
     ) => ({ config, data: structuredClone(data), headers: {}, status: 200, statusText: 'OK' });
     const body = () => (typeof config.data === 'string' ? JSON.parse(config.data) : config.data);
     const signature = (value: object) => JSON.stringify([config.method, config.url, value]);
@@ -141,6 +153,51 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
           return company;
         }),
       );
+    }
+    const documentRoute =
+      /^\/companies\/([^/]+)\/(documents|document-history)(?:\/([^/]+)\/(content|withdraw))?$/.exec(
+        config.url ?? '',
+      );
+    if (documentRoute) {
+      const companyId = documentRoute[1];
+      if (!currentCompanies.some((company) => company.id === companyId))
+        throw new Error('Empresa não encontrada nesta demonstração.');
+      const [, , resource, id, operation] = documentRoute;
+      if (config.method === 'get' && !id)
+        return respond(
+          resource === 'documents' ? documents.list(companyId) : documents.history(companyId),
+        );
+      if (config.method === 'get' && resource === 'documents' && id && operation === 'content')
+        return {
+          config,
+          data: documents.content(companyId, id),
+          headers: {},
+          status: 200,
+          statusText: 'OK',
+        };
+      if (config.method === 'post' && resource === 'documents' && !id) {
+        if (!(config.data instanceof FormData)) throw new Error('Arquivo multipart ausente.');
+        const metadata = config.data.get('metadata');
+        const file = config.data.get('file');
+        if (typeof metadata !== 'string' || !(file instanceof File))
+          throw new Error('Selecione um arquivo.');
+        const input = documentUploadSchema.parse(JSON.parse(metadata));
+        if (
+          input.command.companyId !== companyId ||
+          JSON.stringify(input.file) !== JSON.stringify(await describeCompanyFile(file))
+        )
+          throw new Error('Arquivo incompatível com os metadados ou empresa.');
+        return respond(
+          perform(input.command.requestId, signature(input), () => documents.attach(input, file)),
+        );
+      }
+      if (config.method === 'post' && resource === 'documents' && id && operation === 'withdraw') {
+        const input = withdrawDocumentSchema.parse(body());
+        if (input.companyId !== companyId || input.documentId !== id)
+          throw new Error('Documento de outra empresa recusado.');
+        return respond(perform(input.requestId, signature(input), () => documents.withdraw(input)));
+      }
+      throw new Error('Operação documental indisponível nesta demonstração.');
     }
     const match =
       /^\/companies\/([^/]+)(?:\/(adhesions|accesses|access-history|administration|administration-history|registration|registration-history)(?:\/([^/]+))?)?$/.exec(

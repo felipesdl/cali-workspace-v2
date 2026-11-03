@@ -1,0 +1,59 @@
+import { useState } from 'react';
+import { type CompanyDocument } from '../../api/modules/companies/document-schemas';
+import { useWithdrawCompanyDocument } from '../../api/modules/companies/hooks/useCompanyManagement';
+import { Field } from '../../components/ds/field/Field';
+import { Button } from '../../components/ds/button/Button';
+export function DocumentWithdrawal({
+  document,
+  onClose,
+}: {
+  document: CompanyDocument;
+  onClose: (saved: boolean) => void;
+}) {
+  const [requestId] = useState(() => crypto.randomUUID());
+  const [reason, setReason] = useState('');
+  const withdraw = useWithdrawCompanyDocument();
+  return (
+    <form
+      aria-label={`Retirar documento ${document.file.fileName}`}
+      className="tw:my-4 tw:grid tw:gap-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void withdraw
+          .mutateAsync({
+            requestId,
+            companyId: document.companyId,
+            documentId: document.documentId,
+            expectedVersionId: document.id,
+            reason,
+          })
+          .then(() => onClose(true))
+          .catch(() => {});
+      }}
+    >
+      <p>
+        Retirar este documento da utilização corrente? Arquivos, versões e histórico serão
+        preservados para consulta administrativa.
+      </p>
+      <Field id="document-withdraw-reason" label="Motivo da retirada">
+        <textarea
+          id="document-withdraw-reason"
+          autoFocus
+          required
+          value={reason}
+          disabled={withdraw.isPending}
+          onChange={(event) => setReason(event.target.value)}
+        />
+      </Field>
+      {withdraw.isError && <p role="alert">{withdraw.error.message}</p>}
+      <div className="tw:flex tw:flex-wrap tw:gap-3">
+        <Button type="submit" disabled={!reason.trim()} pending={withdraw.isPending}>
+          Confirmar retirada
+        </Button>
+        <Button variant="secondary" disabled={withdraw.isPending} onClick={() => onClose(false)}>
+          Cancelar retirada
+        </Button>
+      </div>
+    </form>
+  );
+}

@@ -1,5 +1,13 @@
 # Registro de mudanças
 
+## 03/11/2026 — Arquivos contratuais demonstrativos
+
+- **Autor/escopo:** Codex; continuidade autorizada por Felipe para contratos/aditivos, comprovação e commits graduais no PR #2. Primeiro lote entrega arquivos; comprovação administrativa segue no próximo. Oficial consultado somente em leitura. Sem backend, migration, comunicação, merge ou deploy; bateria de runtime suspensa intocada.
+- **Implementação:** schemas/service/hooks de documentos, estado de bytes/versões/eventos por instância e ledger com SHA-256. Anexo multipart virtual, tipo/data opcional, versões imutáveis com preimagem, download conferido, retirada com motivo preservando bytes/histórico. PDF/DOC/DOCX/imagens até 12 MB; somente conteúdo sintético. Nenhuma assinatura ou validade jurídica é inferida do anexo.
+- **Frontend:** painel/lista, formulário/hook, retirada, histórico e download/hook separados; DS/tokens existentes, rascunho preservado em falha, ações concorrentes bloqueadas e foco devolvido. Blob URLs temporárias, sem prévia automática ou dependências novas. Hospedado mantém gestão indisponível.
+- **Validação:** `npm run verify` passou: 186 testes em 25 arquivos, formatação/lint/tipos, configuração, 32 documentos/670 links e builds SPA/Edge autocontidos. Sete testes novos cobrem bytes/versões/retirada, replay/digest, concorrência, vínculo, limites, falha/rascunho/pendência e capacidade indisponível. Playwright em 1440/1280/1024/390 px, sem overflow; capturas inspecionadas em `output/playwright/contract-documents-*` (ignoradas). Anexo/nova versão/retirada/foco e download nativo conferidos com bytes sintéticos exatos; console zero erros/warnings. Avisos conhecidos de bundle/Zod permanecem. CI remota consultada separadamente após push.
+- **Documentação/limites/rollback:** contrato, ficha FLOW-01/02, arquitetura, privacidade, README, AGENTS e roadmap atualizados. Reverter o lote remove capacidades locais; nenhum dado remoto a desfazer. Comprovação administrativa ainda pendente neste lote; storage/permissões/projeção Cliente/integração e aceite de produto não homologados. Fases 1 e 2A continuam abertas.
+
 ## 03/11/2026 — Dados cadastrais complementares da empresa
 
 - **Autor/escopo:** agente Codex, continuidade autorizada por Felipe para os dados restantes, padrão frontend, documentação e PR #2. Referência publicação 83 consultada somente em leitura: campos de AdminClientsPageV3 e preparo company-logo de imageUpload. Sem operação de backend, migration, comunicação, merge ou deploy; bateria suspensa intocada.

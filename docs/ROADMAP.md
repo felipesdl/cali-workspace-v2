@@ -148,7 +148,8 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [ ] Reconciliar operação de cadastro, comprovação de adesão/gate de convite e manutenção dos quatro acessos equivalentes antes de habilitá-los no hospedado. Implementação demonstrativa não comprova esses controles no servidor.
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
-- [ ] Completar arquivos de contrato/aditivo e comprovação documental, financeiro operacional e ciclo da empresa; reconciliar demais dados efetivamente necessários, homologar integração/histórico e aceite completo da 2A.
+- [x] Implementar arquivos contratuais demonstrativos: anexo, versões imutáveis, download explícito, retirada com motivo/histórico e integridade dos bytes, sem storage hospedado.
+- [ ] Completar comprovação administrativa da adesão na demonstração e sua integração efetiva, financeiro operacional e ciclo da empresa; reconciliar demais dados efetivamente necessários, homologar integração/histórico e aceite completo da 2A.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
 

@@ -1,3 +1,8 @@
+import {
+  type AttachCompanyDocument,
+  type CompanyDocument,
+  type WithdrawCompanyDocument,
+} from '../document-schemas';
 import { type UpdateRegistration } from '../registration-schemas';
 import { type UpdateAdministration } from '../administration-schemas';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -119,4 +124,46 @@ export function useUpdateRegistration() {
   return useManagementMutation((service, input: UpdateRegistration) =>
     service.registration.update(input),
   );
+}
+
+export function useCompanyDocuments(companyId: string) {
+  const scope = useCompaniesScope();
+  const management = scope.service.management;
+  return useQuery({
+    queryKey: companyKeys.documents(scope.actor, companyId),
+    enabled: scope.enabled,
+    queryFn: management ? ({ signal }) => management.documents.list(companyId, signal) : skipToken,
+  });
+}
+export function useDocumentHistory(companyId: string) {
+  const scope = useCompaniesScope();
+  const management = scope.service.management;
+  return useQuery({
+    queryKey: companyKeys.documentHistory(scope.actor, companyId),
+    enabled: scope.enabled,
+    queryFn: management
+      ? ({ signal }) => management.documents.history(companyId, signal)
+      : skipToken,
+  });
+}
+export function useAttachCompanyDocument() {
+  return useManagementMutation((service, input: { command: AttachCompanyDocument; file: File }) =>
+    service.documents.attach(input.command, input.file),
+  );
+}
+export function useWithdrawCompanyDocument() {
+  return useManagementMutation((service, input: WithdrawCompanyDocument) =>
+    service.documents.withdraw(input),
+  );
+}
+export function useDownloadCompanyDocument() {
+  const scope = useCompaniesScope();
+  return useMutation({
+    mutationFn: (input: CompanyDocument) => {
+      if (!scope.enabled || !scope.service.management)
+        throw new Error('Download indisponível neste ambiente.');
+      return scope.service.management.documents.content(input);
+    },
+    retry: false,
+  });
 }

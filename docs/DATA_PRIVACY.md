@@ -26,6 +26,10 @@ Serviço/horas/segmento e localização/filiais organizam o cadastro empresarial
 
 Nenhum contato é associado a perfil/convite, nenhuma URL de telefone/mensagem é aberta, nenhum aniversário gera automação. Dados/imagens e histórico desaparecem ao recarregar; Blob URLs de preparo são liberados. Esse ciclo descreve o mock e não define guarda/consentimento reais. Antes da integração, confirmar finalidade, necessidade de aniversário/canais, leitores, informação apresentada e retenção; não transportar a antiga hierarquia de principal ou automações implicitamente.
 
+## Arquivos contratuais demonstrativos — 03/11
+
+Somente arquivos sintéticos, operados pelo Admin demonstrativo. Bytes/nome/tipo/data identificam contrato ou aditivo e sua revisão; digest confere integridade do download. Autoria/instante e motivos permitem acompanhar versões e retiradas. Não existe prévia, leitura automática de URL, publicação Cliente ou envio a storage/terceiros. Retirar preserva bytes e histórico na instância; reload descarta ambos. Isso não define retenção real. Blob URLs são temporárias e revogadas. Antes de coleta real: reconciliar necessidade, leitores, storage privado, validação de conteúdo, guarda e informação ao usuário, sem presumir assinatura ou aprovação jurídica.
+
 ## Escopo confirmado
 
 Documentar por que cada dado é coletado, onde é utilizado, quem o recebe e como é tratado ao longo do ciclo de vida. A informação correspondente deve estar disponível ao usuário no acesso à plataforma, integrada aos textos de uso/privacidade e à validação da versão vigente. Não inventar finalidade, período de guarda ou validação já realizada.

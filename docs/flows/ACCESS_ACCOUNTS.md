@@ -99,6 +99,14 @@ Acesso foi decomposto em código, MFA e termos, com coordenação de sessão/cal
 
 **Cenários cobertos localmente, sem homologar backend:** tabelas coerentes após mudança de plano, Build Essencial/Completo sem perda da identificação, decimal/vazio, endereço/filiais, contato sem efeitos Auth, repetição/revisão concorrente/histórico, falha/pending/cancelar/descartar, logo válida/inválida/remoção/resultado tardio e responsividade/foco. Hospedado permanece sem capacidade; arquivos contratuais, comprovação, financeiro/ciclo reais e bateria suspensa ficam fora deste lote.
 
+## Recorte 2A — arquivos contratuais e comprovação, 03/11
+
+**Autorizado, em implementação:** contratos/aditivos com arquivo e data opcional, versões preservadas, download explícito e retirada administrativa com motivo; tudo exclusivamente em memória. Fonte de tipos/data: publicação 83, `AdminClientsPageV3.tsx`, uploadDocument e cadastro documental. Retirada não elimina bytes/histórico; versão nova não sobrescreve anterior. Limite técnico da demonstração: 12 MB por arquivo, PDF/DOC/DOCX e imagens aceitas; metadados e impressão SHA-256 identificam os bytes recebidos. Não interpretar o conteúdo, publicar ou marcar assinatura validada por inferência.
+
+**Comprovação em segundo lote:** referência de adesão continua independente do arquivo e do aceite individual. Admin demonstrativo poderá registrar conferência explícita da referência, observação e, opcionalmente, versão documental exata; sem impor upload obrigatório (DEC-23). Conferência não é assinatura digital/verificação jurídica. Apenas conferência vigente sustentará novas autorizações/reativações no mock; retratação, retirada ou troca da versão vinculada exigem nova conferência, sem revogar automaticamente os acessos existentes. Autoria/instante são sintéticos na fronteira de dados. Nenhum convite/Auth ou baseline/contrato hospedado será alterado.
+
+**Frontend/aceite:** painel/lista, anexação/versionamento, retirada, download e conferência separados por tarefa/hooks; erros mantêm rascunho, pendente bloqueia duplicação, troca de empresa descarta transitórios/resultados tardios; foco e mobile preservados. Provar repetição, concorrência, vínculo por empresa, arquivos/versões imutáveis, retirada, falha de transporte e gate na fronteira mock. Bateria suspensa permanece intocada; backend/storage/assinatura/retenção reais continuam pendentes.
+
 ## FLOW-02 — Conta, contrato, acessos e ciclo de vida
 
 **Estado V2 em 27/10:** `/admin/clientes` consulta três empresas e acessos sintéticos por módulo/hook, com filtros e seleção na URL. Quatro acessos equivalentes aparecem na fixture inicial, sem conta principal. Isso prepara a interface/contrato local; não implementa cadastro, adesão, convite, revogação, autenticação, persistência ou limites no servidor. Demais transições abaixo descrevem referência/alvo a portar, não comportamento já entregue. Ver [arquitetura](../ARCHITECTURE.md) e [runbook](../RUNBOOK.md).

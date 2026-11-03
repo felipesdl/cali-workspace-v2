@@ -196,3 +196,7 @@ Views não importam SDK/transporte; DS não importa app/features/API. ESLint ver
 Não transportar runtimes DOM como arquitetura definitiva. Por operação, localizar evento, permissão, transição e efeito; mover regra para domínio/adaptador e interação para componente/hook com prova de paridade. Proposta não é implementada só porque sua pasta aparece no mapa.
 
 Referências primárias consultadas: [TanStack Router](https://tanstack.com/router/latest/docs/framework/react/guide/code-based-routing), [Query keys](https://tanstack.com/query/latest/docs/framework/react/guides/query-keys), [TanStack Form](https://tanstack.com/form/latest/docs/framework/react/guides/validation), [Axios](https://axios-http.com/docs/req_config), [Zod](https://zod.dev/api) e [date-fns](https://date-fns.org/docs/parseISO).
+
+## Arquivos contratuais — 03/11
+
+`document-schemas.ts`, `document-files.ts` e `documents.ts` pertencem ao módulo companies; a capacidade `management.documents` é exclusivamente demonstrativa. `company-documents.ts` guarda bytes e versões por instância; o adapter principal coordena ledger e vínculo com empresa. DTOs/Query cache carregam somente metadados. FormData e Blob usam APIs nativas, sem dependência ou contexto novos. `CompanyContractDocuments`, formulário/hook, lista, retirada e histórico têm tarefas separadas; `useDocumentDownload` limita URLs ao download explícito e limpa resultados tardios. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--contratos-e-aditivos-demonstrativos).
