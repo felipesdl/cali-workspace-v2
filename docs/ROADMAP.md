@@ -143,6 +143,7 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Implementar identidade mínima, referências de adesão e autorizações equivalentes no transporte demonstrativo, sem efeitos Auth/e-mail; composição hospedada declara capacidade indisponível, sem fallback.
 - [x] Implementar gate de referência por empresa, limite de quatro na fronteira mock, bloqueio de duplicados, preimagem, reautorização explícita, histórico e proteção de repetição de comandos virtuais.
 - [x] Implementar formulários/estados/cancelamento/confirmar revogação e continuidade por URL; testes do modelo/UI sem executar a bateria suspensa.
+- [x] Consolidar composição técnica de acesso/empresas: coordenação em hooks, etapas e tarefas separadas, mapas tipados e primitivas de checkbox/feedback. Não encerra migração global do frontend nem homologa backend.
 - [ ] Homologar escrita/permissão/persistência e efeitos de servidor no ambiente autorizado. Não houve PATCH hospedado nessa continuidade; QA visual é demonstrativo.
 - [ ] Reconciliar operação de cadastro, comprovação de adesão/gate de convite e manutenção dos quatro acessos equivalentes antes de habilitá-los no hospedado. Implementação demonstrativa não comprova esses controles no servidor.
 - [ ] Completar contrato/financeiro/documentos, ciclo da empresa, histórico e aceite completo da 2A.

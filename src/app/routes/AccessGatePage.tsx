@@ -1,3 +1,4 @@
+import { accessReasonMessages } from '../session/access-reason';
 import { useSearch, useRouteContext } from '@tanstack/react-router';
 import { AccessFlow } from '../../features/access/AccessFlow';
 
@@ -5,20 +6,7 @@ export function AccessGatePage() {
   const { reason, returnTo } = useSearch({ from: '/acesso' });
   const { access, session } = useRouteContext({ from: '__root__' });
   if (access && session) return <AccessFlow api={access} session={session} returnTo={returnTo} />;
-  const message =
-    reason === 'signed_out'
-      ? 'Confirme seu acesso para continuar.'
-      : reason === 'mfa_required'
-        ? 'Conclua a segunda confirmação de acesso para continuar.'
-        : reason === 'terms_required'
-          ? 'Leia e confirme os termos vigentes para continuar.'
-          : reason === 'terms_unavailable'
-            ? 'Os termos estão indisponíveis no momento. Tente novamente.'
-            : reason === 'wrong_role'
-              ? 'Este endereço não está disponível para seu perfil.'
-              : reason === 'blocked'
-                ? 'Seu acesso está indisponível. Entre em contato com a CALI.'
-                : 'Não foi possível confirmar seu acesso. Tente novamente.';
+  const message = accessReasonMessages[reason];
   return (
     <main className="tw:m-6 tw:text-body tw:text-copy" role="alert">
       <h1 className="tw:text-section tw:font-bold">Acesso indisponível</h1>

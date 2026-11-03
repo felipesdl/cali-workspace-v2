@@ -1,3 +1,4 @@
+import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useCompanyQuery } from '../../api/modules/companies/hooks/useCompanyQuery';
@@ -135,14 +136,18 @@ export function CompanyBasics({
       >
         Dados da empresa
       </h2>
-      {company.isPending && <p role="status">Carregando dados da empresa…</p>}
+      {company.isPending && (
+        <FeedbackState kind="loading">Carregando dados da empresa…</FeedbackState>
+      )}
       {company.isError && (
-        <div role="alert">
-          <p>Não foi possível carregar os dados da empresa.</p>
-          <Button variant="secondary" onClick={() => void company.refetch()}>
-            Recarregar dados
-          </Button>
-        </div>
+        <FeedbackState
+          kind="error"
+          retryVariant="secondary"
+          retryLabel="Recarregar dados"
+          onRetry={() => void company.refetch()}
+        >
+          Não foi possível carregar os dados da empresa.
+        </FeedbackState>
       )}
       {company.data &&
         (editing ? (

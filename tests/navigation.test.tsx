@@ -47,6 +47,23 @@ describe('navegação e formulário de empresas', () => {
     await waitFor(() =>
       expect((screen.getByLabelText('Nome da empresa') as HTMLInputElement).value).toBe(''),
     );
+    await act(async () => {
+      history.forward();
+    });
+    await waitFor(() => expect(screen.queryByText('Aurora Tecnologia')).toBeNull());
+    expect(await screen.findByText('Norte Digital')).toBeTruthy();
+    await waitFor(() =>
+      expect(screen.getByLabelText('Nome da empresa')).toHaveProperty('value', 'Norte'),
+    );
+  });
+
+  it('motivo de acesso desconhecido usa mensagem genérica sem falhar na renderização', async () => {
+    const { router } = await openApp('/acesso?reason=unknown-external-value');
+    expect(await screen.findByRole('alert')).toHaveProperty(
+      'textContent',
+      expect.stringContaining('Não foi possível confirmar seu acesso. Tente novamente.'),
+    );
+    expect(router.state.location.search.reason).toBe('unavailable');
   });
 
   it('troca detalhe sem manter acessos da empresa anterior como atuais', async () => {

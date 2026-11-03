@@ -19,6 +19,7 @@ import { safeReturnPath, sessionGuard } from './session/guard';
 import { type HostedAccessApi } from '../api/modules/access/api';
 import { type CompaniesService } from '../api/modules/companies/service';
 import { companiesService } from '../api/modules/companies/api';
+import { parseAccessReason } from './session/access-reason';
 import { AuthCallbackPage } from './routes/AuthCallbackPage';
 
 const rootRoute = createRootRouteWithContext<{
@@ -112,7 +113,7 @@ const accessGateRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/acesso',
   validateSearch: (search) => ({
-    reason: typeof search.reason === 'string' ? search.reason : 'unavailable',
+    reason: parseAccessReason(typeof search.reason === 'string' ? search.reason : undefined),
     returnTo: safeReturnPath(typeof search.returnTo === 'string' ? search.returnTo : '/cliente'),
   }),
   component: AccessGatePage,

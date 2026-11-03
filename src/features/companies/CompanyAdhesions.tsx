@@ -1,3 +1,4 @@
+import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { useRef, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { registerWorkspaceAdhesionSchema } from '../../api/modules/access/adhesion';
@@ -96,14 +97,16 @@ function AdhesionPanel({ companyId }: { companyId: string }) {
       >
         Adesão da empresa
       </h2>
-      {adhesions.isPending && <p role="status">Carregando referências…</p>}
+      {adhesions.isPending && <FeedbackState kind="loading">Carregando referências…</FeedbackState>}
       {adhesions.isError && (
-        <div role="alert">
-          <p>Não foi possível confirmar a adesão. Novas autorizações permanecem indisponíveis.</p>
-          <Button variant="secondary" onClick={() => void adhesions.refetch()}>
-            Recarregar referências
-          </Button>
-        </div>
+        <FeedbackState
+          kind="error"
+          retryVariant="secondary"
+          retryLabel="Recarregar referências"
+          onRetry={() => void adhesions.refetch()}
+        >
+          Não foi possível confirmar a adesão. Novas autorizações permanecem indisponíveis.
+        </FeedbackState>
       )}
       {adhesions.isSuccess && (
         <>

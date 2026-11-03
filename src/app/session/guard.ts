@@ -1,6 +1,10 @@
+import { type AccessReason } from './access-reason';
 import { type SessionState } from './controller';
 
-export function sessionGuard(state: SessionState, role: 'admin' | 'client') {
+export function sessionGuard(
+  state: SessionState,
+  role: 'admin' | 'client',
+): AccessReason | 'allowed' {
   if (state.phase === 'signed_out' || state.phase === 'idle') return 'signed_out';
   if (state.phase !== 'resolved') return 'unavailable';
   if (state.access.status !== 'ready') return state.access.status;

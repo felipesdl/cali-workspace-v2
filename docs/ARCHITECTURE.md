@@ -1,6 +1,6 @@
 # Arquitetura de desenvolvimento
 
-Atualização: 01/11/2026. **Fase 1 em andamento: sessão/guardas/telas e leitura de empresas conectadas ao hospedado conforme DEC-27.** A base é `c9baea7` da `main`. Laboratório local preserva provas próprias de Auth/MFA, código, termos, adesão e RLS; nenhuma migration local foi aplicada no hospedado. Provas de jornada e limites estão no [ambiente](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27).
+Atualização: 02/11/2026. **Fase 1 em andamento: sessão/guardas/telas e leitura de empresas conectadas ao hospedado conforme DEC-27.** A base é `c9baea7` da `main`. Laboratório local preserva provas próprias de Auth/MFA, código, termos, adesão e RLS; nenhuma migration local foi aplicada no hospedado. Provas de jornada e limites estão no [ambiente](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27).
 
 Ler [Regras de produto](PRODUCT_RULES.md), [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md), [fichas](flows/README.md) e [roadmap](ROADMAP.md). Estrutura de código não aprova regra nova. A V2 é a base, o repositório oficial permanece somente leitura; uso do backend hospedado segue DEC-27.
 
@@ -30,7 +30,7 @@ Fluxo atual de dados: **view → hook de consulta do módulo → service → ada
 | `src/features/access` | Formulários de código/MFA/aceite; sem SDK ou tokens |
 | `src/app/WorkspaceLayout.tsx` | Shell conectado mínimo, sem métricas demonstrativas ou troca fictícia de papel |
 | `src/api/query-client.ts` | Configuração do QueryClient, criado por instância do router; não guarda dados em context |
-| `src/components/ds` | Button/Field com utilities Tailwind e variantes tipadas; sem dependência de app, feature ou API |
+| `src/components/ds` | Button/Field/Checkbox/FeedbackState com utilities Tailwind e variantes tipadas; sem dependência de app, feature ou API |
 | `src/styles/tokens.css` | Tokens iniciais consumidos pelas peças e página de empresas; não substitui ainda toda a cascata legada |
 | `src/mocks/fixtures/notices.ts` | Seeds de Avisos compartilhados com as prévias de mural/calendário; alterações do mural ainda não compõem um domínio vivo comum |
 | `src/lib/dates.ts` | Formatação de data civil com date-fns, preservando o dia informado |
@@ -74,6 +74,16 @@ A capacidade opcional `CompaniesService.management` mantém a composição expl�
 `management-schemas.ts` define comandos virtuais/requestId e evento de acesso; reutiliza schemas de identidade/acesso e adesão de DEC-23. `management.ts` valida respostas e vínculo por empresa. `useCompanyManagement.ts` coordena consultas/mutations e invalidação por ator, sem optimistic updates/retry. `CompanyRegistration`, `CompanyAdhesions` e `CompanyAccessManagement` compõem as tarefas; a página continua dona da seleção por URL. Drafts/transitórios ficam locais e são desmontados ao trocar empresa. Resultado tardio de cadastro não restaura navegação após unmount.
 
 `src/mocks/adapters/companies.ts` é o único dono do estado mutável demonstrativo: empresas, referências, autorizações, eventos e ledger de solicitações por instância. Gate/limite/preimagem/histórico são executados nessa fronteira antes da resposta, sem chamadas externas. Recarregar descarta tudo; não é backend alternativo persistente nem certificação de RLS. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a--cadastro-adesão-e-quatro-acessos-demonstrativos).
+
+## Consolidação de acesso e empresas — 02/11
+
+Reorganização sem alteração dos contratos de transporte ou regras de autorização. `App` mantém apenas os providers; `useSessionBridge` possui assinaturas Auth/sessão/router e cleanup. `useAuthCallback` coordena callback, refresh e retorno; a página apresenta seu resultado. `useAccessFlow` reutiliza `useWorkspaceSession`, resolve a sessão e coordena o retorno seguro por papel. `useTermsAcceptance` mantém a concordância vinculada a ator/versão/hash no ciclo do fluxo; extrair o painel não permite reaproveitar concordância para outra identidade ou conteúdo. `useMfaEnrollment` possui consulta, retry e preparação do autenticador. Código, MFA e termos têm componentes separados, e `CodeInput` é um controle do domínio compartilhado pelos dois formulários de código.
+
+A seleção de etapas de `AccessFlow` usa branches explícitos; motivos de acesso têm vocabulário fechado e mensagens em mapa tipado, com entrada desconhecida normalizada para indisponível. Isso preserva o fallback anterior. Não exige enum TypeScript nativo nem impede strings verificadas pelo tipo. Mapas de apresentação de empresas/planos e ações do histórico são conferidos contra os contratos donos com `satisfies Record`.
+
+`CompaniesPage` compõe cadastro, filtros, tabela e detalhe/acessos. `CompanyFilters`/`useCompanyFilters` possuem o rascunho e a sincronização com URL/Back/Forward; seleção aplicada continua na URL. `CompaniesTable` possui sua consulta e apresenta resultados. `CompanyAccessPanel` possui consultas de detalhe/acessos; formulários, linha e histórico da gestão têm componentes próprios, preservando snapshot de edição, confirmação, requestId e foco. Queries/mutations continuam nos módulos existentes; não há service/context paralelo.
+
+`Checkbox` e `FeedbackState` são primitivas DS com consumidores reais; mensagens, disponibilidade de retry e efeitos continuam no domínio. Efeitos estritamente locais de foco e proteção de resultado tardio permanecem junto dos consumidores. Esta consolidação não encerra a migração do legado, a homologação de acesso ou a fase 2A.
 
 ## Tipagem e validação
 

@@ -44,6 +44,10 @@ Termos hospedados permanecem na versão oficial 2026-10-15; redação de princip
 
 A cópia da referência executou 40 verificações locais e revelou hash Auth pendente capaz de gerar sessão após corte/reativação. Correção de código troca o hash dentro da Edge e devolve sessão somente após admissão vinculada à origem do código; complemento SQL exige essa admissão após marcos de corte. Código implementado, novos SQLs não executados nem aplicados no hospedado. Cliente mantém compatibilidade com a Edge hospedada legada, que continua pendente de correção. Bateria de runtime suspensa pelo Felipe; [mecanismo, contratos e limites](../contracts/ACCESS_COMPANIES.md#correção-local-da-troca-e-admissão--0211).
 
+## Consolidação técnica de 02/11 — FLOW-01/02
+
+Acesso foi decomposto em código, MFA e termos, com coordenação de sessão/callback/enrollment/aceite em hooks. Empresas separa filtros, tabela, painel, formulários, linha e histórico; URL/cache e ciclo dos rascunhos continuam com os mesmos donos. Mensagens por motivo e labels usam mapas tipados; checkbox e feedback têm primitivas DS. Reorganização não adiciona operação de servidor, não libera capacidade hospedada, não muda destinatários/payloads e não retoma a bateria suspensa. Paridade e limites de validação ficam no changelog.
+
 ## FLOW-01 — Convite, código, sessão, MFA e aceite
 
 **Objetivo/atores:** pessoa autorizada acessa o workspace adequado como Cliente ou Admin. Empresa e papel vêm do perfil; não da seleção demonstrativa da V2. Adesão comercial e aceite de uso são eventos diferentes.

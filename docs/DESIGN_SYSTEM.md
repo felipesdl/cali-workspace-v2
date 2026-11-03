@@ -1,6 +1,6 @@
 # Design system CALI
 
-Estado: **regras confirmadas; tokens, Button e Field iniciais implementados; demais contratos propostos**. Atualização: 28/10/2026. Fonte visual: V2 e [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios; a adoção inicial atende empresas, sem migrar todas as prévias nem homologar o DS completo.
+Estado: **regras confirmadas; tokens, Button, Field, Checkbox e FeedbackState implementados no recorte; demais contratos propostos**. Atualização: 02/11/2026. Fonte visual: V2 e [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios; a adoção inicial atende empresas, sem migrar todas as prévias nem homologar o DS completo.
 
 Este documento é dono de tokens, primitivas e seus contratos. Composição de telas, hierarquia de ações, escolha de página/drawer/modal e continuidade de tarefas pertencem a [UX/UI](UX_UI.md). Usar o [Catálogo de fluxos](FLOW_CATALOG.md) para aplicar essas peças a uma jornada concreta.
 
@@ -77,6 +77,14 @@ export type UiVariant = (typeof UiVariant)[keyof typeof UiVariant];
 
 Reutilizar esse vocabulário entre componentes que compartilhem a mesma hierarquia visual. Isso não obriga toda peça a oferecer ambas as variantes nem transforma status de negócio, cor, tamanho ou layout em variante de ação. Uma necessidade diferente deve ter semântica e contrato registrados no DS antes de adicionar nomes/valores; não criar enum paralelo por feature. Não criar variantes futuras sem consumidor.
 
+## Controles e feedback consolidados — 02/11
+
+`Checkbox` encapsula input nativo e label clicável, aceita atributos nativos tipados e mantém foco visível/token de ação CALI. Consumidor: concordância dos termos; identidade e conteúdo aceitos continuam controlados pelo domínio. Não transforma checkbox em comprovação de aceite no servidor.
+
+`FeedbackState` oferece `loading` (role status), `error` (role alert) e `empty` (sem anúncio automático). Mensagem é obrigatória pelo consumidor; botão de retry é opcional, com label e `UiVariant` existentes. Não inicia consultas, define política de repetição ou importa domínio. Consumidores: etapas de acesso/MFA, tabela, dados da empresa, adesão, painel de acessos e histórico. Outros estados legados continuam pendentes de migração.
+
+`CodeInput` permanece em `features/access`: compartilha o contrato nativo de seis dígitos/autocomplete entre código de acesso e MFA; sua semântica não exige uma primitiva genérica do DS. HTML estrutural/semântico continua permitido; criar componente por tarefa, comportamento ou padrão recorrente, sem wrappers vazios.
+
 ## Catálogo mínimo e contratos
 
 | Peça | Contrato obrigatório | Primeiros consumidores |
@@ -89,7 +97,8 @@ Reutilizar esse vocabulário entre componentes que compartilhem a mesma hierarqu
 | `Dialog`/`Drawer` | Título, foco inicial/contenção/retorno, Escape, overlay, scroll e ação pendente | Pessoa, documento, ocorrência |
 | `Popover`/`DropdownMenu` | Dono único de posicionamento, colisão, teclado e fechamento | Perfil, notificações, flyout |
 | `Table`/`List` | Identidade estável, cabeçalhos/semântica, vazio, overflow e paginação quando real | Equipe, contas, extrato |
-| `LoadingState`/`ErrorState`/`EmptyState` | Mensagem específica, retry onde fizer sentido, próxima ação | Todas as consultas |
+| `FeedbackState` (implementado no recorte) | Loading/erro/vazio, mensagem específica e retry explícito opcional | Acesso/MFA e consultas de empresas/acessos/histórico |
+| `Checkbox` (implementado no recorte) | Controle nativo, label e foco; concordância controlada pelo domínio | Termos |
 | `Toast` | Sucesso/erro/status com anúncio; duração e deduplicação comuns | Todas as ações |
 | `Avatar`/formatadores de data e duração | Fallback autorizado e formatação central, sem alterar fórmula | Pessoas, horas, histórico |
 
