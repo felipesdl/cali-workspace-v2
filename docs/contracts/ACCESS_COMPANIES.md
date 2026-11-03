@@ -1,6 +1,6 @@
 # Contratos mínimos de acesso e empresas
 
-Atualização: 01/11/2026. Recorte da fase 1, FLOW-01/02. **Baseline local testada em 29/10; adapter/telas da V2 conectados ao hospedado em 01/11, com jornada autenticada ainda em validação.** Transições e experiência continuam na [ficha](../flows/ACCESS_ACCOUNTS.md); matriz em [Permissões](../PERMISSIONS.md).
+Atualização: 03/11/2026. Recorte da fase 1, FLOW-01/02. **Baseline local testada em 29/10; adapter/telas da V2 conectados ao hospedado em 01/11, com jornada autenticada ainda em validação.** Transições e experiência continuam na [ficha](../flows/ACCESS_ACCOUNTS.md); matriz em [Permissões](../PERMISSIONS.md).
 
 ## Integração hospedada vigente — 01/11
 
@@ -101,6 +101,28 @@ Novos comandos virtuais têm requestId: repetição do mesmo comando retorna o r
 **Experiência:** cadastro/adesão/autorizações têm formulários inline com Form/Zod/DS, erros mantendo rascunho, pendência bloqueando novo submit e cancelamento explícito. Após cadastro, abre a ficha e foca o título; resultado tardio depois de sair da página não restaura a rota anterior. Revogar exige confirmação; novas autorizações ficam indisponíveis enquanto adesão/situação não são confirmadas ou as quatro vagas estão ocupadas. Mutations não fazem retry automático ou atualização otimista; invalidam leitores existentes do ator/empresa. Histórico apresenta instantes em Brasília.
 
 **Pendente no hospedado:** corpo/retorno de create_client_account, comprovação documental e integração da adesão, manutenção atômica de quatro vínculos/perfis, revogação efetiva, históricos/triggers/permissões e demais dados de contrato/financeiro/documentos/ciclo. A checagem de referência do mock não homologa formalização CALI. Fase 1 e 2A permanecem abertas.
+
+## Fase 2A — ficha administrativa demonstrativa
+
+**Implementação de frontend/modelo, 02/11:** `CompaniesService.management.administration` acrescenta leitura, atualização e histórico de contrato/financeiro/referências documentais somente no transporte em memória. Hospedado continua com `management: null`. Não amplia leitura/PATCH hospedados nem executa catálogo, SQL, Auth, cobrança ou upload.
+
+**Origem:** [cadastro/manutenção da referência](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/pages/admin/AdminClientsPageV3.tsx#L525), blob `46265a2723530f10d26f81a4d1d86a5e8004277d` conferido por leitura independente. Campos/opções são da referência; nomes camelCase abaixo são projeção virtual, não tipos gerados do banco.
+
+| Grupo | Projeção demonstrativa e correspondência observada |
+| --- | --- |
+| Contrato | startDate/endDate → start_date/end_date; contractType/contractModel → contract_type/contract_model; autoRenew → auto_renew; penaltyEnabled/penaltyText → contract_penalty_enabled/contract_penalty_text; penaltyBase/penaltyValue → termination_penalty_type/termination_penalty_value; terminationPaymentDays/Rule → termination_payment_days/rule |
+| Financeiro | contractValue → contract_value; billingFrequency/paymentMethod/billingDueRule/billingDay/billingLeadDays → billing_frequency/payment_method/billing_due_rule/billing_day/billing_lead_days; paymentTermDays → payment_term_days; lateFeePercent/dailyInterestPercent/financialNote → late_fee_percent/daily_interest_percent/payment_notes |
+| Referências documentais | driveUrl/documentOwner/documentNotes → drive_folder_url/document_owner/document_notes; são textos/metadados, sem leitura do destino, vínculo de storage ou prova de assinatura |
+
+`administration-schemas.ts` é o dono dos vocabulários e contratos; formulário deriva entrada/saída de `administration-draft.ts`, com transformação explícita antes da mutation. Números decimais usam vírgula ou ponto, sem agrupamento; valor monetário aceita até duas casas. Valor contratual zero normaliza para null, como o cadastro/manutenção observados. Demais números precisam ser finitos/não negativos; prazos são inteiros e dia fixo vai de 1 a 31. Datas são civis válidas, com término não anterior ao início quando ambos existem. Não é uma calculadora de multa/vencimento. Opções personalizadas mantêm texto nas observações; não se inventa calendário financeiro. URL aceita somente http(s) sem usuário/senha, permanece texto e não abre/sincroniza automaticamente.
+
+Registro inicial tem revisão 0 e configuração não informada, sem inventar valor/recorrência/forma de pagamento/antecedência conhecidos; flags/opções técnicas iniciais só são apresentadas no rascunho, não como configuração confirmada. Parâmetros preenchidos permanecem registrados mesmo com multa não prevista ou vencimento não fixo; não têm efeito operacional. Histórico novo não fabrica passado das fixtures.
+
+**Protocolo virtual:** GET/PATCH `/companies/:companyId/administration` e GET `/companies/:companyId/administration-history`. Atualização contém somente requestId, companyId, expectedRevision e values. Comparação da revisão e gravação/histórico acontecem sincronamente na fronteira mock. Edição desatualizada é negada; formulário preserva snapshot/rascunho até descarte explícito. Repetição do mesmo comando reproduz resultado sem novo evento; requestId reutilizado com outro conteúdo/rota é negado pelo ledger existente. Sem alteração de valores não incrementa revisão nem cria evento. Histórico guarda preimagem/pós-imagem, autoria e instante sintéticos, sem aceitar autoria da UI. Service valida identidade/valores/revisão na confirmação e vínculo dos eventos; Query invalida os leitores do ator depois de sucesso, sem retry/otimismo.
+
+**Interface:** ficha em componentes próprios de leitura, edição, grupos/campos e histórico; hook de edição possui formulário/snapshot/requestId. Field/FeedbackState/Button existentes e controles nativos preservam semântica, labels/erros, pendente, foco, cancelamento e rascunho. Troca de empresa desmonta estado transitório; refetch não substitui edição ativa. Dados permanecem em memória por instância e recarregar descarta alterações.
+
+**Lacunas:** logo, serviço/plano/capacidade, endereço/filiais, contato comercial, uploads de contrato/aditivo/data/versão, comprovação da adesão, financeiro operacional, projeção/distrato, ciclo e integração efetiva continuam pendentes. Configurar tipo de contrato não altera o plano da lista nem concede acesso. Não habilitar essa capacidade no hospedado por flag. Testes/QA locais não comprovam permissões ou efeito de servidor; fase 1/2A permanecem abertas.
 
 ## Proveniência e limites
 

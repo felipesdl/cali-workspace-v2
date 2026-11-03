@@ -83,6 +83,14 @@ Acesso foi decomposto em código, MFA e termos, com coordenação de sessão/cal
 
 **Limites:** no hospedado, essas capacidades continuam indisponíveis até reconciliar cadastro, adesão e manutenção atômica dos acessos. Leitura e edição básica existentes permanecem na composição conectada. Testes do modelo/UI e QA demonstrativo foram executados; SQL/Auth/laboratório suspensos não foram executados. Gate/evidências no changelog.
 
+## Próximo recorte 2A — ficha administrativa da empresa
+
+**Código implementado somente na demonstração:** depois da identidade mínima, permitir ao Admin demonstrativo consultar/editar a configuração contratual, financeira e referências documentais da empresa selecionada. Fonte de campos/opções: `AdminClientsPageV3.tsx` da publicação 83, cadastro linhas 525–558 e manutenção linhas 573–575, consultados somente em leitura. Não copiar efeitos de ativação de conta/perfis ou automações da implementação de referência.
+
+**Anatomia e continuidade:** ficha de consulta e ação explícita para editar; formulário inline dividido em Contrato, Financeiro e Documentos, sem context global ou uma página monolítica. Um único snapshot/revisão protege a gravação da ficha; rascunho não é substituído por refetch. Cancelar não grava; conflito mantém rascunho e exige descarte/reconsulta explícitos; troca de empresa desmonta o editor. Histórico append-only com autoria/instante sintéticos na fronteira mock. Leitura, erro, vazio, pendente, foco e mobile têm regressões locais e QA registrados no changelog, sem homologar o servidor.
+
+**Limites:** campos de início/término, tipo/modelo, renovação e cláusula/base/parâmetro de multa; valor/recorrência/método/vencimento/aviso/prazo/multa/juros/observações; URL de pasta, responsável e observações documentais. Números não aceitam agrupamento ambíguo; datas civis e término anterior ao início são validados. Configuração não gera cobrança, projeção financeira ou distrato; referências não são abertas automaticamente nem comprovam documento/assinatura/adesão. Logo, uploads de contrato/aditivo, serviço/plano/capacidade, endereço/filiais, contato comercial e ciclo permanecem lacunas explícitas. Hospedado mantém capacidade indisponível; nenhum catálogo/runtime/SQL é necessário para este transporte virtual.
+
 ## FLOW-02 — Conta, contrato, acessos e ciclo de vida
 
 **Estado V2 em 27/10:** `/admin/clientes` consulta três empresas e acessos sintéticos por módulo/hook, com filtros e seleção na URL. Quatro acessos equivalentes aparecem na fixture inicial, sem conta principal. Isso prepara a interface/contrato local; não implementa cadastro, adesão, convite, revogação, autenticação, persistência ou limites no servidor. Demais transições abaixo descrevem referência/alvo a portar, não comportamento já entregue. Ver [arquitetura](../ARCHITECTURE.md) e [runbook](../RUNBOOK.md).

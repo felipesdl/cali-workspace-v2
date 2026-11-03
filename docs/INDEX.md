@@ -79,3 +79,5 @@ O roadmap atual fecha tarefas de ponta a ponta após fundação mínima: primeir
 Continuidade de 02/11: correção local da troca/admissão sem nova bateria de runtime e 2A iniciada pela edição básica da empresa. Catálogo e aplicação hospedada continuam pendentes; fase 1/2A não encerradas. Detalhes em [contratos](contracts/ACCESS_COMPANIES.md), [roadmap](ROADMAP.md) e [changelog](CHANGELOG.md).
 
 A continuidade de cadastro/adesão/quatro acessos da 2A está implementada somente na composição demonstrativa, com capacidade indisponível no hospedado. [Contrato do recorte](contracts/ACCESS_COMPANIES.md#fase-2a--cadastro-adesão-e-quatro-acessos-demonstrativos); integração depende dos contratos efetivos e mantém a bateria suspensa.
+
+Continuidade da 2A: ficha administrativa de contrato/financeiro/referências documentais implementada somente na demonstração, com revisão/histórico, sem cobrança ou upload. Demais dados/arquivos/ciclo e integração permanecem pendentes. [Contrato do recorte](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).

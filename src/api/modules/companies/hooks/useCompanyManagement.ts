@@ -1,3 +1,4 @@
+import { type UpdateAdministration } from '../administration-schemas';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type CompanyManagement } from '../management';
 import {
@@ -61,4 +62,32 @@ export function useCompanyAccessHistory(companyId: string) {
     enabled: scope.enabled,
     queryFn: management ? ({ signal }) => management.accessHistory(companyId, signal) : skipToken,
   });
+}
+
+export function useCompanyAdministration(companyId: string) {
+  const scope = useCompaniesScope();
+  const management = scope.service.management;
+  return useQuery({
+    queryKey: companyKeys.administration(scope.actor, companyId),
+    enabled: scope.enabled,
+    queryFn: management
+      ? ({ signal }) => management.administration.read(companyId, signal)
+      : skipToken,
+  });
+}
+export function useAdministrationHistory(companyId: string) {
+  const scope = useCompaniesScope();
+  const management = scope.service.management;
+  return useQuery({
+    queryKey: companyKeys.administrationHistory(scope.actor, companyId),
+    enabled: scope.enabled,
+    queryFn: management
+      ? ({ signal }) => management.administration.history(companyId, signal)
+      : skipToken,
+  });
+}
+export function useUpdateAdministration() {
+  return useManagementMutation((service, input: UpdateAdministration) =>
+    service.administration.update(input),
+  );
 }

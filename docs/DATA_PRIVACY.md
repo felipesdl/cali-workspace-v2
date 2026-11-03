@@ -1,6 +1,6 @@
 # Dados pessoais e informação no acesso
 
-Atualização: 28/10/2026. **Contrato documental a completar e validar conforme o uso real; nenhum dado migrado ou coletado nesta entrega.** Dono de campos/operações: [Dados e contratos](DATA_CONTRACTS.md). Leitores autorizados: [matriz alvo](PERMISSIONS.md). Entrada/aceite: FLOW-01 e DEC-08.
+Atualização: 03/11/2026. **Contrato documental a completar e validar conforme o uso real; nenhum dado migrado ou coletado nesta entrega.** Dono de campos/operações: [Dados e contratos](DATA_CONTRACTS.md). Leitores autorizados: [matriz alvo](PERMISSIONS.md). Entrada/aceite: FLOW-01 e DEC-08.
 
 ## Integração e texto apresentado — 01/11
 
@@ -13,6 +13,12 @@ A fonte oficial declara revisão da proprietária em 15/10, mas contém referên
 Somente dados sintéticos locais, sem coleta hospedada nesta continuidade. Identidade mínima organiza a ficha da empresa; referência de formalização vincula o registro administrativo à empresa; nome/e-mail identificam autorizações equivalentes; snapshots/eventos permitem acompanhar alterações sem apagar revogações. O Admin demonstrativo é o único operador desta composição. Autoria/data vêm da fronteira mock e não são enviadas pelos formulários.
 
 Referências são texto; não são buscadas, abertas automaticamente ou tratadas como documento validado. Registros não geram assinatura, aceite individual, mensagem ou perfil Auth. Histórico contém nome/e-mail anterior/atual quando necessário e não é exposto por novo consumidor Cliente. Estado/ledger permanecem em memória por instância, descartados ao recarregar; isso descreve o mock, não define prazo de guarda real. Não usar essa composição com dados pessoais reais. Antes da futura coleta hospedada, confirmar finalidade/leitores/guarda, informação apresentada e contrato de adesão/acessos com a CALI, sem inventar prazos.
+
+## Ficha administrativa demonstrativa — 02/11
+
+Condições de contrato/financeiro organizam a configuração da empresa; referência de pasta, responsável e observações documentais identificam onde a documentação pode ser conferida. Operador/leitor desta composição é somente Admin demonstrativo. Responsável e textos livres podem conter dados pessoais: utilizar exclusivamente dados sintéticos, sem credenciais na URL ou conteúdo pessoal desnecessário. Nenhum destino é acessado automaticamente.
+
+Histórico mantém preimagem/pós-imagem para acompanhar revisões; autoria/instante são sintéticos na fronteira mock. Valores e eventos ficam em memória por instância, descartados no reload; isso não define retenção real. Não há novo consumidor Cliente, coleta hospedada, upload, envio ou consulta a arquivo externo. Antes de habilitar coleta real, reconciliar finalidade/leitores/guarda/informação apresentada e contratos efetivos, sem inferir aprovação jurídica desta demonstração.
 
 ## Escopo confirmado
 

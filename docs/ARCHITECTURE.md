@@ -85,6 +85,12 @@ A seleção de etapas de `AccessFlow` usa branches explícitos; motivos de acess
 
 `Checkbox` e `FeedbackState` são primitivas DS com consumidores reais; mensagens, disponibilidade de retry e efeitos continuam no domínio. Efeitos estritamente locais de foco e proteção de resultado tardio permanecem junto dos consumidores. Esta consolidação não encerra a migração do legado, a homologação de acesso ou a fase 2A.
 
+## Ficha administrativa demonstrativa — 02/11
+
+`administration-schemas.ts` possui vocabulários/contratos; `administration.ts` compõe transporte virtual dentro da capacidade existente, sem imports de mocks. Keys e hooks Query/mutation ficam no módulo de empresas. `src/mocks/adapters/company-administration.ts`, instanciado por adapter, possui os registros/revisões/eventos; ledger permanece no adapter de empresas. A nova projeção não estende artificialmente o DTO hospedado nem modifica plano/acessos da empresa.
+
+`CompanyAdministration` controla consulta/edição e retorno de foco. `AdministrationEditor` compõe grupos/campos e ações; `useAdministrationEditor` guarda snapshot/requestId/rascunho. `AdministrationSummary` e `AdministrationHistory` apresentam dados, sem lógica de transporte. Configuração tipada de campos/labels fica local à feature e reutiliza vocabulários do schema; `Field` recebe controles nativos incluindo textarea. Valores do formulário são strings e transformados/validados explicitamente antes da mutation. Revisão antiga não é trocada por refetch de fundo; conflito mantém rascunho até descarte/reconsulta. Não foi criado context, dependência ou runtime novo. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).
+
 ## Tipagem e validação
 
 Tipos ficam junto do dono: contratos de empresas em `src/api/modules/companies/schemas.ts`; props e modelos exclusivos de uma composição permanecem locais. Não criar uma pasta global `types` sem consumidores que justifiquem compartilhamento.

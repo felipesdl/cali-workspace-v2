@@ -9,7 +9,7 @@ type FieldProps = {
 
 export function Field({ id, label, error, children }: FieldProps) {
   return (
-    <div className="tw:grid tw:gap-2 tw:[&_:is(input,select)]:box-border tw:[&_:is(input,select)]:min-h-control tw:[&_:is(input,select)]:w-full tw:[&_:is(input,select)]:min-w-0 tw:[&_:is(input,select)]:rounded-control tw:[&_:is(input,select)]:border tw:[&_:is(input,select)]:border-border-default tw:[&_:is(input,select)]:bg-panel tw:[&_:is(input,select)]:px-3 tw:[&_:is(input,select)]:py-2 tw:[&_:is(input,select)]:text-body tw:[&_:is(input,select)]:text-copy tw:[&_:is(input,select):focus-visible]:outline-2 tw:[&_:is(input,select):focus-visible]:outline-offset-2 tw:[&_:is(input,select):focus-visible]:outline-focus">
+    <div className="tw:grid tw:gap-2 tw:[&_:is(input,select,textarea)]:box-border tw:[&_:is(input,select,textarea)]:min-h-control tw:[&_:is(input,select,textarea)]:w-full tw:[&_:is(input,select,textarea)]:min-w-0 tw:[&_:is(input,select,textarea)]:rounded-control tw:[&_:is(input,select,textarea)]:border tw:[&_:is(input,select,textarea)]:border-border-default tw:[&_:is(input,select,textarea)]:bg-panel tw:[&_:is(input,select,textarea)]:px-3 tw:[&_:is(input,select,textarea)]:py-2 tw:[&_:is(input,select,textarea)]:text-body tw:[&_:is(input,select,textarea)]:text-copy tw:[&_:is(input,select,textarea):focus-visible]:outline-2 tw:[&_:is(input,select,textarea):focus-visible]:outline-offset-2 tw:[&_:is(input,select,textarea):focus-visible]:outline-focus">
       <label className="tw:font-semibold tw:text-copy" htmlFor={id}>
         {label}
       </label>

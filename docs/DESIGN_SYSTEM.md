@@ -85,6 +85,10 @@ Reutilizar esse vocabulário entre componentes que compartilhem a mesma hierarqu
 
 `CodeInput` permanece em `features/access`: compartilha o contrato nativo de seis dígitos/autocomplete entre código de acesso e MFA; sua semântica não exige uma primitiva genérica do DS. HTML estrutural/semântico continua permitido; criar componente por tarefa, comportamento ou padrão recorrente, sem wrappers vazios.
 
+## Ficha administrativa — 02/11
+
+O cadastro administrativo reutiliza Button, Field e FeedbackState. Field passa a aplicar a mesma aparência/token a textarea nativa, preservando label/erro e descrições no consumidor. Grupos são fieldsets com legend, grid de duas colunas/uma no mobile; consulta usa details/summary nativos por assunto. Controles recorrentes de texto, data, seleção e observação ficam no componente de campos da feature, com configuração tipada e sem wrappers sem comportamento. Foco inicia no primeiro campo e retorna ao título da ficha ao salvar/cancelar/descartar; pendente desabilita os fieldsets. Não há overlay, tabs ou paleta paralela.
+
 ## Catálogo mínimo e contratos
 
 | Peça | Contrato obrigatório | Primeiros consumidores |

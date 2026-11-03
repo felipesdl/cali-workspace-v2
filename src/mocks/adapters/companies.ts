@@ -1,3 +1,9 @@
+import { createAdministrationState } from './company-administration';
+import {
+  updateAdministrationSchema,
+  type CompanyAdministration,
+  type AdministrationEvent,
+} from '../../api/modules/companies/administration-schemas';
 import { AxiosError, type AxiosAdapter } from 'axios';
 import {
   companyFilterSchema,
@@ -16,11 +22,13 @@ import {
 import { type WorkspaceAdhesionRecord } from '../../api/modules/access/adhesion';
 import { companies, accesses } from '../fixtures/companies';
 
-type ManagementResult = CompanyDetails | WorkspaceAdhesionRecord | CompanyAccess;
+type ManagementResult =
+  CompanyDetails | WorkspaceAdhesionRecord | CompanyAccess | CompanyAdministration;
 const demoAdmin = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 
 // Transações virtuais síncronas: nunca representam RLS/RPC ou persistência hospedadas.
 export function createCompaniesMockAdapter(): AxiosAdapter {
+  const administration = createAdministrationState();
   const currentCompanies = structuredClone(companies);
   const currentAccesses = structuredClone(accesses);
   const adhesions: WorkspaceAdhesionRecord[] = [];
@@ -87,7 +95,8 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
         | ManagementResult
         | CompanyAccess[]
         | WorkspaceAdhesionRecord[]
-        | CompanyAccessEvent[],
+        | CompanyAccessEvent[]
+        | AdministrationEvent[],
     ) => ({ config, data: structuredClone(data), headers: {}, status: 200, statusText: 'OK' });
     const body = () => (typeof config.data === 'string' ? JSON.parse(config.data) : config.data);
     const signature = (value: object) => JSON.stringify([config.method, config.url, value]);
@@ -121,7 +130,7 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
       );
     }
     const match =
-      /^\/companies\/([^/]+)(?:\/(adhesions|accesses|access-history)(?:\/([^/]+))?)?$/.exec(
+      /^\/companies\/([^/]+)(?:\/(adhesions|accesses|access-history|administration|administration-history)(?:\/([^/]+))?)?$/.exec(
         config.url ?? '',
       );
     const company = currentCompanies.find((item) => item.id === match?.[1]);
@@ -142,8 +151,17 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
         return respond(currentAccesses.filter((item) => item.companyId === company.id));
       if (resource === 'adhesions')
         return respond(adhesions.filter((item) => item.companyId === company.id));
+      if (resource === 'administration') return respond(administration.read(company.id));
+      if (resource === 'administration-history') return respond(administration.history(company.id));
       if (resource === 'access-history')
         return respond(history.filter((item) => item.companyId === company.id));
+    }
+    if (config.method === 'patch' && resource === 'administration' && !match[3]) {
+      const value = updateAdministrationSchema.parse(body());
+      if (value.companyId !== company.id) throw new Error('Empresa incompatível com a ficha.');
+      return respond(
+        perform(value.requestId, signature(value), () => administration.update(value)),
+      );
     }
     if (config.method === 'patch' && !resource) {
       const value = updateCompanyBasicsSchema.parse(body());

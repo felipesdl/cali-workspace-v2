@@ -1,3 +1,4 @@
+import { CompanyAdministration } from './CompanyAdministration';
 import { useState } from 'react';
 import { useNavigate, useRouteContext } from '@tanstack/react-router';
 import { companiesRoute } from '../../app/router';
@@ -45,6 +46,10 @@ export function CompaniesPage() {
             key={`basics:${search.companyId}`}
             companyId={search.companyId}
             focusOnMount={createdCompanyId === search.companyId}
+          />
+          <CompanyAdministration
+            key={`administration:${search.companyId}`}
+            companyId={search.companyId}
           />
           <CompanyAdhesions key={`adhesions:${search.companyId}`} companyId={search.companyId} />
           <CompanyAccessPanel

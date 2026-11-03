@@ -8,6 +8,8 @@ A bateria de sessão/revogação permanece suspensa por solicitação de Felipe.
 
 `npm run verify` segue autorizado e sem Docker/rede/SQL: seus unitários não substituem essa validação suspensa. O driver experimental anterior foi preservado como texto em `output/runtime/session-cut/history`, ignorado pelo Git.
 
+Na demonstração da 2A, selecionar uma empresa e usar **Editar ficha administrativa** para contrato, financeiro e referências documentais. Preencher somente dados sintéticos, salvar e conferir revisão/histórico; testar cancelamento, troca de empresa e erro mantendo rascunho. URL documental é somente texto; salvar não abre arquivo, cobra, envia aviso ou muda acesso/plano. Reload descarta a ficha. A operação não está disponível no hospedado; [limites do contrato](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).
+
 ## Demonstração da 2A — cadastro, adesão e acessos
 
 A jornada nova é somente em memória. Para revisar a interface sem usar a configuração hospedada, iniciar explicitamente o frontend demo:
