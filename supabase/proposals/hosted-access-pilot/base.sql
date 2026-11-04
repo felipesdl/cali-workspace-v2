@@ -3,6 +3,17 @@
 begin;
 set local lock_timeout = '5s';
 
+do $$ begin
+  if not exists (
+    select 1 from pg_proc p where p.oid = 'cali_workspace.current_company_id()'::regprocedure
+      and p.prosecdef and p.provolatile = 's'
+      and regexp_replace(lower(p.prosrc), '\s+', '', 'g') =
+        'selectp.company_idfromcali_workspace.profilespwherep.id=auth.uid()andp.activelimit1;'
+  ) then
+    raise exception 'Definição de current_company_id divergiu do catálogo revisado.';
+  end if;
+end $$;
+
 create schema cali_session_guard authorization postgres;
 revoke all on schema cali_session_guard from public, anon, authenticated, service_role;
 
@@ -10,6 +21,7 @@ create table cali_session_guard.pilot_accounts (
   company_id uuid primary key references cali_workspace.companies(id),
   profile_id uuid not null unique references auth.users(id),
   invite_id uuid not null unique references cali_workspace.client_invites(id),
+  recipient_email text not null unique check (recipient_email = lower(btrim(recipient_email)) and recipient_email <> ''),
   revoked_at timestamptz,
   revoked_by uuid,
   check ((revoked_at is null) = (revoked_by is null)),
@@ -44,8 +56,9 @@ as $$
     join auth.users u on u.id = a.profile_id
     where a.profile_id = subject and a.revoked_at is null and p.active and p.role::text = 'client'
       and c.status::text in ('active', 'paused') and i.active and i.platform_access
-      and lower(btrim(i.email)) = lower(btrim(p.email))
-      and lower(btrim(i.email)) = lower(btrim(u.email))
+      and lower(btrim(i.email)) = a.recipient_email
+      and lower(btrim(p.email)) = a.recipient_email
+      and lower(btrim(u.email)) = a.recipient_email
   );
 $$;
 revoke all on function cali_session_guard.is_pilot_account(uuid),
@@ -125,6 +138,17 @@ revoke all on function cali_session_guard.authorize_code(uuid,timestamptz),
 grant execute on function cali_workspace.admit_workspace_session_v2(uuid,uuid) to service_role;
 grant usage on schema cali_session_guard to authenticated;
 grant execute on function cali_session_guard.session_is_live() to authenticated;
+
+-- CREATE OR REPLACE preserva a identidade referenciada pelas policies do
+-- Storage e de service_cycles. As permissões anteriores permanecem no helper.
+create or replace function cali_workspace.current_company_id()
+returns uuid language sql stable security definer
+set search_path to 'pg_catalog', 'auth', 'cali_workspace'
+as $$
+  select p.company_id from cali_workspace.profiles p
+  where p.id = auth.uid() and p.active and cali_session_guard.session_is_live()
+  limit 1;
+$$;
 
 -- Piloto: encerra só a autorização da identidade pareada. O convite é
 -- preservado para histórico e a troca de código não volta a admitir a conta.

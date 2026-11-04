@@ -18,6 +18,7 @@ export function createHostedAccessApi(
   client: WorkspaceClient,
   url: string,
   publishableKey: string,
+  endpoint: 'workspace-access' | 'workspace-access-pilot' = 'workspace-access',
 ) {
   const termsStateSchema = acceptCurrentTermsSchema.extend({ accepted: z.boolean() });
   let bundledHash: Promise<string> | undefined;
@@ -82,7 +83,7 @@ export function createHostedAccessApi(
   async function codeRequest(
     body: z.infer<typeof requestAccessCodeSchema> | z.infer<typeof verifyAccessCodeSchema>,
   ) {
-    const response = await fetch(`${url}/functions/v1/workspace-access`, {
+    const response = await fetch(`${url}/functions/v1/${endpoint}`, {
       method: 'POST',
       headers: { apikey: publishableKey, 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -114,6 +115,7 @@ export function createHostedAccessApi(
         ),
       );
       if ('error' in result) throw unavailable();
+      if (endpoint === 'workspace-access-pilot' && !('session' in result)) throw unavailable();
       // Compatibilidade com a Edge hospedada atual; o laboratório V2 devolve sessão admitida.
       const { error } =
         'session' in result

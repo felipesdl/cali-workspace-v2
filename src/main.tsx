@@ -24,7 +24,18 @@ try {
       : null;
   const access =
     client && environment.mode === 'supabase'
-      ? createHostedAccessApi(client, environment.url, environment.publishableKey)
+      ? createHostedAccessApi(
+          client,
+          environment.url,
+          environment.publishableKey,
+          import.meta.env.DEV &&
+            import.meta.env.VITE_CALI_PILOT_ACCESS === 'true' &&
+            environment.url === 'https://kqtbfeeqbcllwvlkbrkq.supabase.co' &&
+            window.location.hostname === '127.0.0.1' &&
+            ['5181', '5182'].includes(window.location.port)
+            ? 'workspace-access-pilot'
+            : 'workspace-access',
+        )
       : null;
   const session = access ? createSessionController(access, cache) : null;
   const router = createAppRouter(

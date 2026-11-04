@@ -60,6 +60,16 @@ As empresas marcadas `CALI_V2_TEST_A_20261101` e `CALI_V2_TEST_B_20261101` têm 
 
 A [ativação da política](../supabase/proposals/hosted-terms/activate-storage.sql) exige admissão e corte instalados. Antes de [reverter a política](../supabase/proposals/hosted-terms/rollback-storage.sql), retirar a disponibilidade dos arquivos do recorte e verificar links/cache no destino. O [rollback da publicação](../supabase/proposals/hosted-terms/rollback.sql) mantém recibos e confirmações.
 
+### Piloto de admissão A/B
+
+O CALI MAPA já tem um convite ativo por empresa A/B. O e-mail coincide com o perfil e a conta Auth. O piloto fixa os dois vínculos no cadastro privado e verifica essa correspondência antes de cada emissão. A conta recebe código somente após solicitar acesso na aba de teste.
+
+1. Vincular os rascunhos às empresas existentes, comprovar adesão com versão de documento válida e conferir os escritores legados do recorte. Os dois PDFs de download não substituem a comprovação.
+2. Revisar [base](../supabase/proposals/hosted-access-pilot/base.sql), [códigos](../supabase/proposals/hosted-access-pilot/codes.sql) e guarda de arquivos. Instalar com o cadastro privado vazio. O helper `current_company_id()` preserva a definição original fora do piloto e passa a negar sessões A/B sem admissão. O script interrompe a aplicação se a definição prévia divergir do catálogo revisado.
+3. Preparar `workspace-access-pilot` no CALI MAPA. O painel confirmou `RESEND_API_KEY` configurada. Definir remetente verificado `CALI_PILOT_EMAIL_FROM` e segredo dedicado `CALI_PILOT_CODE_SECRET` no painel de segredos. O código usa a [API de envio do Resend](https://resend.com/docs/api-reference/emails/send-email) e uma chave de idempotência por solicitação. O build local passou. Entrega hospedada ainda pendente.
+4. Com os gates anteriores conferidos, executar o [cadastro A/B](../supabase/proposals/hosted-access-pilot/enroll.sql). Abrir as abas locais nas portas `5181` e `5182` com `VITE_CALI_PILOT_ACCESS=true`. O fluxo exige a sessão devolvida pela Edge piloto. Fazer uma rodada de login com os dois destinatários, confirmar aceite e leitura, revogar A como Admin e verificar a continuidade de B.
+5. Para suspender, aplicar [pause.sql](../supabase/proposals/hosted-access-pilot/pause.sql) e retirar a função piloto da homologação. A suspensão recusa novos códigos e sessões já admitidas de A/B. Recibos e histórico técnico são preservados.
+
 ## Candidata de corte no servidor — sem execução
 
 [Contrato e sequência de revisão](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada). `supabase/proposals/session-cut` contém catálogo somente leitura, candidata e aceite SQL futuro. Não é migration nem comando npm; runner local conserva a lista fechada das três migrations do laboratório. Nada foi aplicado ou executado em banco nesta preparação.

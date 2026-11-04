@@ -16,14 +16,19 @@ $$;
 grant usage on schema auth to authenticated;
 
 \ir ../../../tests/fixtures/session-cut/reference.sql
+create or replace function cali_workspace.current_company_id()
+returns uuid language sql stable security definer
+set search_path to 'pg_catalog', 'auth', 'cali_workspace'
+as $$ select p.company_id from cali_workspace.profiles p where p.id = auth.uid() and p.active limit 1; $$;
 \ir ../company-onboarding/candidate.sql
 \ir ../hosted-terms/apply.sql
 \ir base.sql
+\ir codes.sql
 
-insert into cali_workspace.companies (id, display_name, legal_name) values
- ('9c5ab148-78b8-4410-9338-58c44222a5db','QA A','QA A'),
- ('6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76','QA B','QA B'),
- ('00000000-0000-4000-8000-000000000003','Legada','Legada');
+insert into cali_workspace.companies (id, display_name, legal_name, notes) values
+ ('9c5ab148-78b8-4410-9338-58c44222a5db','QA A','QA A','CALI_V2_TEST_A_20261101'),
+ ('6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76','QA B','QA B','CALI_V2_TEST_B_20261101'),
+ ('00000000-0000-4000-8000-000000000003','Legada','Legada',null);
 insert into auth.users values
  ('00000000-0000-4000-8000-000000000011','a@example.test'),
  ('00000000-0000-4000-8000-000000000012','b@example.test'),
@@ -42,6 +47,30 @@ select company_id, email, full_name from cali_workspace.profiles where company_i
 insert into auth.mfa_factors values ('00000000-0000-4000-8000-000000000014','totp','verified');
 
 do $$
+begin
+  perform set_config('test.jwt','{"sub":"00000000-0000-4000-8000-000000000011"}',true);
+  set local role authenticated;
+  if not exists (select 1 from cali_workspace.profiles
+    where id = '00000000-0000-4000-8000-000000000011') then
+    raise exception 'Piloto vazio alterou leitura existente';
+  end if;
+end;
+$$;
+
+-- Substitutos isolados para o resultado do gate de adesão e a API de Storage.
+-- O teste de integração documental está no recorte company-onboarding.
+create function cali_v2_onboarding.require_access_adhesion(p_company_id uuid)
+returns uuid language sql stable as $$ select p_company_id $$;
+create schema storage;
+create table storage.objects (bucket_id text, name text);
+create function storage.allow_any_operation(text[])
+returns boolean language sql stable as $$ select true $$;
+set cali.hosted_terms.activate_storage = 'reviewed';
+\ir ../hosted-terms/activate-storage.sql
+set cali.access_pilot.enroll = 'reviewed';
+\ir enroll.sql
+
+do $$
 declare
   a constant uuid := '00000000-0000-4000-8000-000000000011';
   b constant uuid := '00000000-0000-4000-8000-000000000012';
@@ -56,6 +85,8 @@ declare
   proof_a uuid;
   proof_b uuid;
   publication jsonb;
+  issued jsonb;
+  code_hash constant text := repeat('a',64);
 begin
   if has_function_privilege('anon', 'cali_workspace.v2_revoke_pilot_access(uuid)', 'execute')
     or has_function_privilege('authenticated', 'cali_workspace.admit_workspace_session_v2(uuid,uuid)', 'execute')
@@ -64,31 +95,39 @@ begin
   end if;
 
   perform set_config('test.jwt', jsonb_build_object('sub', a, 'session_id', sa)::text, true);
-  set local role authenticated;
-  if not exists (select 1 from cali_workspace.profiles where id = a) then
-    raise exception 'Piloto vazio alterou leitura existente';
-  end if;
-  reset role;
-
-  insert into cali_session_guard.pilot_accounts (company_id, profile_id, invite_id)
-  select p.company_id, p.id, i.id from cali_workspace.profiles p
-  join cali_workspace.client_invites i using (company_id, email) where p.id in (a, b);
   begin
-    insert into cali_session_guard.pilot_accounts (company_id, profile_id, invite_id)
-    select p.company_id, p.id, i.id from cali_workspace.profiles p
+    insert into cali_session_guard.pilot_accounts (company_id, profile_id, invite_id, recipient_email)
+    select p.company_id, p.id, i.id, p.email from cali_workspace.profiles p
     join cali_workspace.client_invites i using (company_id, email) where p.id = legacy;
     raise exception 'Empresa fora de A/B admitida no cadastro do piloto';
   exception when check_violation then null;
   end;
 
   set local role authenticated;
-  if exists (select 1 from cali_workspace.profiles where id = a) then
+  if exists (select 1 from cali_workspace.profiles where id = a)
+    or cali_workspace.current_company_id() is not null then
     raise exception 'A leu dados antes da admissão';
   end if;
   reset role;
 
-  proof_a := cali_session_guard.authorize_code(a, clock_timestamp());
-  proof_b := cali_session_guard.authorize_code(b, clock_timestamp());
+  if has_function_privilege('authenticated', 'cali_workspace.v2_issue_pilot_code(text,text)', 'execute')
+    or (cali_workspace.v2_issue_pilot_code('legacy@example.test', code_hash)->>'status') <> 'unavailable' then
+    raise exception 'Emissão liberada fora da Edge ou fora do piloto';
+  end if;
+  issued := cali_workspace.v2_issue_pilot_code('a@example.test', code_hash);
+  if issued->>'status' <> 'issued'
+    or cali_workspace.v2_consume_pilot_code('a@example.test', code_hash) is not null then
+    raise exception 'Código usado antes da confirmação de entrega';
+  end if;
+  perform cali_workspace.v2_deliver_pilot_code((issued->>'id')::uuid, true);
+  proof_a := (cali_workspace.v2_consume_pilot_code('a@example.test', code_hash)->>'authorizationId')::uuid;
+  if cali_workspace.v2_consume_pilot_code('a@example.test', code_hash) is not null
+    or (cali_workspace.v2_issue_pilot_code('a@example.test', code_hash)->>'status') <> 'limited' then
+    raise exception 'Código reaproveitado ou limite de emissão ignorado';
+  end if;
+  issued := cali_workspace.v2_issue_pilot_code('b@example.test', code_hash);
+  perform cali_workspace.v2_deliver_pilot_code((issued->>'id')::uuid, true);
+  proof_b := (cali_workspace.v2_consume_pilot_code('b@example.test', code_hash)->>'authorizationId')::uuid;
   insert into auth.sessions values
     (sa, a, clock_timestamp(), null), (sb, b, clock_timestamp(), null),
     (sad, admin, clock_timestamp(), null);
@@ -132,7 +171,8 @@ begin
     raise exception 'Fora do piloto perdeu acesso';
   end if;
   reset role;
-  if cali_session_guard.authorize_code(a, clock_timestamp()) is not null then
+  if cali_session_guard.authorize_code(a, clock_timestamp()) is not null
+    or (cali_workspace.v2_issue_pilot_code('a@example.test', code_hash)->>'status') <> 'unavailable' then
     raise exception 'A recuperou elegibilidade após revogação';
   end if;
 end;

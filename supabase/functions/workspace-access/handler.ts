@@ -18,7 +18,7 @@ export type AccessPorts = {
   issue: (email: string, hash: string) => Promise<Issue>;
   delivered: (id: string, delivered: boolean) => Promise<void>;
   consume: (email: string, hash: string) => Promise<z.infer<typeof codeSubjectSchema>>;
-  send: (email: string, code: string) => Promise<void>;
+  send: (email: string, code: string, requestId: string) => Promise<void>;
   session: (subject: z.infer<typeof loginSubjectSchema>) => Promise<{
     access_token: string;
     refresh_token: string;
@@ -29,11 +29,15 @@ const accessRequest = z.discriminatedUnion('action', [
   requestAccessCodeSchema,
   verifyAccessCodeSchema,
 ]);
-const origin = 'http://127.0.0.1:5173';
-
-export function createAccessHandler(ports: AccessPorts) {
+export function createAccessHandler(
+  ports: AccessPorts,
+  options: { origins: readonly string[]; hideDeliveryFailure?: boolean } = {
+    origins: ['http://127.0.0.1:5173'],
+  },
+) {
   return async (request: Request) => {
-    const allowed = request.headers.get('origin') === origin;
+    const origin = request.headers.get('origin') ?? '';
+    const allowed = options.origins.includes(origin);
     const headers = {
       ...(allowed ? { 'Access-Control-Allow-Origin': origin } : {}),
       'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info',
@@ -57,9 +61,13 @@ export function createAccessHandler(ports: AccessPorts) {
         const result = await ports.issue(body.email, await ports.hash(body.email, code));
         if (result.status !== 'issued') return json({ ok: true });
         try {
-          await ports.send(body.email, code);
+          await ports.send(body.email, code, result.id);
           await ports.delivered(result.id, true);
         } catch (error) {
+          if (options.hideDeliveryFailure) {
+            await ports.delivered(result.id, false).catch(() => {});
+            return json({ ok: true });
+          }
           await ports.delivered(result.id, false);
           throw error;
         }

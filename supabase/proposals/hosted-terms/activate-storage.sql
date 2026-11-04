@@ -5,7 +5,8 @@ do $$ begin
   if current_setting('cali.hosted_terms.activate_storage', true) is distinct from 'reviewed'
     or to_regprocedure('cali_session_guard.profile_requires_admission(uuid)') is null
     or to_regprocedure('cali_session_guard.session_is_live()') is null
-    or to_regprocedure('cali_v2_onboarding.uses_managed_access(uuid,uuid)') is null
+    or (to_regprocedure('cali_v2_onboarding.uses_managed_access(uuid,uuid)') is null
+      and to_regclass('cali_session_guard.pilot_accounts') is null)
     or to_regprocedure('storage.allow_any_operation(text[])') is null
     or not exists (select 1 from cali_v2_terms.publications where is_current) then
     raise exception 'Ativação exige publicação vigente, admissão, corte e revisão do Storage.';
