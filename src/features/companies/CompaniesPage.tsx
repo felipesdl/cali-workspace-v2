@@ -1,3 +1,4 @@
+import { HostedRegistration } from './HostedRegistration';
 import { CompanyContractDocuments } from './CompanyContractDocuments';
 import { CompanyRegistrationData } from './CompanyRegistrationData';
 import { CompanyAdministration } from './CompanyAdministration';
@@ -54,6 +55,10 @@ export function CompaniesPage() {
             key={`basics:${search.companyId}`}
             companyId={search.companyId}
             focusOnMount={createdCompanyId === search.companyId}
+          />
+          <HostedRegistration
+            key={`hosted-registration:${search.companyId}`}
+            companyId={search.companyId}
           />
           <CompanyRegistrationData
             key={`registration-data:${search.companyId}`}

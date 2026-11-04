@@ -1,3 +1,5 @@
+import { type createPilotReservations } from './pilot-reservations';
+import { type createHostedRegistration } from './hosted-registration';
 import { type AxiosInstance } from 'axios';
 import { z } from 'zod';
 import { type createCompanyOnboarding } from './onboarding';
@@ -78,6 +80,8 @@ export function createCompaniesService(client: AxiosInstance): CompaniesService 
 }
 export type CompaniesService = {
   management: CompanyManagement | null;
+  pilotReservations?: ReturnType<typeof createPilotReservations>;
+  hostedRegistration?: ReturnType<typeof createHostedRegistration>;
   onboarding: ReturnType<typeof createCompanyOnboarding> | null;
   cycles?: ReturnType<typeof createHostedCycles>;
   openCurrentCycle?: ReturnType<typeof createOpenCurrentCycle>;

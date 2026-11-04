@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Cadastro conectado e preparação do primeiro convite
+
+- O Admin lê serviço e plano do banco e edita segmento, horas mensais, endereço e filiais na homologação A/B. A [RPC](../supabase/proposals/company-onboarding/update-pilot-registration.sql) exige Admin com MFA e a versão exibida da ficha. A auditoria registra os nomes dos campos alterados. No navegador, B persistiu segmento e cidade após recarga. O banco confirmou um evento para B e 12,5 horas preservadas.
+- O [banco de reservas](../supabase/proposals/hosted-access-pilot/provision-invites.sql) está instalado no CALI MAPA com zero destinatários e zero reservas. A cópia descartável confirmou repetição sem duplicata, recusa de destinatário fora do piloto, conta nova vinculada ao convite exato, recusa de identidade preexistente, limite compartilhado com o escritor legado e cancelamento. A Edge e a ficha de reservas exigem ativação explícita e ainda aguardam a homologação do primeiro novo Cliente.
+- A rota Admin passou a carregar a tela de empresas sob demanda. A leitura do cadastro de B continuou funcionando após recarga pelo navegador.
+
 ## 04/11/2026 — Revisão e encerramento do ciclo de serviço
 
 - A [RPC](../supabase/proposals/company-onboarding/transition-service-cycle.sql) exige sessão Admin com MFA e ciclo da empresa A/B vinculada ao cadastro V2. Avança de planejado para aberto, de aberto para revisão e de revisão para encerrado. Mantém o mês e as horas já registradas. A abertura de planejado exige empresa ativa e horas positivas. Encerramento não emite cobrança, relatório ou mensagem.

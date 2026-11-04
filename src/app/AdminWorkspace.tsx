@@ -1,8 +1,15 @@
+import { lazy, Suspense } from 'react';
 import { Outlet, useLocation, useNavigate, useRouteContext } from '@tanstack/react-router';
 import AdminPreview from '../AdminPreview';
 import { adminPaths, adminSectionFromPath } from './navigation';
 import { WorkspaceLayout } from './WorkspaceLayout';
-import { CompaniesPage } from '../features/companies/CompaniesPage';
+import { FeedbackState } from '../components/ds/feedback/FeedbackState';
+
+const CompaniesPage = lazy(() =>
+  import('../features/companies/CompaniesPage').then(({ CompaniesPage }) => ({
+    default: CompaniesPage,
+  })),
+);
 
 export function AdminWorkspace() {
   const pathname = useLocation({ select: (location) => location.pathname });
@@ -12,7 +19,9 @@ export function AdminWorkspace() {
     return (
       <WorkspaceLayout title="Empresas e acessos">
         {pathname === '/admin/clientes' ? (
-          <CompaniesPage />
+          <Suspense fallback={<FeedbackState kind="loading">Carregando empresas…</FeedbackState>}>
+            <CompaniesPage />
+          </Suspense>
         ) : (
           <p>Esta área está em preparação. Acesse Empresas e acessos para acompanhar as contas.</p>
         )}

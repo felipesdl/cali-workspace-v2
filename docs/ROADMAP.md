@@ -165,7 +165,10 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Implementar comprovação administrativa demonstrativa: referência/observação, versão documental opcional, confirmação explícita, retirada preservando histórico e gate de novas autorizações/reativações; sem upload obrigatório nem revogação implícita.
 - [x] Implementar ponta Cliente de consulta: Minha empresa com GET mínimo do vínculo autenticado, navegação/retorno, termos correntes somente leitura e estados/falhas sem fallback para mocks; teste sintético não homologa leitura autenticada da tela.
 
-- [ ] Completar integração efetiva de arquivos/comprovação, financeiro operacional e ciclo da empresa; reconciliar demais dados efetivamente necessários, homologar integração/histórico e aceite completo da 2A.
+- [x] Conectar a leitura de serviço e plano e editar segmento, horas, endereço e filiais no recorte A/B. Conferir persistência e auditoria após recarga em B.
+- [x] Preparar banco e interface da reserva por convite. Instalar o banco sem destinatários aprovados. Provar provisionamento e cancelamento na cópia descartável.
+- [ ] Homologar a reserva e o primeiro acesso de um Cliente novo no CALI MAPA, com dois vínculos na mesma empresa. Confirmar revogação individual e arquivos após o corte.
+- [ ] Conectar os campos complementares restantes, incluindo contato comercial, logo, troca de plano e condições contratuais. Definir o recorte do financeiro operacional antes de tratar cobrança como critério de fechamento.
 
 Para o primeiro lançamento, conduzir a fila de homologação da 2A nesta ordem:
 

@@ -1,3 +1,5 @@
+import { createPilotReservations } from './pilot-reservations';
+import { createHostedRegistration } from './hosted-registration';
 import { readHostedCompanyIdentity } from './identity';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
@@ -38,6 +40,8 @@ function mapCompany(row: z.infer<typeof companyRecord>) {
 export function createHostedCompaniesService(client: WorkspaceClient): CompaniesService {
   return {
     management: null,
+    pilotReservations: createPilotReservations(client),
+    hostedRegistration: createHostedRegistration(client),
     onboarding: createCompanyOnboarding(client),
     cycles: createHostedCycles(client),
     openCurrentCycle: createOpenCurrentCycle(client),

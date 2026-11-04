@@ -1,3 +1,4 @@
+import { managedLoginSchema, prepareWorkspaceLogin } from '../workspace-access/provision.ts';
 import { z } from 'zod';
 import { renderClientCodeV3 } from './approved-code-v3.ts';
 import {
@@ -20,6 +21,7 @@ const project = z
   .parse(Deno.env.get('SUPABASE_URL'));
 const serviceKey = z.string().min(1).parse(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'));
 const sendKey = z.string().min(1).parse(Deno.env.get('RESEND_API_KEY'));
+const enableProvisioning = Deno.env.get('CALI_PILOT_PROVISIONING') === 'true';
 const from = 'APP CALI RH <workspace@calirh.com>';
 const material = await crypto.subtle.importKey(
   'raw',
@@ -79,6 +81,25 @@ Deno.serve(
         ).join('');
       },
       async issue(email, hash) {
+        if (enableProvisioning) {
+          const ready = await prepareWorkspaceLogin(email, {
+            async prepare(address) {
+              const response = await post('/rest/v1/rpc/v2_prepare_pilot_invite_login', {
+                p_email: address,
+              });
+              return managedLoginSchema.parse(await response.json());
+            },
+            async createUser(address, inviteId) {
+              await post('/auth/v1/admin/users', {
+                email: address,
+                email_confirm: true,
+                app_metadata: { cali_v2_invite: inviteId },
+              });
+            },
+          });
+          if (!ready) return { status: 'unavailable' };
+        }
+
         const result = await post('/rest/v1/rpc/v2_issue_pilot_code', {
           p_email: email,
           p_hash: hash,

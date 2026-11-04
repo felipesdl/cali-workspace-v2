@@ -1,3 +1,4 @@
+import { PilotInviteReservation } from './PilotInviteReservation';
 import { useCompanyAccessesQuery } from '../../api/modules/companies/hooks/useCompanyAccessesQuery';
 import { useCompanyQuery } from '../../api/modules/companies/hooks/useCompanyQuery';
 import { Button } from '../../components/ds/button/Button';
@@ -79,6 +80,7 @@ export function CompanyAccessPanel({
       {pilot.isError && (
         <FeedbackState kind="error">Gestão dos vínculos do piloto indisponível.</FeedbackState>
       )}
+      <PilotInviteReservation companyId={companyId} />
     </section>
   );
 }

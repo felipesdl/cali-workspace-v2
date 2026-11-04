@@ -90,6 +90,14 @@ Se for preciso suspender ações, retirar `EXECUTE` de `authenticated` nas novas
 
 A [transição de ciclo](../supabase/proposals/company-onboarding/transition-service-cycle.sql) foi aplicada ao CALI MAPA. Na ficha Admin, usar a ação do ciclo escolhido, confirmar e recarregar. O ciclo de novembro de A ficou encerrado com 12,5 h e dois eventos; B permaneceu aberto com 12,5 h. Planejado para aberto e recusas foram verificados em PostgreSQL descartável. Para suspender a escrita, retirar `EXECUTE` de `authenticated` na RPC `v2_transition_service_cycle(uuid,uuid,text,text)`. Preservar os estados e a auditoria; não desfazer ciclo por atualização em lote.
 
+#### Cadastro complementar e convite novo
+
+A [edição cadastral](../supabase/proposals/company-onboarding/update-pilot-registration.sql) usa os campos existentes em `companies`. A leitura exibe serviço e plano. No Admin de desenvolvimento, as duas empresas A/B permitem editar segmento, horas, endereço e filiais. A escrita verifica `updated_at` e registra os nomes dos campos alterados em `activity_log`. Segmento e cidade foram confirmados após recarga em B. Contato comercial, logo, troca de plano e condições contratuais precisam dos respectivos contratos hospedados.
+
+O [SQL de reservas](../supabase/proposals/hosted-access-pilot/provision-invites.sql) está instalado com lista de destinatários vazia. A reserva privada ocupa uma vaga antes da criação do convite visível ao fluxo legado. Somente o papel de serviço pode preparar o login. Uma conta criada pela Edge é vinculada quando seu metadado corresponde ao identificador do convite. Cancelar antes do vínculo libera a vaga e preserva o registro. Uma identidade criada no intervalo entre reserva e cancelamento fica sem perfil ou acesso e exige reconciliação separada antes de reutilizar aquele destinatário.
+
+Para a homologação, conferir um novo e-mail de teste e vincular a aprovação somente à empresa escolhida. Publicar a revisão da Edge com `CALI_PILOT_PROVISIONING=true` e abrir a ficha Admin de desenvolvimento com `VITE_CALI_PILOT_PROVISIONING=true`. Reservar uma vaga, pedir um código na aba Cliente, validar admissão e revogação individual com os demais vínculos como controle. A revisão atual está em código e o fluxo está desativado. Para suspender após ativação, desligar a flag da Edge e retirar os GRANTs das RPCs de reserva e preparação. Preservar o histórico.
+
 ## Candidata de corte no servidor — sem execução
 
 [Contrato e sequência de revisão](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada). `supabase/proposals/session-cut` contém catálogo somente leitura, candidata e aceite SQL futuro. Não é migration nem comando npm; runner local conserva a lista fechada das três migrations do laboratório. Nada foi aplicado ou executado em banco nesta preparação.
