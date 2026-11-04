@@ -11,6 +11,7 @@ import {
 } from './schemas';
 import { companyIdentityRecordSchema, clientInviteIdentityRecordSchema } from './records';
 import { type CompaniesService } from './service';
+import { createCompanyOnboarding } from './onboarding';
 
 const companyRecord = companyIdentityRecordSchema.extend({
   service_plan: z.string().nullable(),
@@ -35,7 +36,8 @@ function mapCompany(row: z.infer<typeof companyRecord>) {
 }
 export function createHostedCompaniesService(client: WorkspaceClient): CompaniesService {
   return {
-    management: null, // Cadastro/adesão/acessos aguardam contratos efetivos; sem fallback para mocks.
+    management: null,
+    onboarding: createCompanyOnboarding(client),
     async account(companyId, signal) {
       const row = await readHostedCompanyIdentity(client, companyId, signal);
       if (!row) return null;

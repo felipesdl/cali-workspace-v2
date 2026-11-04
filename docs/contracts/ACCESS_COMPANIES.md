@@ -327,7 +327,8 @@ Não há uma fase obrigatória separada para trocar mock por banco. A integraç�
 | Acesso/sessão/MFA/termos e leituras básicas de empresas | Adapter hospedado existente, sem fallback de erro | Evidências anteriores e limites em LOCAL_ENVIRONMENT; bateria suspensa continua intocada |
 | Minha empresa do Cliente | GET mínimo autenticado sobre contrato existente | Transporte, guarda e UI testados sinteticamente; nova validação autenticada da tela ainda pendente |
 | Edição Admin dos dois nomes | PATCH com preimagem já implementado | Nenhum PATCH hospedado foi executado nesta continuidade |
-| Cadastro completo, dados complementares, contrato/arquivos/comprovação e quatro acessos | management permanece null; somente demonstração explícita implementada | Catálogo/contratos/permissões/consistência e efeitos de servidor ainda precisam ser reconciliados por operação |
+| Cadastro em rascunho e comprovação administrativa | RPCs V2 na tela Admin, com listagem, conferência, retirada e histórico | Jornada autenticada pelo CALI MAPA com registro sintético |
+| Materialização, dados complementares, contrato/arquivos e quatro acessos | `management` permanece null no hospedado | Contratos e efeitos de servidor ainda precisam ser reconciliados por operação |
 
 Manter mocks de testes e a demonstração explícita não significa usá-los no caminho conectado. Remover fixtures globalmente ou habilitar management por flag não substitui contrato de banco. Nenhuma nova leitura de dados reais, autenticação/código, SQL, Edge/laboratório ou comunicação foi executada para este lote. Testes de SDK e navegador usam respostas sintéticas; não comprovam RLS hospedada. Fases 1/2A abertas.
 
@@ -343,7 +344,7 @@ A [candidata SQL](../../supabase/proposals/company-onboarding/candidate.sql) imp
 | `v2_review_company_adhesion` | Confirma ou retira comprovação por rascunho. A confirmação recebe referência, revisão documental opcional informada pelo Admin e observação. A retirada recebe motivo. A preimagem é o último evento conhecido. A ordem é serializada por rascunho. O servidor registra autor, instante e histórico imutável para os papéis da aplicação. |
 | `v2_read_company_draft` | Lê identidade e histórico pelo UUID. O evento mais recente determina se há comprovação confirmada ou retirada. |
 
-A revisão documental informada é metadado da conferência administrativa. A candidata ainda não consulta arquivo nem valida que a revisão é a corrente no Storage. A integração com documento real deverá vincular o ID e a versão por empresa antes de considerar esse evento apto a liberar acessos. O primeiro lote também deixa pendentes a listagem de rascunhos, o transporte da SPA e a materialização em `companies`.
+A revisão documental informada é metadado da conferência administrativa. A integração com documento real deverá vincular o ID e a versão por empresa antes de considerar esse evento apto a liberar acessos. A materialização em `companies` segue pendente.
 
 ### Aplicação no CALI MAPA
 
@@ -351,11 +352,19 @@ Em 04/11/2026, Felipe confirmou que os dados do projeto são de teste e autorizo
 
 Após o commit, o catálogo confirmou três wrappers invoker executáveis por `authenticated` e sem EXECUTE para `anon` e `service_role`. As duas tabelas novas estavam vazias, com RLS ativa e sem privilégios diretos de leitura/escrita para esses papéis. A sequência não concede acesso a `authenticated`. A assinatura das definições e ACLs de `create_client_account`, `is_admin`, `enforce_client_invite_limit` e `companies_cut_client_access` permaneceu idêntica à do preflight. Duas chamadas SQL com claims sintéticas confirmaram recusa para AAL1 e para identidade sem perfil. A validação não exercitou sessão real, Admin via Data API ou frontend.
 
+### Integração do Admin com a Data API
+
+A área **Rascunhos de empresas** em **Empresas e acessos** usa a sessão do Admin para chamar as RPCs pelo schema `cali_workspace`. O [complemento de listagem](../../supabase/proposals/company-onboarding/list-drafts.sql) foi aplicado em 04/11 no mesmo destino autorizado. `v2_list_company_drafts` exige o guard existente e ordena por data e UUID. A tela carrega até 25 rascunhos por página e usa o último UUID como cursor. A listagem fica separada da carteira de empresas, com cache por ator e leitura por rascunho.
+
+Cadastro e comprovação geram uma chave por formulário e conservam essa chave ao tentar novamente. A comprovação fixa a preimagem do último evento ao abrir o formulário. Confirmação exige conferência explícita e referência, com versão documental opcional informada pelo Admin. Retirada exige motivo e registra novo evento. A resposta precisa corresponder ao rascunho e à operação antes de atualizar o histórico.
+
+No navegador, uma sessão Admin autenticada abriu a listagem, criou o rascunho sintético **QA V2 2A — empresa sintética 04-11**, confirmou a adesão e reencontrou o rascunho após recarregar a página. A retirada ficou registrada junto da confirmação. O catálogo confirmou o grant esperado, um rascunho sintético, duas entradas de histórico e a mesma autoria. A fixture permanece identificada com a comprovação retirada. O nome da fixture não apareceu na lista de empresas.
+
 ### Transição e retirada do legado
 
-1. Homologar rascunho e comprovação em destino isolado. Conferir ownership das funções, schemas expostos, ACLs e rejeição de chamadas por ator sem permissão. Integrar a UI por capacidade, mantendo cadastro e comprovação separados dos comandos de acesso.
+1. Manter a capacidade de rascunhos e comprovação separada da gestão de acessos. A jornada autenticada já foi exercitada com Admin e uma fixture no CALI MAPA.
 2. Preparar materialização idempotente em `companies`. Conferir defaults, triggers, projeções consumidas pelo oficial e documentos da mesma empresa. Registrar mapeamento entre o rascunho e a empresa criada.
 3. Implantar gestão de quatro vagas em recorte isolado ou com fronteira de servidor por empresa. Admissão e todos os escritores desse recorte precisam respeitar adesão, vagas e revogação. Vincular por identidade estável e impedir e-mails ambíguos. Revogação bloqueia códigos e sessões antigos e preserva os demais vínculos. Reativação exige autenticação nova. Integrar convite e entrega só depois dessa prova.
 4. Remover a demonstração como opção da V2 após a entrada em operação, se ela deixar de ser necessária. Preservar fixtures de teste. A falta de Clientes na V2 permite descartar dados sintéticos identificados em destino isolado. Antes de aposentar RPCs, grants ou Edge do oficial no banco compartilhado, inventariar consumidores, migrá-los e verificar ausência de uso. Aprovar limpeza em lote separado.
 
-Rollback inicial desabilita as RPCs V2 no transporte e retira o acesso aos wrappers, preservando rascunhos e evidência para revisão. Exclusão física exige confirmar que só existem dados descartáveis. A migration está aplicada no CALI MAPA e aguarda o consumidor no Admin.
+Rollback inicial desabilita as RPCs V2 no transporte e retira o acesso aos wrappers, preservando rascunhos e evidência para revisão. Exclusão física exige confirmar que só existem dados descartáveis. A migration e o complemento de listagem estão aplicados no CALI MAPA. A gestão de acesso aguarda a reconciliação do corte no servidor.

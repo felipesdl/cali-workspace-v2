@@ -183,9 +183,50 @@ describe('projeções de empresas do hospedado', () => {
     await expect(service.account(id, controller.signal)).rejects.toThrow();
     expect(request).not.toHaveBeenCalled();
   });
-  it('não oferece transporte de cadastro/adesão/acessos sem contrato hospedado', () => {
+  it('separa a capacidade de rascunhos da gestão de empresas e acessos', () => {
     const { service, request } = backend([]);
     expect(service.management).toBeNull();
+    expect(service.onboarding).not.toBeNull();
     expect(request).not.toHaveBeenCalled();
+  });
+
+  it('lista rascunhos via GET no schema correto e omite cursor na primeira página', async () => {
+    const { service, request } = backend([]);
+    const signal = new AbortController().signal;
+    await expect(service.onboarding?.list(null, signal)).resolves.toEqual({
+      items: [],
+      next: null,
+    });
+    const [input, init] = request.mock.calls[0];
+    const url = new URL(String(input));
+    expect(url.pathname).toBe('/rest/v1/rpc/v2_list_company_drafts');
+    expect(url.searchParams.has('p_before')).toBe(false);
+    expect(init?.method).toBe('GET');
+    expect(init?.signal).toBe(signal);
+    expect(new Headers(init?.headers).get('Accept-Profile')).toBe('cali_workspace');
+  });
+
+  it('envia a preimagem da comprovação e distingue conflito de versão', async () => {
+    const { service, request } = backend({ code: '40001' }, 409);
+    const expected = '10000000-0000-4000-8000-000000000002';
+    const requestId = '10000000-0000-4000-8000-000000000003';
+    await expect(
+      service.onboarding?.review(id, requestId, expected, {
+        action: 'withdrawn',
+        note: 'Versão substituída',
+      }),
+    ).rejects.toThrow('A comprovação mudou');
+    const [input, init] = request.mock.calls[0];
+    expect(new URL(String(input)).pathname).toBe('/rest/v1/rpc/v2_review_company_adhesion');
+    expect(init?.method).toBe('POST');
+    expect(JSON.parse(String(init?.body))).toEqual({
+      p_draft_id: id,
+      p_request_id: requestId,
+      p_expected_event_id: expected,
+      p_action: 'withdrawn',
+      p_evidence_reference: null,
+      p_document_revision: null,
+      p_note: 'Versão substituída',
+    });
   });
 });

@@ -1,5 +1,12 @@
 # Registro de mudanças
 
+## 04/11/2026 — Cadastro e adesão conectados no Admin
+
+- A área **Rascunhos de empresas** usa quatro RPCs com a sessão do Admin. Cadastro, conferência explícita, retirada e histórico ficam separados da carteira de empresas. A paginação por cursor e o cache por ator preservam a navegação. A versão do documento é informada pelo Admin e segue pendente de vínculo com o Storage.
+- O complemento `list-drafts.sql` foi validado em PostgreSQL descartável e aplicado em transação no CALI MAPA. No navegador, o Admin criou uma fixture, confirmou a adesão, recarregou a página e retirou a comprovação. O catálogo confirmou um rascunho, uma confirmação e uma retirada. A fixture permanece identificada.
+- `npm run verify` passou com 208 testes em 28 arquivos, 676 links locais e builds. Os testes novos cobrem o schema e cursor da listagem e a preimagem de retirada. O navegador também confirmou foco inicial no formulário e bloqueio antes da conferência.
+- A gestão de acessos, a materialização em `companies` e a verificação de versão documental seguem como etapas separadas. Para suspender este fluxo, retirar a capacidade de onboarding da SPA e revogar EXECUTE dos wrappers V2, preservando os eventos.
+
 ## 04/11/2026 — Migration 2A aplicada no CALI MAPA
 
 - **Autor/escopo:** Codex. Felipe confirmou o destino com dados de teste e autorizou a migration. A revisão `8688c85` foi aplicada em transação no SQL Editor, após conferir dependências e ausência dos objetos. SHA-256 do arquivo `fc2a58fe7461b88eea0ac642994849c97b6994619007c68c886fe18f36c6d10b`.

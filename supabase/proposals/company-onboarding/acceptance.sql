@@ -30,10 +30,12 @@ insert into auth.mfa_factors select id, 'verified', 'totp'
 from cali_workspace.profiles where id <> '00000000-0000-4000-8000-000000000004';
 
 \ir candidate.sql
+\ir list-drafts.sql
 
 do $$
 begin
   if has_function_privilege('anon', 'cali_workspace.v2_create_company_draft(uuid,text,text)', 'EXECUTE')
+    or has_function_privilege('anon', 'cali_workspace.v2_list_company_drafts(uuid)', 'EXECUTE')
     or has_function_privilege('service_role', 'cali_workspace.v2_read_company_draft(uuid)', 'EXECUTE')
     or has_table_privilege('authenticated', 'cali_v2_onboarding.company_drafts', 'INSERT')
     or has_table_privilege('service_role', 'cali_v2_onboarding.adhesion_events', 'UPDATE')
@@ -56,6 +58,8 @@ declare
   proof_request uuid := '00000000-0000-4000-8000-000000000012';
   withdrawal_request uuid := '00000000-0000-4000-8000-000000000013';
   snapshot jsonb;
+  page jsonb;
+  index integer;
 begin
   for attempt in 1..4 loop
     actor := ('00000000-0000-4000-8000-00000000000' || attempt)::uuid;
@@ -80,6 +84,19 @@ begin
     raise exception 'Replay conflitante aceito.';
   exception when unique_violation then null;
   end;
+
+  for index in 1..26 loop
+    perform cali_workspace.v2_create_company_draft(gen_random_uuid(), 'Rascunho ' || index, null);
+  end loop;
+  page := cali_workspace.v2_list_company_drafts();
+  if jsonb_array_length(page) <> 26 or page #>> '{0,display_name}' <> 'Rascunho 26' then
+    raise exception 'Primeira página de rascunhos inválida.';
+  end if;
+  page := cali_workspace.v2_list_company_drafts((page #>> '{24,id}')::uuid);
+  if jsonb_array_length(page) <> 2 or (page #>> '{1,id}')::uuid is distinct from draft
+    or (page -> 1) ? 'request_id' then
+    raise exception 'Segunda página de rascunhos inválida.';
+  end if;
 
   snapshot := cali_workspace.v2_read_company_draft(draft);
   if snapshot #>> '{draft,legal_name}' is distinct from 'Empresa sintética'

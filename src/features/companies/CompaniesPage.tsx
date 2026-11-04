@@ -11,6 +11,7 @@ import { CompanyAdhesions } from './CompanyAdhesions';
 import { CompanyFilters } from './CompanyFilters';
 import { CompaniesTable } from './CompaniesTable';
 import { CompanyAccessPanel } from './CompanyAccessPanel';
+import { HostedCompanyDrafts } from './HostedCompanyDrafts';
 
 export function CompaniesPage() {
   const [createdCompanyId, setCreatedCompanyId] = useState<string | null>(null);
@@ -37,6 +38,7 @@ export function CompaniesPage() {
           await navigate({ search: { q: '', status: 'all', companyId } });
         }}
       />
+      <HostedCompanyDrafts />
       <CompanyFilters />
       <CompaniesTable
         filters={{ q: search.q, status: search.status }}
