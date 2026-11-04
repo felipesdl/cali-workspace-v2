@@ -67,8 +67,8 @@ Em 26/10/2026, a revisão de produto foi incorporada às [decisões](docs/DECISI
 
 ## Ambientes declarados
 
-- Aplicação oficial de referência: [app.calirh.com](https://app.calirh.com), código [app.cali](https://github.com/patricia258/app.cali).
-- Base V2: [cali-workspace-v2](https://github.com/patricia258/cali-workspace-v2).
+- V1 publicada para referência, sem uso operacional conforme confirmação da Patrícia. [Aplicação](https://app.calirh.com) · [Código](https://github.com/patricia258/app.cali).
+- V2 em desenvolvimento para o primeiro lançamento operacional. [Repositório](https://github.com/patricia258/cali-workspace-v2).
 - Backend informado no handoff: CALI MAPA, schema `cali_workspace`. Leitura autenticada verificada em 31/10; desenvolvimento com atores/dados sintéticos autorizado em 01/11, DEC-27.
 - Vercel, proteção e domínios são informações documentadas; configuração ativa não verificada.
 

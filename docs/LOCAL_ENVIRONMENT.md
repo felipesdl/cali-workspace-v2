@@ -64,7 +64,7 @@ O primeiro ensaio executou o handler no Node. A rodada de provisionamento chama 
 
 Para a jornada da SPA, forneça em `CALI_QA_PLAYWRIGHT_CLI` o caminho absoluto do entrypoint JavaScript do Playwright CLI instalado e execute o mesmo comando. O driver usa Chrome em sessão descartável, Vite em loopback sem carregar o arquivo de ambiente e encaminha as requisições de Auth, Edge e Data API apenas para a cópia isolada. Os termos têm uma projeção de teste compatível com a forma de gravação da SPA. O Admin revoga pela RPC e o navegador Cliente verifica o efeito na próxima recarga.
 
-O Chrome solicitou e confirmou o código recebido no Mailpit, registrou o aceite e abriu Minha empresa com os dados vinculados. Após a revogação pela RPC, a recarga exibiu acesso indisponível. A consulta de pós-verificação confirmou o aceite e o convite e perfil desativados. No oficial, a sessão Admin existente abriu a lista de clientes e o painel de acessos da empresa sintética. O callback e um novo login no oficial ficam fora dessa prova de navegação.
+O Chrome solicitou e confirmou o código recebido no Mailpit, registrou o aceite e abriu Minha empresa com os dados vinculados. Após a revogação pela RPC, a recarga exibiu acesso indisponível. A consulta de pós-verificação confirmou o aceite e o convite e perfil desativados. Na V1 publicada, uma sessão Admin de teste abriu a lista de clientes e o painel de acessos da empresa sintética como referência. O callback hospedado da V2 segue pendente para o primeiro lançamento.
 
 ## Topologia vigente — DEC-22 e DEC-25
 

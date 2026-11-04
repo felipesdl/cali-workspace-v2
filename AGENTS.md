@@ -3,10 +3,10 @@
 ## Comunicação e escopo
 
 - Nas sessões técnicas do Felipe, aplicar `caveman full` até ele pedir `normal mode` ou `stop caveman`. É preferência da sessão, não instrução geral para outros usuários/agentes. Textos para Patrícia, clientes e conteúdo do produto seguem a voz CALI; documentação e código usam prosa técnica clara.
-- Esta V2 é a base escolhida para evolução do sistema. O oficial `patricia258/app.cali` é referência de regras e contratos, consultável somente em leitura nesta etapa.
+- A V2 está em desenvolvimento para o primeiro lançamento operacional. Patrícia confirmou que ainda não usa nenhuma versão e que os dados existentes são de teste. A V1 publicada (`patricia258/app.cali`) serve como referência funcional e de contratos, consultável somente em leitura.
 - Padronização cobre todos os fluxos de Cliente e Admin. Não reduzir o plano a uma tela piloto.
 - Consolidar identidade bordô, marfim e dourado, conforme confirmação de 25/10/2026.
-- Usar o funcionamento oficial de 26/10/2026, publicação 83, como base de paridade; considerar diferenças aprovadas nas regras vigentes. Não implementar melhorias no oficial.
+- Usar a publicação 83 de 26/10/2026 como referência funcional da V1 e aplicar as diferenças aprovadas nas regras vigentes. Homologar a V2 para o primeiro lançamento.
 - Se houver delegação autorizada, usar Luna 6 e conferir resultados na base principal. Resposta de subagente não substitui evidência.
 
 ## Leitura inicial

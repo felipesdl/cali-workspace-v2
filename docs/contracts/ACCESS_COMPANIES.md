@@ -408,9 +408,9 @@ Leitura de metadados no SQL Editor do CALI MAPA (`main`) e da fonte da Edge `wor
 
 Sequência proposta para a integração:
 
-1. Manter a Edge oficial e reservar um endpoint e um registro privado de códigos para a V2. Vincular provisionamento idempotente e admissão ao convite gerenciado e à identidade Auth estável. Testar colisão de identidade e falha entre criação da conta, vinculação e envio.
-2. Portar a exigência de admissão desde o primeiro acesso para as superfícies da empresa opt-in. Cobrir API, RPCs privilegiadas e Storage conforme os consumidores desse recorte. Testar login legado como controle e também como tentativa de acesso à empresa opt-in. Conferir como revogação afeta URLs assinadas já emitidas.
-3. Homologar a jornada no navegador com Admin e dois Clientes sintéticos. Exercitar convite, primeiro acesso, refresh, revogação, reativação e leitura de arquivos. Verificar que o fluxo oficial permanece compatível para empresa fora do opt-in. Registrar rollback da Edge V2 e do opt-in antes de abrir convites no hospedado.
+1. Reservar um endpoint e um registro privado de códigos para a V2. Conferir quais consumidores do CALI MAPA dependem da Edge da V1 antes de decidir a transição. Vincular provisionamento idempotente e admissão ao convite gerenciado e à identidade Auth estável. Testar colisão de identidade e falha entre criação da conta, vinculação e envio.
+2. Portar a exigência de admissão desde o primeiro acesso para as superfícies da empresa opt-in. Cobrir API, RPCs privilegiadas e Storage conforme os consumidores desse recorte. Testar se uma sessão emitida pelo caminho legado consegue contornar a admissão da V2. Conferir como revogação afeta URLs assinadas já emitidas.
+3. Homologar a jornada no navegador com Admin e dois Clientes sintéticos. Exercitar convite, primeiro acesso, refresh, revogação, reativação e leitura de arquivos. Validar as dependências do CALI MAPA que a V2 vai usar no primeiro lançamento. Registrar rollback da Edge V2 e do opt-in antes de abrir convites no hospedado.
 
 ### Provisionamento no primeiro acesso V2 — 04/11
 

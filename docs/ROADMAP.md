@@ -1,6 +1,6 @@
 # Plano de padronização por fluxos completos
 
-Atualização: 04/11/2026. **Fase 1 e 2A em andamento. Cadastro e comprovação têm validação no CALI MAPA. Gestão hospedada de acessos segue pendente.** A V2 é a base. O repositório oficial é referência somente leitura e o backend usa fixtures conforme DEC-27. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é a referência funcional. As [regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
+Atualização: 04/11/2026. **Fase 1 e 2A em andamento. Cadastro e comprovação têm validação no CALI MAPA. Gestão hospedada de acessos segue pendente.** A V2 é a base do primeiro lançamento operacional. Patrícia confirmou que ainda não usa nenhuma versão e que os dados são de teste. A V1 publicada serve como referência em leitura e o backend usa fixtures conforme DEC-27. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é a referência funcional. As [regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
 
 Objetivo: padronizar todos os fluxos Cliente/Admin sem passar várias fases construindo camadas antes da primeira jornada utilizável. Cada entrega fecha uma tarefa com interface, dados, regra, autorização, histórico, falhas e comunicação quando aplicável. “Fluxo completo” é unidade de construção; não cria fluxo novo nem significa que toda tela dispara e-mail. Chat não gera e-mail. Produção, migrations e canais externos exigem escopo próprio.
 
@@ -156,7 +156,7 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Conferir a Edge publicada e o catálogo do CALI MAPA. No navegador, reabrir a ficha sintética, ler histórico e versão do Storage e verificar o estado da gestão de convites.
 - [x] Exigir admissão desde a primeira sessão Cliente de empresa gerenciada na candidata isolada. Preservar sessão legada sem corte fora da gestão no controle SQL.
 - [x] Implementar a candidata isolada de provisionamento e admissão V2. Criar a identidade pelo Auth, vincular ao convite gerenciado e recuperar uma criação parcial sem adotar conta de outro fluxo.
-- [x] Exercitar o primeiro acesso no Chrome, confirmar aceite e consulta da empresa e verificar o bloqueio após revogação pela RPC e recarga. Conferir a navegação do Admin no oficial com sessão existente.
+- [x] Exercitar o primeiro acesso no Chrome, confirmar aceite e consulta da empresa e verificar o bloqueio após revogação pela RPC e recarga. Consultar a navegação do Admin na V1 publicada como referência com sessão de teste existente.
 - [ ] Reconciliar o provisionamento e admissão com o catálogo hospedado. Cobrir RLS, Storage e RPCs que alcançam a empresa opt-in. Homologar Cliente/Admin e revogação antes de habilitar o recorte. Planejar retirada de mocks e legado em gates separados.
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
