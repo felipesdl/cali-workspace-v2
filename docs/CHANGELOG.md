@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Reautorização restrita aos vínculos A/B
+
+- O Admin local lê o vínculo exato do piloto pela Data API e mostra a ação correspondente. No CALI MAPA, A exibiu **Reautorizar acesso de teste** e B exibiu **Revogar acesso de teste**. A confirmação de A foi aberta e cancelada; não houve reativação nem envio de código.
+- O [SQL instalado](../supabase/proposals/hosted-access-pilot/reauthorize.sql) exige sessão Admin com MFA, adesão vigente e a mesma revogação exibida na ficha. Restaura só o convite e o perfil já pareados, preserva o corte de sessões e códigos anteriores e registra a revogação original no histórico privado. Consulta posterior confirmou duas RPCs restritas ao papel autenticado, uma matrícula revogada e zero reautorizações.
+- PostgreSQL descartável confirmou recusa sem adesão vigente, sessão antiga cortada, admissão nova, histórico sem duplicata, proteção contra confirmação antiga e suspensão. Typecheck, lint do recorte e 19 testes passaram. Gestão das quatro vagas e reautorização hospedada de ponta a ponta seguem pendentes.
+
 ## 04/11/2026 — Adesões e ciclos de novembro das empresas A/B
 
 - Pela sessão Admin da V2, os dois rascunhos foram vinculados às empresas existentes. A ficha preparou um PDF sintético privado por empresa, verificou o registro no catálogo e confirmou a adesão com a versão exata no Storage. O CALI MAPA confirmou as duas adesões.

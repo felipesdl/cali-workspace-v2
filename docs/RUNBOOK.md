@@ -72,6 +72,10 @@ O CALI MAPA já tem um convite ativo por empresa A/B. O e-mail coincide com o pe
 
 A primeira rodada usou texto simples no e-mail. O Gmail recebeu mais tarde e usou o mesmo código. A versão atual da função restaura o HTML Cliente V3, com o botão de acesso apontando para a aba local do piloto. O código de envio registra o identificador de aceite do provedor sem gravar e-mail ou código no log. A correção foi publicada e verificada em renderização local. A rodada concluída não foi repetida para conferir a nova mensagem nas caixas.
 
+O [comando de reautorização](../supabase/proposals/hosted-access-pilot/reauthorize.sql) está instalado no CALI MAPA. A ficha Admin consulta o estado do vínculo específico e exige confirmação da revogação vigente. O servidor revalida adesão, sessão Admin com MFA, e-mail e pareamento original. Reautorizar não envia mensagem: o Cliente deve solicitar um código novo na aba de teste. A sessão anterior permanece cortada. A consulta de catálogo e a interface conectada foram verificadas, com A revogada e B ativa; a gravação foi testada somente em PostgreSQL descartável.
+
+Para retirar somente a reautorização, revogar `EXECUTE` de `authenticated` em `cali_workspace.v2_reauthorize_pilot_access(uuid,timestamptz,uuid)` e recarregar o cache de schema do PostgREST. Preservar a consulta do vínculo e a tabela privada de histórico. Para suspender a emissão e as sessões de todo o piloto, usar a suspensão do passo 5.
+
 ## Candidata de corte no servidor — sem execução
 
 [Contrato e sequência de revisão](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada). `supabase/proposals/session-cut` contém catálogo somente leitura, candidata e aceite SQL futuro. Não é migration nem comando npm; runner local conserva a lista fechada das três migrations do laboratório. Nada foi aplicado ou executado em banco nesta preparação.

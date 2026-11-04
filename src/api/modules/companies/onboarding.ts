@@ -65,11 +65,34 @@ const pilotCompanyIdSchema = z.enum([
   '9c5ab148-78b8-4410-9338-58c44222a5db',
   '6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76',
 ]);
+const pilotAccessStateSchema = z.object({
+  revoked_at: z.iso.datetime({ offset: true }).nullable(),
+});
 export const isPilotCompany = (companyId: string | undefined) =>
   pilotCompanyIdSchema.safeParse(companyId).success;
 
 export function createCompanyOnboarding(client: WorkspaceClient) {
   return {
+    async readPilotAccessState(companyId: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc(
+          'v2_read_pilot_access_state',
+          { p_company_id: pilotCompanyIdSchema.parse(companyId) },
+          { get: true },
+        )
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar o vínculo do piloto.');
+      const state = pilotAccessStateSchema.nullable().parse(data);
+      return state && { revokedAt: state.revoked_at };
+    },
+    async reauthorizePilotAccess(companyId: string, revokedAt: string, requestId: string) {
+      const { error } = await client.rpc('v2_reauthorize_pilot_access', {
+        p_company_id: pilotCompanyIdSchema.parse(companyId),
+        p_expected_revoked_at: pilotAccessStateSchema.shape.revoked_at.unwrap().parse(revokedAt),
+        p_request_id: z.uuid().parse(requestId),
+      });
+      if (error) throw new Error('Não foi possível confirmar a reautorização do acesso de teste.');
+    },
     async revokePilotAccess(companyId: string) {
       const { error } = await client.rpc('v2_revoke_pilot_access', {
         p_company_id: pilotCompanyIdSchema.parse(companyId),

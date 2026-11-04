@@ -4,7 +4,7 @@ import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { formatCalendarDate } from '../../lib/dates';
 import { CompanyAccessManagement } from './CompanyAccessManagement';
-import { PilotAccessRevocation } from './PilotAccessRevocation';
+import { PilotAccessAction } from './PilotAccessAction';
 import { isPilotCompany } from '../../api/modules/companies/onboarding';
 
 export function CompanyAccessPanel({
@@ -64,12 +64,9 @@ export function CompanyAccessPanel({
           ))}
         </ul>
       )}
-      {import.meta.env.DEV &&
-        isPilotCompany(companyId) &&
-        accesses.isSuccess &&
-        accesses.data.some((access) => access.status === 'active') && (
-          <PilotAccessRevocation companyId={companyId} />
-        )}
+      {import.meta.env.DEV && isPilotCompany(companyId) && accesses.isSuccess && (
+        <PilotAccessAction key={companyId} companyId={companyId} />
+      )}
     </section>
   );
 }

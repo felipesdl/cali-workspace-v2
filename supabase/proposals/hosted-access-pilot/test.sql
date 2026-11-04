@@ -72,7 +72,14 @@ $$;
 -- Substitutos isolados para o resultado do gate de adesão e a API de Storage.
 -- O teste de integração documental está no recorte company-onboarding.
 create function cali_v2_onboarding.require_access_adhesion(p_company_id uuid)
-returns uuid language sql stable as $$ select p_company_id $$;
+returns uuid language plpgsql stable as $$
+begin
+  if current_setting('test.adhesion', true) = 'missing' then
+    raise exception using errcode = '55000', message = 'Adesão vigente obrigatória.';
+  end if;
+  return p_company_id;
+end;
+$$;
 create schema storage;
 create table storage.objects (bucket_id text, name text);
 create function storage.allow_any_operation(text[])
@@ -81,6 +88,7 @@ set cali.hosted_terms.activate_storage = 'reviewed';
 \ir ../hosted-terms/activate-storage.sql
 set cali.access_pilot.enroll = 'reviewed';
 \ir enroll.sql
+\ir reauthorize.sql
 
 do $$
 declare
@@ -91,6 +99,8 @@ declare
   sa constant uuid := '00000000-0000-4000-8000-000000000021';
   sb constant uuid := '00000000-0000-4000-8000-000000000022';
   sad constant uuid := '00000000-0000-4000-8000-000000000024';
+  sa_new constant uuid := '00000000-0000-4000-8000-000000000025';
+  request_a constant uuid := '00000000-0000-4000-8000-000000000031';
   company_a constant uuid := '9c5ab148-78b8-4410-9338-58c44222a5db';
   company_b constant uuid := '6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76';
   company_legacy constant uuid := '00000000-0000-4000-8000-000000000003';
@@ -100,9 +110,13 @@ declare
   cycle_a uuid;
   publication jsonb;
   issued jsonb;
+  revoked_at timestamptz;
   code_hash constant text := repeat('a',64);
 begin
   if has_function_privilege('anon', 'cali_workspace.v2_revoke_pilot_access(uuid)', 'execute')
+    or has_function_privilege('anon', 'cali_workspace.v2_read_pilot_access_state(uuid)', 'execute')
+    or has_function_privilege('service_role', 'cali_workspace.v2_reauthorize_pilot_access(uuid,timestamptz,uuid)', 'execute')
+    or has_table_privilege('authenticated', 'cali_session_guard.pilot_reauthorizations', 'select')
     or has_function_privilege('authenticated', 'cali_workspace.admit_workspace_session_v2(uuid,uuid)', 'execute')
     or has_table_privilege('authenticated', 'cali_session_guard.pilot_accounts', 'insert') then
     raise exception 'Permissões do piloto incorretas';
@@ -212,6 +226,67 @@ begin
     or (cali_workspace.v2_issue_pilot_code('a@example.test', code_hash)->>'status') <> 'unavailable' then
     raise exception 'A recuperou elegibilidade após revogação';
   end if;
+
+  set local role authenticated;
+  begin
+    perform cali_workspace.v2_read_pilot_access_state(company_a);
+    raise exception 'Cliente conseguiu consultar gestão do piloto';
+  exception when insufficient_privilege then null;
+  end;
+  perform set_config('test.jwt', jsonb_build_object('sub', admin, 'session_id', sad, 'aal', 'aal2')::text, true);
+  revoked_at := (cali_workspace.v2_read_pilot_access_state(company_a)->>'revoked_at')::timestamptz;
+  if revoked_at is null or cali_workspace.v2_read_pilot_access_state(company_legacy) is not null then
+    raise exception 'Consulta de status perdeu a revogação ou o escopo';
+  end if;
+  perform set_config('test.adhesion','missing',true);
+  begin
+    perform cali_workspace.v2_reauthorize_pilot_access(company_a, revoked_at, request_a);
+    raise exception 'Reautorização dispensou a adesão vigente';
+  exception when object_not_in_prerequisite_state then null;
+  end;
+  perform set_config('test.adhesion','current',true);
+  perform cali_workspace.v2_reauthorize_pilot_access(company_a, revoked_at, request_a);
+  perform cali_workspace.v2_reauthorize_pilot_access(company_a, revoked_at, request_a);
+  perform set_config('test.jwt', jsonb_build_object('sub', a, 'session_id', sa)::text, true);
+  if exists (select 1 from cali_workspace.companies where id = company_a) then
+    raise exception 'Reautorização recuperou a sessão antiga de A';
+  end if;
+  reset role;
+  if (select count(*) from cali_session_guard.pilot_reauthorizations r
+      where r.company_id = company_a and r.previous_revoked_at = revoked_at) <> 1 then
+    raise exception 'Reautorização perdeu histórico ou registrou duplicata';
+  end if;
+
+  -- O relógio só é ajustado na fixture descartável para passar o intervalo de emissão.
+  update cali_session_guard.pilot_codes set created_at = clock_timestamp() - interval '3 minutes'
+    where profile_id = a;
+  issued := cali_workspace.v2_issue_pilot_code('a@example.test', code_hash);
+  if issued->>'status' <> 'issued' then
+    raise exception 'A não recuperou a elegibilidade para um código novo';
+  end if;
+  perform cali_workspace.v2_deliver_pilot_code((issued->>'id')::uuid, true);
+  proof_a := (cali_workspace.v2_consume_pilot_code('a@example.test', code_hash)->>'authorizationId')::uuid;
+  insert into auth.sessions values (sa_new, a, clock_timestamp(), null);
+  if proof_a is null or not cali_workspace.admit_workspace_session_v2(proof_a, sa_new) then
+    raise exception 'A não conseguiu uma nova admissão';
+  end if;
+  set local role authenticated;
+  perform set_config('test.jwt', jsonb_build_object('sub', a, 'session_id', sa_new)::text, true);
+  if not exists (select 1 from cali_workspace.companies where id = company_a) then
+    raise exception 'Nova sessão de A não leu a própria empresa';
+  end if;
+  perform set_config('test.jwt', jsonb_build_object('sub', admin, 'session_id', sad, 'aal', 'aal2')::text, true);
+  perform cali_workspace.v2_revoke_pilot_access(company_a);
+  perform cali_workspace.v2_reauthorize_pilot_access(company_a, revoked_at, request_a);
+  begin
+    perform cali_workspace.v2_reauthorize_pilot_access(company_a, revoked_at, gen_random_uuid());
+    raise exception 'Confirmação antiga desfez nova revogação';
+  exception when object_not_in_prerequisite_state then null;
+  end;
+  if (cali_workspace.v2_read_pilot_access_state(company_a)->>'revoked_at')::timestamptz <= revoked_at then
+    raise exception 'Repetição desfez nova revogação';
+  end if;
+  reset role;
 end;
 $$;
 
@@ -219,7 +294,7 @@ $$;
 
 do $$
 begin
-  if (select count(*) from cali_session_guard.login_authorizations) <> 2
+  if (select count(*) from cali_session_guard.login_authorizations) <> 3
     or (select count(*) from cali_session_guard.profile_cutoffs) <> 1 then
     raise exception 'Suspensão perdeu histórico';
   end if;
@@ -229,5 +304,16 @@ begin
   if cali_session_guard.session_is_live() then
     raise exception 'Suspensão deixou sessão B ativa';
   end if;
+  perform set_config('test.jwt',
+    '{"sub":"00000000-0000-4000-8000-000000000014","session_id":"00000000-0000-4000-8000-000000000024","aal":"aal2"}',true);
+  begin
+    perform cali_workspace.v2_reauthorize_pilot_access(
+      '9c5ab148-78b8-4410-9338-58c44222a5db',
+      (cali_workspace.v2_read_pilot_access_state('9c5ab148-78b8-4410-9338-58c44222a5db')->>'revoked_at')::timestamptz,
+      gen_random_uuid()
+    );
+    raise exception 'Reautorização alterou o vínculo com o piloto suspenso';
+  exception when object_not_in_prerequisite_state then null;
+  end;
 end;
 $$;

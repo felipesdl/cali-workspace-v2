@@ -177,6 +177,8 @@ O CALI MAPA recebeu a publicação vigente e o registro de confirmação com has
 
 A [variante do piloto A/B](../supabase/proposals/hosted-access-pilot/base.sql) restringe admissão, códigos e corte aos dois Clientes cadastrados no recorte. A base, a função separada de login e a guarda de arquivos foram instaladas no CALI MAPA. A e B concluíram uma rodada de login, aceite e consulta. Revogar A no Admin bloqueou a sessão após recarga e preservou B. Essa prova cobre os dois vínculos do piloto. A gestão hospedada das quatro vagas por empresa permanece pendente. [Evidência da rodada](RUNBOOK.md#piloto-de-admissão-ab)
 
+A [reautorização dos vínculos A/B](../supabase/proposals/hosted-access-pilot/reauthorize.sql) foi instalada. A ficha Admin conectada apresentou a ação certa para A revogada e B ativa. A escrita, o novo login e a preservação do corte foram verificados no banco descartável; nenhuma reautorização ou novo envio no CALI MAPA. Ainda faltam convite, provisionamento e gestão hospedada das quatro vagas.
+
 O catálogo hospedado confirmou `service_cycles` com unicidade por `(company_id, reference_month)`, estados `planned`, `open`, `review` e `closed`, e leitura Cliente por `current_company_id()`. A candidata A/B cobre esse vínculo. A ficha Admin conectada consulta os 12 ciclos mais recentes. A [abertura explícita do mês corrente](../supabase/proposals/company-onboarding/open-current-cycle.sql) foi instalada no CALI MAPA e abriu novembro de 2026 para A/B pela tela de homologação. Ainda faltam as demais transições.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
