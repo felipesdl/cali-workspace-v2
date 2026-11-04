@@ -10,6 +10,8 @@ declare
   session_b uuid := '00000000-0000-4000-8000-000000000072';
   new_session uuid := '00000000-0000-4000-8000-000000000073';
   revoke_request uuid := gen_random_uuid();
+  initial_proof_a uuid;
+  initial_proof_b uuid;
   old_proof uuid;
   fresh_proof uuid;
   previous_code timestamptz := clock_timestamp() - interval '1 minute';
@@ -38,11 +40,24 @@ begin
   insert into auth.sessions values
     (session_a, client_a, previous_code, null), (session_b, client_b, previous_code, null);
 
+  perform set_config('test.actor', client_a::text, true);
+  perform set_config('test.session', session_a::text, true);
+  set local role authenticated;
+  if exists (select 1 from cali_workspace.profiles where id = client_a) then
+    raise exception 'Primeira sessão sem admissão leu dados.';
+  end if;
+  reset role;
+
+  initial_proof_a := cali_session_guard.authorize_code(client_a, previous_code);
+  initial_proof_b := cali_session_guard.authorize_code(client_b, previous_code);
+  update auth.sessions set created_at = clock_timestamp() where id in (session_a, session_b);
+  if cali_workspace.admit_workspace_session_v2(initial_proof_a, session_a) is not true
+    or cali_workspace.admit_workspace_session_v2(initial_proof_b, session_b) is not true then
+    raise exception 'Admissão inicial recusada.';
+  end if;
   old_proof := cali_session_guard.authorize_code(client_a, previous_code);
   if old_proof is null then raise exception 'Prova pré-corte indisponível.'; end if;
 
-  perform set_config('test.actor', client_a::text, true);
-  perform set_config('test.session', session_a::text, true);
   set local role authenticated;
   if not exists (select 1 from cali_workspace.profiles where id = client_a) then
     raise exception 'Cliente não tinha acesso antes do corte.';

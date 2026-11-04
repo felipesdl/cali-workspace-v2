@@ -63,6 +63,16 @@ begin
   if not cali_session_guard.profile_login_eligible('00000000-0000-4000-8000-000000000063') then
     raise exception 'Regra legada alterada para empresa fora da gestão.';
   end if;
+  insert into auth.users values ('00000000-0000-4000-8000-000000000063');
+  insert into auth.sessions values ('00000000-0000-4000-8000-000000000074',
+    '00000000-0000-4000-8000-000000000063', clock_timestamp(), null);
+  perform set_config('test.actor', '00000000-0000-4000-8000-000000000063', true);
+  perform set_config('test.session', '00000000-0000-4000-8000-000000000074', true);
+  set local role authenticated;
+  if not exists (select 1 from cali_workspace.profiles where id = '00000000-0000-4000-8000-000000000063') then
+    raise exception 'Sessão legada sem corte perdeu acesso fora da gestão.';
+  end if;
+  reset role;
 
   update cali_v2_onboarding.company_drafts set access_management_enabled = true where id = draft.id;
   if cali_session_guard.profile_login_eligible('00000000-0000-4000-8000-000000000063') then

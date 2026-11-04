@@ -33,7 +33,7 @@ Em 02/11, Felipe autorizou corrigir o código sem retomar a bateria do laborató
 
 A Edge V2 deixa de devolver `token_hash`: consome o código, troca o hash internamente no Auth e só devolve `session.access_token/refresh_token` depois de confirmar a admissão daquela sessão. O subject de consumo contém `userId/authorizationId` vindos do servidor; nenhum desses campos é aceito na solicitação pública. Identidade divergente, admissão negada ou resposta incerta impedem a entrega da sessão e solicitam logout local. Falha no logout não abre a resposta.
 
-[login-admission.sql](../../supabase/proposals/session-cut/login-admission.sql) registra a autorização com instante original do código e liga seu uso único ao `auth.sessions.id`/usuário. Após qualquer marco de corte, `session_is_live` exige admissão com código posterior ao marco, além da sessão e elegibilidade vigentes. Assim, sessão criada depois do corte por um hash antigo não ganha acesso; refresh não altera a prova original. Corte posterior à admissão também a invalida. Sessões sem corte prévio mantêm compatibilidade com os controles anteriores, sem dispensar MFA/termos/permissões de negócio.
+[login-admission.sql](../../supabase/proposals/session-cut/login-admission.sql) registra a autorização com instante original do código e liga seu uso único ao `auth.sessions.id`/usuário. Após qualquer marco de corte, `session_is_live` exige admissão com código posterior ao marco, além da sessão e elegibilidade vigentes. Assim, sessão criada depois do corte por um hash antigo não ganha acesso. Refresh preserva a prova original. Corte posterior à admissão também a invalida. A candidata de gestão exige admissão desde a primeira sessão de Clientes de empresa opt-in. Fora da gestão, sessões sem corte prévio mantêm compatibilidade com MFA, termos e permissões de negócio vigentes.
 
 [local-code-admission.sql](../../supabase/proposals/session-cut/local-code-admission.sql) contém somente o adapter do schema privado **conhecido do laboratório**, criando a autorização na mesma transação que consome o código. Não é adapter hospedado: seu DDL de códigos não foi obtido. [reconciliation.sql](../../supabase/proposals/session-cut/reconciliation.sql) e [rpc-guard.sql](../../supabase/proposals/session-cut/rpc-guard.sql) preservam os complementos locais de convites/elegibilidade e guardas dos corpos de RPC conhecidos.
 
@@ -394,6 +394,23 @@ O [teste isolado](../../supabase/proposals/company-onboarding/test-access.sh) so
 O [cenário com Auth local](../LOCAL_ENVIRONMENT.md#homologação-isolada-de-convites-e-sessão--0411) acrescentou Admin AAL2, entrega no Mailpit e JWT/refresh reais. Após a revogação e reativação, a RLS continuou negando a leitura de A com o JWT renovado e com uma sessão emitida a partir de hash anterior ao corte. B manteve acesso.
 
 A candidata permanece fora do CALI MAPA. Antes do opt-in hospedado, comparar catálogo, RLS, escritores legados com privilégios elevados, consumidores da Edge e adapter de códigos. Verificar convites preexistentes e colisões de identidade antes de trocar a fonte de elegibilidade.
+
+### Reconciliação com o catálogo ativo — 04/11
+
+Leitura de metadados no SQL Editor do CALI MAPA (`main`) e da fonte da Edge `workspace-access`, revisão 11. A verificação consultou estrutura, políticas, grants e código implantado.
+
+| Superfície | Observado no CALI MAPA | Implicação para a V2 |
+| --- | --- | --- |
+| Códigos e sessão | `cali_workspace.workspace_access_codes` vincula por e-mail. Tem `code_hash`, `attempts`, `used_at`, `expires_at`, `created_at` e `requested_ip`. RLS ativa sem policies para a tabela. A Edge usa papel de serviço, lê o código e registra tentativas e consumo em chamadas distintas. Após gerar link no Auth, devolve `token_hash`. | O adapter local usa tabela privada e consome o código junto da autorização de sessão. Reusar o registro hospedado exigiria uma transição que também excluísse a possibilidade de o escritor legado consumir o mesmo código. |
+| Provisionamento e comunicação | A Edge reutiliza perfil, procura convite ativo por e-mail, pode criar usuário e gravar perfil na solicitação de código. Também mantém fluxo de staff/Partner e envia por Resend. | Provisionamento, admissão e comunicação precisam de prova de idempotência e falha parcial em fluxo próprio. O ensaio local semeia perfis sintéticos. |
+| Escritores e convites | `authenticated` tem DML em `client_invites` e `profiles`, limitado por RLS. `create_client_account` escreve convites. `profile_send_invites` chama a rotina de envio. Essas RPCs e `profile_renew_invite` são `SECURITY DEFINER` executáveis por `authenticated`. O trigger legado conta pelo campo `active`, sem `platform_access`. | O guard de escrita da candidata distingue papéis SQL. Um escritor `SECURITY DEFINER` com owner `postgres` precisa de tratamento explícito para garantir a fronteira do opt-in. |
+| Corte e alcance | `auth.sessions` tem as quatro colunas exigidas pela candidata. `cali_session_guard`, `cali_private`, `v2_access_slot` e a RPC de gestão estão ausentes. As oito policies das quatro tabelas da prova são permissivas. O schema tem 213 policies em 88 tabelas. A consulta encontrou 25 policies do Storage com referência textual a `cali-workspace`, incluindo superfícies Cliente e Partner. | A prova nas quatro tabelas cobre somente esse recorte. Inventariar RPCs e Storage que permitem ler ou escrever para a empresa opt-in com uma sessão antiga. |
+
+Sequência proposta para a integração:
+
+1. Manter a Edge oficial e reservar um endpoint e um registro privado de códigos para a V2. Vincular provisionamento idempotente e admissão ao convite gerenciado e à identidade Auth estável. Testar colisão de identidade e falha entre criação da conta, vinculação e envio.
+2. Portar a exigência de admissão desde o primeiro acesso para as superfícies da empresa opt-in. Cobrir API, RPCs privilegiadas e Storage conforme os consumidores desse recorte. Testar login legado como controle e também como tentativa de acesso à empresa opt-in. Conferir como revogação afeta URLs assinadas já emitidas.
+3. Homologar a jornada no navegador com Admin e dois Clientes sintéticos. Exercitar convite, primeiro acesso, refresh, revogação, reativação e leitura de arquivos. Verificar que o fluxo oficial permanece compatível para empresa fora do opt-in. Registrar rollback da Edge V2 e do opt-in antes de abrir convites no hospedado.
 
 ### Transição e retirada do legado
 

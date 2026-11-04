@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Catálogo do CALI MAPA e admissão inicial
+
+- O inventário do CALI MAPA e da Edge publicada confirmou ledger de códigos por e-mail, entrega de `token_hash` ao navegador, provisionamento no fluxo legado e escritores privilegiados. O contrato registra a fronteira proposta para a V2 e as verificações necessárias antes de habilitar gestão hospedada.
+- No navegador, a sessão Admin reabriu o rascunho sintético, conferiu o histórico com a versão do contrato no Storage e abriu o painel de acessos. A gestão hospedada aparece em preparação.
+- A candidata isolada passou a exigir admissão desde a primeira sessão Cliente de empresa gerenciada. O controle SQL preservou leitura para sessão legada sem corte fora da gestão e manteve o limite de quatro vagas. O cenário local executa o bundle no Edge Runtime com GoTrue, PostgREST, Kong e Mailpit.
+
 ## 04/11/2026 — Auth e corte de acesso em cópia isolada
 
 - Corrigida a sintaxe do adapter local de consumo de código. A chave `authorizationId` e a assinatura da RPC foram preservadas.

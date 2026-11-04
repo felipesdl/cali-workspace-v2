@@ -1,18 +1,10 @@
 import { execFileSync } from 'node:child_process';
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import { validateLocalContainer } from './local-database.ts';
-import {
-  codeIssueResultSchema,
-  codeSubjectSchema,
-  createAccessHandler,
-} from '../supabase/functions/workspace-access/handler.ts';
-import {
-  createSessionExchange,
-  issuedSessionSchema,
-} from '../supabase/functions/workspace-access/session-exchange.ts';
+import { issuedSessionSchema } from '../supabase/functions/workspace-access/session-exchange.ts';
 
 const root = resolve(import.meta.dirname, '..');
 const network = 'cali-workspace-v2-isolated';
@@ -22,9 +14,12 @@ const source = 'supabase_db_cali-workspace-v2-local';
 const auth = `cali-qa-auth-${suffix}`;
 const rest = `cali-qa-rest-${suffix}`;
 const mail = `cali-qa-mail-${suffix}`;
+const gateway = `cali-qa-gateway-${suffix}`;
+const edgeRuntime = `cali-qa-edge-${suffix}`;
 const secret = randomBytes(48).toString('hex');
 const services: string[] = [];
 let createdDatabase = false;
+let runtimeDirectory: string | undefined;
 let stage = 'preflight';
 let checks = 0;
 
@@ -63,7 +58,7 @@ const topology = z.object({
   State: z.object({ Running: z.boolean() }),
   Config: z.object({ Env: z.array(z.string()), Labels: z.record(z.string(), z.string()) }),
   NetworkSettings: z.object({
-    Networks: z.record(z.string(), z.object({})),
+    Networks: z.record(z.string(), z.object({ IPAddress: z.string() })),
     Ports: z.record(
       z.string(),
       z.array(z.object({ HostIp: z.string(), HostPort: z.string() })).nullable(),
@@ -81,7 +76,13 @@ function envOf(name: string) {
     }),
   );
 }
-function start(name: string, image: string, env: Record<string, string>) {
+function start(
+  name: string,
+  image: string,
+  env: Record<string, string>,
+  options: string[] = [],
+  command: string[] = [],
+) {
   docker(
     [
       'run',
@@ -95,8 +96,10 @@ function start(name: string, image: string, env: Record<string, string>) {
       'ALL',
       '--security-opt',
       'no-new-privileges:true',
+      ...options,
       ...Object.keys(env).flatMap((key) => ['--env', key]),
       image,
+      ...command,
     ],
     undefined,
     env,
@@ -109,6 +112,7 @@ function start(name: string, image: string, env: Record<string, string>) {
       Object.values(info.NetworkSettings.Ports).every((bindings) => !bindings?.length),
     `serviço isolado ${name.split('-')[2]}`,
   );
+  return z.ipv4().parse(info.NetworkSettings.Networks[network]?.IPAddress);
 }
 
 function token(role: 'service_role' | 'anon') {
@@ -122,7 +126,7 @@ function token(role: 'service_role' | 'anon') {
 }
 const serviceKey = token('service_role');
 const anonKey = token('anon');
-function http(host: string, path: string, authToken = anonKey, body?: object) {
+function http(host: string, path: string, authToken = anonKey, body?: object, origin?: string) {
   const config = [
     `url = ${JSON.stringify(`http://${host}${path}`)}`,
     'silent',
@@ -134,11 +138,21 @@ function http(host: string, path: string, authToken = anonKey, body?: object) {
     'header = "Content-Profile: cali_workspace"',
     'write-out = "\\n%{http_code}"',
   ];
+  if (origin) config.push(`header = ${JSON.stringify(`Origin: ${origin}`)}`);
   if (body) config.push(`data = ${JSON.stringify(JSON.stringify(body))}`);
   const raw = docker(['exec', '-i', source, 'curl', '--config', '-'], config.join('\n'));
   const split = raw.lastIndexOf('\n');
   const bodyText = raw.slice(0, split);
   return { status: Number(raw.slice(split + 1)), bodyText };
+}
+function edge(body?: object) {
+  return http(
+    `${edgeRuntime}:9000`,
+    '/functions/v1/workspace-access',
+    anonKey,
+    body,
+    'http://127.0.0.1:5173',
+  );
 }
 function rpc(name: string, body: object, authToken = serviceKey): unknown {
   const response = http(`${rest}:3000`, `/rpc/${name}`, authToken, body);
@@ -284,7 +298,7 @@ async function main() {
   );
   restDsn.hostname = source;
   restDsn.pathname = `/${database}`;
-  start(mail, 'public.ecr.aws/supabase/mailpit:v1.31.3', {});
+  const mailAddress = start(mail, 'public.ecr.aws/supabase/mailpit:v1.31.3', {});
   start(auth, 'public.ecr.aws/supabase/gotrue:v2.197.0', {
     API_EXTERNAL_URL: `http://${auth}:9999`,
     GOTRUE_API_HOST: '0.0.0.0',
@@ -309,10 +323,49 @@ async function main() {
     PGRST_DB_ANON_ROLE: 'anon',
     PGRST_JWT_SECRET: secret,
   });
-  stage = 'aguardar Auth e PostgREST';
+  stage = 'montar gateway e bundle Edge';
+  const bundle = resolve(root, 'supabase/.temp/workspace-access');
+  readFileSync(resolve(bundle, 'index.ts'));
+  runtimeDirectory = mkdtempSync(resolve(root, 'supabase/.temp/cali-access-qa-'));
+  const kongConfig = resolve(runtimeDirectory, 'kong.json');
+  writeFileSync(
+    kongConfig,
+    JSON.stringify({
+      _format_version: '1.1',
+      services: [
+        { name: 'auth', url: `http://${auth}:9999`, routes: [{ paths: ['/auth/v1'] }] },
+        { name: 'rest', url: `http://${rest}:3000`, routes: [{ paths: ['/rest/v1'] }] },
+      ],
+    }),
+  );
+  const gatewayAddress = start(
+    gateway,
+    'public.ecr.aws/supabase/kong:2.8.1',
+    { KONG_DATABASE: 'off', KONG_DECLARATIVE_CONFIG: '/qa/kong.json', KONG_ADMIN_LISTEN: 'off' },
+    ['--mount', `type=bind,src=${kongConfig},dst=/qa/kong.json,readonly`],
+  );
+  start(
+    edgeRuntime,
+    'public.ecr.aws/supabase/edge-runtime:v1.77.8',
+    { SUPABASE_URL: 'http://kong:8000', SUPABASE_SERVICE_ROLE_KEY: serviceKey },
+    [
+      '--add-host',
+      `kong:${gatewayAddress}`,
+      '--add-host',
+      `supabase_inbucket_cali-workspace-v2-local:${mailAddress}`,
+      '--mount',
+      `type=bind,src=${bundle},dst=/qa/function,readonly`,
+    ],
+    ['start', '--main-service', '/qa/function'],
+  );
+  stage = 'aguardar gateway e runtime Edge';
   for (let attempt = 0; attempt < 15; attempt++) {
     try {
-      if (authCall('/health').status === 200 && http(`${rest}:3000`, '/', serviceKey).status < 500)
+      if (
+        http(`${gateway}:8000`, '/auth/v1/health').status === 200 &&
+        http(`${gateway}:8000`, '/rest/v1/', serviceKey).status === 200 &&
+        edge().status === 405
+      )
         break;
     } catch {
       // Aguarda as duas portas internas.
@@ -320,6 +373,7 @@ async function main() {
     if (attempt === 14) throw new Error('Serviços indisponíveis.');
     await new Promise((done) => setTimeout(done, 500));
   }
+  check(true, 'bundle Edge ativo com gateway isolado');
 
   const adminEmail = `admin-${suffix}@example.test`;
   const adminPassword = `QA-${randomUUID()}!`;
@@ -450,74 +504,32 @@ async function main() {
     return authCall('/verify', { token_hash: hash, type: 'email' });
   }
 
-  // Usa o handler e a troca reais do Edge. O driver conecta suas portas ao stack descartável.
-  const handler = createAccessHandler({
-    randomCode: () => String(randomBytes(4).readUInt32BE() % 1_000_000).padStart(6, '0'),
-    hash: (email, value) =>
-      Promise.resolve(createHmac('sha256', secret).update(`${email}:${value}`).digest('hex')),
-    issue: (email, hash) =>
-      Promise.resolve(
-        codeIssueResultSchema.parse(rpc('issue_workspace_code', { p_email: email, p_hash: hash })),
-      ),
-    async delivered(id, delivered) {
-      rpc('deliver_workspace_code', { p_id: id, p_delivered: delivered });
-    },
-    consume: (email, hash) =>
-      Promise.resolve(
-        codeSubjectSchema.parse(rpc('consume_workspace_code_v2', { p_email: email, p_hash: hash })),
-      ),
-    async send(email, value) {
-      const sent = http(`${mail}:8025`, '/api/v1/send', anonKey, {
-        From: { Email: 'workspace@example.test' },
-        To: [{ Email: email }],
-        Subject: 'Código CALI QA',
-        Text: value,
-      });
-      if (sent.status >= 300) throw new Error('Mailpit recusou código.');
-    },
-    session: createSessionExchange({
-      async authenticate(email) {
-        const exchanged = exchangeAuthHash(issueAuthHash(email));
-        return issuedSessionSchema.parse(JSON.parse(exchanged.bodyText));
-      },
-      admit: (authorization, sessionId) =>
-        Promise.resolve(
-          z.boolean().parse(
-            rpc('admit_workspace_session_v2', {
-              p_authorization_id: authorization,
-              p_session_id: sessionId,
-            }),
-          ),
-        ),
-      async revoke(accessToken) {
-        authCall('/logout?scope=local', {}, accessToken);
-      },
-    }),
-  });
-  function edge(body: object) {
-    return handler(
-      new Request('http://127.0.0.1/functions/v1/workspace-access', {
-        method: 'POST',
-        headers: { Origin: 'http://127.0.0.1:5173', 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      }),
-    );
-  }
+  const directAuth = exchangeAuthHash(issueAuthHash(a.email));
+  check(directAuth.status === 200, 'Auth emitiu sessão direta antes do primeiro login');
+  const unadmitted = tokens.parse(JSON.parse(directAuth.bodyText));
+  check(readProfile(unadmitted, a.id) === 0, 'primeira sessão sem admissão não passou pela RLS');
+
   async function startLogin(email: string) {
-    const requested = await edge({ action: 'request', email });
-    check(requested.ok, 'handler solicitou código');
+    const requested = edge({ action: 'request', email });
+    check(
+      requested.status === 200 &&
+        z.object({ challenge: z.literal('code') }).safeParse(JSON.parse(requested.bodyText))
+          .success,
+      'Edge solicitou código',
+    );
+    const message = await captured(email, 'CALI laboratório · Código de acesso');
     return z
       .string()
       .regex(/^\d{6}$/)
-      .parse((await captured(email, 'Código CALI QA')).Text.trim());
+      .parse(message.Text.match(/código de teste é (\d{6})/)?.[1]);
   }
-  async function finishLogin(email: string, otp: string) {
-    const response = await edge({ action: 'verify', email, code: otp });
-    check(response.ok, 'handler trocou código e admitiu sessão Auth');
-    return tokens.parse((await response.json()).session);
+  function finishLogin(email: string, otp: string) {
+    const response = edge({ action: 'verify', email, code: otp });
+    check(response.status === 200, 'Edge trocou código e admitiu sessão Auth');
+    return z.object({ session: tokens }).parse(JSON.parse(response.bodyText)).session;
   }
-  const sessionA = await finishLogin(a.email, await startLogin(a.email));
-  const sessionB = await finishLogin(b.email, await startLogin(b.email));
+  const sessionA = finishLogin(a.email, await startLogin(a.email));
+  const sessionB = finishLogin(b.email, await startLogin(b.email));
   check(
     readProfile(sessionA, a.id) === 1 && readProfile(sessionB, b.id) === 1,
     'JWTs admitidos leem o perfil pelo PostgREST',
@@ -560,13 +572,13 @@ async function main() {
     'sessão criada com hash pendente não passou pela RLS',
   );
   check(
-    !(await edge({ action: 'verify', email: a.email, code: oldCode })).ok,
+    edge({ action: 'verify', email: a.email, code: oldCode }).status === 400,
     'código anterior ao corte recusado',
   );
   sql(
     `update cali_private.workspace_access_codes set created_at=clock_timestamp()-interval '3 minutes' where email='${a.email}';`,
   );
-  const fresh = await finishLogin(a.email, await startLogin(a.email));
+  const fresh = finishLogin(a.email, await startLogin(a.email));
   check(
     claims(fresh.access_token).session_id !== claims(sessionA.access_token).session_id &&
       readProfile(fresh, a.id) === 1 &&
@@ -592,6 +604,16 @@ void main()
         name: database,
         remove: () => sql(`drop database ${database} with (force);`, 'postgres'),
       });
+    if (runtimeDirectory) {
+      const directory = runtimeDirectory;
+      resources.push({
+        name: directory,
+        remove: () => {
+          rmSync(directory, { recursive: true, force: true });
+          return '';
+        },
+      });
+    }
     for (const { name, remove } of resources) {
       try {
         remove();

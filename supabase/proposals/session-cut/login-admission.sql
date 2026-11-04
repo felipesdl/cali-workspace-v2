@@ -58,6 +58,10 @@ begin
   return true;
 end; $$;
 
+-- A candidata de gestão substitui este predicado para as empresas opt-in.
+create function cali_session_guard.profile_requires_admission(subject uuid)
+returns boolean language sql stable set search_path='' as $$ select false; $$;
+
 create or replace function cali_session_guard.session_is_live()
 returns boolean language sql stable security definer set search_path='' as $$
   select exists(select 1 from auth.sessions s
@@ -65,11 +69,15 @@ returns boolean language sql stable security definer set search_path='' as $$
     where s.user_id=(select auth.uid()) and s.id::text=(select auth.jwt()->>'session_id')
       and (s.not_after is null or s.not_after>statement_timestamp())
       and cali_session_guard.profile_login_eligible(s.user_id)
-      and (r.revoked_before is null or (s.created_at>r.revoked_before and exists(
+      and (r.revoked_before is null or s.created_at>r.revoked_before)
+      and ((r.revoked_before is null and not cali_session_guard.profile_requires_admission(s.user_id))
+      or exists(
         select 1 from cali_session_guard.login_authorizations a
-        where a.session_id=s.id and a.user_id=s.user_id and a.code_created_at>r.revoked_before))));
+        where a.session_id=s.id and a.user_id=s.user_id
+          and (r.revoked_before is null or a.code_created_at>r.revoked_before))));
 $$;
 revoke all on function cali_session_guard.authorize_code(uuid,timestamptz),
+  cali_session_guard.profile_requires_admission(uuid),
   cali_workspace.admit_workspace_session_v2(uuid,uuid) from public,anon,authenticated,service_role;
 grant execute on function cali_workspace.admit_workspace_session_v2(uuid,uuid) to service_role;
 commit;

@@ -6,6 +6,7 @@ begin
   if current_setting('cali.session_cut_review', true) is distinct from 'reviewed-v1'
     or current_user <> 'postgres'
     or to_regprocedure('cali_workspace.admit_workspace_session_v2(uuid,uuid)') is null
+    or to_regprocedure('cali_session_guard.profile_requires_admission(uuid)') is null
     or not exists (
       select 1 from pg_trigger
       where tgrelid = 'cali_workspace.client_invites'::regclass
@@ -98,6 +99,17 @@ revoke all on function cali_v2_onboarding.uses_managed_access(uuid, uuid)
 grant usage on schema cali_v2_onboarding to service_role;
 grant execute on function cali_v2_onboarding.uses_managed_access(uuid, uuid)
   to authenticated, service_role;
+
+create or replace function cali_session_guard.profile_requires_admission(subject uuid)
+returns boolean language sql stable set search_path = ''
+as $$
+  select exists (
+    select 1 from cali_workspace.profiles p
+    where p.id = subject and p.role::text = 'client'
+      and cali_v2_onboarding.uses_managed_access(p.company_id, null)
+  );
+$$;
+
 revoke all on function cali_v2_onboarding.guard_invite_writer()
   from public, anon, authenticated, service_role;
 

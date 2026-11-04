@@ -1,6 +1,6 @@
 # Plano de padronização por fluxos completos
 
-Atualização: 03/11/2026. **Fase 1 em integração hospedada autorizada e fase 2A em construção; demais entregas planejadas.** V2 é a base; repositório oficial somente leitura e backend usado com fixtures conforme DEC-27. Referência: aplicativo funcionando em 26/10, testado pela Patrícia, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
+Atualização: 04/11/2026. **Fase 1 e 2A em andamento. Cadastro e comprovação têm validação no CALI MAPA. Gestão hospedada de acessos segue pendente.** A V2 é a base. O repositório oficial é referência somente leitura e o backend usa fixtures conforme DEC-27. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é a referência funcional. As [regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
 
 Objetivo: padronizar todos os fluxos Cliente/Admin sem passar várias fases construindo camadas antes da primeira jornada utilizável. Cada entrega fecha uma tarefa com interface, dados, regra, autorização, histórico, falhas e comunicação quando aplicável. “Fluxo completo” é unidade de construção; não cria fluxo novo nem significa que toda tela dispara e-mail. Chat não gera e-mail. Produção, migrations e canais externos exigem escopo próprio.
 
@@ -18,7 +18,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | --- | --- | --- | --- |
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
 | 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; sessão/telas hospedadas e leitura real de empresas, aceite global pendente |
-| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A com edição básica e jornada demonstrativa de cadastro/adesão/quatro acessos; integração completa pendente; fase 1 ainda aberta |
+| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A com cadastro, materialização e comprovação validados no CALI MAPA; gestão de acesso comprovada na cópia isolada; 2B e 2C planejadas |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
 | 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
@@ -107,14 +107,14 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 - [ ] Fechar lacuna de corte no servidor: logout ainda permite leitura pelo JWT até vencer e reativação do perfil recupera a mesma sessão. Nenhuma policy/schema alterada; ver [evidência e limites](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
 - [x] Observar expiração natural dos JWTs retidos A/B: 62 segundos além do prazo, Auth 403 e seis projeções do banco 401/PGRST303. Sem login, mudança de relógio/TTL ou código novo. Não prova refresh/expiração da SPA ativa.
 - [x] Preparar candidata de corte no servidor, inventário somente leitura e suíte SQL em `supabase/proposals/session-cut`, fora de migrations/runners; nada executado em banco.
-- [ ] Obter/revisar catálogo ativo e reconciliar RPC/Edge/convite/códigos/Auth antes de promover aplicação. Teste da projeção local anterior executado; revisão de admissão ainda sem runtime. [Proposta e limites](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada).
+- [x] Obter metadados de acesso e revisar a fonte ativa da Edge. Registrar diferenças de códigos, provisionamento, escritores e abrangência das policies no [contrato](contracts/ACCESS_COMPANIES.md#reconciliação-com-o-catálogo-ativo--0411).
 
 **Continuidade de 02/11 — correção local, sem repetir runtime:**
 
 - [x] Recuperar resultado da cópia sintética anterior: 40 verificações, SQL/Auth/PostgREST reais, RPC/convite e janela adicional de hash pendente; sem equivalência com o catálogo hospedado.
 - [x] Corrigir o código da troca no Edge V2: hash permanece no servidor; sessão só retorna após admissão vinculada à autorização do código; SPA aceita sessão admitida e mantém contrato legado hospedado explícito.
 - [x] Preparar complemento SQL de admissão e adapter exclusivo do schema local conhecido; preservar runner experimental como texto ignorado e suspender drivers de runtime até reconciliação.
-- [ ] Conferir catálogo/adapter hospedado e validar/aplicar correção em recorte autorizado. Novos SQLs não executados; bateria anterior suspensa a pedido de Felipe. Fase 1 continua aberta; desenvolvimento independente de 2A pode avançar.
+- [ ] Implementar e validar o adapter hospedado de admissão e o corte no recorte autorizado. Os SQLs candidatos foram exercitados em cópia descartável. A bateria anterior segue suspensa e a fase 1 continua aberta.
 
 **Falta para fechar a fase 1:**
 
@@ -128,7 +128,7 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 
 Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de ponta a ponta são a entrega 2A. O DS e as demais extrações crescem junto dos fluxos; não são um catálogo completo a terminar antes de 2A. Fontes de evidência: [arquitetura](ARCHITECTURE.md), [runbook](RUNBOOK.md), [changelog](CHANGELOG.md) e [ficha de acesso/contas](flows/ACCESS_ACCOUNTS.md).
 
-**Próximo passo técnico de integração:** concluir a reconciliação por operação a partir do catálogo ativo já inspecionado, mantendo a bateria suspensa; revisão/aplicação da candidata de corte exige recorte próprio autorizado; expiração de JWT A/B já comprovada; A/B/Admin e isolamento de leitura das três tabelas já têm prova hospedada; completar comprovação documental e gate de convite no recorte de empresas/acessos. OPEN-10 continua parcial para jornada integrada; sessão/MFA/termos no navegador e RLS dos demais domínios continuam pendentes. Estado/expiração/revogação/logout e RLS de empresa foram exercitados no servidor local. Não tratar demonstração Admin como autenticação.
+**Próximo passo técnico de integração:** preparar o endpoint de admissão e o provisionamento V2 em destino isolado, com guardas da empresa opt-in nas superfícies relevantes. O [contrato](contracts/ACCESS_COMPANIES.md#reconciliação-com-o-catálogo-ativo--0411) registra as diferenças entre código local e publicado. O CALI MAPA tem evidência de cadastro/comprovação pelo Admin e isolamento de leitura A/B no recorte histórico. Corte hospedado, callback válido e regressão nas demais superfícies seguem pendentes.
 
 **Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 
@@ -153,7 +153,9 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Preparar a pré-condição privada de adesão vigente para convite e reautorização. Testar empresa pausada e bloqueada, versão substituída e retirada em PostgreSQL descartável.
 - [x] Integrar a candidata de convite, reserva e revogação aos SQLs de corte e admissão. Provar quatro vagas com cinco solicitações simultâneas, corte da sessão antiga e preservação de outro Cliente em PostgreSQL descartável.
 - [x] Homologar entrega local de convites, login por código, refresh e revogação com GoTrue, PostgREST e Mailpit em cópia descartável. Provar que o hash anterior ao corte não libera leitura após reativação.
-- [ ] Reconciliar catálogo hospedado, provisionamento e Edge de códigos. Homologar a jornada no CALI MAPA antes do opt-in. Planejar retirada de mocks e do contrato legado em gates separados, após verificar consumidores.
+- [x] Conferir a Edge publicada e o catálogo do CALI MAPA. No navegador, reabrir a ficha sintética, ler histórico e versão do Storage e verificar o estado da gestão de convites.
+- [x] Exigir admissão desde a primeira sessão Cliente de empresa gerenciada na candidata isolada. Preservar sessão legada sem corte fora da gestão no controle SQL.
+- [ ] Implementar provisionamento e admissão V2 com isolamento do escritor legado. Cobrir RLS, Storage e RPCs que alcançam a empresa opt-in. Homologar Cliente/Admin e revogação antes de habilitar o recorte. Planejar retirada de mocks e legado em gates separados.
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
 - [x] Implementar arquivos contratuais demonstrativos: anexo, versões imutáveis, download explícito, retirada com motivo/histórico e integridade dos bytes, sem storage hospedado.
@@ -280,4 +282,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. Fase 1 tem execução local parcial; 2A tem edição básica implementada e cadastro/adesão/acessos/ficha administrativa/dados complementares demonstrativos, sem homologação de escrita hospedada; demais entregas das fases 2–7 permanecem planejadas. Não encerrar fase 1 com base apenas em mocks, lint e build.
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A tem cadastro e comprovação validados no CALI MAPA, com gestão de acesso ainda isolada. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).
