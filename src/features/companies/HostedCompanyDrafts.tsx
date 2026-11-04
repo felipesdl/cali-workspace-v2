@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCompaniesScope } from '../../api/modules/companies/hooks/useCompaniesScope';
 import { companyKeys } from '../../api/modules/companies/keys';
-import { type createCompanyOnboarding } from '../../api/modules/companies/onboarding';
+import {
+  isPilotCompany,
+  type createCompanyOnboarding,
+} from '../../api/modules/companies/onboarding';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { DraftAdhesion } from './DraftAdhesion';
@@ -73,10 +76,12 @@ function Drafts({
   service,
   actor,
   openCompany,
+  selectedCompanyId,
 }: {
   service: Onboarding;
   actor: string;
   openCompany: (id: string) => void;
+  selectedCompanyId?: string;
 }) {
   const cache = useQueryClient();
   const [creating, setCreating] = useState(false);
@@ -96,6 +101,15 @@ function Drafts({
     queryFn: ({ signal }) => (selected ? service.read(selected, signal) : null),
     enabled: selected !== null,
     retry: false,
+  });
+  const prepare = useMutation({
+    mutationFn: service.preparePilotDraft,
+    retry: false,
+    onSuccess: (id) => {
+      setSelected(id);
+      setPages([null]);
+      void cache.invalidateQueries({ queryKey: listKey });
+    },
   });
   const next = list.data?.next;
   return (
@@ -120,10 +134,20 @@ function Drafts({
           }}
         />
       ) : (
-        <div>
+        <div className="tw:flex tw:flex-wrap tw:gap-2">
           <Button onClick={() => setCreating(true)}>Novo rascunho de empresa</Button>
+          {import.meta.env.DEV && selectedCompanyId && isPilotCompany(selectedCompanyId) && (
+            <Button
+              variant="secondary"
+              pending={prepare.isPending}
+              onClick={() => prepare.mutate(selectedCompanyId)}
+            >
+              Preparar rascunho da empresa de teste
+            </Button>
+          )}
         </div>
       )}
+      {prepare.isError && <p role="alert">{prepare.error.message}</p>}
       {list.isPending && <p role="status">Carregando rascunhos…</p>}
       {list.isError && (
         <div>
@@ -206,9 +230,21 @@ function Drafts({
   );
 }
 
-export function HostedCompanyDrafts({ openCompany }: { openCompany: (id: string) => void }) {
+export function HostedCompanyDrafts({
+  openCompany,
+  selectedCompanyId,
+}: {
+  openCompany: (id: string) => void;
+  selectedCompanyId?: string;
+}) {
   const { actor, service, enabled } = useCompaniesScope();
   return enabled && service.onboarding ? (
-    <Drafts key={actor} service={service.onboarding} actor={actor} openCompany={openCompany} />
+    <Drafts
+      key={actor}
+      service={service.onboarding}
+      actor={actor}
+      openCompany={openCompany}
+      selectedCompanyId={selectedCompanyId}
+    />
   ) : null;
 }

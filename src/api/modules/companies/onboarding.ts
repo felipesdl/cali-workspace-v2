@@ -61,9 +61,22 @@ export type DraftReview =
 const loadError = 'Não foi possível consultar os rascunhos. Tente novamente.';
 const saveError = 'Não foi possível confirmar a gravação. Tente novamente com os mesmos dados.';
 const pageSize = 25;
+const pilotCompanyIdSchema = z.enum([
+  '9c5ab148-78b8-4410-9338-58c44222a5db',
+  '6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76',
+]);
+export const isPilotCompany = (companyId: string | undefined) =>
+  pilotCompanyIdSchema.safeParse(companyId).success;
 
 export function createCompanyOnboarding(client: WorkspaceClient) {
   return {
+    async preparePilotDraft(companyId: string) {
+      const { data, error } = await client.rpc('v2_prepare_pilot_company_draft', {
+        p_company_id: pilotCompanyIdSchema.parse(companyId),
+      });
+      if (error) throw new Error('Não foi possível preparar o rascunho de teste.');
+      return z.uuid().parse(data);
+    },
     async list(before: string | null, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_list_company_drafts', before ? { p_before: z.uuid().parse(before) } : {}, {

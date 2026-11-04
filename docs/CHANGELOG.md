@@ -3,13 +3,15 @@
 ## 04/11/2026 — Consulta de ciclos na ficha Admin
 
 - A ficha da empresa conectada consulta até 12 ciclos de serviço, em ordem decrescente de mês. Exibe mês, situação e horas contratadas. Cache separado por ator e empresa, com estados de carregamento, vazio e erro.
-- Catálogo do CALI MAPA confirmou a unicidade empresa/mês, os quatro estados e as policies de leitura. Typecheck, lint do recorte e 19 testes de empresas e rascunhos passaram. A escrita e as transições de ciclo seguem pendentes.
+- Catálogo do CALI MAPA confirmou a unicidade empresa/mês, os quatro estados e as policies de leitura. Typecheck, lint do recorte e 19 testes de empresas e rascunhos passaram. A sessão Admin no navegador parou no aceite vigente.
+- A abertura do mês corrente passou em PostgreSQL descartável. A operação preserva ciclos existentes e registra auditoria somente na criação. Aplicação, ação na tela e transições seguintes continuam pendentes.
 
 ## 04/11/2026 — Admissão e revogação restritas ao piloto A/B
 
 - Consulta em leitura no CALI MAPA confirmou um Cliente e um convite ativos por empresa A/B. O e-mail coincide entre convite, perfil e Auth nos dois casos. Nenhum rascunho está ligado às duas empresas.
+- A RPC de preparação dos rascunhos foi instalada no CALI MAPA. Catálogo confirmou execução por `authenticated`, com `anon` e `service_role` recusados. O código exige Admin com MFA. A ação na ficha local prepara rascunho sem duplicar empresa. A execução autenticada depende do aceite na sessão Admin.
 - A [candidata do piloto](../supabase/proposals/hosted-access-pilot/base.sql) começa com escopo vazio e só permite registrar as empresas A/B. Exige sessão admitida para os Clientes do piloto. Revogação exige sessão Admin vigente com MFA, bloqueia a identidade e preserva o convite. A [suspensão](../supabase/proposals/hosted-access-pilot/pause.sql) mantém o histórico e fecha o acesso do piloto.
-- O [teste focado](../supabase/proposals/hosted-access-pilot/test.sql) passou em PostgreSQL descartável. Conferiu escopo vazio, admissão, isolamento, revogação, preservação de B e leitura legada fora do piloto. Candidata ainda sem aplicação hospedada. Vínculo da adesão, transporte de código, guardas complementares e prova no navegador continuam pendentes.
+- O [teste focado](../supabase/proposals/hosted-access-pilot/test.sql) passou em PostgreSQL descartável. Conferiu escopo vazio, admissão, isolamento, revogação, preservação de B e leitura legada fora do piloto. As guardas de admissão e códigos seguem sem aplicação hospedada. Comprovação de adesão, configuração de envio, guardas complementares e prova A/B no navegador continuam pendentes.
 
 ## 04/11/2026 — Publicação vigente e homologação A/B preparada
 

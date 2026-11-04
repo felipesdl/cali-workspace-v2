@@ -40,6 +40,7 @@ export function CompaniesPage() {
         }}
       />
       <HostedCompanyDrafts
+        selectedCompanyId={search.companyId}
         openCompany={(companyId) => void navigate({ search: { q: '', status: 'all', companyId } })}
       />
       <CompanyFilters />

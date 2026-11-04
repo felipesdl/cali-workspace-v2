@@ -23,6 +23,16 @@ as $$ select p.company_id from cali_workspace.profiles p where p.id = auth.uid()
 \ir ../company-onboarding/candidate.sql
 \ir ../company-onboarding/materialize-company.sql
 \ir prepare-drafts.sql
+alter table cali_workspace.companies add column monthly_hours_contracted numeric(8,2);
+create table cali_workspace.service_cycles (
+  id uuid primary key default gen_random_uuid(), company_id uuid not null,
+  reference_month date not null, contracted_hours numeric(8,2), status text not null,
+  unique (company_id, reference_month)
+);
+create table cali_workspace.activity_log (
+  company_id uuid, actor_user_id uuid, event_type text, entity_type text, entity_id uuid, metadata jsonb
+);
+\ir ../company-onboarding/open-current-cycle.sql
 \ir ../hosted-terms/apply.sql
 \ir base.sql
 \ir codes.sql
@@ -87,6 +97,7 @@ declare
   proof_a uuid;
   proof_b uuid;
   draft_a uuid;
+  cycle_a uuid;
   publication jsonb;
   issued jsonb;
   code_hash constant text := repeat('a',64);
@@ -162,6 +173,16 @@ begin
   exception when invalid_parameter_value then null;
   end;
   begin
+    perform cali_workspace.v2_open_current_service_cycle(company_a);
+    raise exception 'Abertura aceitou empresa sem horas';
+  exception when object_not_in_prerequisite_state then null;
+  end;
+  update cali_workspace.companies set monthly_hours_contracted = 12.5 where id = company_a;
+  cycle_a := cali_workspace.v2_open_current_service_cycle(company_a);
+  if cycle_a is null or cali_workspace.v2_open_current_service_cycle(company_a) <> cycle_a then
+    raise exception 'Repetição abriu outro ciclo';
+  end if;
+  begin
     perform cali_workspace.v2_revoke_pilot_access(company_legacy);
     raise exception 'Admin conseguiu revogar fora do piloto';
   exception when invalid_parameter_value then null;
@@ -183,6 +204,10 @@ begin
     raise exception 'Fora do piloto perdeu acesso';
   end if;
   reset role;
+  if (select count(*) from cali_workspace.activity_log where entity_id = cycle_a) <> 1
+    or (select contracted_hours from cali_workspace.service_cycles where id = cycle_a) <> 12.5 then
+    raise exception 'Abertura perdeu a auditoria ou as horas de contrato';
+  end if;
   if cali_session_guard.authorize_code(a, clock_timestamp()) is not null
     or (cali_workspace.v2_issue_pilot_code('a@example.test', code_hash)->>'status') <> 'unavailable' then
     raise exception 'A recuperou elegibilidade após revogação';
