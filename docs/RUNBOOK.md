@@ -86,6 +86,10 @@ A [migração individual](../supabase/proposals/hosted-access-pilot/individual-i
 
 Se for preciso suspender ações, retirar `EXECUTE` de `authenticated` nas novas RPCs de revogação e reautorização por convite. Preservar a chave, a guarda de capacidade e os registros de corte. Não reativar as RPCs por empresa após permitir mais de um vínculo.
 
+#### Ciclo de serviço A/B
+
+A [transição de ciclo](../supabase/proposals/company-onboarding/transition-service-cycle.sql) foi aplicada ao CALI MAPA. Na ficha Admin, usar a ação do ciclo escolhido, confirmar e recarregar. O ciclo de novembro de A ficou encerrado com 12,5 h e dois eventos; B permaneceu aberto com 12,5 h. Planejado para aberto e recusas foram verificados em PostgreSQL descartável. Para suspender a escrita, retirar `EXECUTE` de `authenticated` na RPC `v2_transition_service_cycle(uuid,uuid,text,text)`. Preservar os estados e a auditoria; não desfazer ciclo por atualização em lote.
+
 ## Candidata de corte no servidor — sem execução
 
 [Contrato e sequência de revisão](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada). `supabase/proposals/session-cut` contém catálogo somente leitura, candidata e aceite SQL futuro. Não é migration nem comando npm; runner local conserva a lista fechada das três migrations do laboratório. Nada foi aplicado ou executado em banco nesta preparação.

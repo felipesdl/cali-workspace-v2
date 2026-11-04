@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Revisão e encerramento do ciclo de serviço
+
+- A [RPC](../supabase/proposals/company-onboarding/transition-service-cycle.sql) exige sessão Admin com MFA e ciclo da empresa A/B vinculada ao cadastro V2. Avança de planejado para aberto, de aberto para revisão e de revisão para encerrado. Mantém o mês e as horas já registradas. A abertura de planejado exige empresa ativa e horas positivas. Encerramento não emite cobrança, relatório ou mensagem.
+- No CALI MAPA, A passou de aberto para revisão e depois para encerrado pela ficha Admin. A recarga preservou **Encerrado** e **12,5 h**. O banco confirmou dois eventos de A e nenhum de B, que permaneceu aberto. A etapa planejado para aberto foi exercitada no PostgreSQL descartável.
+- O [teste SQL](../supabase/proposals/company-onboarding/test-service-cycle.sql) recusou Cliente, empresa errada, salto de estado e confirmação antiga, preservou horas e evitou auditoria duplicada. Typecheck, lint do recorte e 13 testes focados passaram.
+
 ## 04/11/2026 — Gestão por convite e limite concorrente de A/B
 
 - CALI MAPA migrou a chave privada de `company_id` para `invite_id` e desativou as RPCs ambíguas por empresa. A ficha Admin local mostra a ação junto ao convite. Confirmada no navegador a leitura de A revogada e B ativa. Catálogo confirmou as duas matrículas, duas admissões e um corte preservados. Nenhum convite foi criado ou reativado no hospedado.

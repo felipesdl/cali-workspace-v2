@@ -181,7 +181,7 @@ A [reautorização dos vínculos A/B](../supabase/proposals/hosted-access-pilot/
 
 O [piloto A/B](RUNBOOK.md#pré-condições-para-quatro-vagas-hospedadas) já usa a chave por convite e a ficha mostra ações por vínculo. O teste isolado confirmou o teto de quatro sob concorrência. Provisionamento de novos vínculos no hospedado e homologação de um segundo Cliente da mesma empresa seguem pendentes.
 
-O catálogo hospedado confirmou `service_cycles` com unicidade por `(company_id, reference_month)`, estados `planned`, `open`, `review` e `closed`, e leitura Cliente por `current_company_id()`. A candidata A/B cobre esse vínculo. A ficha Admin conectada consulta os 12 ciclos mais recentes. A [abertura explícita do mês corrente](../supabase/proposals/company-onboarding/open-current-cycle.sql) foi instalada no CALI MAPA e abriu novembro de 2026 para A/B pela tela de homologação. Ainda faltam as demais transições.
+O catálogo hospedado confirmou `service_cycles` com unicidade por `(company_id, reference_month)`, estados `planned`, `open`, `review` e `closed`, e leitura Cliente por `current_company_id()`. A ficha Admin consulta os 12 ciclos mais recentes. A [abertura do mês](../supabase/proposals/company-onboarding/open-current-cycle.sql) abriu novembro de 2026 para A/B. As [transições do piloto](RUNBOOK.md#ciclo-de-serviço-ab) estão instaladas; A passou por revisão e foi encerrada pelo Admin, com horas e trilha preservadas. B ficou aberta. Abertura de planejado passou na cópia isolada.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
 

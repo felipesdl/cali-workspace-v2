@@ -4,6 +4,7 @@ import { isPilotCompany } from '../../api/modules/companies/onboarding';
 import { useCompanyCyclesQuery } from '../../api/modules/companies/hooks/useCompanyCyclesQuery';
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
+import { ServiceCycleAction } from './ServiceCycleAction';
 
 const labels = {
   [serviceCycleStatus.Planned]: 'Planejado',
@@ -20,7 +21,7 @@ const monthFormat = new Intl.DateTimeFormat('pt-BR', {
 });
 
 export function CompanyCycles({ companyId }: { companyId: string }) {
-  const { available, query, open, canOpen } = useCompanyCyclesQuery(companyId);
+  const { available, query, open, canOpen, canTransition } = useCompanyCyclesQuery(companyId);
   const [confirm, setConfirm] = useState(false);
   if (!available) return null;
 
@@ -88,6 +89,9 @@ export function CompanyCycles({ companyId }: { companyId: string }) {
                   ? 'Horas não informadas'
                   : `${hoursFormat.format(cycle.hours)} h`}
               </span>
+              {import.meta.env.DEV && canTransition && isPilotCompany(companyId) && (
+                <ServiceCycleAction key={cycle.status} companyId={companyId} cycle={cycle} />
+              )}
             </li>
           ))}
         </ul>

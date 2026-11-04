@@ -21,5 +21,11 @@ export function useCompanyCyclesQuery(companyId: string) {
     onSuccess: (_, id) =>
       cache.invalidateQueries({ queryKey: companyKeys.cycles(scope.actor, id) }),
   });
-  return { available: Boolean(load), query, open, canOpen: scope.enabled && Boolean(openCycle) };
+  return {
+    available: Boolean(load),
+    query,
+    open,
+    canOpen: scope.enabled && Boolean(openCycle),
+    canTransition: scope.enabled && Boolean(scope.service.transitionServiceCycle),
+  };
 }

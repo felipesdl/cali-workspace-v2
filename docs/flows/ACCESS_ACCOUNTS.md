@@ -138,6 +138,8 @@ Acesso foi decomposto em código, MFA e termos, com coordenação de sessão/cal
 
 Fonte exibe essas ações, mas não estabelece uma máquina SQL restrita de todos os estados de origem. Não inventar transições proibidas. Status de empresa, vigência contratual, acesso e eliminação são dimensões distintas.
 
+**Ciclo de serviço na V2, recorte A/B:** é separado do status da conta e do encerramento de contrato. Na ficha Admin, cada ciclo exibe mês, horas e situação. A próxima ação disponível exige confirmação: planejado para aberto, aberto para revisão, revisão para encerrado. A referência de dados define os quatro estados; a sequência é contrato novo do piloto, sem reabertura neste recorte. Cancelar não grava; a confirmação usa a situação apresentada. Sem horas positivas ou empresa ativa, planejado não abre. Em erro, a ficha relê o servidor; ao fechar, não recalcula horas, não altera outro ciclo e não gera cobrança ou comunicação.
+
 **Continuidade/falhas:** lista com busca/filtro; ficha por abas e modal de confirmação de ciclo de vida. Cancelar antes do submit não grava. Criação/edição faz múltiplas chamadas; falha intermediária pode deixar gravação parcial. UI reativa perfis em lote: não inferir que preserva revogações individuais. Corpo de `create_client_account` não está versionado, apenas comentário de correção posterior.
 
 **Aceite proposto:** limite de acessos, alteração de contato sem trocar empresa, pausa distinta de bloqueio, sessão existente após encerramento, erro após criar conta antes de anexar contrato, reativação sem conceder acesso indevido. Eliminação/exportação: FLOW-18.

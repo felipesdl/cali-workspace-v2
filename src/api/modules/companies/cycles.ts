@@ -16,6 +16,37 @@ const serviceCycleRow = z.object({
   status: z.enum(serviceCycleStatus),
 });
 export type ServiceCycleStatus = z.infer<typeof serviceCycleRow.shape.status>;
+export type ServiceCycle = {
+  id: string;
+  month: string;
+  hours: number | null;
+  status: ServiceCycleStatus;
+};
+export const nextCycleStatus = {
+  [serviceCycleStatus.Planned]: serviceCycleStatus.Open,
+  [serviceCycleStatus.Open]: serviceCycleStatus.Review,
+  [serviceCycleStatus.Review]: serviceCycleStatus.Closed,
+  [serviceCycleStatus.Closed]: null,
+} satisfies Record<ServiceCycleStatus, ServiceCycleStatus | null>;
+
+export function createTransitionServiceCycle(client: WorkspaceClient) {
+  return async (companyId: string, cycleId: string, expectedStatus: ServiceCycleStatus) => {
+    const expected = serviceCycleRow.shape.status.parse(expectedStatus);
+    const next = nextCycleStatus[expected];
+    if (!next) throw new Error('O ciclo já está encerrado.');
+    const { data, error } = await client.rpc('v2_transition_service_cycle', {
+      p_company_id: z.uuid().parse(companyId),
+      p_cycle_id: z.uuid().parse(cycleId),
+      p_expected_status: expected,
+      p_next_status: next,
+    });
+    if (error?.code === '40001') throw new Error('A situação do ciclo mudou. Confira a ficha.');
+    if (error?.code === '55000')
+      throw new Error('Confira a situação da empresa e as horas do ciclo.');
+    if (error || data !== cycleId)
+      throw new Error('Não foi possível confirmar a mudança do ciclo.');
+  };
+}
 
 export function createOpenCurrentCycle(client: WorkspaceClient) {
   return async (companyId: string) => {
@@ -30,7 +61,7 @@ export function createOpenCurrentCycle(client: WorkspaceClient) {
 }
 
 export function createHostedCycles(client: WorkspaceClient) {
-  return async (companyId: string, signal: AbortSignal) => {
+  return async (companyId: string, signal: AbortSignal): Promise<ServiceCycle[]> => {
     const id = z.uuid().parse(companyId);
     const { data, error } = await client
       .from('service_cycles')

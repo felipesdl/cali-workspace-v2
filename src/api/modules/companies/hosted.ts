@@ -12,7 +12,7 @@ import {
 import { companyIdentityRecordSchema, clientInviteIdentityRecordSchema } from './records';
 import { type CompaniesService } from './service';
 import { createCompanyOnboarding } from './onboarding';
-import { createHostedCycles, createOpenCurrentCycle } from './cycles';
+import { createHostedCycles, createOpenCurrentCycle, createTransitionServiceCycle } from './cycles';
 
 const companyRecord = companyIdentityRecordSchema.extend({
   service_plan: z.string().nullable(),
@@ -41,6 +41,7 @@ export function createHostedCompaniesService(client: WorkspaceClient): Companies
     onboarding: createCompanyOnboarding(client),
     cycles: createHostedCycles(client),
     openCurrentCycle: createOpenCurrentCycle(client),
+    transitionServiceCycle: createTransitionServiceCycle(client),
     async account(companyId, signal) {
       const row = await readHostedCompanyIdentity(client, companyId, signal);
       if (!row) return null;
