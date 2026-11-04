@@ -377,6 +377,12 @@ O histórico preserva um snapshot com título, tipo, ID documental, ID do objeto
 
 Em 04/11/2026, a migration foi aplicada no CALI MAPA. Um PDF sintético foi cadastrado como contrato privado da empresa de QA. A sessão Admin selecionou a versão pela tela, confirmou e recuperou o mesmo histórico após recarregar. O catálogo confirmou correspondência dos três identificadores e grants da listagem. O teste isolado recusou versão incorreta e verificou que atualizar o objeto preserva histórico e replay. O PDF e o evento sintéticos permanecem identificados.
 
+### Pré-condição de adesão para novos acessos
+
+A [candidata privada de elegibilidade](../../supabase/proposals/company-onboarding/access-eligibility.sql) será chamada dentro da transação de convite ou reautorização. Ela exige empresa vinculada a rascunho V2, estado `active` ou `paused` e último evento de adesão confirmado com snapshot documental. Compara empresa, documento, objeto e versão com o registro corrente no Storage. Uma versão substituída ou uma comprovação retirada exige nova conferência. A função retorna o ID da comprovação que sustentou a autorização.
+
+A ordem de bloqueios é rascunho, empresa e versão do documento. O futuro comando deve manter os bloqueios até gravar a vaga. A candidata foi testada em PostgreSQL descartável e permanece fora do CALI MAPA. O limite de vagas, os convites e a revogação de sessões dependem das próximas etapas.
+
 ### Transição e retirada do legado
 
 1. Manter a capacidade de rascunhos e comprovação separada da gestão de acessos. A jornada autenticada já foi exercitada com Admin e uma fixture no CALI MAPA.

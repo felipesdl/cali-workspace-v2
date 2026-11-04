@@ -150,6 +150,7 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Validar Admin pela Data API e conectar listagem paginada, cadastro em rascunho, comprovação e retirada à UI. Reabrir o rascunho após recarregar e conferir o histórico no CALI MAPA.
 - [x] Criar empresa definitiva pela tela Admin e persistir o vínculo com o rascunho. Validar reabertura pela Data API e repetição concorrente em banco descartável.
 - [x] Vincular a comprovação ao contrato ou aditivo da empresa no Storage. Validar a seleção e o histórico após recarga no CALI MAPA e a rejeição de versão incorreta em PostgreSQL descartável.
+- [x] Preparar a pré-condição privada de adesão vigente para convite e reautorização. Testar empresa pausada e bloqueada, versão substituída e retirada em PostgreSQL descartável.
 - [ ] Fechar admissão, gestão das quatro vagas, emissão de convite e revogação no servidor antes de habilitar acesso real. Planejar retirada de mocks e do contrato legado em gates separados, após verificar consumidores.
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.

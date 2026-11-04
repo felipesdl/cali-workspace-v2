@@ -269,3 +269,62 @@ begin
   end if;
 end;
 $$;
+
+\ir access-eligibility.sql
+
+do $$
+declare
+  draft cali_v2_onboarding.company_drafts;
+  event_id uuid;
+  doc_id uuid := '00000000-0000-4000-8000-000000000021';
+  object_id uuid := '00000000-0000-4000-8000-000000000022';
+begin
+  select d.* into draft from cali_v2_onboarding.company_drafts d where d.display_name = 'Rascunho 26';
+  perform set_config('test.actor', '00000000-0000-4000-8000-000000000001', true);
+  perform set_config('test.aal', 'aal2', true);
+
+  if has_function_privilege('authenticated', 'cali_v2_onboarding.require_access_adhesion(uuid)', 'EXECUTE')
+    or has_function_privilege('anon', 'cali_v2_onboarding.require_access_adhesion(uuid)', 'EXECUTE') then
+    raise exception 'Pré-condição exposta diretamente.';
+  end if;
+
+  begin
+    perform cali_v2_onboarding.require_access_adhesion(draft.company_id);
+    raise exception 'Comprovação de versão substituída aceita.';
+  exception when object_not_in_prerequisite_state then null;
+  end;
+
+  select e.id into event_id from cali_v2_onboarding.adhesion_events e
+  where e.draft_id = draft.id order by e.sequence desc limit 1;
+
+  event_id := (cali_workspace.v2_confirm_adhesion_document(
+    draft.id, gen_random_uuid(), event_id, 'Prova atual', 'QA', doc_id, object_id, 'v2'
+  ) ->> 'id')::uuid;
+
+  if cali_v2_onboarding.require_access_adhesion(draft.company_id) is distinct from event_id then
+    raise exception 'Comprovação atual não reconhecida.';
+  end if;
+
+  update cali_workspace.companies set status = 'paused' where id = draft.company_id;
+  if cali_v2_onboarding.require_access_adhesion(draft.company_id) is distinct from event_id then
+    raise exception 'Empresa pausada não reconhecida.';
+  end if;
+
+  update cali_workspace.companies set status = 'blocked' where id = draft.company_id;
+  begin
+    perform cali_v2_onboarding.require_access_adhesion(draft.company_id);
+    raise exception 'Empresa bloqueada aceita.';
+  exception when object_not_in_prerequisite_state then null;
+  end;
+  update cali_workspace.companies set status = 'active' where id = draft.company_id;
+
+  perform cali_workspace.v2_review_company_adhesion(
+    draft.id, gen_random_uuid(), event_id, 'withdrawn', null, null, 'QA'
+  );
+  begin
+    perform cali_v2_onboarding.require_access_adhesion(draft.company_id);
+    raise exception 'Comprovação retirada aceita.';
+  exception when object_not_in_prerequisite_state then null;
+  end;
+end;
+$$;

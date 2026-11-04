@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 04/11/2026 — Pré-condição de adesão para novos acessos
+
+- Candidata SQL privada valida situação da empresa, vínculo com rascunho e versão vigente da comprovação documental. O futuro comando de autorização vai chamar a função na mesma transação que ocupa a vaga.
+- Aceitação em PostgreSQL descartável confirmou a versão atual, manteve a elegibilidade da empresa pausada e recusou versão substituída, empresa bloqueada e comprovação retirada. As permissões impedem execução direta por `anon` e `authenticated`. A candidata segue fora do CALI MAPA.
+
 ## 04/11/2026 — Versão do Storage na comprovação de adesão
 
 - O Admin seleciona contrato ou aditivo da empresa cadastrada. A confirmação grava a identidade e a versão do objeto no histórico. O servidor recusa versão incorreta e preserva o snapshot em repetição. Registros anteriores continuam legíveis.
