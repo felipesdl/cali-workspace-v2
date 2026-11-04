@@ -345,7 +345,7 @@ A [candidata SQL](../../supabase/proposals/company-onboarding/candidate.sql) imp
 | `v2_review_company_adhesion` | Confirma ou retira comprovação por rascunho. A confirmação recebe referência, revisão documental opcional informada pelo Admin e observação. A retirada recebe motivo. A preimagem é o último evento conhecido. A ordem é serializada por rascunho. O servidor registra autor, instante e histórico imutável para os papéis da aplicação. |
 | `v2_read_company_draft` | Lê identidade e histórico pelo UUID. O evento mais recente determina se há comprovação confirmada ou retirada. |
 
-A revisão documental informada é metadado da conferência administrativa. A integração com documento real deverá vincular o ID e a versão por empresa antes de considerar esse evento apto a liberar acessos.
+A revisão informada manualmente nos rascunhos permanece no histórico como metadado da conferência administrativa. Um vínculo verificado usa o registro documental, a identidade do objeto e a versão retornada pelo Storage.
 
 ### Aplicação no CALI MAPA
 
@@ -369,10 +369,18 @@ A empresa usa o estado inicial padrão `active`, com automação e notificaçõe
 
 Em 04/11/2026, a migration foi aplicada em transação no SQL Editor do CALI MAPA. O Admin autenticado criou a fixture **QA V2 2A — materialização sintética 04-11** pela Data API e reabriu a mesma ficha após recarregar. O catálogo confirmou um vínculo, uma empresa, zero convites e zero ciclos de serviço para a fixture. Os grants da RPC foram verificados. A execução direta fica fora do histórico da CLI. A fixture identificada permanece no ambiente de teste.
 
+### Vínculo à versão do documento no Storage
+
+Depois de criar a empresa na carteira, o Admin pode selecionar um contrato ou aditivo em **Registrar comprovação**. A [migration de vínculo documental](../../supabase/proposals/company-onboarding/link-adhesion-document.sql) disponibiliza a listagem e a confirmação via Data API. As duas RPCs exigem o guard Admin AAL2 com TOTP. A seleção cruza `account_documents` com o objeto atual no bucket privado, no caminho `<empresa>/account/` usado pelo oficial. O formulário exige conferência explícita e o servidor valida a empresa, o documento, o objeto e a versão antes de gravar o evento.
+
+O histórico preserva um snapshot com título, tipo, ID documental, ID do objeto e versão do Storage. Se o objeto mudar entre seleção e confirmação, a operação pede atualização da lista. Uma repetição com a mesma chave e os mesmos dados devolve a comprovação já registrada. O bucket tem versionamento desativado. O snapshot identifica a versão conferida, mas a disponibilidade do arquivo antigo depende de ele continuar armazenado. Rascunhos sem empresa e registros antigos com versão informada seguem disponíveis com identificação distinta.
+
+Em 04/11/2026, a migration foi aplicada no CALI MAPA. Um PDF sintético foi cadastrado como contrato privado da empresa de QA. A sessão Admin selecionou a versão pela tela, confirmou e recuperou o mesmo histórico após recarregar. O catálogo confirmou correspondência dos três identificadores e grants da listagem. O teste isolado recusou versão incorreta e verificou que atualizar o objeto preserva histórico e replay. O PDF e o evento sintéticos permanecem identificados.
+
 ### Transição e retirada do legado
 
 1. Manter a capacidade de rascunhos e comprovação separada da gestão de acessos. A jornada autenticada já foi exercitada com Admin e uma fixture no CALI MAPA.
-2. Vincular a comprovação à versão real do documento armazenado. A criação em `companies` e o vínculo com o rascunho já foram exercitados no CALI MAPA.
+2. Usar o snapshot de documento verificado na futura validação de acesso. A criação em `companies` e a seleção da versão no Storage já foram exercitadas no CALI MAPA.
 3. Implantar gestão de quatro vagas em recorte isolado ou com fronteira de servidor por empresa. Admissão e todos os escritores desse recorte precisam respeitar adesão, vagas e revogação. Vincular por identidade estável e impedir e-mails ambíguos. Revogação bloqueia códigos e sessões antigos e preserva os demais vínculos. Reativação exige autenticação nova. Integrar convite e entrega só depois dessa prova.
 4. Remover a demonstração como opção da V2 após a entrada em operação, se ela deixar de ser necessária. Preservar fixtures de teste. A falta de Clientes na V2 permite descartar dados sintéticos identificados em destino isolado. Antes de aposentar RPCs, grants ou Edge do oficial no banco compartilhado, inventariar consumidores, migrá-los e verificar ausência de uso. Aprovar limpeza em lote separado.
 

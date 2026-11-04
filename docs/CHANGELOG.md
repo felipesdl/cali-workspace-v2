@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Versão do Storage na comprovação de adesão
+
+- O Admin seleciona contrato ou aditivo da empresa cadastrada. A confirmação grava a identidade e a versão do objeto no histórico. O servidor recusa versão incorreta e preserva o snapshot em repetição. Registros anteriores continuam legíveis.
+- Migration aplicada no CALI MAPA. Um PDF sintético privado foi vinculado pela tela com sessão Admin e a versão foi recuperada após recarga. Catálogo confirmou correspondência dos identificadores. O bucket está com versionamento desativado e a recuperação de bytes antigos depende da retenção do arquivo.
+- Aceitação SQL passou em PostgreSQL descartável com versão incorreta, troca de versão e replay. `npm run verify` passou com 209 testes. Para suspender o fluxo, retirar a ação documental da SPA e revogar EXECUTE dos dois wrappers, preservando os snapshots históricos.
+
 ## 04/11/2026 — Empresa definitiva a partir do rascunho
 
 - O Admin pode confirmar a criação na carteira e abrir a ficha pelo vínculo persistido. A RPC grava empresa e auditoria do vínculo na mesma transação e devolve o mesmo UUID em repetição. A empresa começa com automação e notificações desabilitadas.

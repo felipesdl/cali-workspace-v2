@@ -210,3 +210,62 @@ begin
   end if;
 end;
 $$;
+
+create schema storage;
+create table storage.objects (
+  id uuid primary key, bucket_id text, name text, version text,
+  archived_at timestamptz, is_delete_marker boolean
+);
+create table cali_workspace.account_documents (
+  id uuid primary key, company_id uuid, title text, document_type text, storage_path text
+);
+insert into cali_workspace.account_documents
+select '00000000-0000-4000-8000-000000000021', company_id, 'Contrato QA', 'contract',
+  company_id::text || '/account/contract.txt'
+from cali_v2_onboarding.company_drafts where display_name = 'Rascunho 26';
+insert into storage.objects
+select '00000000-0000-4000-8000-000000000022', 'cali-workspace-private', storage_path, 'v1', null, false
+from cali_workspace.account_documents;
+
+\ir link-adhesion-document.sql
+
+do $$
+declare
+  draft_id uuid;
+  doc_id uuid := '00000000-0000-4000-8000-000000000021';
+  object_id uuid := '00000000-0000-4000-8000-000000000022';
+  request_id uuid := '00000000-0000-4000-8000-000000000023';
+  result jsonb;
+begin
+  select id into draft_id from cali_v2_onboarding.company_drafts where display_name = 'Rascunho 26';
+  perform set_config('test.actor', '00000000-0000-4000-8000-000000000001', true);
+  perform set_config('test.aal', 'aal2', true);
+  set local role authenticated;
+  if cali_workspace.v2_list_adhesion_documents(draft_id) #>> '{0,version}' is distinct from 'v1' then
+    raise exception 'Versão não listada.';
+  end if;
+  begin
+    perform cali_workspace.v2_confirm_adhesion_document(
+      draft_id, gen_random_uuid(), null, 'Prova', 'QA', doc_id, object_id, 'stale'
+    );
+    raise exception 'Versão incorreta aceita.';
+  exception when object_not_in_prerequisite_state then null;
+  end;
+  result := cali_workspace.v2_confirm_adhesion_document(
+    draft_id, request_id, null, 'Prova', 'QA', doc_id, object_id, 'v1'
+  );
+  if result #>> '{document_snapshot,object_id}' is distinct from object_id::text then
+    raise exception 'Identidade do objeto não preservada.';
+  end if;
+  reset role;
+  update storage.objects set version = 'v2' where id = object_id;
+  set local role authenticated;
+  if cali_workspace.v2_confirm_adhesion_document(
+    draft_id, request_id, null, 'Prova', 'QA', doc_id, object_id, 'v1'
+  ) is distinct from result
+    or cali_workspace.v2_read_company_draft(draft_id) #>> '{history,0,document_snapshot,version}' is distinct from 'v1'
+    or cali_workspace.v2_list_adhesion_documents(draft_id) #>> '{0,version}' is distinct from 'v2' then
+    raise exception 'Atualização do Storage alterou o histórico ou o replay.';
+  end if;
+end;
+$$;

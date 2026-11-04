@@ -18,7 +18,16 @@ const draftSchema = z.object({
   recorded_at: z.iso.datetime({ offset: true }),
   recorded_by: z.uuid(),
 });
+const documentSchema = z.object({
+  document_id: z.uuid(),
+  object_id: z.uuid(),
+  version: z.string().min(1).max(250),
+  title: z.string(),
+  document_type: z.enum(['contract', 'addendum']),
+});
+export type AdhesionDocument = z.infer<typeof documentSchema>;
 const eventBase = z.object({
+  document_snapshot: documentSchema.nullable().default(null),
   id: z.uuid(),
   draft_id: z.uuid(),
   note: z.string(),
@@ -46,7 +55,8 @@ const snapshotSchema = z.object({
 export type Draft = z.infer<typeof draftSchema>;
 export type DraftSnapshot = z.infer<typeof snapshotSchema>;
 export type DraftReview =
-  ({ action: 'confirmed' } & z.infer<typeof reviewFields>) | { action: 'withdrawn'; note: string };
+  | ({ action: 'confirmed'; document?: AdhesionDocument } & z.infer<typeof reviewFields>)
+  | { action: 'withdrawn'; note: string };
 
 const loadError = 'Não foi possível consultar os rascunhos. Tente novamente.';
 const saveError = 'Não foi possível confirmar a gravação. Tente novamente com os mesmos dados.';
@@ -105,19 +115,53 @@ export function createCompanyOnboarding(client: WorkspaceClient) {
       if (error) throw new Error('Não foi possível confirmar a criação. Tente novamente.');
       return z.uuid().parse(data);
     },
+    async documents(draftId: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc(
+          'v2_list_adhesion_documents',
+          {
+            p_draft_id: z.uuid().parse(draftId),
+          },
+          { get: true },
+        )
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar os documentos.');
+      return z.array(documentSchema).parse(data);
+    },
     async review(draftId: string, requestId: string, expected: string | null, input: DraftReview) {
       const id = z.uuid().parse(draftId);
       const fields = input.action === 'confirmed' ? reviewFields.parse(input) : null;
       const note = reviewFields.shape.note.parse(input.note);
-      const { data, error } = await client.rpc('v2_review_company_adhesion', {
+      const document =
+        input.action === 'confirmed' && input.document
+          ? documentSchema.parse(input.document)
+          : null;
+      const args = {
         p_draft_id: id,
         p_request_id: z.uuid().parse(requestId),
         p_expected_event_id: z.uuid().nullable().parse(expected),
-        p_action: input.action,
-        p_evidence_reference: fields?.reference ?? null,
-        p_document_revision: fields?.revision || null,
         p_note: note,
-      });
+      };
+      const { data, error } =
+        document && fields
+          ? await client.rpc('v2_confirm_adhesion_document', {
+              ...args,
+              p_reference: fields.reference,
+              p_document_id: document.document_id,
+              p_object_id: document.object_id,
+              p_version: document.version,
+            })
+          : await client.rpc('v2_review_company_adhesion', {
+              ...args,
+              p_action: input.action,
+              p_evidence_reference: fields?.reference ?? null,
+              p_document_revision: fields?.revision || null,
+            });
+      if (error?.code === '55000') {
+        throw new Error(
+          'A versão mudou ou ficou indisponível. Atualize os documentos e confira novamente.',
+        );
+      }
       if (error?.code === '40001') {
         throw new Error('A comprovação mudou. Feche o formulário e atualize o histórico.');
       }
@@ -129,7 +173,10 @@ export function createCompanyOnboarding(client: WorkspaceClient) {
         result.previous_event_id !== expected ||
         result.note !== note ||
         result.evidence_reference !== (fields?.reference ?? null) ||
-        result.document_revision !== (fields?.revision || null)
+        result.document_revision !== (document?.version ?? (fields?.revision || null)) ||
+        (result.document_snapshot?.document_id ?? null) !== (document?.document_id ?? null) ||
+        (result.document_snapshot?.object_id ?? null) !== (document?.object_id ?? null) ||
+        (result.document_snapshot?.version ?? null) !== (document?.version ?? null)
       ) {
         throw new Error(saveError);
       }

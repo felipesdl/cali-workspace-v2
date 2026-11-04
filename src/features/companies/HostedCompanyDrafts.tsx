@@ -178,6 +178,12 @@ function Drafts({
           <DraftAdhesion
             key={selected}
             snapshot={detail.data}
+            documentQueryKey={[...root, 'documents', selected]}
+            loadDocuments={
+              detail.data.draft.company_id
+                ? (signal) => service.documents(selected, signal)
+                : undefined
+            }
             refresh={() => void detail.refetch()}
             save={async (requestId, expected, input) => {
               await service.review(selected, requestId, expected, input);

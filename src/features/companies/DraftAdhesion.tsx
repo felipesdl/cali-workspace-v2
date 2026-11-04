@@ -1,9 +1,15 @@
 import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
-import { type DraftReview, type DraftSnapshot } from '../../api/modules/companies/onboarding';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  type AdhesionDocument,
+  type DraftReview,
+  type DraftSnapshot,
+} from '../../api/modules/companies/onboarding';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { formatServerInstant } from '../../lib/dates';
+
+type LoadDocuments = (signal: AbortSignal) => Promise<AdhesionDocument[]>;
 
 type SaveReview = (
   requestId: string,
@@ -16,11 +22,15 @@ function ReviewForm({
   expected,
   save,
   close,
+  loadDocuments,
+  documentQueryKey,
 }: {
   action: DraftReview['action'];
   expected: string | null;
   save: SaveReview;
   close: () => void;
+  loadDocuments?: LoadDocuments;
+  documentQueryKey: readonly string[];
 }) {
   const [requestId] = useState(() => crypto.randomUUID());
   const [preimage] = useState(expected);
@@ -29,6 +39,27 @@ function ReviewForm({
   const [note, setNote] = useState('');
   const [checked, setChecked] = useState(false);
   const confirms = action === 'confirmed';
+  const [document, setDocument] = useState<AdhesionDocument>();
+  const documents = useQuery({
+    queryKey: documentQueryKey,
+    queryFn: ({ signal }) => loadDocuments?.(signal) ?? [],
+    enabled: Boolean(loadDocuments),
+    gcTime: 0,
+    retry: false,
+  });
+  const matchingVersion =
+    document &&
+    documents.data?.some(
+      (option) =>
+        option.document_id === document.document_id &&
+        option.object_id === document.object_id &&
+        option.version === document.version,
+    );
+  const canConfirm =
+    reference.trim() &&
+    checked &&
+    (!loadDocuments || (matchingVersion && documents.isSuccess && !documents.isFetching));
+
   const mutation = useMutation({
     mutationFn: (input: DraftReview) => save(requestId, preimage, input),
     retry: false,
@@ -39,10 +70,11 @@ function ReviewForm({
       className="tw:grid tw:gap-3"
       onSubmit={(event) => {
         event.preventDefault();
-        if (mutation.isPending || !note.trim() || (confirms && (!reference.trim() || !checked)))
-          return;
+        if (mutation.isPending || !note.trim() || (confirms && !canConfirm)) return;
         mutation.mutate(
-          action === 'confirmed' ? { action, reference, revision, note } : { action, note },
+          action === 'confirmed'
+            ? { action, reference, revision, note, document }
+            : { action, note },
           { onSuccess: close },
         );
       }}
@@ -66,17 +98,61 @@ function ReviewForm({
                 }}
               />
             </Field>
-            <Field id="draft-revision" label="Versão informada do documento (opcional)">
-              <input
-                id="draft-revision"
-                maxLength={250}
-                value={revision}
-                onChange={(event) => {
-                  setRevision(event.target.value);
-                  setChecked(false);
-                }}
-              />
-            </Field>
+            {loadDocuments ? (
+              <>
+                <Field id="draft-document" label="Contrato ou aditivo no Storage">
+                  <select
+                    id="draft-document"
+                    required
+                    value={matchingVersion ? document?.document_id : ''}
+                    onChange={(event) => {
+                      setDocument(
+                        documents.data?.find((option) => option.document_id === event.target.value),
+                      );
+                      setChecked(false);
+                    }}
+                  >
+                    <option value="">Selecione o documento</option>
+                    {documents.data?.map((option) => (
+                      <option key={option.document_id} value={option.document_id}>
+                        {option.title} ·{' '}
+                        {option.document_type === 'contract' ? 'Contrato' : 'Aditivo'} ·{' '}
+                        {option.version}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                {documents.isFetching && <p role="status">Consultando documentos…</p>}
+                {documents.isError && <p role="alert">Não foi possível consultar os documentos.</p>}
+                {documents.isSuccess && documents.data.length === 0 && (
+                  <p>Cadastre um contrato ou aditivo para esta empresa no Storage.</p>
+                )}
+                <div>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setDocument(undefined);
+                      setChecked(false);
+                      void documents.refetch();
+                    }}
+                  >
+                    Atualizar documentos
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <Field id="draft-revision" label="Versão informada do documento (opcional)">
+                <input
+                  id="draft-revision"
+                  maxLength={250}
+                  value={revision}
+                  onChange={(event) => {
+                    setRevision(event.target.value);
+                    setChecked(false);
+                  }}
+                />
+              </Field>
+            )}
           </>
         )}
         <Field
@@ -111,7 +187,7 @@ function ReviewForm({
         <Button
           type="submit"
           pending={mutation.isPending}
-          disabled={!note.trim() || (confirms && (!reference.trim() || !checked))}
+          disabled={!note.trim() || (confirms && !canConfirm)}
         >
           {confirms ? 'Salvar comprovação' : 'Confirmar retirada'}
         </Button>
@@ -127,10 +203,14 @@ export function DraftAdhesion({
   snapshot,
   save,
   refresh,
+  loadDocuments,
+  documentQueryKey,
 }: {
   snapshot: DraftSnapshot;
   save: SaveReview;
   refresh: () => void;
+  loadDocuments?: LoadDocuments;
+  documentQueryKey: readonly string[];
 }) {
   const [action, setAction] = useState<DraftReview['action'] | null>(null);
   const latest = snapshot.history[0];
@@ -148,6 +228,8 @@ export function DraftAdhesion({
       {action ? (
         <ReviewForm
           action={action}
+          loadDocuments={action === 'confirmed' ? loadDocuments : undefined}
+          documentQueryKey={documentQueryKey}
           expected={latest?.id ?? null}
           save={save}
           close={() => setAction(null)}
@@ -173,7 +255,15 @@ export function DraftAdhesion({
               {' · '}
               {formatServerInstant(event.recorded_at)}
               {event.evidence_reference && <> · {event.evidence_reference}</>}
-              {event.document_revision && <> · Versão {event.document_revision}</>}
+              {event.document_snapshot ? (
+                <>
+                  {' '}
+                  · {event.document_snapshot.title} · Versão do Storage{' '}
+                  {event.document_snapshot.version}
+                </>
+              ) : event.document_revision ? (
+                <> · Versão informada {event.document_revision}</>
+              ) : null}
               <p className="tw:m-0">{event.note}</p>
             </li>
           ))}
