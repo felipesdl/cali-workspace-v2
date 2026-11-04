@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Admissão e revogação restritas ao piloto A/B
+
+- Consulta em leitura no CALI MAPA confirmou um Cliente e um convite ativos por empresa A/B. O e-mail coincide entre convite, perfil e Auth nos dois casos. Nenhum rascunho está ligado às duas empresas.
+- A [candidata do piloto](../supabase/proposals/hosted-access-pilot/base.sql) começa com escopo vazio e só permite registrar as empresas A/B. Exige sessão admitida para os Clientes do piloto. Revogação exige sessão Admin vigente com MFA, bloqueia a identidade e preserva o convite. A [suspensão](../supabase/proposals/hosted-access-pilot/pause.sql) mantém o histórico e fecha o acesso do piloto.
+- O [teste focado](../supabase/proposals/hosted-access-pilot/test.sql) passou em PostgreSQL descartável. Conferiu escopo vazio, admissão, isolamento, revogação, preservação de B e leitura legada fora do piloto. Candidata ainda sem aplicação hospedada. Vínculo da adesão, transporte de código, guardas complementares e prova no navegador continuam pendentes.
+
 ## 04/11/2026 — Publicação vigente e homologação A/B preparada
 
 - CALI MAPA publicou `2026-10-15` com SHA-256. Quatro recibos legados foram preservados. A SPA consulta a versão e o recibo do próprio ator, confirma pela RPC e exige correspondência com o texto do bundle.

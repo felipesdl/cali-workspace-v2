@@ -175,7 +175,7 @@ Para o primeiro lançamento, conduzir a fila de homologação da 2A nesta ordem:
 
 O CALI MAPA recebeu a publicação vigente e o registro de confirmação com hash. Os quatro recibos legados foram preservados sem preencher hash retroativamente. A SPA consulta o novo contrato. Os dois Clientes e os respectivos PDFs sintéticos estão preparados para [homologação](RUNBOOK.md#aceite-vigente-e-arquivos-da-fase-2a). Falta instalar a admissão e o corte, ativar a guarda de arquivos no recorte e validar isolamento, revogação e cache no destino.
 
-O próximo lote hospedado precisa portar a admissão e o corte com opt-in por empresa. A candidata base adiciona políticas restritivas e gatilhos sem esse filtro. Preparar a variante hospedada com rollback de políticas/gatilhos, endpoint V2 separado e envio restrito aos destinatários sintéticos autorizados. Só habilitar as empresas de teste depois de verificar os contratos da gestão de vagas, da Edge e do Storage no destino.
+A [variante do piloto A/B](../supabase/proposals/hosted-access-pilot/base.sql) restringe a admissão e o corte aos dois Clientes cadastrados no recorte. Passou em PostgreSQL descartável e segue fora do CALI MAPA. O preflight confirmou convite, perfil e conta Auth com o mesmo e-mail por empresa. Falta vincular os rascunhos e as comprovações, completar as guardas dos escritores e do Storage e ligar o endpoint V2 ao envio restrito aos destinatários sintéticos antes do opt-in.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
 
