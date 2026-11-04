@@ -70,6 +70,10 @@ export const isPilotCompany = (companyId: string | undefined) =>
 
 export function createCompanyOnboarding(client: WorkspaceClient) {
   return {
+    async preparePilotDocument(companyId: string) {
+      const { preparePilotDocument } = await import('./pilot-document');
+      return preparePilotDocument(client, pilotCompanyIdSchema.parse(companyId));
+    },
     async preparePilotDraft(companyId: string) {
       const { data, error } = await client.rpc('v2_prepare_pilot_company_draft', {
         p_company_id: pilotCompanyIdSchema.parse(companyId),

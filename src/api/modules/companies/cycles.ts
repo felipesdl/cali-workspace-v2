@@ -17,6 +17,18 @@ const serviceCycleRow = z.object({
 });
 export type ServiceCycleStatus = z.infer<typeof serviceCycleRow.shape.status>;
 
+export function createOpenCurrentCycle(client: WorkspaceClient) {
+  return async (companyId: string) => {
+    const { data, error } = await client.rpc('v2_open_current_service_cycle', {
+      p_company_id: z.uuid().parse(companyId),
+    });
+    if (error?.code === '55000')
+      throw new Error('A empresa precisa estar ativa e ter horas contratadas.');
+    if (error) throw new Error('Não foi possível confirmar a abertura do ciclo.');
+    return z.uuid().parse(data);
+  };
+}
+
 export function createHostedCycles(client: WorkspaceClient) {
   return async (companyId: string, signal: AbortSignal) => {
     const id = z.uuid().parse(companyId);

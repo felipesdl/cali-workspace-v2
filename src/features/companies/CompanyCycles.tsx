@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { serviceCycleStatus, type ServiceCycleStatus } from '../../api/modules/companies/cycles';
+import { isPilotCompany } from '../../api/modules/companies/onboarding';
 import { useCompanyCyclesQuery } from '../../api/modules/companies/hooks/useCompanyCyclesQuery';
+import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 
 const labels = {
@@ -17,7 +20,8 @@ const monthFormat = new Intl.DateTimeFormat('pt-BR', {
 });
 
 export function CompanyCycles({ companyId }: { companyId: string }) {
-  const { available, query } = useCompanyCyclesQuery(companyId);
+  const { available, query, open, canOpen } = useCompanyCyclesQuery(companyId);
+  const [confirm, setConfirm] = useState(false);
   if (!available) return null;
 
   return (
@@ -29,6 +33,38 @@ export function CompanyCycles({ companyId }: { companyId: string }) {
         Ciclos de serviço
       </h2>
       <p className="tw:m-0">Até 12 ciclos recentes da empresa.</p>
+      {import.meta.env.DEV && canOpen && isPilotCompany(companyId) && (
+        <div className="tw:flex tw:flex-wrap tw:gap-2">
+          {confirm ? (
+            <>
+              <Button
+                pending={open.isPending}
+                onClick={() => open.mutate(companyId, { onSuccess: () => setConfirm(false) })}
+              >
+                Confirmar abertura do mês
+              </Button>
+              <Button
+                variant="secondary"
+                disabled={open.isPending}
+                onClick={() => setConfirm(false)}
+              >
+                Cancelar
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                open.reset();
+                setConfirm(true);
+              }}
+            >
+              Abrir ciclo do mês
+            </Button>
+          )}
+        </div>
+      )}
+      {open.isError && <FeedbackState kind="error">{open.error.message}</FeedbackState>}
       {query.isPending && <FeedbackState kind="loading">Carregando ciclos…</FeedbackState>}
       {query.isError && (
         <FeedbackState kind="error">

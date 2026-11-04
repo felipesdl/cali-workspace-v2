@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 04/11/2026 — Adesões e ciclos de novembro das empresas A/B
+
+- Pela sessão Admin da V2, os dois rascunhos foram vinculados às empresas existentes. A ficha preparou um PDF sintético privado por empresa, verificou o registro no catálogo e confirmou a adesão com a versão exata no Storage. O CALI MAPA confirmou as duas adesões.
+- A RPC de abertura do mês foi instalada no CALI MAPA. Configuradas 12,5 horas somente nas duas empresas sintéticas, condicionadas às horas ainda vazias. A ação de homologação abriu novembro nas duas fichas, que exibiram **Aberto** e **12,5 h**.
+
 ## 04/11/2026 — Consulta de ciclos na ficha Admin
 
 - A ficha da empresa conectada consulta até 12 ciclos de serviço, em ordem decrescente de mês. Exibe mês, situação e horas contratadas. Cache separado por ator e empresa, com estados de carregamento, vazio e erro.

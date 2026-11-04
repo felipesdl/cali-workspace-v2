@@ -111,6 +111,16 @@ function Drafts({
       void cache.invalidateQueries({ queryKey: listKey });
     },
   });
+  const prepareDocument = useMutation({
+    mutationFn: service.preparePilotDocument,
+    retry: false,
+    onSuccess: (_, companyId) => {
+      if (detail.data?.draft.company_id === companyId) {
+        void cache.invalidateQueries({ queryKey: [...root, 'documents', selected] });
+      }
+    },
+  });
+  const draftCompanyId = detail.data?.draft.company_id ?? undefined;
   const next = list.data?.next;
   return (
     <section
@@ -199,6 +209,18 @@ function Drafts({
       {selected && detail.isSuccess && !detail.data && <p role="alert">Rascunho indisponível.</p>}
       {selected && detail.isSuccess && detail.data && (
         <>
+          {import.meta.env.DEV && draftCompanyId && isPilotCompany(draftCompanyId) && (
+            <div>
+              <Button
+                variant="secondary"
+                pending={prepareDocument.isPending}
+                onClick={() => prepareDocument.mutate(draftCompanyId)}
+              >
+                Preparar contrato sintético de teste
+              </Button>
+              {prepareDocument.isError && <p role="alert">{prepareDocument.error.message}</p>}
+            </div>
+          )}
           <DraftAdhesion
             key={selected}
             snapshot={detail.data}

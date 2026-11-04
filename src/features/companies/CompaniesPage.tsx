@@ -68,7 +68,7 @@ export function CompaniesPage() {
             companyId={search.companyId}
           />
           <CompanyAdhesions key={`adhesions:${search.companyId}`} companyId={search.companyId} />
-          <CompanyCycles companyId={search.companyId} />
+          <CompanyCycles key={`cycles:${search.companyId}`} companyId={search.companyId} />
           <CompanyAccessPanel
             key={`accesses:${search.companyId}`}
             companyId={search.companyId}
