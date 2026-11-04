@@ -80,6 +80,8 @@ Em 04/11, passaram 54 verificações. A baixou só o arquivo da própria empresa
 
 A rodada seguinte passou em 61 verificações com a candidata de filtro. A API entregou documento e entregável ao Cliente admitido. A assinatura individual foi recusada. A assinatura em lote respondeu sem URL para os dois objetos. Ao desmarcar a empresa sintética para gestão, a assinatura voltou a funcionar. O código da imagem local declara a mesma operação de download autenticado na rota explícita e na rota usada pelo SDK instalado. O ensaio HTTP usou a rota explícita.
 
+O ensaio de aceite passou em 89 verificações. A API recusou bytes sem publicação, antes do aceite e após recibo com hash incorreto. O Cliente consultou o texto vigente antes de aceitar. Depois de uma nova publicação, o recibo antigo perdeu acesso mesmo com uma política permissiva sobreposta na fixture. Após reativação, a sessão cortada não registrou aceite. A sessão nova registrou a versão vigente e recuperou o download. O recibo de A não liberou B. A prova usa publicação sintética e não mede CDN.
+
 ## Topologia vigente — DEC-22 e DEC-25
 
 | Item | Estado/definição |

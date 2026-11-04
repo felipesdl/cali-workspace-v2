@@ -379,6 +379,7 @@ async function main() {
     sql(`${review}\n${file(`supabase/proposals/session-cut/${name}.sql`)}`);
   }
   if (withStorage) {
+    sql(`${review}\n${file('supabase/proposals/session-cut/storage-current-terms.sql')}`);
     sql(`create policy cali_workspace_private_client_documents_select on storage.objects for select to authenticated using (
         bucket_id = 'cali-workspace-private'
         and ((split_part(name, '/', 1) = 'documents'
@@ -845,8 +846,47 @@ async function main() {
       label,
     );
   }
+  function publishTerms(version: 'qa-files-v1' | 'qa-files-v2') {
+    sql(`insert into cali_workspace.legal_versions(version,title,content)
+        values ('${version}','Termos sintéticos QA','Conteúdo sintético ${version}');
+      insert into cali_private.current_legal_version(singleton,version) values (true,'${version}')
+        on conflict(singleton) do update set version=excluded.version;`);
+  }
+  function currentTerms(jwt: string) {
+    const published = z
+      .object({ version: z.string(), contentHash: z.string().regex(/^[0-9a-f]{64}$/) })
+      .parse(rpc('get_current_terms', {}, jwt));
+    return published;
+  }
+  function acceptTerms(jwt: string, terms: ReturnType<typeof currentTerms>) {
+    return http(`${rest}:3000`, '/rpc/accept_current_terms', jwt, terms);
+  }
   let signedPath: string | undefined;
   if (withStorage) {
+    sql('delete from cali_private.current_legal_version;');
+    checkDenied(ownDownload, sessionA.access_token, 'Storage recusa download sem versão publicada');
+    publishTerms('qa-files-v1');
+    const current = currentTerms(sessionA.access_token);
+    check(current.version === 'qa-files-v1', 'Cliente sem aceite consulta o texto vigente');
+    checkDenied(ownDownload, sessionA.access_token, 'Storage recusa download antes do aceite');
+    check(
+      acceptTerms(unadmitted.access_token, current).status === 403,
+      'sessão sem admissão não grava aceite',
+    );
+    check(
+      acceptTerms(sessionA.access_token, { ...current, contentHash: '0'.repeat(64) }).status ===
+        400,
+      'recibo com conteúdo divergente recusado',
+    );
+    checkDenied(ownDownload, sessionA.access_token, 'hash incorreto não libera download');
+    check(
+      acceptTerms(sessionA.access_token, current).status === 200,
+      'Cliente A registra aceite vigente',
+    );
+    check(
+      acceptTerms(sessionB.access_token, current).status === 200,
+      'Cliente B registra aceite vigente',
+    );
     checkDownload(ownDownload, sessionA.access_token, 'Storage entrega bytes próprios a A');
     checkDenied(otherDownload, sessionA.access_token, 'Storage recusa arquivo de outra empresa');
     checkDenied(ownDownload, unadmitted.access_token, 'Storage recusa sessão sem admissão');
@@ -957,10 +997,36 @@ async function main() {
         links.data.some((link) => link.path === deliverable),
       'filtro recusa assinatura em lote dos dois arquivos',
     );
+    const previous = currentTerms(fresh.access_token);
+    publishTerms('qa-files-v2');
+    sql(`create policy fixture_overlapping_storage_read on storage.objects for select to authenticated using (
+      bucket_id='${bucket}' and name='${ownFile}' and auth.uid()='${a.id}');`);
+    checkDenied(
+      ownDownload,
+      fresh.access_token,
+      'nova versão bloqueia arquivo mesmo com policy permissiva paralela',
+    );
+    sql('drop policy fixture_overlapping_storage_read on storage.objects;');
+    check(
+      acceptTerms(fresh.access_token, previous).status === 400,
+      'versão anterior recusada após nova publicação',
+    );
+    const current = currentTerms(fresh.access_token);
+    check(
+      current.version === 'qa-files-v2' &&
+        acceptTerms(sessionA.access_token, current).status === 403,
+      'sessão revogada não grava novo aceite após reativação',
+    );
+    check(
+      acceptTerms(fresh.access_token, current).status === 200,
+      'nova sessão registra novo aceite',
+    );
+    checkDownload(ownDownload, fresh.access_token, 'novo aceite restabelece download');
+    checkDenied(ownDownload, sessionB.access_token, 'aceite de A não libera download de B');
     sql(
       `update cali_v2_onboarding.company_drafts set access_management_enabled=false where id='${draftId}';`,
     );
-    const legacy = storageCall(signPath, fresh.access_token, { expiresIn: 120 });
+    const legacy = storageCall(signPath, sessionB.access_token, { expiresIn: 120 });
     check(
       legacy.status === 200 &&
         z.object({ signedURL: z.string().min(1) }).safeParse(JSON.parse(legacy.bodyText)).success,
