@@ -45,3 +45,4 @@ test "$(cat "$qa_dir"/result-* | sort | uniq -c | awk '{ print $1, $2 }')" = "$(
 printf '%s\n' 'Concorrência: quatro convites aceitos e a quinta solicitação recusada.'
 db -q -f "$suite_dir/access-revocation-acceptance.sql"
 printf '%s\n' 'Revogação: vaga liberada, sessão e código antigos recusados, outro cliente preservado.'
+printf '%s\n' 'Storage: sessão admitida lê objetos próprios, e o corte bloqueia a sessão antiga após reativação.'

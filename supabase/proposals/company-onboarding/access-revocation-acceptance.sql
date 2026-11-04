@@ -1,7 +1,26 @@
 -- Executar depois da fixture e do teste concorrente de cinco convites.
+set cali.session_cut_review = 'reviewed-v1';
+\ir ../session-cut/rpc-guard.sql
+
+-- Política de leitura Cliente observada no CALI MAPA, sobre metadados sintéticos.
+alter table storage.objects enable row level security;
+grant usage on schema storage to authenticated;
+grant select on storage.objects to authenticated;
+create policy fixture_client_documents on storage.objects
+for select to authenticated using (
+  bucket_id = 'cali-workspace-private'
+  and (
+    (split_part(name, '/', 1) = 'documents'
+      and split_part(name, '/', 2) = cali_workspace.current_company_id()::text)
+    or (split_part(name, '/', 1) = cali_workspace.current_company_id()::text
+      and split_part(name, '/', 2) = 'deliverables')
+  )
+);
+
 do $$
 declare
   company uuid;
+  other_company uuid := gen_random_uuid();
   revoked_invite cali_workspace.client_invites;
   other_invite cali_workspace.client_invites;
   client_a uuid := '00000000-0000-4000-8000-000000000061';
@@ -17,6 +36,12 @@ declare
   previous_code timestamptz := clock_timestamp() - interval '1 minute';
 begin
   select d.company_id into company from cali_v2_onboarding.company_drafts d where d.access_management_enabled;
+  insert into storage.objects(id, bucket_id, name)
+  values
+    (gen_random_uuid(), 'cali-workspace-private', 'documents/' || company || '/own.txt'),
+    (gen_random_uuid(), 'cali-workspace-private', company || '/deliverables/own.txt'),
+    (gen_random_uuid(), 'cali-workspace-private', 'documents/' || other_company || '/foreign.txt'),
+    (gen_random_uuid(), 'cali-workspace-private', other_company || '/deliverables/foreign.txt');
   select * into strict revoked_invite from cali_workspace.client_invites where company_id = company and v2_access_slot = 1;
   select * into strict other_invite from cali_workspace.client_invites where company_id = company and v2_access_slot = 2;
   if (select count(*) from cali_workspace.client_invites where company_id = company and v2_access_slot is not null) <> 4 then
@@ -46,6 +71,9 @@ begin
   if exists (select 1 from cali_workspace.profiles where id = client_a) then
     raise exception 'Primeira sessão sem admissão leu dados.';
   end if;
+  if exists (select 1 from storage.objects) then
+    raise exception 'Primeira sessão sem admissão leu objetos.';
+  end if;
   reset role;
 
   initial_proof_a := cali_session_guard.authorize_code(client_a, previous_code);
@@ -61,6 +89,10 @@ begin
   set local role authenticated;
   if not exists (select 1 from cali_workspace.profiles where id = client_a) then
     raise exception 'Cliente não tinha acesso antes do corte.';
+  end if;
+  if (select count(*) from storage.objects where name like '%/own.txt') <> 2
+    or exists (select 1 from storage.objects where name like '%/foreign.txt') then
+    raise exception 'A leitura inicial de objetos não ficou restrita à empresa.';
   end if;
   reset role;
 
@@ -81,6 +113,9 @@ begin
   set local role authenticated;
   if exists (select 1 from cali_workspace.profiles where id = client_a) then
     raise exception 'Sessão anterior ainda lê dados.';
+  end if;
+  if exists (select 1 from storage.objects) then
+    raise exception 'Sessão revogada ainda lê objetos.';
   end if;
   reset role;
 
@@ -117,14 +152,24 @@ begin
   if exists (select 1 from cali_workspace.profiles where id = client_a) then
     raise exception 'Sessão antiga voltou após reativação.';
   end if;
+  if exists (select 1 from storage.objects) then
+    raise exception 'Sessão antiga voltou a ler objetos após reativação.';
+  end if;
   perform set_config('test.session', new_session::text, true);
   if not exists (select 1 from cali_workspace.profiles where id = client_a) then
     raise exception 'Sessão nova não lê dados.';
+  end if;
+  if (select count(*) from storage.objects where name like '%/own.txt') <> 2
+    or exists (select 1 from storage.objects where name like '%/foreign.txt') then
+    raise exception 'A leitura de objetos na sessão nova não ficou restrita à empresa.';
   end if;
   perform set_config('test.actor', client_b::text, true);
   perform set_config('test.session', session_b::text, true);
   if not exists (select 1 from cali_workspace.profiles where id = client_b) then
     raise exception 'Revogação atingiu outro cliente.';
+  end if;
+  if (select count(*) from storage.objects where name like '%/own.txt') <> 2 then
+    raise exception 'Revogação atingiu a leitura de objetos do outro cliente.';
   end if;
 end;
 $$;

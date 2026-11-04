@@ -169,8 +169,8 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 
 Para o primeiro lançamento, conduzir a fila de homologação da 2A nesta ordem:
 
-1. Conferir o catálogo hospedado em leitura com o [inventário de RPCs e Storage](../supabase/proposals/session-cut/catalog.sql). Identificar quais RPCs privilegiadas e políticas de arquivos alcançam a empresa de teste. Verificar também a visibilidade dos buckets e a validade dos links assinados que a V2 emitir.
-2. Preparar as guardas a partir desse inventário e provar o isolamento no laboratório. Cobrir acesso próprio, tentativa entre empresas, sessão anterior ao corte, arquivo privado e reativação com código novo. Revisar em paralelo o contrato de entrega de código, os casos de falha e a cobertura da interface Admin/Cliente.
+1. Inventário hospedado em leitura concluído para o recorte de acesso, com [achados registrados](contracts/ACCESS_COMPANIES.md#reconciliação-com-o-catálogo-ativo--0411). O bucket do Workspace é privado. A política Cliente de leitura depende de um helper que ainda carece da guarda de sessão da V2.
+2. A política Cliente passou com o helper candidato sobre objetos sintéticos em PostgreSQL. Falta completar o recorte de RPCs, testar o download pela API do Storage e conferir a validade dos links assinados após revogação. Em paralelo, a suíte do handler cobriu falha de envio, confirmação e limite. O remetente e a entrega hospedada da V2 seguem pendentes.
 3. Com as guardas verificadas, executar a jornada hospedada com Admin e dois Clientes de teste. Conferir convite, recebimento de código, primeiro acesso, consulta da empresa, revogação de um Cliente e continuidade do outro. A leitura do catálogo e os testes locais podem avançar enquanto o acesso ao ambiente ou a entrega aos destinatários de teste estiverem pendentes.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.

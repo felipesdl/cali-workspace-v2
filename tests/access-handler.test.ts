@@ -67,6 +67,32 @@ describe('fronteira pública de código', () => {
     expect(dependencies.delivered).toHaveBeenCalledWith('id', false);
     expect(await result.text()).not.toContain('captura indisponível');
   });
+  it('limite de emissão impede novo envio e nova confirmação', async () => {
+    const dependencies = ports();
+    dependencies.issue = async () => ({ status: 'limited' });
+    const result = await createAccessHandler(dependencies)(
+      request({ action: 'request', email: 'user@example.test' }),
+    );
+    expect(result.status).toBe(429);
+    expect(dependencies.send).not.toHaveBeenCalled();
+    expect(dependencies.delivered).not.toHaveBeenCalled();
+  });
+  it('falha ao confirmar código enviado não anuncia sucesso nem reenvia', async () => {
+    const dependencies = ports();
+    dependencies.delivered = vi.fn(async (_id, delivered) => {
+      if (delivered) throw new Error('falha interna ao registrar entrega');
+    });
+    const result = await createAccessHandler(dependencies)(
+      request({ action: 'request', email: 'user@example.test' }),
+    );
+    expect(result.status).toBe(500);
+    expect(dependencies.send).toHaveBeenCalledOnce();
+    expect(dependencies.delivered).toHaveBeenNthCalledWith(1, 'id', true);
+    expect(dependencies.delivered).toHaveBeenNthCalledWith(2, 'id', false);
+    expect(await result.json()).toEqual({
+      error: 'Não foi possível concluir o acesso. Tente novamente.',
+    });
+  });
   it('falha de geração Auth mantém consumo e não retorna token', async () => {
     const dependencies = ports();
     dependencies.consume = vi.fn(dependencies.consume);
