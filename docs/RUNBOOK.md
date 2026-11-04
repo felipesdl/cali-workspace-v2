@@ -76,6 +76,12 @@ O [comando de reautorização](../supabase/proposals/hosted-access-pilot/reautho
 
 Para retirar somente a reautorização, revogar `EXECUTE` de `authenticated` em `cali_workspace.v2_reauthorize_pilot_access(uuid,timestamptz,uuid)` e recarregar o cache de schema do PostgREST. Preservar a consulta do vínculo e a tabela privada de histórico. Para suspender a emissão e as sessões de todo o piloto, usar a suspensão do passo 5.
 
+#### Pré-condições para quatro vagas hospedadas
+
+O [inventário somente leitura](../supabase/proposals/hosted-access-pilot/catalog-slots.sql) não retorna dados de clientes. Em 04/11, o CALI MAPA confirmou matrícula com chave `company_id`, chaves únicas por convite, perfil e destinatário, e histórico de reautorização por empresa e pedido. Em `client_invites`, a unicidade é por empresa e e-mail. O gatilho existente conta convites ativos, sem filtrar `platform_access` nem bloquear a empresa para serializar gravações. O gatilho de perfil força a desativação em empresa fechada.
+
+Antes de ampliar o piloto: endereçar os comandos e o histórico pelo ID do convite e validar que pertence à empresa; preservar os IDs, cortes e admissões A/B existentes na migração; serializar ocupação e reautorização por empresa, incluindo os escritores aplicáveis ao recorte. O gatilho atual não prova o limite sob concorrência. Homologar um segundo Cliente na mesma empresa, recusa da quinta vaga e revogação individual, preservando os demais vínculos. O inventário não ativou vagas nem enviou códigos.
+
 ## Candidata de corte no servidor — sem execução
 
 [Contrato e sequência de revisão](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada). `supabase/proposals/session-cut` contém catálogo somente leitura, candidata e aceite SQL futuro. Não é migration nem comando npm; runner local conserva a lista fechada das três migrations do laboratório. Nada foi aplicado ou executado em banco nesta preparação.
