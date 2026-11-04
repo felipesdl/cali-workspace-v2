@@ -1,5 +1,12 @@
 # Registro de mudanças
 
+## 04/11/2026 — Publicação vigente e homologação A/B preparada
+
+- CALI MAPA publicou `2026-10-15` com SHA-256. Quatro recibos legados foram preservados. A SPA consulta a versão e o recibo do próprio ator, confirma pela RPC e exige correspondência com o texto do bundle.
+- Dois PDFs sintéticos ficaram no bucket privado, um por empresa de teste. A API recusou leitura anônima. O ensaio PostgreSQL confirmou recibos separados, rotação, guarda de arquivos com política permissiva sobreposta e rollback. `npm run verify` passou com 211 testes.
+- Na cópia isolada, GoTrue e PostgREST confirmaram a publicação com o hash do bundle, recusaram o aceite sem admissão e após revogação, e mantiveram os recibos dos dois Clientes independentes.
+- O Chrome isolado perdeu o relay antes de validar o novo aceite. Não houve envio externo de código. A guarda de arquivos continua candidata. Aplicar após admissão e corte no destino e seguir o [roteiro A/B](RUNBOOK.md#aceite-vigente-e-arquivos-da-fase-2a). O [rollback de publicação](../supabase/proposals/hosted-terms/rollback.sql) desativa a versão e preserva recibos e confirmações.
+
 ## 04/11/2026 — Provisionamento no primeiro acesso V2
 
 - Na cópia isolada, a Edge cria a conta Auth ao receber o primeiro pedido de código de um convite gerenciado. A RPC vincula o perfil ao mesmo convite e recupera uma conta já criada para ele em uma nova tentativa. Uma conta de outro fluxo sem vínculo compatível permanece fora da gestão.
