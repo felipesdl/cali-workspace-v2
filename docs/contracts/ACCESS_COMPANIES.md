@@ -408,6 +408,8 @@ Leitura de metadados no SQL Editor do CALI MAPA (`main`) e da fonte da Edge `wor
 
 Sequência proposta para a integração:
 
+O adapter de cadastro e adesão da SPA usa sete RPCs, incluindo a listagem e a confirmação de documentos de adesão. Essa listagem retorna metadados. A SPA ainda precisa de integração para abrir arquivos hospedados. Na revisão de permissões, conferir também o que um Cliente consegue chamar diretamente pela API, inclusive funções privilegiadas, políticas do Storage e links assinados. O [inventário de catálogo](../../supabase/proposals/session-cut/catalog.sql) lista políticas de objetos e permissões efetivas de execução por papel.
+
 1. Reservar um endpoint e um registro privado de códigos para a V2. Conferir quais consumidores do CALI MAPA dependem da Edge da V1 antes de decidir a transição. Vincular provisionamento idempotente e admissão ao convite gerenciado e à identidade Auth estável. Testar colisão de identidade e falha entre criação da conta, vinculação e envio.
 2. Portar a exigência de admissão desde o primeiro acesso para as superfícies da empresa opt-in. Cobrir API, RPCs privilegiadas e Storage conforme os consumidores desse recorte. Testar se uma sessão emitida pelo caminho legado consegue contornar a admissão da V2. Conferir como revogação afeta URLs assinadas já emitidas.
 3. Homologar a jornada no navegador com Admin e dois Clientes sintéticos. Exercitar convite, primeiro acesso, refresh, revogação, reativação e leitura de arquivos. Validar as dependências do CALI MAPA que a V2 vai usar no primeiro lançamento. Registrar rollback da Edge V2 e do opt-in antes de abrir convites no hospedado.

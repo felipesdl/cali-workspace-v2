@@ -158,6 +158,7 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Implementar a candidata isolada de provisionamento e admissão V2. Criar a identidade pelo Auth, vincular ao convite gerenciado e recuperar uma criação parcial sem adotar conta de outro fluxo.
 - [x] Exercitar o primeiro acesso no Chrome, confirmar aceite e consulta da empresa e verificar o bloqueio após revogação pela RPC e recarga. Consultar a navegação do Admin na V1 publicada como referência com sessão de teste existente.
 - [ ] Reconciliar o provisionamento e admissão com o catálogo hospedado. Cobrir RLS, Storage e RPCs que alcançam a empresa opt-in. Homologar Cliente/Admin e revogação antes de habilitar o recorte. Planejar retirada de mocks e legado em gates separados.
+
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
 - [x] Implementar arquivos contratuais demonstrativos: anexo, versões imutáveis, download explícito, retirada com motivo/histórico e integridade dos bytes, sem storage hospedado.
@@ -165,6 +166,12 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Implementar ponta Cliente de consulta: Minha empresa com GET mínimo do vínculo autenticado, navegação/retorno, termos correntes somente leitura e estados/falhas sem fallback para mocks; teste sintético não homologa leitura autenticada da tela.
 
 - [ ] Completar integração efetiva de arquivos/comprovação, financeiro operacional e ciclo da empresa; reconciliar demais dados efetivamente necessários, homologar integração/histórico e aceite completo da 2A.
+
+Para o primeiro lançamento, conduzir a fila de homologação da 2A nesta ordem:
+
+1. Conferir o catálogo hospedado em leitura com o [inventário de RPCs e Storage](../supabase/proposals/session-cut/catalog.sql). Identificar quais RPCs privilegiadas e políticas de arquivos alcançam a empresa de teste. Verificar também a visibilidade dos buckets e a validade dos links assinados que a V2 emitir.
+2. Preparar as guardas a partir desse inventário e provar o isolamento no laboratório. Cobrir acesso próprio, tentativa entre empresas, sessão anterior ao corte, arquivo privado e reativação com código novo. Revisar em paralelo o contrato de entrega de código, os casos de falha e a cobertura da interface Admin/Cliente.
+3. Com as guardas verificadas, executar a jornada hospedada com Admin e dois Clientes de teste. Conferir convite, recebimento de código, primeiro acesso, consulta da empresa, revogação de um Cliente e continuidade do outro. A leitura do catálogo e os testes locais podem avançar enquanto o acesso ao ambiente ou a entrega aos destinatários de teste estiverem pendentes.
 
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
 
