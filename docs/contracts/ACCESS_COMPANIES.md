@@ -345,6 +345,12 @@ A [candidata SQL](../../supabase/proposals/company-onboarding/candidate.sql) imp
 
 A revisão documental informada é metadado da conferência administrativa. A candidata ainda não consulta arquivo nem valida que a revisão é a corrente no Storage. A integração com documento real deverá vincular o ID e a versão por empresa antes de considerar esse evento apto a liberar acessos. O primeiro lote também deixa pendentes a listagem de rascunhos, o transporte da SPA e a materialização em `companies`.
 
+### Aplicação no CALI MAPA
+
+Em 04/11/2026, Felipe confirmou que os dados do projeto são de teste e autorizou a migration. O arquivo da revisão `8688c85` foi aplicado uma vez, em transação pelo SQL Editor do projeto `kqtbfeeqbcllwvlkbrkq`. A execução direta não registra a versão no histórico da CLI. O arquivo permanece fora dos runners para evitar reaplicação.
+
+Após o commit, o catálogo confirmou três wrappers invoker executáveis por `authenticated` e sem EXECUTE para `anon` e `service_role`. As duas tabelas novas estavam vazias, com RLS ativa e sem privilégios diretos de leitura/escrita para esses papéis. A sequência não concede acesso a `authenticated`. A assinatura das definições e ACLs de `create_client_account`, `is_admin`, `enforce_client_invite_limit` e `companies_cut_client_access` permaneceu idêntica à do preflight. Duas chamadas SQL com claims sintéticas confirmaram recusa para AAL1 e para identidade sem perfil. A validação não exercitou sessão real, Admin via Data API ou frontend.
+
 ### Transição e retirada do legado
 
 1. Homologar rascunho e comprovação em destino isolado. Conferir ownership das funções, schemas expostos, ACLs e rejeição de chamadas por ator sem permissão. Integrar a UI por capacidade, mantendo cadastro e comprovação separados dos comandos de acesso.
@@ -352,4 +358,4 @@ A revisão documental informada é metadado da conferência administrativa. A ca
 3. Implantar gestão de quatro vagas em recorte isolado ou com fronteira de servidor por empresa. Admissão e todos os escritores desse recorte precisam respeitar adesão, vagas e revogação. Vincular por identidade estável e impedir e-mails ambíguos. Revogação bloqueia códigos e sessões antigos e preserva os demais vínculos. Reativação exige autenticação nova. Integrar convite e entrega só depois dessa prova.
 4. Remover a demonstração como opção da V2 após a entrada em operação, se ela deixar de ser necessária. Preservar fixtures de teste. A falta de Clientes na V2 permite descartar dados sintéticos identificados em destino isolado. Antes de aposentar RPCs, grants ou Edge do oficial no banco compartilhado, inventariar consumidores, migrá-los e verificar ausência de uso. Aprovar limpeza em lote separado.
 
-Rollback inicial desabilita as RPCs V2 no transporte e retira o acesso aos wrappers, preservando rascunhos e evidência para revisão. Exclusão física exige confirmar que só existem dados descartáveis. A candidatura não foi aplicada no Supabase hospedado.
+Rollback inicial desabilita as RPCs V2 no transporte e retira o acesso aos wrappers, preservando rascunhos e evidência para revisão. Exclusão física exige confirmar que só existem dados descartáveis. A migration está aplicada no CALI MAPA e aguarda o consumidor no Admin.

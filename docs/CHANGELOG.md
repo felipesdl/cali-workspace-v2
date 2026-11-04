@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Migration 2A aplicada no CALI MAPA
+
+- **Autor/escopo:** Codex. Felipe confirmou o destino com dados de teste e autorizou a migration. A revisão `8688c85` foi aplicada em transação no SQL Editor, após conferir dependências e ausência dos objetos. SHA-256 do arquivo `fc2a58fe7461b88eea0ac642994849c97b6994619007c68c886fe18f36c6d10b`.
+- **Verificação hospedada:** três RPCs com grants esperados, RLS e ausência de privilégios diretos nas duas tabelas novas, sequência sem acesso a `authenticated` e contagem zero de rascunhos e eventos. Definições e ACLs das quatro funções legadas inspecionadas coincidem com o preflight. As chamadas SQL sintéticas recusaram AAL1 e identidade sem perfil.
+- **Limites/rollback:** nenhum registro de negócio foi criado, migrado ou descartado. A execução avulsa fica documentada no contrato, fora do histórico da CLI. A UI ainda precisa de integração e validação positiva pela Data API. Para suspender o recorte, revogar EXECUTE dos wrappers V2 e preservar as tabelas. Bateria anterior suspensa.
+
 ## 04/11/2026 — Candidata de cadastro e comprovação 2A
 
 - **Autor/escopo:** Codex. Felipe aprovou a separação e autorizou planejar migration e retirada do legado. Candidata SQL fora dos runners, com rascunho privado, confirmação/retirada auditáveis e leitura do histórico. A RPC e o login do oficial permanecem como referência de compatibilidade.
