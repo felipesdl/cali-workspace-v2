@@ -18,6 +18,7 @@ const rest = `cali-qa-rest-${suffix}`;
 const mail = `cali-qa-mail-${suffix}`;
 const gateway = `cali-qa-gateway-${suffix}`;
 const edgeRuntime = `cali-qa-edge-${suffix}`;
+const storage = `cali-qa-storage-${suffix}`;
 const secret = randomBytes(48).toString('hex');
 const services: string[] = [];
 let createdDatabase = false;
@@ -128,20 +129,29 @@ function token(role: 'service_role' | 'anon') {
 }
 const serviceKey = token('service_role');
 const anonKey = token('anon');
-function http(host: string, path: string, authToken = anonKey, body?: object, origin?: string) {
+function http(
+  host: string,
+  path: string,
+  authToken: string | null = anonKey,
+  body?: object | string,
+  origin?: string,
+) {
   const config = [
     `url = ${JSON.stringify(`http://${host}${path}`)}`,
     'silent',
     'show-error',
     'max-time = 8',
-    `header = ${JSON.stringify(`Authorization: Bearer ${authToken}`)}`,
-    'header = "Content-Type: application/json"',
+    typeof body === 'string'
+      ? 'header = "Content-Type: text/plain"'
+      : 'header = "Content-Type: application/json"',
     'header = "Accept-Profile: cali_workspace"',
     'header = "Content-Profile: cali_workspace"',
     'write-out = "\\n%{http_code}"',
   ];
+  if (authToken) config.push(`header = ${JSON.stringify(`Authorization: Bearer ${authToken}`)}`);
   if (origin) config.push(`header = ${JSON.stringify(`Origin: ${origin}`)}`);
-  if (body) config.push(`data = ${JSON.stringify(JSON.stringify(body))}`);
+  if (body)
+    config.push(`data = ${JSON.stringify(typeof body === 'string' ? body : JSON.stringify(body))}`);
   const raw = docker(['exec', '-i', source, 'curl', '--config', '-'], config.join('\n'));
   const split = raw.lastIndexOf('\n');
   const bodyText = raw.slice(0, split);
@@ -218,8 +228,59 @@ function readProfile(session: z.infer<typeof tokens>, id: string) {
   return response.status === 200 ? z.array(ids).parse(JSON.parse(response.bodyText)).length : -1;
 }
 
+const bucket = 'cali-workspace-private';
+const fixtureBytes = 'conteudo-sintetico-de-storage';
+function storageCall(path: string, jwt?: string | null, body?: object | string) {
+  return http(`${storage}:5000`, path, jwt, body);
+}
+
+async function startStorage(dsn: URL) {
+  stage = 'iniciar Storage descartável';
+  sql('create schema storage;');
+  start(storage, 'supabase/storage-api:v1.81.0', {
+    ANON_KEY: anonKey,
+    SERVICE_KEY: serviceKey,
+    AUTH_JWT_SECRET: secret,
+    DATABASE_URL: dsn.toString(),
+    POSTGREST_URL: `http://${rest}:3000`,
+    DB_INSTALL_ROLES: 'false',
+    STORAGE_BACKEND: 'file',
+    FILE_STORAGE_BACKEND_PATH: '/tmp/cali-storage',
+    GLOBAL_S3_BUCKET: 'cali-storage-qa',
+    FILE_SIZE_LIMIT: '1048576',
+    TENANT_ID: 'cali-qa',
+    REGION: 'local',
+    ENABLE_IMAGE_TRANSFORMATION: 'false',
+  });
+  let ready = false;
+  for (let attempt = 0; attempt < 15 && !ready; attempt++) {
+    try {
+      ready = storageCall('/status').status === 200;
+    } catch {
+      // As migrations do serviço rodam antes de a porta ficar disponível.
+    }
+    if (!ready) await new Promise((done) => setTimeout(done, 500));
+  }
+  check(ready, 'Storage responde na rede isolada');
+  sql(`grant usage on schema storage to authenticated, service_role;
+    grant select on storage.objects to authenticated;
+    grant all on storage.buckets, storage.objects to service_role;
+    alter table storage.objects add column if not exists archived_at timestamptz,
+      add column if not exists is_delete_marker boolean;`);
+  const created = storageCall('/bucket', serviceKey, { id: bucket, name: bucket, public: false });
+  check(created.status === 200, `criação do bucket privado pela API: HTTP ${created.status}`);
+}
+
+function uploadFixture(path: string) {
+  check(
+    storageCall(`/object/${bucket}/${path}`, serviceKey, fixtureBytes).status === 200,
+    'bytes sintéticos enviados pela API',
+  );
+}
+
 async function main() {
   if (process.argv[2] !== '--run') throw new Error('Use --run.');
+  const withStorage = process.argv.includes('--storage');
   const endpoint =
     process.env.DOCKER_HOST ||
     docker(['context', 'inspect', '--format', '{{.Endpoints.docker.Host}}']);
@@ -254,6 +315,14 @@ async function main() {
   sql('grant usage on schema auth to anon, authenticated, service_role;');
   check(sql('select count(*) from auth.users;') === '0', 'cópia sem usuários anteriores');
 
+  const password = z.string().min(1).parse(envOf(source).POSTGRES_PASSWORD);
+  const dsn = new URL(`postgresql://postgres@${source}:5432/${database}`);
+  dsn.password = password;
+  if (withStorage) await startStorage(dsn);
+  else
+    sql(`create schema storage;
+    create table storage.objects (id uuid primary key, bucket_id text, name text, version text, archived_at timestamptz, is_delete_marker boolean);`);
+
   stage = 'preparar contratos isolados';
   sql(file('tests/fixtures/session-cut/reference.sql'));
   sql(`alter table cali_workspace.companies
@@ -262,8 +331,6 @@ async function main() {
     add column due_reminder_enabled boolean default false,
     add column overdue_email_enabled boolean default false,
     add column termination_email_enabled boolean default false;
-    create schema storage;
-    create table storage.objects (id uuid primary key, bucket_id text, name text, version text, archived_at timestamptz, is_delete_marker boolean);
     create table cali_workspace.account_documents (id uuid primary key, company_id uuid, title text, document_type text, storage_path text);
     create schema cali_private;
     create table cali_workspace.workspace_adhesions(company_id uuid primary key);
@@ -305,11 +372,18 @@ async function main() {
   sql(`${review}\n${file(`${onboarding}/manage-access.sql`)}`);
   stage = 'aplicar provisionamento';
   sql(`${review}\n${file(`${onboarding}/provision-access.sql`)}`);
+  if (withStorage) {
+    sql(`${review}\n${file('supabase/proposals/session-cut/rpc-guard.sql')}`);
+    sql(`create policy fixture_workspace_documents on storage.objects for select to authenticated using (
+        bucket_id = 'cali-workspace-private'
+        and ((split_part(name, '/', 1) = 'documents'
+          and split_part(name, '/', 2) = cali_workspace.current_company_id()::text)
+        or (split_part(name, '/', 1) = cali_workspace.current_company_id()::text
+          and split_part(name, '/', 2) = 'deliverables'))
+      );`);
+  }
 
   stage = 'iniciar serviços descartáveis';
-  const password = z.string().min(1).parse(envOf(source).POSTGRES_PASSWORD);
-  const dsn = new URL(`postgresql://postgres@${source}:5432/${database}`);
-  dsn.password = password;
   dsn.searchParams.set('search_path', 'auth');
   const restDsn = new URL(
     z.string().parse(envOf('supabase_rest_cali-workspace-v2-local').PGRST_DB_URI),
@@ -458,9 +532,25 @@ async function main() {
     .uuid()
     .parse(rpc('v2_materialize_company', { p_draft_id: draftId }, adminSession.access_token));
   const documentId = randomUUID();
-  const objectId = randomUUID();
-  sql(`insert into cali_workspace.account_documents values ('${documentId}','${company}','Contrato QA','contract','${company}/account/qa.pdf');
-    insert into storage.objects values ('${objectId}','cali-workspace-private','${company}/account/qa.pdf','v1',null,false);
+  const contractPath = `${company}/account/qa.pdf`;
+  const ownFile = `documents/${company}/own.txt`;
+  const otherFile = `documents/${randomUUID()}/foreign.txt`;
+  if (withStorage) {
+    uploadFixture(contractPath);
+    uploadFixture(ownFile);
+    uploadFixture(otherFile);
+  } else {
+    sql(
+      `insert into storage.objects values ('${randomUUID()}','${bucket}','${contractPath}','v1',null,false);`,
+    );
+  }
+  const object = z.object({ id: z.uuid(), version: z.string().min(1) }).parse(
+    JSON.parse(
+      sql(`select json_build_object('id', id, 'version', version) from storage.objects
+      where bucket_id='${bucket}' and name='${contractPath}';`),
+    ),
+  );
+  sql(`insert into cali_workspace.account_documents values ('${documentId}','${company}','Contrato QA','contract','${contractPath}');
     insert into cali_workspace.workspace_adhesions values ('${company}');
     update cali_v2_onboarding.company_drafts set access_management_enabled=true where id='${draftId}';`);
   rpc(
@@ -472,8 +562,8 @@ async function main() {
       p_reference: 'QA',
       p_note: 'Conferência sintética',
       p_document_id: documentId,
-      p_object_id: objectId,
-      p_version: 'v1',
+      p_object_id: object.id,
+      p_version: object.version,
     },
     adminSession.access_token,
   );
@@ -620,6 +710,19 @@ async function main() {
     readProfile(sessionA, a.id) === 1 && readProfile(sessionB, b.id) === 1,
     'JWTs admitidos leem o perfil pelo PostgREST',
   );
+  function updateOwnProfile(jwt: string, name: string) {
+    return http(`${rest}:3000`, '/rpc/update_my_profile_v56', jwt, { p_full_name: name });
+  }
+  if (withStorage) {
+    check(
+      updateOwnProfile(unadmitted.access_token, 'Nome sem admissão').status === 403,
+      'RPC privilegiada recusa sessão sem admissão',
+    );
+    check(
+      updateOwnProfile(sessionA.access_token, 'Perfil sintético atualizado').status === 200,
+      'RPC privilegiada aceita sessão admitida',
+    );
+  }
 
   // Só a janela de emissão de código da fixture é avançada para criar a prova pendente.
   sql(
@@ -627,11 +730,54 @@ async function main() {
   );
   const oldCode = await startLogin(a.email);
   const pendingHash = issueAuthHash(a.email);
+  const ownDownload = `/object/authenticated/${bucket}/${ownFile}`;
+  const otherDownload = `/object/authenticated/${bucket}/${otherFile}`;
+  const signPath = `/object/sign/${bucket}/${ownFile}`;
+  function checkDownload(path: string, jwt: string | null, label: string) {
+    const response = storageCall(path, jwt);
+    check(response.status === 200 && response.bodyText === fixtureBytes, label);
+  }
+  function checkDenied(path: string, jwt: string, label: string, body?: object) {
+    const response = storageCall(path, jwt, body);
+    check(
+      [400, 401, 403, 404].includes(response.status) && response.bodyText !== fixtureBytes,
+      label,
+    );
+  }
+  let signedPath: string | undefined;
+  if (withStorage) {
+    checkDownload(ownDownload, sessionA.access_token, 'Storage entrega bytes próprios a A');
+    checkDenied(otherDownload, sessionA.access_token, 'Storage recusa arquivo de outra empresa');
+    checkDenied(ownDownload, unadmitted.access_token, 'Storage recusa sessão sem admissão');
+    const signed = storageCall(signPath, sessionA.access_token, { expiresIn: 120 });
+    check(signed.status === 200, 'Storage assina arquivo para sessão admitida');
+    const link = z.object({ signedURL: z.string() }).parse(JSON.parse(signed.bodyText)).signedURL;
+    const url = new URL(link, 'http://storage.fixture');
+    if (
+      url.origin !== 'http://storage.fixture' ||
+      url.pathname !== signPath ||
+      !url.searchParams.has('token')
+    )
+      throw new Error('URL assinada fora da rota sintética esperada.');
+    signedPath = url.pathname + url.search;
+  }
   manage('revoke', a.inviteId, null);
   check(
     readProfile(sessionA, a.id) === 0 && readProfile(sessionB, b.id) === 1,
     'revogação corta A e preserva B',
   );
+  if (signedPath) {
+    check(
+      updateOwnProfile(sessionA.access_token, 'Nome revogado').status === 403,
+      'RPC privilegiada recusa sessão revogada',
+    );
+    checkDenied(ownDownload, sessionA.access_token, 'Storage recusa download com JWT revogado');
+    checkDenied(signPath, sessionA.access_token, 'Storage recusa nova assinatura após revogação', {
+      expiresIn: 120,
+    });
+    checkDownload(signedPath, null, 'link emitido antes do corte ainda entrega bytes sem JWT');
+    checkDownload(ownDownload, sessionB.access_token, 'Storage preserva acesso de B');
+  }
   const renewed = authCall('/token?grant_type=refresh_token', {
     refresh_token: sessionA.refresh_token,
   });
@@ -646,6 +792,17 @@ async function main() {
     check(renewed.status >= 400 && renewed.status < 500, 'Auth recusou refresh da sessão revogada');
   }
   manage('reactivate', a.inviteId, null);
+  if (withStorage) {
+    checkDenied(
+      ownDownload,
+      sessionA.access_token,
+      'Storage mantém sessão antiga cortada após reativar',
+    );
+    check(
+      updateOwnProfile(sessionA.access_token, 'Nome de sessão antiga').status === 403,
+      'RPC privilegiada mantém a sessão antiga cortada após reativar',
+    );
+  }
   check(
     readProfile(sessionA, a.id) === 0 && (!refreshed || readProfile(refreshed, a.id) === 0),
     'reativação mantém JWTs da sessão antiga cortados',
@@ -671,6 +828,8 @@ async function main() {
       readProfile(sessionB, b.id) === 1,
     'código novo admite nova sessão e preserva B',
   );
+  if (withStorage)
+    checkDownload(ownDownload, fresh.access_token, 'nova sessão de A recupera download próprio');
   process.stdout.write(`Homologação local concluída com ${checks} verificações.\n`);
 }
 

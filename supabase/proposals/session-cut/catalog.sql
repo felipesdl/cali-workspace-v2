@@ -18,6 +18,9 @@ where (schemaname='cali_workspace'
   and tablename in ('profiles','companies','client_invites','terms_acceptances'))
   or (schemaname='storage' and tablename='objects')
 order by schemaname,tablename,policyname;
+-- SELECT também pode autorizar assinatura na API do Storage.
+select to_regprocedure('storage.allow_only_operation(text)') as storage_operation_guard,
+  to_regprocedure('storage.allow_any_operation(text[])') as storage_operations_guard;
 select t.tgrelid::regclass as relation, t.tgname, t.tgenabled, pg_get_triggerdef(t.oid)
 from pg_trigger t where not t.tgisinternal
   and t.tgrelid in (to_regclass('cali_workspace.profiles'),to_regclass('cali_workspace.companies'))
