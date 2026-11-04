@@ -41,12 +41,24 @@ Usar abas locais separadas (5181 para A, 5182 para B), mesmo checkout/backend e 
 `/scripts/hosted-access-probe.ts` é módulo manual importado pelo DevTools da aba de teste; não integra a SPA nem autentica/renova a sessão. `prepareFixtureProbe` exige UUIDs dos dois perfis/empresas sintéticos, confirma sessão Cliente ativa, vínculo e marcador da própria empresa antes de testar. Só aceita as duas origens locais dedicadas. Saída contém HTTP/contagens/flags, nunca tokens, códigos ou corpo Auth integral.
 
 - `read('active')`: Auth, próprio perfil/empresa, perfil/empresa do outro ator, lista visível e convites da outra empresa. Resultado vazio ou negado deve ser avaliado por operação; HTTP 200 sozinho não comprova isolamento.
+- `readFiles()`: GET sem cache do PDF próprio e do PDF da outra fixture. Registra status, correspondência do SHA-256 e cabeçalhos de cache disponíveis, sem mostrar bytes ou tokens. `readFiles('default')` repete as mesmas URLs com o cache normal do navegador.
 - `read('revoked')` / `read('restored')`: repetir com o JWT retido em memória durante inativação/recomposição exclusivamente da fixture. Registrar separadamente guarda da SPA, permissão do banco e eventual recuperação do JWT antigo. Não alterar company_id, papel ou contas existentes.
 - `captureBeforeLogout()`: captura a credencial corrente apenas em memória e informa a expiração. Depois do logout pela UI, `read('after_logout')` verifica o JWT anterior; `verifyRefreshRevoked()` exige armazenamento local vazio e tenta o refresh anterior uma vez. Se o servidor emitir sessão inesperadamente, a ferramenta tenta encerrá-la e reporta essa limpeza, sem persisti-la.
 - `read('expired')`: somente depois do `exp` real do token retido. Não mudar relógio, assinatura ou TTL global para fabricar prova de expiração; negativa por assinatura inválida não é negativa por prazo. Ausência dessa execução permanece pendência explícita.
 - `forget()`: descarta referências às credenciais na ferramenta. Não imprimir o objeto de sessão nem persistir arquivos com credenciais para repetir provas.
 
 O módulo não aplica SQL/policies nem transforma HTTP negado em permissão. Resultados hospedados devem ser registrados no changelog/roadmap após execução; testes de fixture/controller não os substituem. Logout Supabase pode deixar JWT válido até `exp`; guardas/policies devem ser verificadas com a credencial anterior, sem confundir logout visual com recusa imediata no banco.
+
+### Aceite vigente e arquivos da fase 2A
+
+As empresas marcadas `CALI_V2_TEST_A_20261101` e `CALI_V2_TEST_B_20261101` têm um Cliente e um convite ativos cada. O bucket privado contém os PDFs sintéticos `documents/<empresa-A>/qa-aceite-2a-a.pdf` e `documents/<empresa-B>/qa-aceite-2a-b.pdf`. Os dois GETs anônimos foram negados. Consultar os UUIDs da fixture no catálogo por marcador.
+
+1. Abrir `http://127.0.0.1:5181/cliente` e `http://127.0.0.1:5182/cliente`. Entrar apenas com os destinatários de teste já autorizados. Confirmar no banco que ambos têm sessão admitida e empresa gerenciada antes da prova de bloqueio do Storage.
+2. Antes do aceite, consultar o texto na tela e executar `readFiles()` em ambas as abas. Esperar recusa de arquivo próprio e alheio. Aceitar em A, repetir as duas leituras e confirmar que só A baixa seu próprio PDF. Aceitar em B e conferir a mesma fronteira para B.
+3. Abrir os arquivos com cache normal usando `readFiles('default')`. Revogar A pela gestão Admin e recarregar a aba de A. Conferir o bloqueio na tela. Repetir as leituras com e sem cache usando apenas a sessão corrente de cada aba. Se a sessão de A já foi encerrada, registrar o bloqueio na tela e a continuidade do download de B. Bytes indevidos servidos pelo cache mantêm a homologação pendente. Verificar previamente se havia links já emitidos para o recorte.
+4. Reativar A, entrar pelo fluxo de código e confirmar o download do PDF próprio na nova sessão. Testar rotação da versão na cópia isolada. No destino, usar somente texto oficial aprovado e registrar o resultado efetivo.
+
+A [ativação da política](../supabase/proposals/hosted-terms/activate-storage.sql) exige admissão e corte instalados. Antes de [reverter a política](../supabase/proposals/hosted-terms/rollback-storage.sql), retirar a disponibilidade dos arquivos do recorte e verificar links/cache no destino. O [rollback da publicação](../supabase/proposals/hosted-terms/rollback.sql) mantém recibos e confirmações.
 
 ## Candidata de corte no servidor — sem execução
 

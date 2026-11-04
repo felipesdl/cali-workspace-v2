@@ -27,6 +27,16 @@ const inviteRows = z.array(z.object({ id: z.uuid(), company_id: z.uuid() }));
 const userSchema = z.object({ id: z.uuid() });
 const errorSchema = z.object({ code: z.string().optional(), error_code: z.string().optional() });
 const markerSchema = z.array(z.object({ id: z.uuid(), notes: z.string().nullable() }));
+const fileFixtures = {
+  A: {
+    companyId: '9c5ab148-78b8-4410-9338-58c44222a5db',
+    hash: '8a3a566e25dcadc6e5ada86e3a24f7c6eb0ad6d34c09cc4ce05ea8c41a10084d',
+  },
+  B: {
+    companyId: '6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76',
+    hash: '9cae9f7ea67b40ba888df9b661228a4c32c2cc832172d35a954e52df5b492ea2',
+  },
+};
 
 export async function prepareFixtureProbe(input: z.infer<typeof fixtureProbeSchema>) {
   const spec = fixtureProbeSchema.parse(input);
@@ -92,7 +102,48 @@ export async function prepareFixtureProbe(input: z.infer<typeof fixtureProbeSche
     own.data[0].notes !== `CALI_V2_TEST_${spec.actor}_20261101`
   )
     throw new Error('Empresa de teste não confirmada; nenhuma prova será executada.');
+  async function file(actor: 'A' | 'B', cache: 'no-store' | 'default', accessToken: string) {
+    const fixture = fileFixtures[actor];
+    const path = `documents/${fixture.companyId}/qa-aceite-2a-${actor.toLowerCase()}.pdf`;
+    const response = await fetch(
+      `${url}/storage/v1/object/authenticated/cali-workspace-private/${path}`,
+      {
+        cache,
+        headers: { apikey: publishableKey, Authorization: `Bearer ${accessToken}` },
+        redirect: 'error',
+        signal: AbortSignal.timeout(12000),
+      },
+    );
+    let fixtureMatches = false;
+    if (response.ok) {
+      const digest = await crypto.subtle.digest('SHA-256', await response.arrayBuffer());
+      const hex = Array.from(new Uint8Array(digest), (byte) =>
+        byte.toString(16).padStart(2, '0'),
+      ).join('');
+      fixtureMatches = hex === fixture.hash;
+    }
+    return {
+      http: response.status,
+      fixtureMatches,
+      age: response.headers.get('age'),
+      cacheControl: response.headers.get('cache-control'),
+    };
+  }
   return {
+    async readFiles(cache: 'no-store' | 'default' = 'no-store') {
+      const otherActor = spec.actor === 'A' ? 'B' : 'A';
+      if (
+        spec.companyId !== fileFixtures[spec.actor].companyId ||
+        spec.otherCompanyId !== fileFixtures[otherActor].companyId
+      )
+        throw new Error('Empresas não correspondem aos PDFs de homologação.');
+      const { access_token: accessToken } = capture();
+      const [ownFile, otherFile] = await Promise.all([
+        file(spec.actor, cache, accessToken),
+        file(otherActor, cache, accessToken),
+      ]);
+      return { actor: spec.actor, cache, ownFile, otherFile };
+    },
     captureBeforeLogout() {
       credentials = capture();
       return {

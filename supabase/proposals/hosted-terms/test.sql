@@ -102,6 +102,54 @@ begin
 end;
 $$;
 
+-- Isola a composição da policy. A prova de Auth e operação Storage reais
+-- continua no driver de integração.
+create schema cali_session_guard;
+create function cali_session_guard.profile_requires_admission(subject uuid)
+returns boolean language sql stable as $$ select subject is not null $$;
+create function cali_session_guard.session_is_live()
+returns boolean language sql stable as $$ select current_setting('test.live',true) = 'yes' $$;
+create schema cali_v2_onboarding;
+create function cali_v2_onboarding.uses_managed_access(uuid,uuid)
+returns boolean language sql stable as $$ select true $$;
+create schema storage;
+create function storage.allow_any_operation(operations text[])
+returns boolean language sql stable as $$ select current_setting('test.operation',true) = any(operations) $$;
+create table storage.objects (bucket_id text, name text);
+insert into storage.objects values ('cali-workspace-private','documents/qa/fixture.pdf');
+alter table storage.objects enable row level security;
+grant usage on schema storage to authenticated;
+grant select on storage.objects to authenticated;
+create policy permissive_overlap on storage.objects for select to authenticated using (true);
+
+set cali.hosted_terms.activate_storage = 'reviewed';
+\ir activate-storage.sql
+
+do $$ begin
+  perform set_config('test.jwt','{"sub":"00000000-0000-4000-8000-000000000002","session_id":"00000000-0000-4000-8000-000000000012"}',true);
+  perform set_config('test.live','yes',true);
+  set local role authenticated;
+  perform set_config('test.operation','object.get_authenticated',true);
+  if (select count(*) from storage.objects) <> 1 then raise exception 'Download com aceite negado'; end if;
+  perform set_config('test.operation','object.sign',true);
+  if exists (select 1 from storage.objects) then raise exception 'Policy permissiva liberou assinatura'; end if;
+  perform set_config('test.live','no',true);
+  perform set_config('test.operation','object.get_authenticated',true);
+  if exists (select 1 from storage.objects) then raise exception 'Sessão cortada leu arquivo'; end if;
+  reset role;
+  update cali_v2_terms.publications set is_current=false;
+  insert into cali_v2_terms.publications values ('qa-third',repeat('b',64),true);
+  set local role authenticated;
+  perform set_config('test.live','yes',true);
+  if exists (select 1 from storage.objects) then raise exception 'Policy permissiva ignorou a nova publicação'; end if;
+end $$;
+
+\ir rollback-storage.sql
+do $$ begin
+  set local role authenticated;
+  if (select count(*) from storage.objects) <> 1 then raise exception 'Rollback não restaurou leitura legada'; end if;
+end $$;
+
 \ir rollback.sql
 
 do $$ begin
