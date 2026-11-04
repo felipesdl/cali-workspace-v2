@@ -412,6 +412,14 @@ Sequência proposta para a integração:
 2. Portar a exigência de admissão desde o primeiro acesso para as superfícies da empresa opt-in. Cobrir API, RPCs privilegiadas e Storage conforme os consumidores desse recorte. Testar login legado como controle e também como tentativa de acesso à empresa opt-in. Conferir como revogação afeta URLs assinadas já emitidas.
 3. Homologar a jornada no navegador com Admin e dois Clientes sintéticos. Exercitar convite, primeiro acesso, refresh, revogação, reativação e leitura de arquivos. Verificar que o fluxo oficial permanece compatível para empresa fora do opt-in. Registrar rollback da Edge V2 e do opt-in antes de abrir convites no hospedado.
 
+### Provisionamento no primeiro acesso V2 — 04/11
+
+A [candidata isolada de provisionamento](../../supabase/proposals/company-onboarding/provision-access.sql) permite que o primeiro pedido de código vincule o Cliente de um convite gerenciado à sua identidade Auth. O Admin reserva a vaga. A Edge confirma a empresa e o convite vigentes antes de criar a conta, marca a criação no Auth com o ID do convite e reconsulta o banco para concluir o vínculo sob o mesmo lock da gestão de vagas.
+
+A criação Auth e o vínculo no banco têm transações distintas. Se a criação persistir e a resposta ou o vínculo falhar, a nova tentativa recupera a conta com o marcador do mesmo convite. Uma conta preexistente sem vínculo compatível e sem esse marcador é recusada. Um perfil existente deve corresponder à identidade Auth, à empresa, ao e-mail e ao papel de Cliente ativo. A função não reativa perfil e não desloca vínculo. Se o convite mudar durante a criação, o vínculo depende da nova conferência. Uma conta pendente de um convite antigo requer reconciliação antes de aproveitar outra autorização.
+
+O código continua no registro privado V2. Somente a sessão admitida após a confirmação do código chega à SPA. Para habilitar o recorte no CALI MAPA, ainda é necessário revisar as superfícies de RPC e Storage, escolher o endpoint e transporte de e-mail hospedados e validar o fluxo com o catálogo efetivo.
+
 ### Transição e retirada do legado
 
 1. Manter a capacidade de rascunhos e comprovação separada da gestão de acessos. A jornada autenticada já foi exercitada com Admin e uma fixture no CALI MAPA.

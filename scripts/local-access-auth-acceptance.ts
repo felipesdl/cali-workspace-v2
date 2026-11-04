@@ -5,6 +5,8 @@ import { resolve } from 'node:path';
 import { z } from 'zod';
 import { validateLocalContainer } from './local-database.ts';
 import { issuedSessionSchema } from '../supabase/functions/workspace-access/session-exchange.ts';
+import { hostedLegalVersion } from '../src/api/modules/access/legal.ts';
+import { verifyAccessInBrowser } from './local-access-browser.ts';
 
 const root = resolve(import.meta.dirname, '..');
 const network = 'cali-workspace-v2-isolated';
@@ -269,6 +271,20 @@ async function main() {
     alter policy profiles_self_select on cali_workspace.profiles rename to profiles_self_read;`);
   stage = 'aplicar códigos e termos locais';
   sql(file('supabase/migrations/20261029120000_codes_terms.sql'));
+  const cli = process.env.CALI_QA_PLAYWRIGHT_CLI;
+  if (cli) {
+    const version = z.iso.date().parse(hostedLegalVersion);
+    // A SPA conectada escreve no contrato de aceite hospedado. A projeção local
+    // mantém o digest e a FK da baseline, com uma versão sintética descartável.
+    sql(`insert into cali_workspace.legal_versions(version,title,content)
+        values ('${version}','Termos QA','Conteúdo sintético QA');
+      insert into cali_private.current_legal_version values (true, '${version}');
+      alter table cali_workspace.terms_acceptances add column user_agent text,
+        alter column content_hash set default encode(sha256(convert_to('Conteúdo sintético QA','UTF8')), 'hex');
+      grant insert on cali_workspace.terms_acceptances to authenticated;
+      create policy fixture_hosted_terms_insert on cali_workspace.terms_acceptances
+        for insert to authenticated with check (user_id = auth.uid() and version = '${version}');`);
+  }
   const onboarding = 'supabase/proposals/company-onboarding';
   for (const name of [
     'candidate',
@@ -287,6 +303,8 @@ async function main() {
   }
   stage = 'aplicar gestão de acessos';
   sql(`${review}\n${file(`${onboarding}/manage-access.sql`)}`);
+  stage = 'aplicar provisionamento';
+  sql(`${review}\n${file(`${onboarding}/provision-access.sql`)}`);
 
   stage = 'iniciar serviços descartáveis';
   const password = z.string().min(1).parse(envOf(source).POSTGRES_PASSWORD);
@@ -479,20 +497,68 @@ async function main() {
         adminSession.access_token,
       ),
     );
-  async function invite(label: string) {
+  function invite(label: string) {
     const email = `acesso-${label}-${suffix}@example.test`;
     const inviteId = manage('invite', null, email);
-    const issued = authCall('/invite', { email }, serviceKey);
-    check(issued.status === 200, `Auth emitiu convite ${label}`);
-    const id = ids.parse(JSON.parse(issued.bodyText)).id;
-    const message = await captured(email, 'Convite CALI QA');
-    check(/type=invite/.test(message.HTML), `Mailpit recebeu convite ${label}`);
-    sql(`insert into cali_workspace.profiles(id,company_id,email,full_name,role)
-      values('${id}','${company}','${email}','Pessoa QA','client');`);
-    return { email, id, inviteId };
+    return { email, inviteId };
   }
-  const a = await invite('a');
-  const b = await invite('b');
+  const inviteA = invite('a');
+  const inviteB = invite('b');
+  const collision = invite('collision');
+
+  async function capturedCode(email: string) {
+    const message = await captured(email, 'CALI laboratório · Código de acesso');
+    return z
+      .string()
+      .regex(/^\d{6}$/)
+      .parse(message.Text.match(/código de teste é (\d{6})/)?.[1]);
+  }
+  if (cli) {
+    const browserInvite = invite('browser');
+    stage = 'primeiro acesso e revogação no navegador';
+    await verifyAccessInBrowser({
+      cli,
+      directory: runtimeDirectory,
+      email: browserInvite.email,
+      forward({ path, token: jwt, body }) {
+        if (path === '/functions/v1/workspace-access') return edge(body);
+        return http(`${gateway}:8000`, path, jwt, body);
+      },
+      code: () => capturedCode(browserInvite.email),
+      revoke: () => {
+        manage('revoke', browserInvite.inviteId, null);
+      },
+    });
+    check(
+      sql(`select count(*) from cali_workspace.client_invites i
+        join cali_workspace.profiles p on p.company_id=i.company_id and p.email=i.email
+        join cali_workspace.terms_acceptances t on t.user_id=p.id
+        where i.id='${browserInvite.inviteId}' and not i.active and not p.active;`) === '1',
+      'Chrome confirma primeiro acesso, aceite, área Cliente e corte após recarga',
+    );
+  }
+  function createIdentity(email: string, inviteId?: string) {
+    const response = authCall(
+      '/admin/users',
+      {
+        email,
+        email_confirm: true,
+        app_metadata: inviteId ? { cali_v2_invite: inviteId } : {},
+      },
+      serviceKey,
+    );
+    if (response.status !== 200) throw new Error('Falha ao preparar identidade sintética.');
+    return ids.parse(JSON.parse(response.bodyText)).id;
+  }
+  const pendingIdentity = createIdentity(inviteB.email, inviteB.inviteId);
+  const unrelatedIdentity = createIdentity(collision.email);
+  const refused = edge({ action: 'request', email: collision.email });
+  check(
+    refused.status === 200 &&
+      JSON.parse(refused.bodyText).challenge === undefined &&
+      sql(`select count(*) from cali_workspace.profiles where id='${unrelatedIdentity}';`) === '0',
+    'identidade preexistente de outro fluxo não é adotada',
+  );
 
   function issueAuthHash(email: string) {
     const link = authCall('/admin/generate_link', { type: 'magiclink', email }, serviceKey);
@@ -504,11 +570,6 @@ async function main() {
     return authCall('/verify', { token_hash: hash, type: 'email' });
   }
 
-  const directAuth = exchangeAuthHash(issueAuthHash(a.email));
-  check(directAuth.status === 200, 'Auth emitiu sessão direta antes do primeiro login');
-  const unadmitted = tokens.parse(JSON.parse(directAuth.bodyText));
-  check(readProfile(unadmitted, a.id) === 0, 'primeira sessão sem admissão não passou pela RLS');
-
   async function startLogin(email: string) {
     const requested = edge({ action: 'request', email });
     check(
@@ -517,19 +578,44 @@ async function main() {
           .success,
       'Edge solicitou código',
     );
-    const message = await captured(email, 'CALI laboratório · Código de acesso');
-    return z
-      .string()
-      .regex(/^\d{6}$/)
-      .parse(message.Text.match(/código de teste é (\d{6})/)?.[1]);
+    return capturedCode(email);
   }
   function finishLogin(email: string, otp: string) {
     const response = edge({ action: 'verify', email, code: otp });
     check(response.status === 200, 'Edge trocou código e admitiu sessão Auth');
     return z.object({ session: tokens }).parse(JSON.parse(response.bodyText)).session;
   }
-  const sessionA = finishLogin(a.email, await startLogin(a.email));
+  const firstCode = await startLogin(inviteA.email);
+  const a = {
+    ...inviteA,
+    id: z
+      .uuid()
+      .parse(
+        sql(
+          `select id from cali_workspace.profiles where email='${inviteA.email}' and company_id='${company}';`,
+        ),
+      ),
+  };
+  check(
+    sql(
+      `select count(*) from auth.users where id='${a.id}' and raw_app_meta_data->>'cali_v2_invite'='${a.inviteId}';`,
+    ) === '1',
+    'Edge cria e vincula a primeira identidade Auth',
+  );
+  const directAuth = exchangeAuthHash(issueAuthHash(a.email));
+  check(directAuth.status === 200, 'Auth emitiu sessão direta antes do primeiro login');
+  const unadmitted = tokens.parse(JSON.parse(directAuth.bodyText));
+  check(readProfile(unadmitted, a.id) === 0, 'primeira sessão sem admissão não passou pela RLS');
+
+  const sessionA = finishLogin(a.email, firstCode);
+  const b = { ...inviteB, id: pendingIdentity };
   const sessionB = finishLogin(b.email, await startLogin(b.email));
+  check(
+    sql(
+      `select count(*) from cali_workspace.profiles where id='${b.id}' and company_id='${company}';`,
+    ) === '1',
+    'tentativa seguinte recupera a conta Auth criada antes do vínculo',
+  );
   check(
     readProfile(sessionA, a.id) === 1 && readProfile(sessionB, b.id) === 1,
     'JWTs admitidos leem o perfil pelo PostgREST',

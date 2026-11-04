@@ -1,5 +1,12 @@
 # Registro de mudanças
 
+## 04/11/2026 — Provisionamento no primeiro acesso V2
+
+- Na cópia isolada, a Edge cria a conta Auth ao receber o primeiro pedido de código de um convite gerenciado. A RPC vincula o perfil ao mesmo convite e recupera uma conta já criada para ele em uma nova tentativa. Uma conta de outro fluxo sem vínculo compatível permanece fora da gestão.
+- Passaram 34 verificações com Edge Runtime, GoTrue, Mailpit e PostgREST, incluindo criação, recuperação do vínculo e corte. A navegação no oficial com sessão Admin existente abriu a lista de clientes e o painel de acessos da empresa sintética.
+- No Chrome, o Cliente recebeu o código, registrou o aceite de teste e consultou a empresa. A RPC revogou o convite e a recarga bloqueou a sessão existente. O banco descartável confirmou o aceite e a desativação do convite e do perfil.
+- A candidata segue fora das migrations hospedadas. O opt-in no CALI MAPA depende da revisão das guardas de RPC e Storage e da homologação do transporte de e-mail e do catálogo efetivo.
+
 ## 04/11/2026 — Catálogo do CALI MAPA e admissão inicial
 
 - O inventário do CALI MAPA e da Edge publicada confirmou ledger de códigos por e-mail, entrega de `token_hash` ao navegador, provisionamento no fluxo legado e escritores privilegiados. O contrato registra a fronteira proposta para a V2 e as verificações necessárias antes de habilitar gestão hospedada.

@@ -128,7 +128,7 @@ Esta lista registra execução e evidência. O [PR #2](https://github.com/patric
 
 Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de ponta a ponta são a entrega 2A. O DS e as demais extrações crescem junto dos fluxos; não são um catálogo completo a terminar antes de 2A. Fontes de evidência: [arquitetura](ARCHITECTURE.md), [runbook](RUNBOOK.md), [changelog](CHANGELOG.md) e [ficha de acesso/contas](flows/ACCESS_ACCOUNTS.md).
 
-**Próximo passo técnico de integração:** preparar o endpoint de admissão e o provisionamento V2 em destino isolado, com guardas da empresa opt-in nas superfícies relevantes. O [contrato](contracts/ACCESS_COMPANIES.md#reconciliação-com-o-catálogo-ativo--0411) registra as diferenças entre código local e publicado. O CALI MAPA tem evidência de cadastro/comprovação pelo Admin e isolamento de leitura A/B no recorte histórico. Corte hospedado, callback válido e regressão nas demais superfícies seguem pendentes.
+**Próximo passo técnico de integração:** reconciliar as guardas de RPC e Storage para o opt-in hospedado. O [contrato](contracts/ACCESS_COMPANIES.md#provisionamento-no-primeiro-acesso-v2--0411) registra a candidata de provisionamento e admissão isolada. O CALI MAPA tem evidência de cadastro/comprovação pelo Admin e isolamento de leitura A/B no recorte histórico. Corte hospedado, callback e regressão nas demais superfícies seguem pendentes.
 
 **Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 
@@ -155,7 +155,9 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Homologar entrega local de convites, login por código, refresh e revogação com GoTrue, PostgREST e Mailpit em cópia descartável. Provar que o hash anterior ao corte não libera leitura após reativação.
 - [x] Conferir a Edge publicada e o catálogo do CALI MAPA. No navegador, reabrir a ficha sintética, ler histórico e versão do Storage e verificar o estado da gestão de convites.
 - [x] Exigir admissão desde a primeira sessão Cliente de empresa gerenciada na candidata isolada. Preservar sessão legada sem corte fora da gestão no controle SQL.
-- [ ] Implementar provisionamento e admissão V2 com isolamento do escritor legado. Cobrir RLS, Storage e RPCs que alcançam a empresa opt-in. Homologar Cliente/Admin e revogação antes de habilitar o recorte. Planejar retirada de mocks e legado em gates separados.
+- [x] Implementar a candidata isolada de provisionamento e admissão V2. Criar a identidade pelo Auth, vincular ao convite gerenciado e recuperar uma criação parcial sem adotar conta de outro fluxo.
+- [x] Exercitar o primeiro acesso no Chrome, confirmar aceite e consulta da empresa e verificar o bloqueio após revogação pela RPC e recarga. Conferir a navegação do Admin no oficial com sessão existente.
+- [ ] Reconciliar o provisionamento e admissão com o catálogo hospedado. Cobrir RLS, Storage e RPCs que alcançam a empresa opt-in. Homologar Cliente/Admin e revogação antes de habilitar o recorte. Planejar retirada de mocks e legado em gates separados.
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
 - [x] Implementar arquivos contratuais demonstrativos: anexo, versões imutáveis, download explícito, retirada com motivo/histórico e integridade dos bytes, sem storage hospedado.

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createSessionExchange, issuedSessionSchema } from './session-exchange.ts';
 import { createAccessHandler, codeIssueResultSchema, codeSubjectSchema } from './handler.ts';
+import { managedLoginSchema, prepareWorkspaceLogin } from './provision.ts';
 
 // Interface mínima do runtime. O bundle é typechecked localmente e executado no Edge local.
 declare const Deno: {
@@ -58,6 +59,21 @@ Deno.serve(
       return [...new Uint8Array(signed)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
     },
     async issue(email, hash) {
+      const ready = await prepareWorkspaceLogin(email, {
+        async prepare(address) {
+          return managedLoginSchema.parse(
+            await rpc('v2_prepare_managed_login', { p_email: address }),
+          );
+        },
+        async createUser(address, inviteId) {
+          await api('/auth/v1/admin/users', {
+            email: address,
+            email_confirm: true,
+            app_metadata: { cali_v2_invite: inviteId },
+          });
+        },
+      });
+      if (!ready) return { status: 'unavailable' };
       return codeIssueResultSchema.parse(
         await rpc('issue_workspace_code', { p_email: email, p_hash: hash }),
       );
