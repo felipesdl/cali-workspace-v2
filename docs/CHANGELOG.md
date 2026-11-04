@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Empresa definitiva a partir do rascunho
+
+- O Admin pode confirmar a criação na carteira e abrir a ficha pelo vínculo persistido. A RPC grava empresa e auditoria do vínculo na mesma transação e devolve o mesmo UUID em repetição. A empresa começa com automação e notificações desabilitadas.
+- Migration aplicada no CALI MAPA após conferir defaults e o gatilho de inserção. Uma sessão Admin criou a fixture pela Data API e reabriu a mesma ficha após recarga. Catálogo confirmou um vínculo, uma empresa, zero convites e zero ciclos de serviço. A fixture identificada permanece no ambiente.
+- Aceitação SQL e duas chamadas concorrentes passaram no PostgreSQL descartável. `npm run verify` passou com 209 testes. Para suspender a criação, retirar a ação no Admin e revogar EXECUTE do wrapper, preservando os vínculos e as empresas criadas.
+
 ## 04/11/2026 — Cadastro e adesão conectados no Admin
 
 - A área **Rascunhos de empresas** usa quatro RPCs com a sessão do Admin. Cadastro, conferência explícita, retirada e histórico ficam separados da carteira de empresas. A paginação por cursor e o cache por ator preservam a navegação. A versão do documento é informada pelo Admin e segue pendente de vínculo com o Storage.

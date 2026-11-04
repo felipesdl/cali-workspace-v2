@@ -328,7 +328,8 @@ Não há uma fase obrigatória separada para trocar mock por banco. A integraç�
 | Minha empresa do Cliente | GET mínimo autenticado sobre contrato existente | Transporte, guarda e UI testados sinteticamente; nova validação autenticada da tela ainda pendente |
 | Edição Admin dos dois nomes | PATCH com preimagem já implementado | Nenhum PATCH hospedado foi executado nesta continuidade |
 | Cadastro em rascunho e comprovação administrativa | RPCs V2 na tela Admin, com listagem, conferência, retirada e histórico | Jornada autenticada pelo CALI MAPA com registro sintético |
-| Materialização, dados complementares, contrato/arquivos e quatro acessos | `management` permanece null no hospedado | Contratos e efeitos de servidor ainda precisam ser reconciliados por operação |
+| Empresa definitiva a partir do rascunho | RPC V2 na tela Admin e vínculo persistente com a carteira | Jornada autenticada com uma empresa sintética e replay concorrente em PostgreSQL descartável |
+| Dados complementares, contrato/arquivos e quatro acessos | `management` permanece null no hospedado | Contratos e efeitos de servidor ainda precisam ser reconciliados por operação |
 
 Manter mocks de testes e a demonstração explícita não significa usá-los no caminho conectado. Remover fixtures globalmente ou habilitar management por flag não substitui contrato de banco. Nenhuma nova leitura de dados reais, autenticação/código, SQL, Edge/laboratório ou comunicação foi executada para este lote. Testes de SDK e navegador usam respostas sintéticas; não comprovam RLS hospedada. Fases 1/2A abertas.
 
@@ -344,7 +345,7 @@ A [candidata SQL](../../supabase/proposals/company-onboarding/candidate.sql) imp
 | `v2_review_company_adhesion` | Confirma ou retira comprovação por rascunho. A confirmação recebe referência, revisão documental opcional informada pelo Admin e observação. A retirada recebe motivo. A preimagem é o último evento conhecido. A ordem é serializada por rascunho. O servidor registra autor, instante e histórico imutável para os papéis da aplicação. |
 | `v2_read_company_draft` | Lê identidade e histórico pelo UUID. O evento mais recente determina se há comprovação confirmada ou retirada. |
 
-A revisão documental informada é metadado da conferência administrativa. A integração com documento real deverá vincular o ID e a versão por empresa antes de considerar esse evento apto a liberar acessos. A materialização em `companies` segue pendente.
+A revisão documental informada é metadado da conferência administrativa. A integração com documento real deverá vincular o ID e a versão por empresa antes de considerar esse evento apto a liberar acessos.
 
 ### Aplicação no CALI MAPA
 
@@ -360,10 +361,18 @@ Cadastro e comprovação geram uma chave por formulário e conservam essa chave 
 
 No navegador, uma sessão Admin autenticada abriu a listagem, criou o rascunho sintético **QA V2 2A — empresa sintética 04-11**, confirmou a adesão e reencontrou o rascunho após recarregar a página. A retirada ficou registrada junto da confirmação. O catálogo confirmou o grant esperado, um rascunho sintético, duas entradas de histórico e a mesma autoria. A fixture permanece identificada com a comprovação retirada. O nome da fixture não apareceu na lista de empresas.
 
+### Criação definitiva na carteira
+
+O Admin seleciona **Criar empresa na carteira** no detalhe do rascunho e confirma a ação. A [migration](../../supabase/proposals/company-onboarding/materialize-company.sql) instala `v2_materialize_company`, que exige o guard Admin AAL2 com TOTP verificado. A operação trava a linha do rascunho, grava nome de apresentação e razão social em `companies` e vincula o UUID, autor e instante ao rascunho na mesma transação. Repetir o comando retorna a empresa vinculada. Se ela já tiver sido removida por outro fluxo, o vínculo histórico impede criar outra por repetição.
+
+A empresa usa o estado inicial padrão `active`, com automação e notificações desabilitadas. O gatilho ativo de inserção só normaliza o plano de serviço. O cadastro fica visível na carteira e a adesão continua em sua própria etapa. O botão **Abrir na carteira** reabre o vínculo também depois de recarregar a página.
+
+Em 04/11/2026, a migration foi aplicada em transação no SQL Editor do CALI MAPA. O Admin autenticado criou a fixture **QA V2 2A — materialização sintética 04-11** pela Data API e reabriu a mesma ficha após recarregar. O catálogo confirmou um vínculo, uma empresa, zero convites e zero ciclos de serviço para a fixture. Os grants da RPC foram verificados. A execução direta fica fora do histórico da CLI. A fixture identificada permanece no ambiente de teste.
+
 ### Transição e retirada do legado
 
 1. Manter a capacidade de rascunhos e comprovação separada da gestão de acessos. A jornada autenticada já foi exercitada com Admin e uma fixture no CALI MAPA.
-2. Preparar materialização idempotente em `companies`. Conferir defaults, triggers, projeções consumidas pelo oficial e documentos da mesma empresa. Registrar mapeamento entre o rascunho e a empresa criada.
+2. Vincular a comprovação à versão real do documento armazenado. A criação em `companies` e o vínculo com o rascunho já foram exercitados no CALI MAPA.
 3. Implantar gestão de quatro vagas em recorte isolado ou com fronteira de servidor por empresa. Admissão e todos os escritores desse recorte precisam respeitar adesão, vagas e revogação. Vincular por identidade estável e impedir e-mails ambíguos. Revogação bloqueia códigos e sessões antigos e preserva os demais vínculos. Reativação exige autenticação nova. Integrar convite e entrega só depois dessa prova.
 4. Remover a demonstração como opção da V2 após a entrada em operação, se ela deixar de ser necessária. Preservar fixtures de teste. A falta de Clientes na V2 permite descartar dados sintéticos identificados em destino isolado. Antes de aposentar RPCs, grants ou Edge do oficial no banco compartilhado, inventariar consumidores, migrá-los e verificar ausência de uso. Aprovar limpeza em lote separado.
 

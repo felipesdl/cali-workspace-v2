@@ -229,4 +229,19 @@ describe('projeções de empresas do hospedado', () => {
       p_note: 'Versão substituída',
     });
   });
+  it('cria a empresa definitiva pela RPC vinculada ao rascunho', async () => {
+    const companyId = '10000000-0000-4000-8000-000000000004';
+    const { service, request } = backend({ value: companyId });
+    request.mockResolvedValueOnce(
+      new Response(JSON.stringify(companyId), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+    await expect(service.onboarding?.materialize(id)).resolves.toBe(companyId);
+    const [input, init] = request.mock.calls[0];
+    expect(new URL(String(input)).pathname).toBe('/rest/v1/rpc/v2_materialize_company');
+    expect(init?.method).toBe('POST');
+    expect(JSON.parse(String(init?.body))).toEqual({ p_draft_id: id });
+  });
 });

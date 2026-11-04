@@ -39,7 +39,10 @@ const eventSchema = z.discriminatedUnion('action', [
     document_revision: z.null(),
   }),
 ]);
-const snapshotSchema = z.object({ draft: draftSchema, history: z.array(eventSchema) });
+const snapshotSchema = z.object({
+  draft: draftSchema.extend({ company_id: z.uuid().nullable().default(null) }),
+  history: z.array(eventSchema),
+});
 export type Draft = z.infer<typeof draftSchema>;
 export type DraftSnapshot = z.infer<typeof snapshotSchema>;
 export type DraftReview =
@@ -93,6 +96,14 @@ export function createCompanyOnboarding(client: WorkspaceClient) {
         throw new Error(saveError);
       }
       return draft;
+    },
+    async materialize(draftId: string) {
+      const { data, error } = await client.rpc('v2_materialize_company', {
+        p_draft_id: z.uuid().parse(draftId),
+      });
+      if (error?.code === '55000') throw new Error('A empresa vinculada está indisponível.');
+      if (error) throw new Error('Não foi possível confirmar a criação. Tente novamente.');
+      return z.uuid().parse(data);
     },
     async review(draftId: string, requestId: string, expected: string | null, input: DraftReview) {
       const id = z.uuid().parse(draftId);

@@ -148,7 +148,8 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Conferir GRANTs, RPC de cadastro e código de login implantado. Preparar [candidata de rascunho e comprovação](contracts/ACCESS_COMPANIES.md#fase-2a--candidata-de-cadastro-e-comprovação), fora dos runners.
 - [x] Aplicar a migration de rascunho/comprovação no CALI MAPA autorizado para testes. Conferir catálogo, GRANTs e recusas SQL sintéticas.
 - [x] Validar Admin pela Data API e conectar listagem paginada, cadastro em rascunho, comprovação e retirada à UI. Reabrir o rascunho após recarregar e conferir o histórico no CALI MAPA.
-- [ ] Materializar empresa por operação explícita e vincular versões reais dos documentos.
+- [x] Criar empresa definitiva pela tela Admin e persistir o vínculo com o rascunho. Validar reabertura pela Data API e repetição concorrente em banco descartável.
+- [ ] Vincular a comprovação a versões reais dos documentos no Storage.
 - [ ] Fechar admissão, gestão das quatro vagas, emissão de convite e revogação no servidor antes de habilitar acesso real. Planejar retirada de mocks e do contrato legado em gates separados, após verificar consumidores.
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.

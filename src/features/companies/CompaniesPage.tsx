@@ -38,7 +38,9 @@ export function CompaniesPage() {
           await navigate({ search: { q: '', status: 'all', companyId } });
         }}
       />
-      <HostedCompanyDrafts />
+      <HostedCompanyDrafts
+        openCompany={(companyId) => void navigate({ search: { q: '', status: 'all', companyId } })}
+      />
       <CompanyFilters />
       <CompaniesTable
         filters={{ q: search.q, status: search.status }}

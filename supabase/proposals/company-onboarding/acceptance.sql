@@ -12,7 +12,17 @@ create function auth.jwt() returns jsonb language sql stable
 as $$ select jsonb_build_object('aal', current_setting('test.aal', true)) $$;
 create table auth.mfa_factors (user_id uuid, status text, factor_type text);
 create table cali_workspace.profiles (id uuid primary key, role text, active boolean);
-create table cali_workspace.companies (id uuid primary key);
+create table cali_workspace.companies (
+  id uuid primary key default gen_random_uuid(),
+  display_name text not null,
+  legal_name text not null,
+  status text not null default 'active',
+  automation_enabled boolean not null default false,
+  welcome_email_enabled boolean not null default true,
+  due_reminder_enabled boolean not null default true,
+  overdue_email_enabled boolean not null default true,
+  termination_email_enabled boolean not null default true
+);
 create table cali_workspace.client_invites (id uuid primary key);
 create function cali_workspace.create_client_account() returns text language sql
 as $$ select 'legacy'::text $$;
@@ -138,6 +148,65 @@ begin
     or exists (select 1 from cali_workspace.client_invites)
     or cali_workspace.create_client_account() <> 'legacy' then
     raise exception 'Candidata alterou o contrato legado.';
+  end if;
+end;
+$$;
+
+\ir materialize-company.sql
+
+do $$
+begin
+  if has_function_privilege('anon', 'cali_workspace.v2_materialize_company(uuid)', 'EXECUTE')
+    or has_function_privilege('service_role', 'cali_workspace.v2_materialize_company(uuid)', 'EXECUTE')
+    or not has_function_privilege('authenticated', 'cali_workspace.v2_materialize_company(uuid)', 'EXECUTE') then
+    raise exception 'Grants inesperados na criação da empresa.';
+  end if;
+end;
+$$;
+
+set role authenticated;
+do $$
+declare
+  draft_id uuid;
+  created_id uuid;
+  snapshot jsonb;
+begin
+  perform set_config('test.actor', '00000000-0000-4000-8000-000000000001', true);
+  perform set_config('test.aal', 'aal2', true);
+  draft_id := (cali_workspace.v2_list_company_drafts() #>> '{0,id}')::uuid;
+
+  perform set_config('test.aal', 'aal1', true);
+  begin
+    perform cali_workspace.v2_materialize_company(draft_id);
+    raise exception 'Criação com AAL1 aceita.';
+  exception when insufficient_privilege then null;
+  end;
+  perform set_config('test.aal', 'aal2', true);
+
+  created_id := cali_workspace.v2_materialize_company(draft_id);
+  if created_id is null or cali_workspace.v2_materialize_company(draft_id) is distinct from created_id then
+    raise exception 'Replay de criação inválido.';
+  end if;
+  snapshot := cali_workspace.v2_read_company_draft(draft_id);
+  if snapshot #>> '{draft,company_id}' is distinct from created_id::text
+    or snapshot #>> '{draft,materialized_by}' is distinct from '00000000-0000-4000-8000-000000000001' then
+    raise exception 'Vínculo ou autoria ausente na leitura do rascunho.';
+  end if;
+end;
+$$;
+reset role;
+
+do $$
+begin
+  if (select count(*) from cali_workspace.companies) <> 1
+    or not exists (
+      select 1 from cali_workspace.companies
+      where display_name = 'Rascunho 26' and legal_name = 'Rascunho 26' and status = 'active'
+        and not (automation_enabled or welcome_email_enabled or due_reminder_enabled
+          or overdue_email_enabled or termination_email_enabled)
+    )
+    or exists (select 1 from cali_workspace.client_invites) then
+    raise exception 'Empresa definitiva ou efeitos laterais inesperados.';
   end if;
 end;
 $$;

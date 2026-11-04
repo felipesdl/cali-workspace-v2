@@ -6,6 +6,7 @@ import { type createCompanyOnboarding } from '../../api/modules/companies/onboar
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { DraftAdhesion } from './DraftAdhesion';
+import { DraftMaterialization } from './DraftMaterialization';
 
 type Onboarding = ReturnType<typeof createCompanyOnboarding>;
 
@@ -68,7 +69,15 @@ function NewDraft({
   );
 }
 
-function Drafts({ service, actor }: { service: Onboarding; actor: string }) {
+function Drafts({
+  service,
+  actor,
+  openCompany,
+}: {
+  service: Onboarding;
+  actor: string;
+  openCompany: (id: string) => void;
+}) {
   const cache = useQueryClient();
   const [creating, setCreating] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -165,23 +174,35 @@ function Drafts({ service, actor }: { service: Onboarding; actor: string }) {
       )}
       {selected && detail.isSuccess && !detail.data && <p role="alert">Rascunho indisponível.</p>}
       {selected && detail.isSuccess && detail.data && (
-        <DraftAdhesion
-          key={selected}
-          snapshot={detail.data}
-          refresh={() => void detail.refetch()}
-          save={async (requestId, expected, input) => {
-            await service.review(selected, requestId, expected, input);
-            await cache.invalidateQueries({ queryKey: detailKey });
-          }}
-        />
+        <>
+          <DraftAdhesion
+            key={selected}
+            snapshot={detail.data}
+            refresh={() => void detail.refetch()}
+            save={async (requestId, expected, input) => {
+              await service.review(selected, requestId, expected, input);
+              await cache.invalidateQueries({ queryKey: detailKey });
+            }}
+          />
+          <DraftMaterialization
+            key={`materialize:${selected}`}
+            companyId={detail.data.draft.company_id}
+            openCompany={openCompany}
+            create={async () => {
+              const id = await service.materialize(selected);
+              await cache.invalidateQueries({ queryKey: companyKeys.all(actor) });
+              return id;
+            }}
+          />
+        </>
       )}
     </section>
   );
 }
 
-export function HostedCompanyDrafts() {
+export function HostedCompanyDrafts({ openCompany }: { openCompany: (id: string) => void }) {
   const { actor, service, enabled } = useCompaniesScope();
   return enabled && service.onboarding ? (
-    <Drafts key={actor} service={service.onboarding} actor={actor} />
+    <Drafts key={actor} service={service.onboarding} actor={actor} openCompany={openCompany} />
   ) : null;
 }
