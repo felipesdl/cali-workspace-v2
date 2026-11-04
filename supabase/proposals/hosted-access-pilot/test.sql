@@ -21,6 +21,8 @@ returns uuid language sql stable security definer
 set search_path to 'pg_catalog', 'auth', 'cali_workspace'
 as $$ select p.company_id from cali_workspace.profiles p where p.id = auth.uid() and p.active limit 1; $$;
 \ir ../company-onboarding/candidate.sql
+\ir ../company-onboarding/materialize-company.sql
+\ir prepare-drafts.sql
 \ir ../hosted-terms/apply.sql
 \ir base.sql
 \ir codes.sql
@@ -84,6 +86,7 @@ declare
   company_legacy constant uuid := '00000000-0000-4000-8000-000000000003';
   proof_a uuid;
   proof_b uuid;
+  draft_a uuid;
   publication jsonb;
   issued jsonb;
   code_hash constant text := repeat('a',64);
@@ -149,6 +152,15 @@ begin
   exception when insufficient_privilege then null;
   end;
   perform set_config('test.jwt', jsonb_build_object('sub', admin, 'session_id', sad, 'aal', 'aal2')::text, true);
+  draft_a := cali_workspace.v2_prepare_pilot_company_draft(company_a);
+  if draft_a is null or cali_workspace.v2_prepare_pilot_company_draft(company_a) <> draft_a then
+    raise exception 'Vínculo ao rascunho não é idempotente';
+  end if;
+  begin
+    perform cali_workspace.v2_prepare_pilot_company_draft(company_legacy);
+    raise exception 'Preparação aceitou empresa fora do piloto';
+  exception when invalid_parameter_value then null;
+  end;
   begin
     perform cali_workspace.v2_revoke_pilot_access(company_legacy);
     raise exception 'Admin conseguiu revogar fora do piloto';
