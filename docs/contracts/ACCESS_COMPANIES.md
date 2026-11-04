@@ -383,6 +383,16 @@ A [candidata privada de elegibilidade](../../supabase/proposals/company-onboardi
 
 A ordem de bloqueios é rascunho, empresa e versão do documento. O futuro comando deve manter os bloqueios até gravar a vaga. A candidata foi testada em PostgreSQL descartável e permanece fora do CALI MAPA. O limite de vagas, os convites e a revogação de sessões dependem das próximas etapas.
 
+### Convite, limite de vagas e revogação em ambiente isolado
+
+A [candidata de gestão de acesso](../../supabase/proposals/company-onboarding/manage-access.sql) integra os comandos Admin ao registro `client_invites`. O comando requer Admin com AAL2, TOTP e sessão vigente. Para convidar ou reativar, ele serializa os comandos pelo rascunho, confere a adesão vigente, verifica o e-mail e ocupa uma das quatro vagas na mesma transação. Uma restrição de unicidade impede repetir a vaga. O histórico privado guarda a chave do comando, o ator, o convite e a comprovação usada. Repetir o comando retorna o mesmo ID sem reexecutar a alteração.
+
+Revogar libera a vaga, desativa o convite e aciona o corte do perfil e da sessão. Reativar exige vaga e adesão vigentes. Para empresas marcadas para gestão, a admissão exige convite com vaga e o gatilho barra alterações diretas de acesso pelos papéis da aplicação. O papel de serviço pode registrar o aceite sem mudar a vaga. O predicado anterior de elegibilidade continua para empresas fora da gestão.
+
+O [teste isolado](../../supabase/proposals/company-onboarding/test-access.sh) sobe PostgreSQL descartável em socket Unix. Ele usa os SQLs candidatos de corte, reconciliação e admissão sobre tabelas e claims sintéticas. Em cinco solicitações simultâneas, quatro ocuparam vaga e a quinta foi recusada. A revogação liberou a vaga, bloqueou a leitura pela sessão antiga e preservou o outro Cliente. Após reativação, a prova e o código antigos continuaram recusados e uma sessão admitida com código posterior ao corte conseguiu ler. Um convite legado sem vaga perdeu elegibilidade ao marcar a empresa para gestão no teste.
+
+A candidata permanece fora do CALI MAPA. A homologação precisa comparar catálogo, RLS, funções legadas com privilégios elevados, consumidores da Edge, códigos, Auth e todos os caminhos de acesso reais. O opt-in hospedado precisa validar convites preexistentes e colisões de identidade antes de trocar a fonte de elegibilidade. A suíte exercita gravação do convite e corte no PostgreSQL. Entrega do convite e validação com JWT e refresh reais ficam para a homologação.
+
 ### Transição e retirada do legado
 
 1. Manter a capacidade de rascunhos e comprovação separada da gestão de acessos. A jornada autenticada já foi exercitada com Admin e uma fixture no CALI MAPA.

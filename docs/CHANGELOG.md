@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Quatro vagas e revogação em PostgreSQL isolado
+
+- Candidata integra convite, revogação e reativação a `client_invites` para empresas marcadas para gestão. A autorização usa adesão vigente, reserva uma vaga e registra o comando na mesma transação. A admissão de empresas gerenciadas exige convite com vaga.
+- Cinco solicitações simultâneas ocuparam quatro vagas. A revogação liberou a vaga e cortou perfil e sessão. O teste recusou código e prova anteriores ao corte após reativação, admitiu sessão com código novo e preservou o outro Cliente. Auth, sessões e claims eram sintéticos no PostgreSQL descartável.
+- A candidata permanece fora do CALI MAPA. Reconciliação da Edge, inventário de escritores legados e teste com JWT e refresh reais antecedem o opt-in hospedado.
+
 ## 04/11/2026 — Pré-condição de adesão para novos acessos
 
 - Candidata SQL privada valida situação da empresa, vínculo com rascunho e versão vigente da comprovação documental. O futuro comando de autorização vai chamar a função na mesma transação que ocupa a vaga.

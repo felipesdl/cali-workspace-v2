@@ -151,7 +151,8 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 - [x] Criar empresa definitiva pela tela Admin e persistir o vínculo com o rascunho. Validar reabertura pela Data API e repetição concorrente em banco descartável.
 - [x] Vincular a comprovação ao contrato ou aditivo da empresa no Storage. Validar a seleção e o histórico após recarga no CALI MAPA e a rejeição de versão incorreta em PostgreSQL descartável.
 - [x] Preparar a pré-condição privada de adesão vigente para convite e reautorização. Testar empresa pausada e bloqueada, versão substituída e retirada em PostgreSQL descartável.
-- [ ] Fechar admissão, gestão das quatro vagas, emissão de convite e revogação no servidor antes de habilitar acesso real. Planejar retirada de mocks e do contrato legado em gates separados, após verificar consumidores.
+- [x] Integrar a candidata de convite, reserva e revogação aos SQLs de corte e admissão. Provar quatro vagas com cinco solicitações simultâneas, corte da sessão antiga e preservação de outro Cliente em PostgreSQL descartável.
+- [ ] Reconciliar o catálogo hospedado e a Edge de códigos. Homologar convites, login, refresh e revogação com Auth real antes de habilitar acesso. Planejar retirada de mocks e do contrato legado em gates separados, após verificar consumidores.
 - [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
 - [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
 - [x] Implementar arquivos contratuais demonstrativos: anexo, versões imutáveis, download explícito, retirada com motivo/histórico e integridade dos bytes, sem storage hospedado.
