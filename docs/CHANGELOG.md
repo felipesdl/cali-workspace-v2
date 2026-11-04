@@ -4,6 +4,7 @@
 
 - Pela sessão Admin da V2, os dois rascunhos foram vinculados às empresas existentes. A ficha preparou um PDF sintético privado por empresa, verificou o registro no catálogo e confirmou a adesão com a versão exata no Storage. O CALI MAPA confirmou as duas adesões.
 - A RPC de abertura do mês foi instalada no CALI MAPA. Configuradas 12,5 horas somente nas duas empresas sintéticas, condicionadas às horas ainda vazias. A ação de homologação abriu novembro nas duas fichas, que exibiram **Aberto** e **12,5 h**.
+- A leitura posterior confirmou um ciclo e um evento de abertura por empresa. O piloto de login foi publicado com a guarda de arquivos e somente A/B matriculadas. A rodada no navegador aguarda entrada e aceite dos destinatários de teste.
 
 ## 04/11/2026 — Consulta de ciclos na ficha Admin
 

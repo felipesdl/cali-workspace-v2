@@ -70,6 +70,12 @@ export const isPilotCompany = (companyId: string | undefined) =>
 
 export function createCompanyOnboarding(client: WorkspaceClient) {
   return {
+    async revokePilotAccess(companyId: string) {
+      const { error } = await client.rpc('v2_revoke_pilot_access', {
+        p_company_id: pilotCompanyIdSchema.parse(companyId),
+      });
+      if (error) throw new Error('Não foi possível confirmar a revogação do acesso de teste.');
+    },
     async preparePilotDocument(companyId: string) {
       const { preparePilotDocument } = await import('./pilot-document');
       return preparePilotDocument(client, pilotCompanyIdSchema.parse(companyId));

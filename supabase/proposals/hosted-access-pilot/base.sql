@@ -191,6 +191,23 @@ revoke all on function cali_workspace.v2_revoke_pilot_access(uuid)
   from public, anon, authenticated, service_role;
 grant execute on function cali_workspace.v2_revoke_pilot_access(uuid) to authenticated;
 
+-- RPCs antigas de edição podem escrever com o papel do dono e ignorar RLS.
+-- O JWT identifica o chamador e session_is_live preserva atores fora do piloto.
+create function cali_session_guard.guard_pilot_profile_update()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  if (select auth.jwt()->>'role') = 'authenticated'
+    and not cali_session_guard.session_is_live() then
+    raise exception using errcode = '42501', message = 'Sessão indisponível.';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function cali_session_guard.guard_pilot_profile_update()
+  from public, anon, authenticated, service_role;
+create trigger v2_guard_pilot_profile_update before update on cali_workspace.profiles
+  for each row execute function cali_session_guard.guard_pilot_profile_update();
+
 -- Mantém as policies existentes como fonte de vínculo/ator. Este predicado só
 -- restringe os dois atores do piloto e não concede acesso adicional.
 create policy v2_pilot_live_session on cali_workspace.profiles as restrictive for all to authenticated

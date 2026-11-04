@@ -19,12 +19,23 @@ const project = z
   .parse(Deno.env.get('SUPABASE_URL'));
 const serviceKey = z.string().min(1).parse(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'));
 const sendKey = z.string().min(1).parse(Deno.env.get('RESEND_API_KEY'));
-const from = z.email().parse(Deno.env.get('CALI_PILOT_EMAIL_FROM'));
-const secret = z.string().min(32).parse(Deno.env.get('CALI_PILOT_CODE_SECRET'));
-const hmac = await crypto.subtle.importKey(
+const from = 'APP CALI RH <workspace@calirh.com>';
+const material = await crypto.subtle.importKey(
   'raw',
-  new TextEncoder().encode(secret),
-  { name: 'HMAC', hash: 'SHA-256' },
+  new TextEncoder().encode(serviceKey),
+  'HKDF',
+  false,
+  ['deriveKey'],
+);
+const hmac = await crypto.subtle.deriveKey(
+  {
+    name: 'HKDF',
+    hash: 'SHA-256',
+    salt: new TextEncoder().encode(project),
+    info: new TextEncoder().encode('cali-workspace-pilot:otp-hmac:v1'),
+  },
+  material,
+  { name: 'HMAC', hash: 'SHA-256', length: 256 },
   false,
   ['sign'],
 );
