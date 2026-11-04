@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 04/11/2026 — Consulta de ciclos na ficha Admin
+
+- A ficha da empresa conectada consulta até 12 ciclos de serviço, em ordem decrescente de mês. Exibe mês, situação e horas contratadas. Cache separado por ator e empresa, com estados de carregamento, vazio e erro.
+- Catálogo do CALI MAPA confirmou a unicidade empresa/mês, os quatro estados e as policies de leitura. Typecheck, lint do recorte e 19 testes de empresas e rascunhos passaram. A escrita e as transições de ciclo seguem pendentes.
+
 ## 04/11/2026 — Admissão e revogação restritas ao piloto A/B
 
 - Consulta em leitura no CALI MAPA confirmou um Cliente e um convite ativos por empresa A/B. O e-mail coincide entre convite, perfil e Auth nos dois casos. Nenhum rascunho está ligado às duas empresas.

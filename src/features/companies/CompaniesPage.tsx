@@ -12,6 +12,7 @@ import { CompanyFilters } from './CompanyFilters';
 import { CompaniesTable } from './CompaniesTable';
 import { CompanyAccessPanel } from './CompanyAccessPanel';
 import { HostedCompanyDrafts } from './HostedCompanyDrafts';
+import { CompanyCycles } from './CompanyCycles';
 
 export function CompaniesPage() {
   const [createdCompanyId, setCreatedCompanyId] = useState<string | null>(null);
@@ -66,6 +67,7 @@ export function CompaniesPage() {
             companyId={search.companyId}
           />
           <CompanyAdhesions key={`adhesions:${search.companyId}`} companyId={search.companyId} />
+          <CompanyCycles companyId={search.companyId} />
           <CompanyAccessPanel
             key={`accesses:${search.companyId}`}
             companyId={search.companyId}

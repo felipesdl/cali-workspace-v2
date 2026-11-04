@@ -1,6 +1,7 @@
 import { type AxiosInstance } from 'axios';
 import { z } from 'zod';
 import { type createCompanyOnboarding } from './onboarding';
+import { type createHostedCycles } from './cycles';
 import { createCompanyManagement, type CompanyManagement } from './management';
 import {
   companyAccessSchema,
@@ -74,6 +75,7 @@ export function createCompaniesService(client: AxiosInstance): CompaniesService 
 export type CompaniesService = {
   management: CompanyManagement | null;
   onboarding: ReturnType<typeof createCompanyOnboarding> | null;
+  cycles?: ReturnType<typeof createHostedCycles>;
   account: (companyId: string, signal?: AbortSignal) => Promise<CompanyAccount | null>;
   detail: (companyId: string, signal?: AbortSignal) => Promise<CompanyDetails>;
   list: (filters: CompanyFilters, signal?: AbortSignal) => Promise<Company[]>;

@@ -1,0 +1,61 @@
+import { serviceCycleStatus, type ServiceCycleStatus } from '../../api/modules/companies/cycles';
+import { useCompanyCyclesQuery } from '../../api/modules/companies/hooks/useCompanyCyclesQuery';
+import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
+
+const labels = {
+  [serviceCycleStatus.Planned]: 'Planejado',
+  [serviceCycleStatus.Open]: 'Aberto',
+  [serviceCycleStatus.Review]: 'Em revisão',
+  [serviceCycleStatus.Closed]: 'Encerrado',
+} satisfies Record<ServiceCycleStatus, string>;
+
+const hoursFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
+const monthFormat = new Intl.DateTimeFormat('pt-BR', {
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+export function CompanyCycles({ companyId }: { companyId: string }) {
+  const { available, query } = useCompanyCyclesQuery(companyId);
+  if (!available) return null;
+
+  return (
+    <section
+      aria-labelledby="company-cycles-title"
+      className="tw:grid tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
+    >
+      <h2 id="company-cycles-title" className="tw:m-0 tw:text-section tw:font-bold tw:text-brand">
+        Ciclos de serviço
+      </h2>
+      <p className="tw:m-0">Até 12 ciclos recentes da empresa.</p>
+      {query.isPending && <FeedbackState kind="loading">Carregando ciclos…</FeedbackState>}
+      {query.isError && (
+        <FeedbackState kind="error">
+          Não foi possível consultar os ciclos desta empresa.
+        </FeedbackState>
+      )}
+      {query.isSuccess && query.data.length === 0 && (
+        <FeedbackState kind="empty">Nenhum ciclo cadastrado nesta empresa.</FeedbackState>
+      )}
+      {query.isSuccess && query.data.length > 0 && (
+        <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
+          {query.data.map((cycle) => (
+            <li
+              key={cycle.id}
+              className="tw:flex tw:flex-wrap tw:items-baseline tw:justify-between tw:gap-x-4 tw:gap-y-1 tw:border-b tw:border-border-default tw:pb-2"
+            >
+              <strong>{monthFormat.format(new Date(cycle.month))}</strong>
+              <span>{labels[cycle.status]}</span>
+              <span>
+                {cycle.hours === null
+                  ? 'Horas não informadas'
+                  : `${hoursFormat.format(cycle.hours)} h`}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}

@@ -7,6 +7,7 @@ export const companyQueryKey = {
   Detail: 'detail',
   ClientAccount: 'client-account',
   Accesses: 'accesses',
+  Cycles: 'cycles',
   Adhesions: 'adhesions',
   Evidence: 'adhesion-evidence',
   AccessHistory: 'access-history',
@@ -47,4 +48,6 @@ export const companyKeys = {
     [...companyKeys.all(actorId), companyId, companyQueryKey.AdministrationHistory] as const,
   accesses: (actorId: string, companyId: string) =>
     [...companyKeys.all(actorId), companyId, companyQueryKey.Accesses] as const,
+  cycles: (actorId: string, companyId: string) =>
+    [...companyKeys.all(actorId), companyId, companyQueryKey.Cycles] as const,
 };
