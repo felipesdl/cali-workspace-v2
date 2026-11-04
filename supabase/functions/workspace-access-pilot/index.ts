@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { renderClientCodeV3 } from './approved-code-v3.ts';
 import {
   codeIssueResultSchema,
   codeSubjectSchema,
@@ -94,7 +95,7 @@ Deno.serve(
         });
         return codeSubjectSchema.parse(await result.json());
       },
-      async send(email, code, requestId) {
+      async send(email, code, requestId, origin) {
         // Só chega após o banco confirmar o e-mail registrado e elegível para A/B.
         const result = await fetch('https://api.resend.com/emails', {
           method: 'POST',
@@ -108,11 +109,15 @@ Deno.serve(
           body: JSON.stringify({
             from,
             to: [email],
-            subject: 'CALI Workspace V2 · Código de acesso de teste',
-            text: `Seu código de teste é ${code}. Ele é válido por 10 minutos.`,
+            reply_to: 'nao-responda@calirh.com',
+            subject: 'APP CALI RH · Seu código para entrar',
+            html: renderClientCodeV3(code, undefined, `${origin}/cliente`),
+            text: `Seu código para entrar no CALI Workspace é ${code}. Ele vale por 10 minutos e funciona uma única vez.`,
           }),
         });
         if (!result.ok) throw new Error('Entrega indisponível.');
+        const receipt = z.object({ id: z.uuid() }).safeParse(await result.json().catch(() => null));
+        if (receipt.success) console.info('pilot-mail-accepted', requestId, receipt.data.id);
       },
       session: createSessionExchange({
         async authenticate(email) {

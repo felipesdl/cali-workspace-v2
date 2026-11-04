@@ -52,7 +52,12 @@ describe('fronteira pública de código', () => {
     const result = await handler(request({ action: 'request', email: 'User@example.test' }));
     expect(result.status).toBe(200);
     expect(await result.json()).toEqual({ ok: true });
-    expect(dependencies.send).toHaveBeenCalledWith('user@example.test', '001234', 'id');
+    expect(dependencies.send).toHaveBeenCalledWith(
+      'user@example.test',
+      '001234',
+      'id',
+      'http://127.0.0.1:5173',
+    );
     expect(dependencies.delivered).toHaveBeenCalledWith('id', true);
     expect(result.headers.get('cache-control')).toBe('no-store');
   });

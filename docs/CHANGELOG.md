@@ -4,7 +4,8 @@
 
 - Pela sessão Admin da V2, os dois rascunhos foram vinculados às empresas existentes. A ficha preparou um PDF sintético privado por empresa, verificou o registro no catálogo e confirmou a adesão com a versão exata no Storage. O CALI MAPA confirmou as duas adesões.
 - A RPC de abertura do mês foi instalada no CALI MAPA. Configuradas 12,5 horas somente nas duas empresas sintéticas, condicionadas às horas ainda vazias. A ação de homologação abriu novembro nas duas fichas, que exibiram **Aberto** e **12,5 h**.
-- A leitura posterior confirmou um ciclo e um evento de abertura por empresa. O piloto de login foi publicado com a guarda de arquivos e somente A/B matriculadas. A rodada no navegador aguarda entrada e aceite dos destinatários de teste.
+- A leitura posterior confirmou um ciclo e um evento de abertura por empresa. O piloto de login foi publicado com a guarda de arquivos e somente A/B matriculadas. As duas contas entraram, aceitaram os termos e abriram a empresa vinculada. A revogação de A no Admin bloqueou a sessão após recarga e preservou B. O CALI MAPA confirmou um código, uma admissão e um aceite por conta, com A revogada e B ativa.
+- O piloto recuperou o HTML Cliente V3 e o assunto do e-mail aprovado. O botão aponta para a aba local do piloto. O Gmail recebeu com atraso na rodada anterior à correção. A nova revisão foi publicada sem novo envio para conferir a caixa.
 
 ## 04/11/2026 — Consulta de ciclos na ficha Admin
 

@@ -18,7 +18,7 @@ export type AccessPorts = {
   issue: (email: string, hash: string) => Promise<Issue>;
   delivered: (id: string, delivered: boolean) => Promise<void>;
   consume: (email: string, hash: string) => Promise<z.infer<typeof codeSubjectSchema>>;
-  send: (email: string, code: string, requestId: string) => Promise<void>;
+  send: (email: string, code: string, requestId: string, origin: string) => Promise<void>;
   session: (subject: z.infer<typeof loginSubjectSchema>) => Promise<{
     access_token: string;
     refresh_token: string;
@@ -61,7 +61,7 @@ export function createAccessHandler(
         const result = await ports.issue(body.email, await ports.hash(body.email, code));
         if (result.status !== 'issued') return json({ ok: true });
         try {
-          await ports.send(body.email, code, result.id);
+          await ports.send(body.email, code, result.id, origin);
           await ports.delivered(result.id, true);
         } catch (error) {
           if (options.hideDeliveryFailure) {
