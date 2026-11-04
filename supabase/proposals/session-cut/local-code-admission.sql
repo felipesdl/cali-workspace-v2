@@ -12,7 +12,7 @@ do $$ begin
 end $$;
 create function cali_workspace.consume_workspace_code_v2(p_email text,p_hash text)
 returns jsonb language plpgsql security definer set search_path='' as $$
-declare item cali_private.workspace_access_codes; profile_role text; authorization uuid;
+declare item cali_private.workspace_access_codes; profile_role text; authorization_id uuid;
 begin
   perform pg_advisory_xact_lock(hashtextextended(lower(btrim(p_email)),29120000));
   select * into item from cali_private.workspace_access_codes
@@ -21,12 +21,12 @@ begin
      or item.attempts>=5 then return null; end if;
   update cali_private.workspace_access_codes set attempts=attempts+1 where id=item.id;
   if item.code_hash<>p_hash then return null; end if;
-  authorization:=cali_session_guard.authorize_code(item.user_id,item.created_at);
-  if authorization is null then return null; end if;
+  authorization_id:=cali_session_guard.authorize_code(item.user_id,item.created_at);
+  if authorization_id is null then return null; end if;
   update cali_private.workspace_access_codes set used_at=clock_timestamp() where id=item.id;
   select role into profile_role from cali_workspace.profiles where id=item.user_id;
   return jsonb_build_object('email',item.email,'role',profile_role,
-    'userId',item.user_id,'authorizationId',authorization);
+    'userId',item.user_id,'authorizationId',authorization_id);
 end; $$;
 revoke all on function cali_workspace.consume_workspace_code_v2(text,text)
   from public,anon,authenticated,service_role;

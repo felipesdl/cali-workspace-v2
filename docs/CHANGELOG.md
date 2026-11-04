@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Auth e corte de acesso em cópia isolada
+
+- Corrigida a sintaxe do adapter local de consumo de código. A chave `authorizationId` e a assinatura da RPC foram preservadas.
+- Cenário dedicado passou em 30 verificações com GoTrue, PostgREST e Mailpit reais. Admin autenticou com TOTP, os dois convites chegaram à caixa local e os Clientes entraram com código. Revogação negou A e preservou B. JWT renovado, código antigo e sessão criada a partir de hash pendente não recuperaram acesso após reativação. Novo código admitiu outra sessão.
+- Cenário usa fixtures de catálogo e provisionamento sintético. A integração hospedada e a validação da jornada no navegador seguem pendentes.
+
 ## 04/11/2026 — Quatro vagas e revogação em PostgreSQL isolado
 
 - Candidata integra convite, revogação e reativação a `client_invites` para empresas marcadas para gestão. A autorização usa adesão vigente, reserva uma vaga e registra o comando na mesma transação. A admissão de empresas gerenciadas exige convite com vaga.

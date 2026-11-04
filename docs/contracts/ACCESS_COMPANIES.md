@@ -39,7 +39,7 @@ A Edge V2 deixa de devolver `token_hash`: consome o código, troca o hash intern
 
 O adapter da SPA aceita a nova resposta e usa `auth.setSession`; mantém suporte explícito ao contrato legado hospedado com `token_hash`. Portanto, **o hospedado ainda não recebeu esta correção**. Não iniciar o Edge/laboratório nem executar `local:access:test` com o novo protocolo antes da reconciliação de schema, adapter e drivers. As migrations históricas e seus digests não foram alterados. O runner experimental anterior foi preservado como texto em `output/runtime/session-cut/history`, ignorado pelo Git, sem comando ativo no produto.
 
-Quatro testes unitários da troca cobrem admissão antes da resposta, corte durante autenticação, identidade divergente e falha de admissão/logout; testes do handler continuam verificando a fronteira pública. Não comprovam execução SQL, catálogo ativo, atomicidade entre serviços ou homologação da correção. Revalidação em runtime continua pendente, conforme suspensão solicitada. Não há liberação de fase 1 nem autorização implícita de aplicação/deploy.
+Quatro testes unitários da troca cobrem admissão antes da resposta, corte durante autenticação, identidade divergente e falha de admissão/logout. A validação posterior de 04/11 tem [recorte próprio](../LOCAL_ENVIRONMENT.md#homologação-isolada-de-convites-e-sessão--0411). A fase 1 segue em andamento, com validação do catálogo ativo e integração hospedada pendentes.
 
 ### Recorte técnico proposto
 
@@ -381,7 +381,7 @@ Em 04/11/2026, a migration foi aplicada no CALI MAPA. Um PDF sintético foi cada
 
 A [candidata privada de elegibilidade](../../supabase/proposals/company-onboarding/access-eligibility.sql) será chamada dentro da transação de convite ou reautorização. Ela exige empresa vinculada a rascunho V2, estado `active` ou `paused` e último evento de adesão confirmado com snapshot documental. Compara empresa, documento, objeto e versão com o registro corrente no Storage. Uma versão substituída ou uma comprovação retirada exige nova conferência. A função retorna o ID da comprovação que sustentou a autorização.
 
-A ordem de bloqueios é rascunho, empresa e versão do documento. O futuro comando deve manter os bloqueios até gravar a vaga. A candidata foi testada em PostgreSQL descartável e permanece fora do CALI MAPA. O limite de vagas, os convites e a revogação de sessões dependem das próximas etapas.
+A ordem de bloqueios é rascunho, empresa e versão do documento. O comando candidato mantém os bloqueios até gravar a vaga. A validação ocorreu em PostgreSQL descartável. A candidata permanece fora do CALI MAPA.
 
 ### Convite, limite de vagas e revogação em ambiente isolado
 
@@ -391,7 +391,9 @@ Revogar libera a vaga, desativa o convite e aciona o corte do perfil e da sessã
 
 O [teste isolado](../../supabase/proposals/company-onboarding/test-access.sh) sobe PostgreSQL descartável em socket Unix. Ele usa os SQLs candidatos de corte, reconciliação e admissão sobre tabelas e claims sintéticas. Em cinco solicitações simultâneas, quatro ocuparam vaga e a quinta foi recusada. A revogação liberou a vaga, bloqueou a leitura pela sessão antiga e preservou o outro Cliente. Após reativação, a prova e o código antigos continuaram recusados e uma sessão admitida com código posterior ao corte conseguiu ler. Um convite legado sem vaga perdeu elegibilidade ao marcar a empresa para gestão no teste.
 
-A candidata permanece fora do CALI MAPA. A homologação precisa comparar catálogo, RLS, funções legadas com privilégios elevados, consumidores da Edge, códigos, Auth e todos os caminhos de acesso reais. O opt-in hospedado precisa validar convites preexistentes e colisões de identidade antes de trocar a fonte de elegibilidade. A suíte exercita gravação do convite e corte no PostgreSQL. Entrega do convite e validação com JWT e refresh reais ficam para a homologação.
+O [cenário com Auth local](../LOCAL_ENVIRONMENT.md#homologação-isolada-de-convites-e-sessão--0411) acrescentou Admin AAL2, entrega no Mailpit e JWT/refresh reais. Após a revogação e reativação, a RLS continuou negando a leitura de A com o JWT renovado e com uma sessão emitida a partir de hash anterior ao corte. B manteve acesso.
+
+A candidata permanece fora do CALI MAPA. Antes do opt-in hospedado, comparar catálogo, RLS, escritores legados com privilégios elevados, consumidores da Edge e adapter de códigos. Verificar convites preexistentes e colisões de identidade antes de trocar a fonte de elegibilidade.
 
 ### Transição e retirada do legado
 

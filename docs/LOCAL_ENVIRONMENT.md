@@ -52,6 +52,16 @@ A pedido de Felipe, a bateria de runtime não foi retomada. A correção local d
 
 Catálogo hospedado, adapter de códigos efetivo e aplicação permanecem pendentes. Chave pública de `.env` e papel Admin da aplicação não concedem leitura do catálogo PostgreSQL. Não solicitar credenciais no chat nem ampliar grants para obter metadados.
 
+## Homologação isolada de convites e sessão — 04/11
+
+O [cenário dedicado](../scripts/local-access-auth-acceptance.ts) usa uma cópia descartável do schema Auth local sem usuários anteriores, fixtures de catálogo e GoTrue, PostgREST e Mailpit descartáveis em rede Docker interna. As imagens já precisam estar no cache. Executar manualmente com `node scripts/local-access-auth-acceptance.ts --run` e o PostgreSQL do laboratório já disponível. O script remove os recursos que criou ao sair. O teste usa endereços `example.test` e TOTP sintético.
+
+A montagem revelou um erro de sintaxe no adapter local de códigos. `authorization` foi renomeada para `authorization_id` em `local-code-admission.sql`. O contrato da RPC e a chave `authorizationId` da resposta são os mesmos.
+
+As 30 verificações passaram. O Admin obteve JWT AAL2 pelo GoTrue. Mailpit capturou os dois convites enviados pelo Auth. Os Clientes A e B entraram com código e leram o próprio perfil pelo PostgREST. Revogar A removeu sua leitura e preservou B. O Auth renovou o JWT de A mantendo o ID da sessão e o PostgREST retornou zero linhas antes e depois da reativação. O hash Auth pendente gerou uma sessão após a reativação e essa sessão também recebeu zero linhas. O código emitido antes do corte foi recusado. Um novo código admitiu uma nova sessão e recuperou o acesso de A.
+
+O driver chama o handler e a troca de sessão da Edge dentro do processo Node. A preparação cria os perfis sintéticos e usa metadados de documento em fixture. A homologação local não cobre provisionamento do perfil, callback do convite no navegador, runtime Deno nem o catálogo ativo do CALI MAPA. Os drivers da rodada de 02/11 seguem suspensos.
+
 ## Topologia vigente — DEC-22 e DEC-25
 
 | Item | Estado/definição |
