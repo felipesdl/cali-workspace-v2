@@ -46,3 +46,4 @@ printf '%s\n' 'Concorrência: quatro convites aceitos e a quinta solicitação r
 db -q -f "$suite_dir/access-revocation-acceptance.sql"
 printf '%s\n' 'Revogação: vaga liberada, sessão e código antigos recusados, outro cliente preservado.'
 printf '%s\n' 'Storage: sessão admitida lê objetos próprios, e o corte bloqueia a sessão antiga após reativação.'
+printf '%s\n' 'Perfil: guarda recusa sessão cortada em escritor legado SECURITY DEFINER e preserva edição admitida.'

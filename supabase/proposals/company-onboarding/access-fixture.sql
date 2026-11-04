@@ -8,7 +8,8 @@ create table auth.sessions (
 );
 create or replace function auth.jwt() returns jsonb language sql stable as $$
   select jsonb_build_object('aal', current_setting('test.aal', true),
-    'session_id', current_setting('test.session', true))
+    'session_id', current_setting('test.session', true),
+    'role', current_setting('test.request_role', true))
 $$;
 alter table cali_workspace.profiles add column email text, add column company_id uuid;
 alter table cali_workspace.client_invites

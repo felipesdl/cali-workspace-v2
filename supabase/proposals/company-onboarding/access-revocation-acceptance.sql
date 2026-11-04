@@ -1,6 +1,8 @@
 -- Executar depois da fixture e do teste concorrente de cinco convites.
 set cali.session_cut_review = 'reviewed-v1';
+set cali.session_cut_test = 'isolated-only';
 \ir ../session-cut/rpc-guard.sql
+\ir ../session-cut/legacy-profile-writes.sql
 
 -- Política de leitura Cliente observada no CALI MAPA, sobre metadados sintéticos.
 alter table storage.objects enable row level security;
@@ -35,6 +37,7 @@ declare
   fresh_proof uuid;
   previous_code timestamptz := clock_timestamp() - interval '1 minute';
 begin
+  perform set_config('test.request_role', 'authenticated', true);
   select d.company_id into company from cali_v2_onboarding.company_drafts d where d.access_management_enabled;
   insert into storage.objects(id, bucket_id, name)
   values
@@ -170,6 +173,37 @@ begin
   end if;
   if (select count(*) from storage.objects where name like '%/own.txt') <> 2 then
     raise exception 'Revogação atingiu a leitura de objetos do outro cliente.';
+  end if;
+end;
+$$;
+
+-- Um escritor SECURITY DEFINER legado ignora RLS e atualiza o próprio perfil.
+alter table cali_workspace.profiles add column full_name text;
+create function cali_workspace.fixture_legacy_profile_write(p_name text)
+returns void language sql security definer set search_path = '' as $$
+  update cali_workspace.profiles set full_name = p_name where id = auth.uid();
+$$;
+revoke all on function cali_workspace.fixture_legacy_profile_write(text) from public;
+grant execute on function cali_workspace.fixture_legacy_profile_write(text) to authenticated;
+
+do $$
+declare
+  client_a uuid := '00000000-0000-4000-8000-000000000061';
+begin
+  perform set_config('test.actor', client_a::text, true);
+  perform set_config('test.request_role', 'authenticated', true);
+  perform set_config('test.session', '00000000-0000-4000-8000-000000000071', true);
+  set local role authenticated;
+  begin
+    perform cali_workspace.fixture_legacy_profile_write('Escrita antiga');
+    raise exception 'RPC com dono postgres aceitou sessão cortada.';
+  exception when insufficient_privilege then null;
+  end;
+  perform set_config('test.session', '00000000-0000-4000-8000-000000000073', true);
+  perform cali_workspace.fixture_legacy_profile_write('Escrita admitida');
+  reset role;
+  if not exists (select 1 from cali_workspace.profiles where id=client_a and full_name='Escrita admitida') then
+    raise exception 'Sessão admitida não preservou edição pelo escritor legado.';
   end if;
 end;
 $$;

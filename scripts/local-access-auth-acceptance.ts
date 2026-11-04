@@ -375,7 +375,7 @@ async function main() {
   sql(`${review}\n${file(`${onboarding}/provision-access.sql`)}`);
   stage = 'aplicar guardas de RPCs legadas';
   sql(file('tests/fixtures/session-cut/legacy-admin.sql'));
-  for (const name of ['rpc-guard', 'legacy-admin-rpcs']) {
+  for (const name of ['rpc-guard', 'legacy-admin-rpcs', 'legacy-profile-writes']) {
     sql(`${review}\n${file(`supabase/proposals/session-cut/${name}.sql`)}`);
   }
   if (withStorage) {
@@ -521,7 +521,6 @@ async function main() {
   const adminSession = tokens.parse(JSON.parse(verified.bodyText));
   check(claims(adminSession.access_token).aal === 'aal2', 'JWT real com AAL2');
 
-  stage = 'preparar empresa com adesão';
   const legacyLink = randomUUID();
   const legacyInvite = randomUUID();
   const createLegacy = {
@@ -610,6 +609,7 @@ async function main() {
     'contato legado permanece editável fora da gestão',
   );
 
+  stage = 'preparar empresa com adesão';
   const draftId = ids.parse(
     rpc(
       'v2_create_company_draft',
@@ -648,7 +648,6 @@ async function main() {
   sql(`insert into cali_workspace.account_documents values ('${documentId}','${company}','Contrato QA','contract','${contractPath}');
     insert into cali_workspace.workspace_adhesions values ('${company}');
     update cali_v2_onboarding.company_drafts set access_management_enabled=true where id='${draftId}';`);
-  rpc(
   check(
     http(`${rest}:3000`, '/rpc/update_primary_client_contact_v65', adminSession.access_token, {
       ...legacyContact,
@@ -656,6 +655,7 @@ async function main() {
     }).status === 403,
     'contato principal legado recusado na empresa gerenciada',
   );
+  rpc(
     'v2_confirm_adhesion_document',
     {
       p_draft_id: draftId,
@@ -967,6 +967,9 @@ async function main() {
       'filtro preserva assinatura fora da gestão V2',
     );
   }
+  const adminSessionId = claims(adminSession.access_token).session_id;
+  sql(`delete from auth.sessions where id='${adminSessionId}';`);
+  checkLegacyDenied(adminSession.access_token, 'JWT Admin com sessão removida');
   process.stdout.write(`Homologação local concluída com ${checks} verificações.\n`);
 }
 
@@ -1005,6 +1008,3 @@ void main()
       }
     }
   });
-  const adminSessionId = claims(adminSession.access_token).session_id;
-  sql(`delete from auth.sessions where id='${adminSessionId}';`);
-  checkLegacyDenied(adminSession.access_token, 'JWT Admin com sessão removida');
