@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Candidata de cadastro e comprovação 2A
+
+- **Autor/escopo:** Codex. Felipe aprovou a separação e autorizou planejar migration e retirada do legado. Candidata SQL fora dos runners, com rascunho privado, confirmação/retirada auditáveis e leitura do histórico. A RPC e o login do oficial permanecem como referência de compatibilidade.
+- **Validação:** teste dedicado passou em PostgreSQL 16 descartável, com socket Unix e fixtures sintéticas. Cobriu ACLs dos objetos novos e do contrato legado sintético, bloqueio de Cliente/Admin inativo/AAL1/sem TOTP, replay, preimagem e histórico após retirada. `npm run verify` passou com 206 testes em 28 arquivos, lint, tipos, formatação, 32 documentos/675 links e builds. Sem mudança de frontend neste recorte. A bateria anterior de Auth/Edge não foi retomada.
+- **Limites/rollback:** candidata sem aplicação hospedada. Materialização, versão de arquivo verificada no Storage, gestão de acesso e integração com frontend continuam pendentes. Contrato e roadmap registram os gates de migração, convivência e retirada. Antes de implantar, reverter o lote só remove os artefatos do repositório. Após implantação autorizada, suspender chamadas V2 e preservar rascunhos e histórico.
+
 ## 03/11/2026 — Consulta Cliente conectada de empresa e termos
 
 - **Autor/escopo:** Codex; Felipe autorizou continuar a ponta Cliente, QA no navegador, documentação/PR e substituição gradual de mocks quando houver contrato seguro. Recorte de leitura sobre tabela/projeção já existentes, sem ampliar schema/permissões. Nenhuma nova autenticação real, leitura de dados reais, código/e-mail, SQL, Edge/laboratório, merge ou deploy. Bateria suspensa intocada.

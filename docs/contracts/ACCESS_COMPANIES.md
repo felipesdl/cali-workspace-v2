@@ -330,3 +330,26 @@ Não há uma fase obrigatória separada para trocar mock por banco. A integraç�
 | Cadastro completo, dados complementares, contrato/arquivos/comprovação e quatro acessos | management permanece null; somente demonstração explícita implementada | Catálogo/contratos/permissões/consistência e efeitos de servidor ainda precisam ser reconciliados por operação |
 
 Manter mocks de testes e a demonstração explícita não significa usá-los no caminho conectado. Remover fixtures globalmente ou habilitar management por flag não substitui contrato de banco. Nenhuma nova leitura de dados reais, autenticação/código, SQL, Edge/laboratório ou comunicação foi executada para este lote. Testes de SDK e navegador usam respostas sintéticas; não comprovam RLS hospedada. Fases 1/2A abertas.
+
+## Fase 2A — candidata de cadastro e comprovação
+
+O catálogo ativo do CALI MAPA confirmou que a RPC legada cria empresa e convite principal ativo, com `platform_access=true` por default, e abre ciclo quando recebe horas positivas. `authenticated` tem escrita direta sob RLS em empresas, convites e perfis e `EXECUTE` na RPC. A Edge Function implantada reutiliza perfil ativo ou procura convite por e-mail e `active`. A alteração de convite e a desativação de perfil são chamadas separadas no Admin oficial. Esses caminhos precisam permanecer compatíveis durante a transição.
+
+A [candidata SQL](../../supabase/proposals/company-onboarding/candidate.sql) implementa três RPCs novas. Ela fica fora dos runners. Os dados vivem no schema privado `cali_v2_onboarding`. As RPCs expostas usam wrappers invoker e exigem perfil Admin ativo, AAL2 e TOTP verificado. Papéis da aplicação não têm acesso direto às tabelas novas. Grants, RPCs e tabelas do oficial não são reconfigurados.
+
+| Operação | Contrato candidato |
+| --- | --- |
+| `v2_create_company_draft` | Cria rascunho com nome e razão social. Chave de operação por ator confirma o mesmo resultado quando o payload se repete. |
+| `v2_review_company_adhesion` | Confirma ou retira comprovação por rascunho. A confirmação recebe referência, revisão documental opcional informada pelo Admin e observação. A retirada recebe motivo. A preimagem é o último evento conhecido. A ordem é serializada por rascunho. O servidor registra autor, instante e histórico imutável para os papéis da aplicação. |
+| `v2_read_company_draft` | Lê identidade e histórico pelo UUID. O evento mais recente determina se há comprovação confirmada ou retirada. |
+
+A revisão documental informada é metadado da conferência administrativa. A candidata ainda não consulta arquivo nem valida que a revisão é a corrente no Storage. A integração com documento real deverá vincular o ID e a versão por empresa antes de considerar esse evento apto a liberar acessos. O primeiro lote também deixa pendentes a listagem de rascunhos, o transporte da SPA e a materialização em `companies`.
+
+### Transição e retirada do legado
+
+1. Homologar rascunho e comprovação em destino isolado. Conferir ownership das funções, schemas expostos, ACLs e rejeição de chamadas por ator sem permissão. Integrar a UI por capacidade, mantendo cadastro e comprovação separados dos comandos de acesso.
+2. Preparar materialização idempotente em `companies`. Conferir defaults, triggers, projeções consumidas pelo oficial e documentos da mesma empresa. Registrar mapeamento entre o rascunho e a empresa criada.
+3. Implantar gestão de quatro vagas em recorte isolado ou com fronteira de servidor por empresa. Admissão e todos os escritores desse recorte precisam respeitar adesão, vagas e revogação. Vincular por identidade estável e impedir e-mails ambíguos. Revogação bloqueia códigos e sessões antigos e preserva os demais vínculos. Reativação exige autenticação nova. Integrar convite e entrega só depois dessa prova.
+4. Remover a demonstração como opção da V2 após a entrada em operação, se ela deixar de ser necessária. Preservar fixtures de teste. A falta de Clientes na V2 permite descartar dados sintéticos identificados em destino isolado. Antes de aposentar RPCs, grants ou Edge do oficial no banco compartilhado, inventariar consumidores, migrá-los e verificar ausência de uso. Aprovar limpeza em lote separado.
+
+Rollback inicial desabilita as RPCs V2 no transporte e retira o acesso aos wrappers, preservando rascunhos e evidência para revisão. Exclusão física exige confirmar que só existem dados descartáveis. A candidatura não foi aplicada no Supabase hospedado.
