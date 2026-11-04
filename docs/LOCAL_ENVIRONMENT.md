@@ -70,9 +70,11 @@ A regressão após uniformizar a resposta de solicitação da Edge V2 passou no 
 
 ### Variante com Storage
 
-Com a imagem oficial `supabase/storage-api:v1.81.0` no cache local, execute `node scripts/local-access-auth-acceptance.ts --run --storage`. A variante adiciona a API do Storage, sem porta publicada, com arquivos locais descartáveis e a mesma cópia de PostgreSQL. A API cria o bucket privado e recebe três objetos sintéticos. A comprovação de adesão usa o ID e a versão retornados pelos metadados desse Storage. Os grants da fixture e a política Cliente reproduzida são exclusivos da cópia. O teste exercita download, assinatura, revogação e reativação pela API e o corte de uma RPC privilegiada pelo PostgREST.
+Com a imagem oficial `supabase/storage-api:v1.81.0` no cache local, execute `node scripts/local-access-auth-acceptance.ts --run --storage`. A variante adiciona a API do Storage, sem porta publicada, com arquivos locais descartáveis e a mesma cópia de PostgreSQL. A API cria o bucket privado e recebe quatro objetos sintéticos. A comprovação de adesão usa o ID e a versão retornados pelos metadados desse Storage. Os grants da fixture e a política Cliente reproduzida são exclusivos da cópia. O teste exercita download, assinatura, revogação e reativação pela API e o corte de uma RPC privilegiada pelo PostgREST.
 
 Em 04/11, passaram 54 verificações. A baixou só o arquivo da própria empresa e a sessão sem admissão foi recusada. Revogar bloqueou download direto, nova assinatura e a RPC de perfil. B manteve acesso. O link emitido antes da revogação ainda entregou bytes sem JWT. A reativação preservou o corte da sessão antiga e um novo código restaurou o download de A. O ensaio usou Storage sem CDN. A rodada do Chrome acima cobre a jornada de acesso, enquanto esta variante comprova bytes e RPC pela API.
+
+A rodada seguinte passou em 61 verificações com a candidata de filtro. A API entregou documento e entregável ao Cliente admitido. A assinatura individual foi recusada. A assinatura em lote respondeu sem URL para os dois objetos. Ao desmarcar a empresa sintética para gestão, a assinatura voltou a funcionar. O código da imagem local declara a mesma operação de download autenticado na rota explícita e na rota usada pelo SDK instalado. O ensaio HTTP usou a rota explícita.
 
 ## Topologia vigente — DEC-22 e DEC-25
 

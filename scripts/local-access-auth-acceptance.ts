@@ -375,7 +375,7 @@ async function main() {
   sql(`${review}\n${file(`${onboarding}/provision-access.sql`)}`);
   if (withStorage) {
     sql(`${review}\n${file('supabase/proposals/session-cut/rpc-guard.sql')}`);
-    sql(`create policy fixture_workspace_documents on storage.objects for select to authenticated using (
+    sql(`create policy cali_workspace_private_client_documents_select on storage.objects for select to authenticated using (
         bucket_id = 'cali-workspace-private'
         and ((split_part(name, '/', 1) = 'documents'
           and split_part(name, '/', 2) = cali_workspace.current_company_id()::text)
@@ -535,10 +535,12 @@ async function main() {
   const documentId = randomUUID();
   const contractPath = `${company}/account/qa.pdf`;
   const ownFile = `documents/${company}/own.txt`;
+  const deliverable = `${company}/deliverables/own.txt`;
   const otherFile = `documents/${randomUUID()}/foreign.txt`;
   if (withStorage) {
     uploadFixture(contractPath);
     uploadFixture(ownFile);
+    uploadFixture(deliverable);
     uploadFixture(otherFile);
   } else {
     sql(
@@ -828,8 +830,44 @@ async function main() {
       readProfile(sessionB, b.id) === 1,
     'código novo admite nova sessão e preserva B',
   );
-  if (withStorage)
+  if (withStorage) {
     checkDownload(ownDownload, fresh.access_token, 'nova sessão de A recupera download próprio');
+    stage = 'aplicar filtro de operações do Storage';
+    sql(`${review}\n${file('supabase/proposals/session-cut/storage-download.sql')}`);
+    checkDownload(ownDownload, fresh.access_token, 'filtro mantém download de documento');
+    checkDownload(
+      `/object/authenticated/${bucket}/${deliverable}`,
+      fresh.access_token,
+      'filtro mantém download de entregável',
+    );
+    checkDenied(signPath, fresh.access_token, 'filtro recusa assinatura individual', {
+      expiresIn: 120,
+    });
+    const batch = storageCall(`/object/sign/${bucket}`, fresh.access_token, {
+      expiresIn: 120,
+      paths: [ownFile, deliverable],
+    });
+    check(batch.status === 200, 'assinatura em lote respondeu por objeto');
+    const links = z
+      .array(z.object({ path: z.string(), signedURL: z.null(), error: z.string().min(1) }))
+      .length(2)
+      .safeParse(JSON.parse(batch.bodyText));
+    check(
+      links.success &&
+        links.data.some((link) => link.path === ownFile) &&
+        links.data.some((link) => link.path === deliverable),
+      'filtro recusa assinatura em lote dos dois arquivos',
+    );
+    sql(
+      `update cali_v2_onboarding.company_drafts set access_management_enabled=false where id='${draftId}';`,
+    );
+    const legacy = storageCall(signPath, fresh.access_token, { expiresIn: 120 });
+    check(
+      legacy.status === 200 &&
+        z.object({ signedURL: z.string().min(1) }).safeParse(JSON.parse(legacy.bodyText)).success,
+      'filtro preserva assinatura fora da gestão V2',
+    );
+  }
   process.stdout.write(`Homologação local concluída com ${checks} verificações.\n`);
 }
 
