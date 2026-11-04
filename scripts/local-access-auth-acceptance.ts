@@ -1,11 +1,11 @@
 import { execFileSync } from 'node:child_process';
-import { createHmac, randomBytes, randomUUID } from 'node:crypto';
+import { createHash, createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import { validateLocalContainer } from './local-database.ts';
 import { issuedSessionSchema } from '../supabase/functions/workspace-access/session-exchange.ts';
-import { hostedLegalVersion } from '../src/api/modules/access/legal.ts';
+import { hostedLegalContent, hostedLegalVersion } from '../src/api/modules/access/legal.ts';
 import { verifyAccessInBrowser } from './local-access-browser.ts';
 
 const root = resolve(import.meta.dirname, '..');
@@ -340,19 +340,14 @@ async function main() {
   stage = 'aplicar códigos e termos locais';
   sql(file('supabase/migrations/20261029120000_codes_terms.sql'));
   const cli = process.env.CALI_QA_PLAYWRIGHT_CLI;
-  if (cli) {
-    const version = z.iso.date().parse(hostedLegalVersion);
-    // A SPA conectada escreve no contrato de aceite hospedado. A projeção local
-    // mantém o digest e a FK da baseline, com uma versão sintética descartável.
-    sql(`insert into cali_workspace.legal_versions(version,title,content)
-        values ('${version}','Termos QA','Conteúdo sintético QA');
-      insert into cali_private.current_legal_version values (true, '${version}');
-      alter table cali_workspace.terms_acceptances add column user_agent text,
-        alter column content_hash set default encode(sha256(convert_to('Conteúdo sintético QA','UTF8')), 'hex');
-      grant insert on cali_workspace.terms_acceptances to authenticated;
-      create policy fixture_hosted_terms_insert on cali_workspace.terms_acceptances
-        for insert to authenticated with check (user_id = auth.uid() and version = '${version}');`);
-  }
+  const version = z.iso.date().parse(hostedLegalVersion);
+  // A projeção local mantém a FK e o digest obrigatório da baseline.
+  sql(`insert into cali_workspace.legal_versions(version,title,content)
+      values ('${version}','Termos QA','Conteúdo sintético QA');
+    insert into cali_private.current_legal_version values (true, '${version}');
+    alter table cali_workspace.terms_acceptances add column user_agent text,
+      alter column content_hash set default encode(sha256(convert_to('Conteúdo sintético QA','UTF8')), 'hex');`);
+  sql(file('supabase/proposals/hosted-terms/apply.sql'));
   const onboarding = 'supabase/proposals/company-onboarding';
   for (const name of [
     'candidate',
@@ -726,6 +721,7 @@ async function main() {
       sql(`select count(*) from cali_workspace.client_invites i
         join cali_workspace.profiles p on p.company_id=i.company_id and p.email=i.email
         join cali_workspace.terms_acceptances t on t.user_id=p.id
+        join cali_v2_terms.confirmations r on r.user_id=t.user_id and r.version=t.version
         where i.id='${browserInvite.inviteId}' and not i.active and not p.active;`) === '1',
       'Chrome confirma primeiro acesso, aceite, área Cliente e corte após recarga',
     );
@@ -812,6 +808,35 @@ async function main() {
     readProfile(sessionA, a.id) === 1 && readProfile(sessionB, b.id) === 1,
     'JWTs admitidos leem o perfil pelo PostgREST',
   );
+  const publicationSchema = z.object({
+    version: z.string(),
+    contentHash: z.string(),
+    accepted: z.boolean(),
+  });
+  function readHostedTerms(jwt: string) {
+    return publicationSchema.parse(rpc('v2_read_terms_state', {}, jwt));
+  }
+  const publication = readHostedTerms(sessionA.access_token);
+  check(
+    publication.version === hostedLegalVersion &&
+      publication.contentHash === createHash('sha256').update(hostedLegalContent).digest('hex') &&
+      !publication.accepted,
+    'publicação hospedada confere com o texto da SPA e A ainda não confirmou',
+  );
+  const hostedReceipt = { p_version: publication.version, p_content_hash: publication.contentHash };
+  check(
+    http(`${rest}:3000`, '/rpc/v2_accept_terms', unadmitted.access_token, hostedReceipt).status ===
+      403,
+    'contrato hospedado recusa aceite sem admissão',
+  );
+  rpc('v2_accept_terms', hostedReceipt, sessionA.access_token);
+  check(
+    readHostedTerms(sessionA.access_token).accepted &&
+      !readHostedTerms(sessionB.access_token).accepted,
+    'recibo de A não libera B pelo contrato hospedado',
+  );
+  rpc('v2_accept_terms', hostedReceipt, sessionB.access_token);
+  check(readHostedTerms(sessionB.access_token).accepted, 'B registra seu próprio aceite');
   function updateOwnProfile(jwt: string, name: string) {
     return http(`${rest}:3000`, '/rpc/update_my_profile_v56', jwt, { p_full_name: name });
   }
@@ -903,6 +928,13 @@ async function main() {
     signedPath = url.pathname + url.search;
   }
   manage('revoke', a.inviteId, null);
+  check(
+    http(`${rest}:3000`, '/rpc/v2_accept_terms', sessionA.access_token, hostedReceipt).status ===
+      403 &&
+      !readHostedTerms(sessionA.access_token).accepted &&
+      readHostedTerms(sessionB.access_token).accepted,
+    'contrato hospedado recusa A após o corte e preserva B',
+  );
   check(
     readProfile(sessionA, a.id) === 0 && readProfile(sessionB, b.id) === 1,
     'revogação corta A e preserva B',

@@ -436,6 +436,8 @@ No CALI MAPA, `terms_acceptances(user_id, version, accepted_at, user_agent)` per
 
 A guarda de arquivos no CALI MAPA depende da admissão e da reconciliação das políticas de Storage. Links assinados já emitidos e respostas em cache podem entregar bytes sem reavaliar RLS. A prova com a política ativa permanece na cópia isolada.
 
+A SPA conectada lê a publicação e a confirmação do ator por `v2_read_terms_state`. Só apresenta o texto do bundle se versão e SHA-256 coincidirem. Confirma por `v2_accept_terms` e relê o recibo. Um recibo legado sem hash fica no histórico e não dispensa a confirmação da publicação V2.
+
 1. Reservar um endpoint e um registro privado de códigos para a V2. Conferir quais consumidores do CALI MAPA dependem da Edge da V1 antes de decidir a transição. Vincular provisionamento idempotente e admissão ao convite gerenciado e à identidade Auth estável. Testar colisão de identidade e falha entre criação da conta, vinculação e envio.
 2. Portar a exigência de admissão desde o primeiro acesso para as superfícies da empresa opt-in. Cobrir API, RPCs privilegiadas e Storage conforme os consumidores desse recorte. Testar se uma sessão emitida pelo caminho legado consegue contornar a admissão da V2. Conferir como revogação afeta URLs assinadas já emitidas.
 3. Homologar a jornada no navegador com Admin e dois Clientes sintéticos. Exercitar convite, primeiro acesso, refresh, revogação, reativação e leitura de arquivos. Validar as dependências do CALI MAPA que a V2 vai usar no primeiro lançamento. Registrar rollback da Edge V2 e do opt-in antes de abrir convites no hospedado.

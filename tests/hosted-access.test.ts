@@ -15,13 +15,15 @@ function ports(): AccessPorts {
       status: 'active',
     }),
     adminMfaReady: async () => true,
-    currentTerms: async () => ({
-      version: 'test',
-      title: 'Teste',
-      content: 'Sintético',
-      contentHash: 'a'.repeat(64),
+    termsState: async () => ({
+      terms: {
+        version: 'test',
+        title: 'Teste',
+        content: 'Sintético',
+        contentHash: 'a'.repeat(64),
+      },
+      accepted: true,
     }),
-    accepted: async () => true,
     signOut: async () => {},
   };
 }
@@ -34,9 +36,13 @@ describe('estado agregado do backend hospedado', () => {
     backend.adminMfaReady = async () => false;
     expect((await source.read(signal())).status).toBe('mfa_required');
     backend.adminMfaReady = async () => true;
-    backend.accepted = async () => false;
+    const published = await backend.termsState(signal());
+    if (!published) throw new Error('Fixture sem publicação');
+    backend.termsState = async () => ({ ...published, accepted: false });
     expect((await source.read(signal())).status).toBe('terms_required');
-    backend.accepted = async () => {
+    backend.termsState = async () => null;
+    expect((await source.read(signal())).status).toBe('terms_unavailable');
+    backend.termsState = async () => {
       throw Error('permissão negada');
     };
     expect((await createSessionController(source, createQueryClient()).refresh()).phase).toBe(

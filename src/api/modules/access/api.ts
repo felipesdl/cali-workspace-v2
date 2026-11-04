@@ -7,7 +7,6 @@ import {
   verifyAccessCodeSchema,
   verifyAccessCodeResponseSchema,
   workspaceProfileRecordSchema,
-  termsAcceptanceRecordSchema,
 } from './schemas';
 import { currentTermsSchema, acceptCurrentTermsSchema } from './session';
 import { hostedLegalContent, hostedLegalTitle, hostedLegalVersion } from './legal';
@@ -20,23 +19,30 @@ export function createHostedAccessApi(
   url: string,
   publishableKey: string,
 ) {
-  let legal: ReturnType<typeof currentTermsSchema.parse> | null = null;
-  async function currentTerms() {
-    if (!legal) {
-      const digest = await crypto.subtle.digest(
-        'SHA-256',
-        new TextEncoder().encode(hostedLegalContent),
+  const termsStateSchema = acceptCurrentTermsSchema.extend({ accepted: z.boolean() });
+  let bundledHash: Promise<string> | undefined;
+  async function termsState(signal: AbortSignal) {
+    const { data, error } = await client.rpc('v2_read_terms_state').abortSignal(signal);
+    if (error) throw unavailable();
+    if (data === null) return null;
+    const published = termsStateSchema.parse(data);
+    if (published.version !== hostedLegalVersion) return null;
+
+    bundledHash ??= crypto.subtle
+      .digest('SHA-256', new TextEncoder().encode(hostedLegalContent))
+      .then((digest) =>
+        Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join(''),
       );
-      legal = currentTermsSchema.parse({
-        version: hostedLegalVersion,
+    if (published.contentHash !== (await bundledHash)) return null;
+    return {
+      terms: currentTermsSchema.parse({
+        version: published.version,
+        contentHash: published.contentHash,
         title: hostedLegalTitle,
         content: hostedLegalContent,
-        contentHash: Array.from(new Uint8Array(digest), (b) =>
-          b.toString(16).padStart(2, '0'),
-        ).join(''),
-      });
-    }
-    return legal;
+      }),
+      accepted: published.accepted,
+    };
   }
   async function identity() {
     const session = await client.auth.getSession();
@@ -67,19 +73,7 @@ export function createHostedAccessApi(
         level.data.currentLevel === 'aal2' && factors.data.totp.some((f) => f.status === 'verified')
       );
     },
-    currentTerms,
-    async accepted(id, version, signal) {
-      const { data, error } = await client
-        .from('terms_acceptances')
-        .select('user_id,version,accepted_at')
-        .eq('user_id', id)
-        .eq('version', version)
-        .abortSignal(signal)
-        .maybeSingle();
-      if (error) throw unavailable();
-      const result = data ? termsAcceptanceRecordSchema.parse(data) : null;
-      return result?.user_id === id && result.version === version;
-    },
+    termsState,
     async signOut() {
       const { error } = await client.auth.signOut({ scope: 'local' });
       if (error) throw unavailable();
@@ -156,20 +150,18 @@ export function createHostedAccessApi(
     },
     async acceptTerms(input: z.infer<typeof acceptCurrentTermsSchema>) {
       const selected = acceptCurrentTermsSchema.parse(input);
-      const terms = await currentTerms();
-      if (selected.version !== terms.version || selected.contentHash !== terms.contentHash)
-        throw unavailable();
-      const user = await identity();
-      if (!user) throw unavailable();
-      // O hospedado registra versão/instante; ainda não persiste digest do conteúdo.
-      const { error } = await client.from('terms_acceptances').insert({
-        user_id: user.id,
-        version: terms.version,
-        user_agent: navigator.userAgent.slice(0, 300),
+      const { error } = await client.rpc('v2_accept_terms', {
+        p_version: selected.version,
+        p_content_hash: selected.contentHash,
       });
-      if (error && error.code !== '23505') throw unavailable();
+      if (error) throw unavailable();
       const confirmed = await source.read(new AbortController().signal);
-      if (!confirmed.termsAccepted) throw unavailable();
+      if (
+        !confirmed.termsAccepted ||
+        confirmed.terms?.version !== selected.version ||
+        confirmed.terms.contentHash !== selected.contentHash
+      )
+        throw unavailable();
     },
     completeCallback(code: string) {
       callback ??= (async () => {

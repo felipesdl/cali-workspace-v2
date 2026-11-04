@@ -11,7 +11,7 @@ const relayInput = z.object({
   path: z
     .string()
     .regex(
-      /^\/(?:auth\/v1\/(?:user|token|logout)|rest\/v1\/(?:profiles|companies|terms_acceptances)|functions\/v1\/workspace-access)(?:\?[^#]*)?$/,
+      /^\/(?:auth\/v1\/(?:user|token|logout)|rest\/v1\/(?:profiles|companies|rpc\/v2_(?:read_terms_state|accept_terms))|functions\/v1\/workspace-access)(?:\?[^#]*)?$/,
     ),
   token: z
     .string()

@@ -8,8 +8,7 @@ export type AccessPorts = {
   profile: (id: string, signal: AbortSignal) => Promise<WorkspaceProfileRecord | null>;
   company: (id: string, signal: AbortSignal) => Promise<CompanyIdentityRecord | null>;
   adminMfaReady: () => Promise<boolean>;
-  currentTerms: () => Promise<CurrentTerms>;
-  accepted: (id: string, version: string, signal: AbortSignal) => Promise<boolean>;
+  termsState: (signal: AbortSignal) => Promise<{ terms: CurrentTerms; accepted: boolean } | null>;
   signOut: () => Promise<void>;
 };
 
@@ -46,15 +45,18 @@ export function createAccessStateSource(ports: AccessPorts) {
           status: 'mfa_required',
         });
       }
-      const terms = await ports.currentTerms();
-      const termsAccepted = await ports.accepted(profile.id, terms.version, signal);
+      const publication = await ports.termsState(signal);
       signal.throwIfAborted();
       return workspaceAccessStateSchema.parse({
         ...state,
         companyStatus,
-        terms,
-        termsAccepted,
-        status: termsAccepted ? 'ready' : 'terms_required',
+        terms: publication?.terms ?? null,
+        termsAccepted: publication?.accepted ?? false,
+        status: publication
+          ? publication.accepted
+            ? 'ready'
+            : 'terms_required'
+          : 'terms_unavailable',
       });
     },
     signOut: ports.signOut,
