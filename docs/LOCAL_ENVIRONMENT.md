@@ -66,6 +66,8 @@ Para a jornada da SPA, forneça em `CALI_QA_PLAYWRIGHT_CLI` o caminho absoluto d
 
 O Chrome solicitou e confirmou o código recebido no Mailpit, registrou o aceite e abriu Minha empresa com os dados vinculados. Após a revogação pela RPC, a recarga exibiu acesso indisponível. A consulta de pós-verificação confirmou o aceite e o convite e perfil desativados. Na V1 publicada, uma sessão Admin de teste abriu a lista de clientes e o painel de acessos da empresa sintética como referência. O callback hospedado da V2 segue pendente para o primeiro lançamento.
 
+A regressão após uniformizar a resposta de solicitação da Edge V2 passou no Chrome. A SPA recebeu `{ok:true}`, exibiu o campo de código, confirmou o código do Mailpit, registrou o aceite sintético e consultou a empresa. Após revogar pela RPC, a recarga bloqueou a sessão.
+
 ### Variante com Storage
 
 Com a imagem oficial `supabase/storage-api:v1.81.0` no cache local, execute `node scripts/local-access-auth-acceptance.ts --run --storage`. A variante adiciona a API do Storage, sem porta publicada, com arquivos locais descartáveis e a mesma cópia de PostgreSQL. A API cria o bucket privado e recebe três objetos sintéticos. A comprovação de adesão usa o ID e a versão retornados pelos metadados desse Storage. Os grants da fixture e a política Cliente reproduzida são exclusivos da cópia. O teste exercita download, assinatura, revogação e reativação pela API e o corte de uma RPC privilegiada pelo PostgREST.

@@ -55,9 +55,7 @@ export function createAccessHandler(ports: AccessPorts) {
       if (body.action === 'request') {
         const code = ports.randomCode();
         const result = await ports.issue(body.email, await ports.hash(body.email, code));
-        if (result.status === 'limited')
-          return json({ error: 'Aguarde 2 minutos antes de solicitar outro código.' }, 429);
-        if (result.status === 'unavailable') return json({ ok: true });
+        if (result.status !== 'issued') return json({ ok: true });
         try {
           await ports.send(body.email, code);
           await ports.delivered(result.id, true);
@@ -65,7 +63,7 @@ export function createAccessHandler(ports: AccessPorts) {
           await ports.delivered(result.id, false);
           throw error;
         }
-        return json({ ok: true, challenge: 'code' });
+        return json({ ok: true });
       }
       const subject = await ports.consume(body.email, await ports.hash(body.email, body.code));
       if (!subject) return json({ error: 'Código inválido ou expirado.' }, 400);

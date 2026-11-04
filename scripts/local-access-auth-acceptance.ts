@@ -230,6 +230,7 @@ function readProfile(session: z.infer<typeof tokens>, id: string) {
 
 const bucket = 'cali-workspace-private';
 const fixtureBytes = 'conteudo-sintetico-de-storage';
+const codeRequestAcknowledgment = z.strictObject({ ok: z.literal(true) });
 function storageCall(path: string, jwt?: string | null, body?: object | string) {
   return http(`${storage}:5000`, path, jwt, body);
 }
@@ -645,7 +646,7 @@ async function main() {
   const refused = edge({ action: 'request', email: collision.email });
   check(
     refused.status === 200 &&
-      JSON.parse(refused.bodyText).challenge === undefined &&
+      codeRequestAcknowledgment.safeParse(JSON.parse(refused.bodyText)).success &&
       sql(`select count(*) from cali_workspace.profiles where id='${unrelatedIdentity}';`) === '0',
     'identidade preexistente de outro fluxo não é adotada',
   );
@@ -664,8 +665,7 @@ async function main() {
     const requested = edge({ action: 'request', email });
     check(
       requested.status === 200 &&
-        z.object({ challenge: z.literal('code') }).safeParse(JSON.parse(requested.bodyText))
-          .success,
+        codeRequestAcknowledgment.safeParse(JSON.parse(requested.bodyText)).success,
       'Edge solicitou código',
     );
     return capturedCode(email);
