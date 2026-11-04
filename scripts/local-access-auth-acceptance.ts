@@ -373,8 +373,12 @@ async function main() {
   sql(`${review}\n${file(`${onboarding}/manage-access.sql`)}`);
   stage = 'aplicar provisionamento';
   sql(`${review}\n${file(`${onboarding}/provision-access.sql`)}`);
+  stage = 'aplicar guardas de RPCs legadas';
+  sql(file('tests/fixtures/session-cut/legacy-admin.sql'));
+  for (const name of ['rpc-guard', 'legacy-admin-rpcs']) {
+    sql(`${review}\n${file(`supabase/proposals/session-cut/${name}.sql`)}`);
+  }
   if (withStorage) {
-    sql(`${review}\n${file('supabase/proposals/session-cut/rpc-guard.sql')}`);
     sql(`create policy cali_workspace_private_client_documents_select on storage.objects for select to authenticated using (
         bucket_id = 'cali-workspace-private'
         and ((split_part(name, '/', 1) = 'documents'
@@ -518,6 +522,94 @@ async function main() {
   check(claims(adminSession.access_token).aal === 'aal2', 'JWT real com AAL2');
 
   stage = 'preparar empresa com adesão';
+  const legacyLink = randomUUID();
+  const legacyInvite = randomUUID();
+  const createLegacy = {
+    p_company: 'Empresa legada QA',
+    p_contact: 'Contato sintético',
+    p_email: `legado-${suffix}@example.test`,
+    p_hours: 2,
+  };
+  const legacyCalls = [
+    ['create_client_account', createLegacy],
+    ['profile_renew_invite', { p_invite: legacyInvite }],
+    ['profile_send_invites', { p_link: legacyLink }],
+  ] as const;
+  sql(`insert into cali_workspace.profile_links values ('${legacyLink}', 'open', 2);
+    insert into cali_workspace.profile_invites(id, link_id, person_name, email, cycle)
+      values ('${legacyInvite}', '${legacyLink}', 'Pessoa QA', '${createLegacy.p_email}', 1);`);
+  function checkLegacyDenied(jwt: string, label: string) {
+    for (const [name, args] of legacyCalls) {
+      check(
+        http(`${rest}:3000`, `/rpc/${name}`, jwt, args).status === 403,
+        `${name} recusa ${label}`,
+      );
+    }
+  }
+  checkLegacyDenied(admin.access_token, 'Admin AAL1');
+  checkLegacyDenied(serviceKey, 'papel de serviço');
+  check(
+    sql(
+      `select count(*) from cali_workspace.companies where legal_name='${createLegacy.p_company}';`,
+    ) === '0' &&
+      sql('select count(*) from cali_workspace.profile_invites;') === '1' &&
+      sql('select count(*) from cali_qa.profile_invite_delivery;') === '0',
+    'negações não criam cadastro, renovação ou envio',
+  );
+  const legacyCompany = z
+    .uuid()
+    .parse(rpc('create_client_account', createLegacy, adminSession.access_token));
+  const renewedInvite = z
+    .uuid()
+    .parse(rpc('profile_renew_invite', { p_invite: legacyInvite }, adminSession.access_token));
+  const sent = z
+    .object({ sent: z.literal(1) })
+    .safeParse(
+      rpc(
+        'profile_send_invites',
+        { p_link: legacyLink, p_ids: [renewedInvite] },
+        adminSession.access_token,
+      ),
+    );
+  check(
+    sent.success &&
+      sql(
+        `select count(*) from cali_qa.profile_invite_delivery where payload->>'invite_id'='${renewedInvite}';`,
+      ) === '1' &&
+      sql(
+        `select count(*) from cali_workspace.profile_invites where id='${renewedInvite}' and previous_invite_id='${legacyInvite}' and cycle=2;`,
+      ) === '1',
+    'Admin AAL2 renova e envia só o convite selecionado pela captura local',
+  );
+  check(
+    sql(
+      `select count(*) from cali_workspace.service_cycles where company_id='${legacyCompany}' and contracted_hours=2;`,
+    ) === '1' &&
+      sql(
+        `select count(*) from cali_workspace.client_invites where company_id='${legacyCompany}' and is_primary;`,
+      ) === '1' &&
+      sql(
+        `select count(*) from cali_workspace.activity_log where company_id='${legacyCompany}' and actor_user_id='${adminId}';`,
+      ) === '1',
+    'cadastro legado mantém convite, ciclo e auditoria',
+  );
+  const legacyContact = {
+    p_company_id: legacyCompany,
+    p_full_name: 'Contato QA revisado',
+    p_email: createLegacy.p_email,
+    p_job_title: null,
+    p_phone: null,
+    p_whatsapp: null,
+    p_birthday: null,
+  };
+  rpc('update_primary_client_contact_v65', legacyContact, adminSession.access_token);
+  check(
+    sql(
+      `select count(*) from cali_workspace.client_invites where company_id='${legacyCompany}' and full_name='Contato QA revisado';`,
+    ) === '1',
+    'contato legado permanece editável fora da gestão',
+  );
+
   const draftId = ids.parse(
     rpc(
       'v2_create_company_draft',
@@ -557,6 +649,13 @@ async function main() {
     insert into cali_workspace.workspace_adhesions values ('${company}');
     update cali_v2_onboarding.company_drafts set access_management_enabled=true where id='${draftId}';`);
   rpc(
+  check(
+    http(`${rest}:3000`, '/rpc/update_primary_client_contact_v65', adminSession.access_token, {
+      ...legacyContact,
+      p_company_id: company,
+    }).status === 403,
+    'contato principal legado recusado na empresa gerenciada',
+  );
     'v2_confirm_adhesion_document',
     {
       p_draft_id: draftId,
@@ -906,3 +1005,6 @@ void main()
       }
     }
   });
+  const adminSessionId = claims(adminSession.access_token).session_id;
+  sql(`delete from auth.sessions where id='${adminSessionId}';`);
+  checkLegacyDenied(adminSession.access_token, 'JWT Admin com sessão removida');

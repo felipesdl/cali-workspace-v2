@@ -68,6 +68,10 @@ O Chrome solicitou e confirmou o código recebido no Mailpit, registrou o aceite
 
 A regressão após uniformizar a resposta de solicitação da Edge V2 passou no Chrome. A SPA recebeu `{ok:true}`, exibiu o campo de código, confirmou o código do Mailpit, registrou o aceite sintético e consultou a empresa. Após revogar pela RPC, a recarga bloqueou a sessão.
 
+### Guardas das RPCs administrativas legadas
+
+O cenário `--run` passou em 48 verificações com GoTrue e PostgREST. Cadastro, renovação e envio recusaram Admin AAL1, papel de serviço e JWT Admin cuja sessão foi removida. As negativas iniciais não criaram empresa, convite nem captura de envio. Com AAL2, o cadastro preservou convite, ciclo e auditoria. Renovação e envio alcançaram somente o convite de perfil selecionado, usando captura SQL sem transporte externo. A RPC de contato principal aceitou a empresa fora da gestão e recusou a gerenciada. O predicado Admin da fixture usa perfil sintético e a guarda adicional verifica TOTP real.
+
 ### Variante com Storage
 
 Com a imagem oficial `supabase/storage-api:v1.81.0` no cache local, execute `node scripts/local-access-auth-acceptance.ts --run --storage`. A variante adiciona a API do Storage, sem porta publicada, com arquivos locais descartáveis e a mesma cópia de PostgreSQL. A API cria o bucket privado e recebe quatro objetos sintéticos. A comprovação de adesão usa o ID e a versão retornados pelos metadados desse Storage. Os grants da fixture e a política Cliente reproduzida são exclusivos da cópia. O teste exercita download, assinatura, revogação e reativação pela API e o corte de uma RPC privilegiada pelo PostgREST.

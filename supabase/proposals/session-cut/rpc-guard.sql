@@ -7,6 +7,19 @@ do $$ begin
    raise exception 'Revisão/candidata base ausente';
  end if;
 end $$;
+create function cali_v2_onboarding.require_live_legacy_admin()
+returns void language plpgsql security invoker set search_path = '' as $$
+begin
+  perform cali_v2_onboarding.require_admin();
+  if not cali_session_guard.session_is_live()
+    or cali_workspace.is_admin() is distinct from true then
+    raise exception using errcode = '42501', message = 'Sessão Admin indisponível.';
+  end if;
+end;
+$$;
+revoke all on function cali_v2_onboarding.require_live_legacy_admin()
+  from public, anon, authenticated, service_role;
+
 create or replace function cali_workspace.update_my_profile_v56(
   p_full_name text, p_job_title text default null, p_phone text default null,
   p_avatar_url text default null, p_whatsapp text default null,
@@ -39,7 +52,9 @@ begin
     updated_at=now()
   where id=auth.uid() returning * into updated_profile;
   if updated_profile.id is null then raise exception 'profile_not_found'; end if;
-  if updated_profile.role='client' and updated_profile.is_primary and updated_profile.company_id is not null then
+  if updated_profile.role='client' and updated_profile.is_primary
+    and updated_profile.company_id is not null
+    and not cali_v2_onboarding.uses_managed_access(updated_profile.company_id, null) then
     update cali_workspace.client_invites set
       full_name=updated_profile.full_name, job_title=updated_profile.job_title,
       phone=updated_profile.phone, whatsapp=updated_profile.whatsapp
@@ -55,10 +70,12 @@ create or replace function cali_workspace.update_primary_client_contact_v65(
 ) returns void language plpgsql security definer set search_path = '' as $$
 declare existing_invite cali_workspace.client_invites; linked_profile cali_workspace.profiles;
 begin
-  if not cali_session_guard.session_is_live() then
-    raise exception using errcode='42501',message='Sessão indisponível.';
+  perform cali_v2_onboarding.require_live_legacy_admin();
+  perform 1 from cali_v2_onboarding.company_drafts
+    where company_id = p_company_id for update;
+  if cali_v2_onboarding.uses_managed_access(p_company_id, null) then
+    raise exception using errcode = '42501', message = 'Use a gestão de acessos da empresa.';
   end if;
-  if not cali_workspace.is_admin() then raise exception 'admin_required'; end if;
   select * into existing_invite from cali_workspace.client_invites
     where company_id=p_company_id and is_primary for update;
   if existing_invite.id is null then raise exception 'primary_invite_not_found'; end if;
@@ -85,8 +102,12 @@ begin
     where id=linked_profile.id;
   end if;
 end;$$;
-revoke all on function cali_workspace.update_primary_client_contact_v65(uuid,text,text,text,text,text,date) from public;
-grant execute on function cali_workspace.update_primary_client_contact_v65(uuid,text,text,text,text,text,date) to authenticated;
+revoke all on function cali_workspace.update_primary_client_contact_v65(uuid,text,text,text,text,text,date),
+  cali_workspace.update_my_profile_v56(text,text,text,text,text,text,text,numeric,numeric,numeric,text,text,text)
+  from public, anon, authenticated, service_role;
+grant execute on function cali_workspace.update_primary_client_contact_v65(uuid,text,text,text,text,text,date),
+  cali_workspace.update_my_profile_v56(text,text,text,text,text,text,text,numeric,numeric,numeric,text,text,text)
+  to authenticated;
 
 
 -- Helper também é uma RPC exposta e deve negar a sessão cortada.
