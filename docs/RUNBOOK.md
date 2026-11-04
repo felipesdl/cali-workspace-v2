@@ -82,6 +82,10 @@ O [inventário somente leitura](../supabase/proposals/hosted-access-pilot/catalo
 
 Antes de ampliar o piloto: endereçar os comandos e o histórico pelo ID do convite e validar que pertence à empresa; preservar os IDs, cortes e admissões A/B existentes na migração; serializar ocupação e reautorização por empresa, incluindo os escritores aplicáveis ao recorte. O gatilho atual não prova o limite sob concorrência. Homologar um segundo Cliente na mesma empresa, recusa da quinta vaga e revogação individual, preservando os demais vínculos. O inventário não ativou vagas nem enviou códigos.
 
+A [migração individual](../supabase/proposals/hosted-access-pilot/individual-invites.sql) foi aplicada ao CALI MAPA em transação. Manteve duas matrículas, duas admissões e o corte de A. A ficha Admin exibiu as ações junto dos convites corretos. O gatilho adicional serializa ocupação só em A/B e protege a correspondência dos convites já matriculados. A [prova isolada](../supabase/proposals/hosted-access-pilot/test-invite-capacity.sh) usou duas conexões concorrentes e terminou com quatro convites ativos. Não matricular destinatários extras sem a etapa de provisionamento e homologação.
+
+Se for preciso suspender ações, retirar `EXECUTE` de `authenticated` nas novas RPCs de revogação e reautorização por convite. Preservar a chave, a guarda de capacidade e os registros de corte. Não reativar as RPCs por empresa após permitir mais de um vínculo.
+
 ## Candidata de corte no servidor — sem execução
 
 [Contrato e sequência de revisão](contracts/ACCESS_COMPANIES.md#correção-do-corte-no-servidor--candidata-não-aplicada). `supabase/proposals/session-cut` contém catálogo somente leitura, candidata e aceite SQL futuro. Não é migration nem comando npm; runner local conserva a lista fechada das três migrations do laboratório. Nada foi aplicado ou executado em banco nesta preparação.

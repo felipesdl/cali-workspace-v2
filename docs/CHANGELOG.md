@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 04/11/2026 — Gestão por convite e limite concorrente de A/B
+
+- CALI MAPA migrou a chave privada de `company_id` para `invite_id` e desativou as RPCs ambíguas por empresa. A ficha Admin local mostra a ação junto ao convite. Confirmada no navegador a leitura de A revogada e B ativa. Catálogo confirmou as duas matrículas, duas admissões e um corte preservados. Nenhum convite foi criado ou reativado no hospedado.
+- Em PostgreSQL descartável, dois vínculos da mesma empresa foram geridos individualmente e um comando com convite de outra empresa foi recusado. Duas conexões disputaram a quarta vaga: a segunda aguardou o lock e foi recusada após o commit da primeira; quatro convites ativos ao final. O limite preserva a contagem legada, inclusive convites ativos sem acesso à plataforma.
+
 ## 04/11/2026 — Reautorização restrita aos vínculos A/B
 
 - O Admin local lê o vínculo exato do piloto pela Data API e mostra a ação correspondente. No CALI MAPA, A exibiu **Reautorizar acesso de teste** e B exibiu **Revogar acesso de teste**. A confirmação de A foi aberta e cancelada; não houve reativação nem envio de código.

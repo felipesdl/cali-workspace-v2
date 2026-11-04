@@ -179,7 +179,7 @@ A [variante do piloto A/B](../supabase/proposals/hosted-access-pilot/base.sql) r
 
 A [reautorização dos vínculos A/B](../supabase/proposals/hosted-access-pilot/reauthorize.sql) foi instalada. A ficha Admin conectada apresentou a ação certa para A revogada e B ativa. A escrita, o novo login e a preservação do corte foram verificados no banco descartável; nenhuma reautorização ou novo envio no CALI MAPA. Ainda faltam convite, provisionamento e gestão hospedada das quatro vagas.
 
-O [catálogo das vagas](RUNBOOK.md#pré-condições-para-quatro-vagas-hospedadas) confirmou a chave atual por empresa e o limite legado de convites ativos sem serialização por empresa. O próximo lote precisa migrar o alvo para o convite individual e reconciliar os escritores antes de abrir vagas adicionais.
+O [piloto A/B](RUNBOOK.md#pré-condições-para-quatro-vagas-hospedadas) já usa a chave por convite e a ficha mostra ações por vínculo. O teste isolado confirmou o teto de quatro sob concorrência. Provisionamento de novos vínculos no hospedado e homologação de um segundo Cliente da mesma empresa seguem pendentes.
 
 O catálogo hospedado confirmou `service_cycles` com unicidade por `(company_id, reference_month)`, estados `planned`, `open`, `review` e `closed`, e leitura Cliente por `current_company_id()`. A candidata A/B cobre esse vínculo. A ficha Admin conectada consulta os 12 ciclos mais recentes. A [abertura explícita do mês corrente](../supabase/proposals/company-onboarding/open-current-cycle.sql) foi instalada no CALI MAPA e abriu novembro de 2026 para A/B pela tela de homologação. Ainda faltam as demais transições.
 

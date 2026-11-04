@@ -5,7 +5,7 @@ import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { formatCalendarDate } from '../../lib/dates';
 import { CompanyAccessManagement } from './CompanyAccessManagement';
 import { PilotAccessAction } from './PilotAccessAction';
-import { isPilotCompany } from '../../api/modules/companies/onboarding';
+import { usePilotInviteStates } from '../../api/modules/companies/hooks/usePilotAccess';
 
 export function CompanyAccessPanel({
   companyId,
@@ -17,6 +17,7 @@ export function CompanyAccessPanel({
   onClose: () => void;
 }) {
   const accesses = useCompanyAccessesQuery(companyId);
+  const pilot = usePilotInviteStates(companyId);
   const selectedCompany = useCompanyQuery(companyId);
   return (
     <section
@@ -52,20 +53,31 @@ export function CompanyAccessPanel({
       )}
       {accesses.isSuccess && !canManage && accesses.data.length > 0 && (
         <ul className="tw:m-0 tw:mt-4 tw:grid tw:list-none tw:gap-3 tw:p-0 tw:[&_li]:grid tw:[&_li]:gap-1 tw:[&_li]:border-b tw:[&_li]:border-border-default tw:[&_li]:py-3 tw:[&_li]:wrap-anywhere tw:[&_li_span]:text-caption tw:[&_li_span]:text-muted-copy">
-          {accesses.data.map((access) => (
-            <li key={access.id}>
-              <strong>{access.name}</strong>
-              <span>{access.email}</span>
-              <span>
-                {access.status === 'active' ? 'Ativo' : 'Revogado'} · Convite em{' '}
-                {access.invitedOn ? formatCalendarDate(access.invitedOn) : 'não enviado'}
-              </span>
-            </li>
-          ))}
+          {accesses.data.map((access) => {
+            const enrolled = pilot.data?.find((entry) => entry.inviteId === access.id);
+            return (
+              <li key={access.id}>
+                <strong>{access.name}</strong>
+                <span>{access.email}</span>
+                <span>
+                  {access.status === 'active' ? 'Ativo' : 'Revogado'} · Convite em{' '}
+                  {access.invitedOn ? formatCalendarDate(access.invitedOn) : 'não enviado'}
+                </span>
+                {enrolled && (
+                  <PilotAccessAction
+                    key={enrolled.revokedAt ?? 'active'}
+                    companyId={companyId}
+                    inviteId={access.id}
+                    revokedAt={enrolled.revokedAt}
+                  />
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
-      {import.meta.env.DEV && isPilotCompany(companyId) && accesses.isSuccess && (
-        <PilotAccessAction key={companyId} companyId={companyId} />
+      {pilot.isError && (
+        <FeedbackState kind="error">Gestão dos vínculos do piloto indisponível.</FeedbackState>
       )}
     </section>
   );

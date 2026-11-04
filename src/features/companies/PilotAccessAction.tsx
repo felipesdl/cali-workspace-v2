@@ -1,20 +1,22 @@
 import { useState } from 'react';
 import {
-  usePilotAccess,
+  usePilotInviteChange,
   type PilotAccessChange,
 } from '../../api/modules/companies/hooks/usePilotAccess';
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 
-export function PilotAccessAction({ companyId }: { companyId: string }) {
-  const { state, change, enabled } = usePilotAccess(companyId);
+export function PilotAccessAction({
+  companyId,
+  inviteId,
+  revokedAt,
+}: {
+  companyId: string;
+  inviteId: string;
+  revokedAt: string | null;
+}) {
+  const change = usePilotInviteChange(companyId, inviteId);
   const [draft, setDraft] = useState<PilotAccessChange | null>(null);
-  if (!enabled) return null;
-  if (state.isError)
-    return <FeedbackState kind="error">Vínculo do piloto indisponível.</FeedbackState>;
-  if (!state.data) return null;
-
-  const { revokedAt } = state.data;
   const confirm = draft?.revokedAt === revokedAt ? draft : null;
   const action = revokedAt ? 'Reautorizar' : 'Revogar';
   return (

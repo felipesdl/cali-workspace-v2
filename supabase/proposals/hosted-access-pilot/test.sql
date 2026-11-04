@@ -290,6 +290,8 @@ begin
 end;
 $$;
 
+\if :{?cali_skip_pilot_pause}
+\else
 \ir pause.sql
 
 do $$
@@ -317,3 +319,4 @@ begin
   end;
 end;
 $$;
+\endif
