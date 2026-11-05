@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 05/11/2026 — Preparação hospedada da agenda DISC
+
+- Felipe dispensou backup para o lote. Aplicado o incremento SQL em transação no CALI MAPA, com flag desligada. Preimagem SQL conferida e bundle v4 preservado para rollback. Políticas, triggers, funções fora da RPC alterada, permissões verificadas e quatro registros concluídos na fila foram preservados.
+- Worker v5 ativo com JWT obrigatório e bundle remoto conferido byte a byte. Chamada sem JWT recebeu HTTP 401. Segredo da agenda configurado no Vault.
+- A revisão automática rejeitou ligar o cron persistente por falta de autorização explícita para a ativação com possíveis comunicações externas. Flag desligada e cron ausente, confirmados em leitura. A prova do disparo hospedado fica pendente. [Contrato e rollback](contracts/DISC_3.md).
+
 ## 05/11/2026 — Preflight hospedado da agenda DISC
 
 - Leitura do CALI MAPA confirmou worker v4 com JWT, flag desligada, nenhuma agenda DISC, extensões presentes e corpos de `kick()` e `v2_disc_worker` iguais ao rollback versionado. Dois destinatários na allowlist e quatro jobs concluídos; nenhuma tarefa em trânsito. Projeção para a próxima janela útil não gerou candidatos.

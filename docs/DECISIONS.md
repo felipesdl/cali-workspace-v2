@@ -14,6 +14,8 @@ As próximas migrations, alterações de permissões e deploys hospedados ficam 
 
 Em seguida, Felipe esclareceu que CALI MAPA continuará destinado a staging e autorizou explicitamente somente a atualização do gerador de PDF DISC, sem mudança de schema, dados ou permissões. Esse deploy foi separado da execução do plano de backup: a versão 4 do worker foi publicada com JWT obrigatório, agenda desligada e artefatos anteriores preservados para rollback. A autorização é restrita a essa revisão de código; não dispensa os demais gates de banco/ambientes nem inicia exportação, restauração ou produção.
 
+Felipe dispensou backup e ensaio de restauração como condição deste lote da agenda DISC no CALI MAPA. O lote aplicou o incremento privado, publicou o worker v5 e configurou o Vault após conferir o rollback e preservar a versão anterior da função. A autorização de ativação do cron com envios segue separada. O planejamento de produção separada continua registrado.
+
 ## DEC-27 — Desenvolvimento no backend hospedado e atores de teste
 
 Em 01/11/2026, Felipe esclareceu que a plataforma ainda não foi lançada e autorizou continuar a implementação no mesmo ambiente hospedado, incluindo criação de contas e manipulação de dados sintéticos para verificar GET/POST. Esta decisão substitui a restrição anterior de somente leitura do backend neste recorte; o repositório `patricia258/app.cali` continua referência somente em leitura. Não autoriza apagar dados existentes, publicar a aplicação, executar automaticamente a baseline local sobre o banco hospedado ou ampliar permissões para contornar falhas.

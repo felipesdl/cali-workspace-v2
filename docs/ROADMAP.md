@@ -22,7 +22,7 @@ DEC-28, aprovada em 05/11/2026, antecipa a preservação e a prova de restauraç
 - [ ] Formalizar CALI MAPA como staging e preparar projeto de produção separado, sem fixtures, com configuração, Auth, Storage, funções, segredos e canais próprios; conferir recursos/custos antes de provisionar.
 - [ ] Definir promoção staging/produção por commit e migration, backups, rollback e autorização de lançamento.
 
-Plano registrado não significa backup, restauração ou novos ambientes executados. O worker PDF DISC foi atualizado posteriormente por autorização específica de Felipe, separada deste plano de banco. A agenda permanece pendente; não há autorização implícita de migrations ou produção.
+Plano registrado não significa backup, restauração ou novos ambientes executados. O worker PDF DISC foi atualizado posteriormente por autorização específica de Felipe, separada deste plano de banco. Felipe dispensou a condição de backup para o incremento da agenda DISC no CALI MAPA. A ativação do cron segue pendente.
 
 ## Fases e dependências
 
@@ -249,10 +249,11 @@ DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciênci
 
 3A/3B/3C têm código, contratos e provas sintéticas. Questionário completo, PDF individual aceito pelo provedor, avaliador Admin, gestão liberada somente a A e PDF privado foram exercitados. Limiar 4/5/14/15, rejeições, replay e histórico têm prova SQL descartável. [Evidências e limites](contracts/DISC_3.md).
 
-- [x] Publicar revisão do worker de PDF após autorização explícita: versão 4 ativa, JWT obrigatório, código publicado conferido e catálogo inalterado.
+- [x] Publicar revisão do worker de PDF após autorização explícita: versão 4 publicada com JWT obrigatório, código publicado conferido e catálogo inalterado.
 - [x] Implementar e testar localmente agenda autenticada, janela de envio/retentativa, concorrência, desligamento e rollback, sem alterar o hospedado.
 - [x] Conferir em leitura worker, extensões, fila e preimagem do rollback no CALI MAPA. Em 05/11, agenda desligada, segredo Vault ausente e recuperação DEC-28 sem evidência.
-- [ ] Aplicar incremento SQL e worker compatível após preflight/gate DEC-28; configurar Vault e autorizar ativação do cron restrito. Nenhum cron/automação DISC está ativo.
+- [x] Aplicar incremento privado da agenda, publicar worker v5 e configurar Vault no CALI MAPA, com dispensa de backup para o lote e rollback conferido.
+- [ ] Autorizar explicitamente, ativar e homologar o cron DISC restrito aos dois destinatários de teste.
 - [ ] Validar textos/finalidade/guarda para coleta real e paridade visual antes do lançamento.
 
 Esses itens impedem declarar a fase 3 pronta para operação real. Não reabrem a bateria suspensa nem exigem repetir a homologação completa.
@@ -347,4 +348,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A, a 2B e a 2C têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A fase 3 está implementada no piloto, com ativação final pendente. A prioridade operacional atual é a recuperação/separação de ambientes da DEC-28. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A, a 2B e a 2C têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A fase 3 está implementada no piloto, com ativação final pendente. A separação de ambientes permanece registrada na DEC-28. Backup ficou adiado neste recorte. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).
