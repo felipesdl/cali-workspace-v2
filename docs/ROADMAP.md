@@ -18,7 +18,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | --- | --- | --- | --- |
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
 | 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; sessão/telas hospedadas e leitura real de empresas, aceite global pendente |
-| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A homologada no piloto A/B; 2B com Equipe conectada, aguardando QA autenticado |
+| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A homologada no piloto A/B; 2B conectada e testada com Admin e Cliente B, com aceite visual e prova Cliente A pendentes |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
 | 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
@@ -190,7 +190,9 @@ Cada linha é uma entrega independente, incluindo contrato/adaptador real de tes
 - [x] Inventariar referência 83 e catálogo ativo. Separar Equipe da confirmação mensal.
 - [x] Conectar diretório, estrutura, cadastro, edição, arquivamento, privados, prévia de importação e histórico no piloto A/B. Registrar SQL, rollback e testes focados na [ficha 2B](contracts/TEAM_2B.md).
 - [x] Exercitar o fluxo autenticado de Cliente B no navegador integrado. Confirmar persistência, dados privados, importação, ausentes e arquivamento. Validar equivalência e corte individual na cópia descartável.
-- [ ] Concluir a rodada Admin autenticada no navegador integrado com seleção A/B.
+- [x] Validar Admin com MFA no navegador integrado. Confirmar seleção A/B, filtro de arquivados, abertura por teclado, recarga e restauração da seção ao voltar e avançar.
+- [ ] Conferir Equipe com Cliente A autenticado no navegador integrado.
+- [ ] Validar a paridade visual do layout, navegação e Equipe por perfil com a publicação 83. A composição usada na homologação funcional é provisória.
 - [ ] Validar a informação de finalidade, necessidade e guarda antes de abrir a coleta de dados reais.
 
 DS, tabelas, campos, overlays, modelos/hooks e cache necessários são entregues junto dos consumidores. Declarar quem possui cada estado: URL para contexto compartilhável, local para transitório, cache para respostas remotas e context somente para responsabilidades realmente transversais. Views não importam SDK ou fixtures.
