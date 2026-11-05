@@ -251,6 +251,7 @@ DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciênci
 
 - [x] Publicar revisão do worker de PDF após autorização explícita: versão 4 ativa, JWT obrigatório, código publicado conferido e catálogo inalterado.
 - [x] Implementar e testar localmente agenda autenticada, janela de envio/retentativa, concorrência, desligamento e rollback, sem alterar o hospedado.
+- [x] Conferir em leitura worker, extensões, fila e preimagem do rollback no CALI MAPA. Em 05/11, agenda desligada, segredo Vault ausente e recuperação DEC-28 sem evidência.
 - [ ] Aplicar incremento SQL e worker compatível após preflight/gate DEC-28; configurar Vault e autorizar ativação do cron restrito. Nenhum cron/automação DISC está ativo.
 - [ ] Validar textos/finalidade/guarda para coleta real e paridade visual antes do lançamento.
 

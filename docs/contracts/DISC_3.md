@@ -71,6 +71,8 @@ Arquivos concretos em `supabase/proposals/disc-3`: `scheduler.sql` prepara colun
 
 A sequência de ativação e conferência está no [runbook](../RUNBOOK.md#agenda-disc--preparação-local-e-ativação-separada). Até sua execução autorizada, o hospedado permanece na versão 4, manual e com agenda desligada. Nenhuma exportação de banco foi iniciada neste lote.
 
+Preflight hospedado posterior, em 05/11 às 19h22: extensões e assinatura de transporte presentes, preimagem das duas funções compatível com rollback, quatro jobs concluídos e nenhum em trânsito. O segredo Vault ainda não existe. A consulta não encontrou backup listado nem metadados de ponto físico; restauração isolada segue sem prova. Nenhuma alteração foi executada.
+
 ## Rollback e operação
 
 DEC-28 mantém o [plano de backup e ambientes](../RUNBOOK.md#backup-restauração-e-ambientes--dec-28) pendente. Felipe separou desse plano e autorizou especificamente a revisão de código do gerador PDF, publicada na versão 4. Isso não inicia exportação do banco, não aplica migrations e não ativa a agenda.

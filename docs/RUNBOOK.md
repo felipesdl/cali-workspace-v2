@@ -235,6 +235,10 @@ No CALI MAPA, `workspace-disc-pilot` versão 4 está ativa com JWT obrigatório,
 
 Estado: código e incremento testados localmente; não aplicados/publicados no CALI MAPA. `bash supabase/proposals/disc-3/test-scheduler.sh` usa somente banco descartável, socket Unix e transportes sintéticos. O `verify` constrói o bundle sem executar worker, Auth, Docker ou envios. Frontend permanece no recorte funcional já homologado.
 
+Preflight em leitura de 05/11/2026, 19h22 de Brasília: `pg_cron` 1.6.4, `pg_net` 0.20.4 e Vault 0.3.1 instalados; assinatura de `net.http_post` disponível. Não há cron DISC nem segredo `cali_disc_worker_bearer`. Worker v4 ativo com JWT obrigatório, flag desligada e incremento ausente. Os corpos das duas funções conferidas correspondem ao rollback versionado. Os grants da RPC permanecem exclusivos do papel servidor, sem uso direto do schema privado.
+
+Dois destinatários na allowlist, duas campanhas abertas e quatro tarefas concluídas; nenhuma pendente, em trânsito ou elegível para retentativa. Projeção somente de leitura para 06/11 às 8h não apontou novos jobs; repetir a conferência antes de ligar. A [listagem de backups](https://supabase.com/docs/reference/api/v1-list-all-backups) retornou zero itens, sem metadados físicos e com PITR desativado. Não foi demonstrada restauração isolada, e a conexão de backup não está configurada localmente. A DEC-28 continua pendente. Nenhum SQL de escrita, exportação, deploy ou envio foi executado no preflight.
+
 Sequência preparada para uma ativação posterior, com autorização de escopo hospedado e gate DEC-28 reconciliados:
 
 1. Em leitura, conferir projeto, dois destinatários autorizados, fila/tentativas em trânsito, grants efetivos, extensões `pg_cron`/`pg_net`, Vault, nomes de cron e preimagem de `kick()`/`v2_disc_worker`/configuração/código. Preservar versão 4 e histórico; não interpretar cópia de função como backup do banco.

@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 05/11/2026 — Preflight hospedado da agenda DISC
+
+- Leitura do CALI MAPA confirmou worker v4 com JWT, flag desligada, nenhuma agenda DISC, extensões presentes e corpos de `kick()` e `v2_disc_worker` iguais ao rollback versionado. Dois destinatários na allowlist e quatro jobs concluídos; nenhuma tarefa em trânsito. Projeção para a próxima janela útil não gerou candidatos.
+- Segredo Vault do agendamento ainda ausente. Consulta retornou zero backups listados, sem metadados de ponto físico e com PITR desativado. Preservação e restauração DEC-28 seguem pendentes. Nenhuma exportação, migration, deploy ou envio. [Evidência e sequência](RUNBOOK.md#agenda-disc--preparação-local-e-ativação-separada).
+
 
 ## 05/11/2026 — Preparação local da agenda DISC autenticada
 
