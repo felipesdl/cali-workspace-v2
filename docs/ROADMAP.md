@@ -253,7 +253,8 @@ DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciênci
 - [x] Implementar e testar localmente agenda autenticada, janela de envio/retentativa, concorrência, desligamento e rollback, sem alterar o hospedado.
 - [x] Conferir em leitura worker, extensões, fila e preimagem do rollback no CALI MAPA. Em 05/11, agenda desligada, segredo Vault ausente e recuperação DEC-28 sem evidência.
 - [x] Aplicar incremento privado da agenda, publicar worker v5 e configurar Vault no CALI MAPA, com dispensa de backup para o lote e rollback conferido.
-- [ ] Autorizar explicitamente, ativar e homologar o cron DISC restrito aos dois destinatários de teste.
+- [x] Homologar a chamada autenticada do cron DISC no CALI MAPA com fila vazia e desligamento confirmado.
+- [ ] Na rodada com Patrícia, definir URL de homologação e executar o [roteiro funcional](HOMOLOGACAO_PATRICIA.md). Incluir envio pelo cron somente se previsto na janela de teste.
 - [ ] Validar textos/finalidade/guarda para coleta real e paridade visual antes do lançamento.
 
 Esses itens impedem declarar a fase 3 pronta para operação real. Não reabrem a bateria suspensa nem exigem repetir a homologação completa.

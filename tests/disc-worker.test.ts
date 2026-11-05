@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it, vi } from 'vitest';
 import { PDFDocument } from 'pdf-lib';
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { normalizeDiscImage } from '../supabase/functions/_shared/disc-image';
 import { matchesSchedulerBearer } from '../supabase/functions/workspace-disc-pilot/scheduler-auth';
@@ -38,18 +39,16 @@ const request = (
   });
 describe('worker DISC por público e confirmação do provedor', () => {
   it('exige o JWT de serviço exato, sem aceitar chave sb_secret ou token de sessão', async () => {
+    const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
+    const jwt = 'machine.payload.signature';
+    const digest = sha256(jwt);
+    expect(await matchesSchedulerBearer(`Bearer ${jwt}`, digest)).toBe(true);
+    expect(await matchesSchedulerBearer('Bearer user.payload.signature', digest)).toBe(false);
     expect(
-      await matchesSchedulerBearer('Bearer machine.payload.signature', 'machine.payload.signature'),
-    ).toBe(true);
-    expect(
-      await matchesSchedulerBearer('Bearer user.payload.signature', 'machine.payload.signature'),
+      await matchesSchedulerBearer('Bearer sb_secret_fixture', sha256('sb_secret_fixture')),
     ).toBe(false);
-    expect(await matchesSchedulerBearer('Bearer sb_secret_fixture', 'sb_secret_fixture')).toBe(
-      false,
-    );
-    expect(
-      await matchesSchedulerBearer('machine.payload.signature', 'machine.payload.signature'),
-    ).toBe(false);
+    expect(await matchesSchedulerBearer(jwt, digest)).toBe(false);
+    expect(await matchesSchedulerBearer(`Bearer ${jwt}`, '')).toBe(false);
   });
 
   it('separa agenda da sessão Admin, exige hook vigente e recusa origem do navegador', async () => {

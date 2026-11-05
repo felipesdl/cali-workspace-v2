@@ -11,6 +11,7 @@ const project = Deno.env.get('SUPABASE_URL');
 const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
 const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const resendKey = Deno.env.get('RESEND_API_KEY');
+const schedulerBearerSha256 = Deno.env.get('CALI_DISC_SCHEDULER_BEARER_SHA256') ?? '';
 if (project !== 'https://kqtbfeeqbcllwvlkbrkq.supabase.co' || !anonKey || !serviceKey || !resendKey)
   throw new Error('Configuração DISC do piloto indisponível.');
 const url = project;
@@ -40,7 +41,8 @@ function base64(bytes: Uint8Array) {
 }
 Deno.serve(
   createDiscHandler({
-    authorizeScheduler: (authorization) => matchesSchedulerBearer(authorization, privateKey),
+    authorizeScheduler: (authorization) =>
+      matchesSchedulerBearer(authorization, schedulerBearerSha256),
     async authorize(authorization) {
       try {
         await rpc('v2_disc_admin', { p_campaign: null }, authorization, publicKey);

@@ -30,6 +30,7 @@ Atualização: 03/11/2026. Base de desenvolvimento: este repositório V2. Escopo
 | Quais verificações e registros exigir? | [Política de mudança](CHANGE_POLICY.md) |
 | O que foi entregue e validado? | [Registro de mudanças](CHANGELOG.md) |
 | Como executar localmente? | [Runbook](RUNBOOK.md) |
+| O que preparar para Patrícia testar a V2? | [Roteiro de homologação](HOMOLOGACAO_PATRICIA.md) |
 | Como preservar o banco e separar staging/produção? | [Plano de recuperação e ambientes — DEC-28](RUNBOOK.md#backup-restauração-e-ambientes--dec-28) |
 | Qual era o contexto em 08/10? | [Handoff histórico](HANDOFF_MESTRE_CALI_WORKSPACE_V2_2026-10-08.md) |
 

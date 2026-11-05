@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 05/11/2026 — Prova temporária do cron DISC e roteiro da Patrícia
+
+- A primeira chamada pelo cron recebeu HTTP 403. O JWT legado do Vault diferia da credencial interna do runtime. O worker v7 usa o SHA-256 do JWT do Vault para validar o agendador, preservando JWT obrigatório no gateway, hook privado e autorização do Admin.
+- Na segunda tentativa, cron bem-sucedido e HTTP 200, com zero tarefas processadas e zero falhas. Os quatro registros existentes foram preservados. O cron de teste foi removido e a flag desligada após a resposta.
+- [Roteiro da Patrícia](HOMOLOGACAO_PATRICIA.md) registra o que preparar, o que ativar somente durante a rodada e as dependências de URL para homologação remota.
+
 ## 05/11/2026 — Preparação hospedada da agenda DISC
 
 - Felipe dispensou backup para o lote. Aplicado o incremento SQL em transação no CALI MAPA, com flag desligada. Preimagem SQL conferida e bundle v4 preservado para rollback. Políticas, triggers, funções fora da RPC alterada, permissões verificadas e quatro registros concluídos na fila foram preservados.

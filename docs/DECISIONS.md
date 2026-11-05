@@ -14,7 +14,7 @@ As próximas migrations, alterações de permissões e deploys hospedados ficam 
 
 Em seguida, Felipe esclareceu que CALI MAPA continuará destinado a staging e autorizou explicitamente somente a atualização do gerador de PDF DISC, sem mudança de schema, dados ou permissões. Esse deploy foi separado da execução do plano de backup: a versão 4 do worker foi publicada com JWT obrigatório, agenda desligada e artefatos anteriores preservados para rollback. A autorização é restrita a essa revisão de código; não dispensa os demais gates de banco/ambientes nem inicia exportação, restauração ou produção.
 
-Felipe dispensou backup e ensaio de restauração como condição deste lote da agenda DISC no CALI MAPA. O lote aplicou o incremento privado, publicou o worker v5 e configurou o Vault após conferir o rollback e preservar a versão anterior da função. A autorização de ativação do cron com envios segue separada. O planejamento de produção separada continua registrado.
+Felipe dispensou backup e ensaio de restauração como condição deste lote da agenda DISC no CALI MAPA. O lote aplicou o incremento privado, publicou o worker v5 e configurou o Vault após conferir o rollback e preservar a versão anterior da função. Felipe autorizou ativar o cron para a prova temporária, com desligamento ao final. A agenda foi removida após HTTP 200 com fila vazia. O planejamento de produção separada continua registrado.
 
 ## DEC-27 — Desenvolvimento no backend hospedado e atores de teste
 
