@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Rota revogável para os PDFs de homologação
+
+- CALI MAPA recebeu a Edge `workspace-pilot-pdf` v1 com JWT obrigatório. A rota entrega só os dois PDFs sintéticos arquivados, com verificação de SHA-256, sessão, empresa e aceite antes de ler e antes de responder. A resposta usa `private, no-store`.
+- Quatro testes focados e a prova SQL descartável passaram. No destino, o preflight retornou 204 e a chamada sem sessão retornou 401. O catálogo confirmou as duas fixtures privadas e zero objetos nos caminhos antigos. A rodada autenticada antes/depois do corte ainda está pendente.
+- O rollback remove a RPC e faz a função recusar downloads. [Contrato e evidência](contracts/ACCESS_COMPANIES.md#download-de-homologação-revogável--0411).
+
 ## 04/11/2026 — Ficha Admin conectada e corte de arquivos A/B
 
 - O Admin ganhou edição das condições contratuais, configurações financeiras e referências documentais, além de serviço, contato comercial e logo. As RPCs do CALI MAPA exigem MFA, empresa A/B e a versão da linha aberta no formulário. Na empresa B, o Admin gravou uma observação, trocou para Build Essencial, salvou contato sintético e enviou uma logo privada. A consulta independente confirmou os dados e o objeto. Renovação e automações ficaram desativadas.
