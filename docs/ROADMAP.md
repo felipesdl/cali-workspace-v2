@@ -12,6 +12,18 @@ O SHA `f3d3f14043a6abc38636f0340fe831e621d8b357` das fontes já corresponde à p
 
 Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem primeiro; depois DISC, demais fluxos Admin/Cliente e, por último, Partner. FLOW-17 inclui DISC como produto oficial, além de Forms e Mapa; sua implementação é separada por subfluxo. FLOW-15 cobre gestão Admin da equipe CALI e efeitos sobre acessos; área Partner completa permanece etapa posterior com recorte próprio.
 
+## Recuperação e separação de ambientes — prioridade atual
+
+DEC-28, aprovada em 05/11/2026, antecipa a preservação e a prova de restauração antes das próximas migrations, alterações de permissões e deploys hospedados; não deixar a primeira cópia para a fase 7. Implementação e testes locais independentes continuam. Estado anterior às mudanças não tem backup integral comprovado. [Cobertura, ordem e aceite](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+
+- [ ] Inventariar e preservar banco atual, arquivos do Storage, versões de serviços e configurações com cobertura/exclusões explícitas e guarda protegida fora do Git.
+- [ ] Restaurar em destino isolado, bloquear comunicações externas e conferir integridade/permissões/arquivos; registrar prova de recuperação.
+- [ ] Consolidar baseline efetiva e migrations ordenadas, com criação limpa e atualização reproduzíveis.
+- [ ] Formalizar CALI MAPA como staging e preparar projeto de produção separado, sem fixtures, com configuração, Auth, Storage, funções, segredos e canais próprios; conferir recursos/custos antes de provisionar.
+- [ ] Definir promoção staging/produção por commit e migration, backups, rollback e autorização de lançamento.
+
+Plano registrado não significa backup, restauração ou novos ambientes executados. A revisão final do worker DISC e sua agenda continuam pendentes; esta decisão não autoriza seu deploy.
+
 ## Fases e dependências
 
 | Fase | Entrada | Entrega/saída | Estado |
@@ -314,7 +326,7 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 **6 — Homologação:** os 18 IDs/subfluxos aplicáveis têm evidência real ou adiamento explicitamente aprovado. Executar regressão entre módulos, isolamento e decisões vigentes; mídia/PDF/e-mail e tela concordam; sem operação obrigatória apenas simulada, bloqueio crítico oculto ou dados fictícios tratados como reais. UX/mobile/teclado são conferidos em cada entrega e novamente nos percursos cruzados. Resumo Admin segue RESUMO-01/DEC-19 e exige evidência de operação; conteúdo Partner não faz parte do aceite Admin/Cliente.
 
-**7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
+**7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. DEC-28 antecipa a primeira preservação e prova de restauração para antes de novas alterações hospedadas; no release, renovar a cópia e confirmar os projetos de staging/produção separados. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
 
 ## Referências anteriores e tarefa para IA
 
@@ -333,4 +345,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A, a 2B e a 2C têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A fase 3 é a próxima etapa funcional do roadmap. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A, a 2B e a 2C têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A fase 3 está implementada no piloto, com ativação final pendente. A prioridade operacional atual é a recuperação/separação de ambientes da DEC-28. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).

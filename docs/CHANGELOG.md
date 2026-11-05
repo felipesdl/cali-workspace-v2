@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 05/11/2026 — Plano de recuperação e staging/produção aprovado
+
+- Felipe aprovou DEC-28: antecipar preservação do estado atual e ensaio de restauração, consolidar baseline/migrations e planejar CALI MAPA como staging, com produção em projeto separado e sem fixtures. Próximas migrations, alterações de permissões e deploys hospedados dependem da recuperação comprovada; trabalho local independente continua.
+- A consulta de backup da mesma data não listou backups/pontos físicos, informou PITR desligado e mecanismo WAL-G habilitado. Não há backup integral pré-alterações comprovado. Preimagens e rollbacks por lote não são restauração integral, e uma cópia nova não recupera automaticamente o passado.
+- Runbook registra cobertura de banco, Storage, serviços/configuração e guarda protegida, bloqueio de comunicações na restauração, critérios de integridade e promoção por versões. README, índice, decisões, roadmap e contrato DISC alinhados. Esta entrega é documental: não criou/downloadou/restaurou backup, não criou projetos, não mudou credenciais, não executou migration, deploy ou envio. A revisão final do worker DISC permanece pendente.
+
 
 ## 05/11/2026 — DISC 3A, 3B e 3C no piloto sintético
 

@@ -48,6 +48,8 @@ Coleta real, finalidade/guarda, textos de consentimento/relatórios/e-mails e ar
 
 ## Rollback e operação
 
+DEC-28 antecipa preservação atual e restauração comprovada antes da próxima alteração hospedada, incluindo a revisão final deste worker. O [plano de backup e ambientes](../RUNBOOK.md#backup-restauração-e-ambientes--dec-28) não foi executado e não substitui a autorização do deploy. A agenda permanece desligada.
+
 Antes de retirar: desligar composição DISC e processamento, manter agendamento desativado e confirmar ausência de tarefas em trânsito. `rollback.sql` retira somente wrappers novos e solicita recarga do catálogo; preserva schema privado, respostas, revisões e eventos. Não restaurar exposição individual legada como fallback. Retorno ao serviço exige versão de worker e DTO compatíveis, concessões conferidas e prova sintética do recorte.
 
 Não reaplicar `candidate.sql` sobre schema existente: ele é a criação inicial. Alterações posteriores exigem preimagem e migração específica. Não há baseline local, reset ou escrita no repositório V1 nesta entrega. E-mails enviados não podem ser desfeitos; histórico deve continuar registrando a aceitação do provedor.

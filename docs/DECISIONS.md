@@ -1,8 +1,16 @@
 # Registro de decisões e questões abertas
 
-Atualização: 28/10/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
+Atualização: 05/11/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
 
 ## Decisões de produto e escopo
+
+## DEC-28 — Recuperação comprovada e separação staging/produção
+
+Em 05/11/2026, Felipe aprovou incluir no plano a preservação do estado atual, o teste de restauração e a separação dos ambientes. O CALI MAPA atual é o destino planejado de staging; a produção será outro projeto, criado a partir de baseline e migrations reconciliadas e validadas, sem fixtures. Branches Git e abas locais não representam bancos separados.
+
+Não há backup integral anterior às mudanças comprovado. Na consulta de 05/11, a Management API não listou backups nem metadados de pontos físicos restauráveis; `pitr_enabled=false` e `walg_enabled=true`. Isso registra o resultado da consulta, sem provar inexistência absoluta de cópias no provedor. Inventários, preimagens e scripts de rollback não substituem cópia integral nem ensaio de restauração.
+
+As próximas migrations, alterações de permissões e deploys hospedados ficam condicionados à preservação atual e à restauração validada em destino isolado. Leitura, implementação e testes locais independentes podem continuar. O plano não declara backup executado, não provisiona projeto pago, não restaura sobre o CALI MAPA e não autoriza publicar a V2 ou ativar envios. A revisão final do worker DISC permanece pendente. Ordem, cobertura e critérios estão no [runbook](RUNBOOK.md#backup-restauração-e-ambientes--dec-28) e no [roadmap](ROADMAP.md#recuperação-e-separação-de-ambientes--prioridade-atual).
 
 ## DEC-27 — Desenvolvimento no backend hospedado e atores de teste
 
