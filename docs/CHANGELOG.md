@@ -1,5 +1,16 @@
 # Registro de mudanças
 
+## 05/11/2026 — Lançamento e correção de métricas 2C
+
+- Duas RPCs e a auditoria privada de métricas foram instaladas no piloto A/B após preflight. As policies adicionais bloqueiam escrita direta de métricas no recorte do piloto. Cliente faz o primeiro lançamento; correção exige Admin com MFA, motivo e preimagem. Replay confere ator e payload.
+- Cliente A gravou dados sintéticos e confirmou a recarga. Campos vazios permaneceram sem informação. Admin não recebeu ação de lançamento inicial em B. Em A, corrigiu as horas previstas de 100 para 120 e viu as duas revisões.
+- A prova SQL descartável passou com dependências simuladas de sessão/termos e guardas/RPCs reais de Equipe. Confirmação, vagas e indicadores seguem no próximo lote da mesma fase. [Contrato, prova e rollback](contracts/TEAM_MONTHLY_2C.md).
+
+## 05/11/2026 — Inventário e plano da 2C
+
+- O catálogo ativo confirmou métricas, revisões, snapshots e vagas. A/B tinham zero lançamentos e confirmações. A escrita direta legada permite correção pelo Cliente e a confirmação antiga mistura manutenção do cadastro com fechamento do mês.
+- O plano separa lançamento inicial Cliente, correção Admin, confirmação versionada e consulta de indicadores essenciais. A execução permanece no piloto sintético, com interface simplificada. [Plano e limites](contracts/TEAM_MONTHLY_2C.md).
+
 ## 05/11/2026 — Fechamento funcional da 2B no piloto A/B
 
 - Cliente A autenticado no navegador integrado reativou e alterou a própria ficha, gravou dado privado sintético com declaração e confirmou a persistência após recarga. A estrutura apresentou o vínculo de A. Uma URL com a empresa e a ficha sintéticas de B preservou o contexto de A e retornou ficha indisponível.

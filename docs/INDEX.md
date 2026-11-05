@@ -21,6 +21,7 @@ Atualização: 03/11/2026. Base de desenvolvimento: este repositório V2. Escopo
 | Onde organizar mocks e dados de teste? | [Arquitetura: mocks e testes](ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes) |
 | Quais contratos mínimos de acesso/empresa estão reconciliados? | [Contratos do recorte](contracts/ACCESS_COMPANIES.md) |
 | Como implementar e homologar Equipe? | [Plano e contrato 2B](contracts/TEAM_2B.md) |
+| Como lançar e confirmar os dados mensais? | [Plano e contrato 2C](contracts/TEAM_MONTHLY_2C.md) |
 | Qual ambiente isolado usar e o que foi comprovado? | [Ambiente local dedicado](LOCAL_ENVIRONMENT.md) |
 | Como adaptar dados e autorização? | [Dados e contratos](DATA_CONTRACTS.md) |
 | Como informar/validar uso de dados pessoais no acesso? | [Dados pessoais](DATA_PRIVACY.md) |

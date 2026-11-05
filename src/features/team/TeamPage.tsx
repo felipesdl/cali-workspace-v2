@@ -14,6 +14,8 @@ import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { Field } from '../../components/ds/field/Field';
 import { TeamDirectory } from './TeamDirectory';
 import { teamStatusLabels } from './presentation';
+import { TeamMonthly } from './TeamMonthly';
+import { useRouteContext } from '@tanstack/react-router';
 
 const clientRoute = getRouteApi('/cliente/equipe');
 const adminRoute = getRouteApi('/admin/equipe');
@@ -104,27 +106,32 @@ function DirectoryFilters({
 function TeamToolbar({
   search,
   navigate,
+  monthlyAvailable,
 }: {
   search: TeamSearch;
   navigate: (update: Partial<TeamSearch>) => void;
+  monthlyAvailable: boolean;
 }) {
   const views = {
     [teamViews.Directory]: 'Diretório',
     [teamViews.Structure]: 'Estrutura',
     [teamViews.History]: 'Histórico',
+    [teamViews.Monthly]: 'Dados do mês',
   } as const;
   return (
     <nav aria-label="Seções de Equipe" className="tw:flex tw:flex-wrap tw:gap-2">
-      {Object.values(teamViews).map((view) => (
-        <Button
-          key={view}
-          variant={search.view === view ? 'primary' : 'secondary'}
-          aria-current={search.view === view ? 'page' : undefined}
-          onClick={() => navigate({ view, page: 1, member: undefined })}
-        >
-          {views[view]}
-        </Button>
-      ))}
+      {Object.values(teamViews)
+        .filter((view) => monthlyAvailable || view !== teamViews.Monthly)
+        .map((view) => (
+          <Button
+            key={view}
+            variant={search.view === view ? 'primary' : 'secondary'}
+            aria-current={search.view === view ? 'page' : undefined}
+            onClick={() => navigate({ view, page: 1, member: undefined })}
+          >
+            {views[view]}
+          </Button>
+        ))}
     </nav>
   );
 }
@@ -216,6 +223,7 @@ function TeamPage({
   navigate: (update: Partial<TeamSearch>) => void;
 }) {
   const team = useTeam(search);
+  const { monthly } = useRouteContext({ from: '__root__' });
   const [confirmation, setConfirmation] = useState<{ companyId: string; message: string }>();
   function announce(message: string) {
     if (team.companyId) setConfirmation({ companyId: team.companyId, message });
@@ -237,13 +245,21 @@ function TeamPage({
           <CompanySelect search={search} navigate={navigate} />
         </div>
       )}
-      {team.enabled && <TeamToolbar search={search} navigate={navigate} />}
+      {team.enabled && (
+        <TeamToolbar search={search} navigate={navigate} monthlyAvailable={Boolean(monthly)} />
+      )}
       {!team.enabled ? (
         <FeedbackState kind="empty">
           {admin
             ? 'Selecione uma empresa de homologação para consultar a equipe.'
             : 'O diretório de Equipe ainda está em homologação.'}
         </FeedbackState>
+      ) : search.view === teamViews.Monthly && monthly ? (
+        <TeamMonthly
+          key={`${team.companyId}:${search.month ?? team.month}`}
+          search={search}
+          navigate={navigate}
+        />
       ) : search.view !== teamViews.Directory ? (
         <TeamSupportingView team={team} search={search} navigate={navigate} />
       ) : (

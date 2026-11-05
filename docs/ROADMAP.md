@@ -183,7 +183,7 @@ Cada linha é uma entrega independente, incluindo contrato/adaptador real de tes
 | --- | --- | --- |
 | 2A — Empresa e acessos | 1; conta, adesão, convite e ciclo | Admin cadastra/acompanha empresa e acessos; Cliente entra no contexto correto; até quatro acessos equivalentes; sem principal; revogar um preserva demais; conta bloqueada não mantém acesso; aceite/privacidade versionados; perfil e retorno contextual necessários |
 | [2B — Equipe](contracts/TEAM_2B.md) | 2A; contratos de pessoas, privados e histórico | Cadastro/consulta/alteração/arquivamento e importação com prévia; todos os Clientes mantêm Equipe; Cliente/Admin informam/consultam privados permitidos; sem dados de outra empresa; ausentes no CSV não são desligados; datas efetivas, histórico e leitores coerentes |
-| 2C — Dados mensais e confirmação | 2B e períodos/métricas/revisão mensal | Pedido de dados aparece só ao Cliente; Cliente lança; correção posterior só Admin; confirmação e resumos consistentes; cenários vazios/retroativos e falhas; fórmulas oficiais preservadas; comunicação apenas conforme contrato definido |
+| [2C — Dados mensais e confirmação](contracts/TEAM_MONTHLY_2C.md) | 2B e períodos/métricas/revisão mensal | Pedido de dados aparece só ao Cliente; Cliente lança; correção posterior só Admin; confirmação e resumos consistentes; cenários vazios/retroativos e falhas; fórmulas oficiais preservadas; comunicação apenas conforme contrato definido |
 
 **Acompanhamento 2B — Equipe**
 
@@ -193,6 +193,14 @@ Cada linha é uma entrega independente, incluindo contrato/adaptador real de tes
 - [x] Validar Admin com MFA no navegador integrado. Confirmar seleção A/B, filtro de arquivados, abertura por teclado, recarga e restauração da seção ao voltar e avançar.
 - [x] Conferir Equipe com Cliente A autenticado no navegador integrado. Reativação, alteração, privados, recarga, estrutura, recusa de ficha B e arquivamento com trilha passaram no CALI MAPA.
 **Coleta real antes do lançamento.** Validar a informação de finalidade, necessidade e guarda antes de abrir a coleta de dados reais.
+
+**Acompanhamento 2C — Dados e confirmação mensais**
+
+- [x] Conferir catálogo ativo e referência 83. Registrar fronteiras, janela e DEC-05/10 no [contrato 2C](contracts/TEAM_MONTHLY_2C.md).
+- [x] Implementar leitura e primeiro lançamento Cliente, correção Admin, auditoria e proteção da escrita direta no piloto. SQL descartável e primeira rodada autenticada A/Admin passaram.
+- [ ] Implementar confirmação, snapshots e vagas com versão e transação.
+- [ ] Conectar pendência Cliente, métricas e indicadores essenciais preservando fórmulas.
+- [ ] Homologar A/B/Admin no navegador integrado e registrar testes focados, limites e rollback.
 
 **Frontend antes do lançamento.** A paridade visual do layout, navegação e Equipe por perfil com a publicação 83 permanece pendente. Felipe autorizou em 05/11 a continuidade da homologação funcional na composição simplificada. A substituição visual fica para a implementação do frontend final.
 

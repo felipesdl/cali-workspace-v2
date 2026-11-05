@@ -8,6 +8,7 @@ import { createQueryClient } from './api/query-client';
 import { createWorkspaceClient } from './api/supabase';
 import { createHostedAccessApi } from './api/modules/access/api';
 import { createHostedTeam } from './api/modules/team/hosted';
+import { createHostedTeamMonthly } from './api/modules/team/monthly';
 import { composeCompaniesService } from './api/modules/companies/api';
 import './styles/tokens.css';
 import './styles/tailwind.css';
@@ -50,7 +51,14 @@ try {
     undefined,
     cache,
     session,
-    access ? { access, companies: composeCompaniesService(client), team } : undefined,
+    access
+      ? {
+          access,
+          companies: composeCompaniesService(client),
+          team,
+          monthly: team && client ? createHostedTeamMonthly(client) : null,
+        }
+      : undefined,
   );
   root.render(
     <React.StrictMode>

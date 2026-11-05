@@ -11,6 +11,7 @@ export const teamViews = {
   Directory: 'directory',
   Structure: 'structure',
   History: 'history',
+  Monthly: 'monthly',
 } as const;
 
 export const teamSearchSchema = z.object({

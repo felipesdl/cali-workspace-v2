@@ -44,6 +44,8 @@ Cache é separado por ator/vínculo e eliminado/cancelado na troca de identidade
 
 ## Escopo confirmado
 
+Na 2C, o lançamento mensal usa totais de horas/ausências, quadro aprovado por departamento e resultados agregados de eNPS/clima. A tela orienta observações sem nomes ou dados individuais. Cliente consulta a própria empresa e faz o lançamento inicial; Admin com MFA corrige com motivo. A auditoria privada preserva preimagem e autoria. A projeção da trilha para a interface mostra revisão, instante e motivo. O piloto usa apenas dados sintéticos. [Contrato e limites](contracts/TEAM_MONTHLY_2C.md).
+
 Documentar por que cada dado é coletado, onde é utilizado, quem o recebe e como é tratado ao longo do ciclo de vida. A informação correspondente deve estar disponível ao usuário no acesso à plataforma, integrada aos textos de uso/privacidade e à validação da versão vigente. Não inventar finalidade, período de guarda ou validação já realizada.
 
 DEC-09 permite que Cliente e Admin informem/consultem os campos privados de Equipe, com Cliente limitado à própria empresa. Isso não torna esses campos públicos nem inclui automaticamente e-mail, PDF, log, notificação ou exportação geral. Cada projeção precisa declarar quais campos recebe.

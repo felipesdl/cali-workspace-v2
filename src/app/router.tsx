@@ -1,5 +1,6 @@
 import { teamSearchSchema } from '../api/modules/team/schemas';
 import { type TeamService } from '../api/modules/team/hosted';
+import { type TeamMonthlyService } from '../api/modules/team/monthly';
 import { type ReactElement } from 'react';
 import { ClientOverview } from '../features/client-account/ClientOverview';
 import { ClientCompanyPage } from '../features/client-account/ClientCompanyPage';
@@ -36,6 +37,7 @@ const rootRoute = createRootRouteWithContext<{
   access: HostedAccessApi | null;
   companies: CompaniesService;
   team?: TeamService | null;
+  monthly?: TeamMonthlyService | null;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -172,7 +174,12 @@ export function createAppRouter(
   history?: RouterHistory,
   queryClient = createQueryClient(),
   session: SessionController | null = null,
-  services?: { access: HostedAccessApi; companies: CompaniesService; team?: TeamService | null },
+  services?: {
+    access: HostedAccessApi;
+    companies: CompaniesService;
+    team?: TeamService | null;
+    monthly?: TeamMonthlyService | null;
+  },
 ) {
   return createRouter({
     routeTree,
@@ -183,6 +190,7 @@ export function createAppRouter(
       access: services?.access ?? null,
       companies: services?.companies ?? companiesService,
       team: services?.team ?? null,
+      monthly: services?.monthly ?? null,
     },
     defaultPreload: false,
   });
