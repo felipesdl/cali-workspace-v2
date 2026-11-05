@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 05/11/2026 — Continuidade funcional da 2B com composição simplificada
+
+- Felipe confirmou a continuidade dos testes com o layout simplificado. A implementação da paridade visual com a publicação 83 fica registrada para o frontend final, antes do lançamento. Os ajustes visuais iniciados nesta rodada foram retirados integralmente.
+- No Admin autenticado, o teclado nativo do campo de mês consultou outubro de 2026, mostrou histórico vazio e ausência de confirmação, e restaurou os movimentos ao retornar a novembro. Equipe Cliente A ainda depende de sessão no navegador integrado. [Evidência e limites](contracts/TEAM_2B.md).
+
 ## 05/11/2026 — Homologação Admin de Equipe no navegador integrado
 
 - Admin com MFA consultou dados privados sintéticos de B, cadastrou uma ficha em A e arquivou a ficha preservando a situação profissional. O filtro Arquivada localizou a ficha, a abertura por teclado funcionou e a recarga restaurou o detalhe. A troca para B limpou o detalhe de A. O histórico de B mostrou seus próprios movimentos, e Voltar/Avançar restaurou a seção.
