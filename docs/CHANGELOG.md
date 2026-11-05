@@ -3,7 +3,7 @@
 ## 04/11/2026 — Rota revogável para os PDFs de homologação
 
 - CALI MAPA recebeu a Edge `workspace-pilot-pdf` v1 com JWT obrigatório. A rota entrega só os dois PDFs sintéticos arquivados, com verificação de SHA-256, sessão, empresa e aceite antes de ler e antes de responder. A resposta usa `private, no-store`.
-- Quatro testes focados e a prova SQL descartável passaram. No destino, o preflight retornou 204 e a chamada sem sessão retornou 401. O catálogo confirmou as duas fixtures privadas e zero objetos nos caminhos antigos. A rodada autenticada antes/depois do corte ainda está pendente.
+- Quatro testes focados e a prova SQL descartável passaram. No destino, o preflight retornou 204 e a chamada sem sessão retornou 401. O catálogo confirmou as duas fixtures privadas e zero objetos nos caminhos antigos. Na rodada final, B recebeu 200 antes do corte e 403 com zero bytes na mesma sessão após o corte. A manteve 200 com SHA-256 confirmado. Os caminhos antigos recusaram novas requisições. B foi reautorizada e precisa de novo login. A 2A fecha no piloto A/B. A suíte Vitest passou com 216 testes em dois workers.
 - O rollback remove a RPC e faz a função recusar downloads. [Contrato e evidência](contracts/ACCESS_COMPANIES.md#download-de-homologação-revogável--0411).
 
 ## 04/11/2026 — Ficha Admin conectada e corte de arquivos A/B
