@@ -1,6 +1,6 @@
 # Plano de padronização por fluxos completos
 
-Atualização: 04/11/2026. **Fase 2A fechada no piloto A/B do CALI MAPA. Fase 1 segue em andamento no seu escopo global.** A V2 é a base do primeiro lançamento operacional. Patrícia confirmou que ainda não usa nenhuma versão e que os dados são de teste. A V1 publicada serve como referência em leitura e o backend usa fixtures conforme DEC-27. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é a referência funcional. As [regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
+Atualização: 05/11/2026. **Fases 2A e 2B funcionalmente fechadas no piloto A/B do CALI MAPA. Fase 1 segue em andamento no seu escopo global.** A V2 é a base do primeiro lançamento operacional. Patrícia confirmou que ainda não usa nenhuma versão e que os dados são de teste. A V1 publicada serve como referência em leitura e o backend usa fixtures conforme DEC-27. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é a referência funcional. As [regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
 
 Objetivo: padronizar todos os fluxos Cliente/Admin sem passar várias fases construindo camadas antes da primeira jornada utilizável. Cada entrega fecha uma tarefa com interface, dados, regra, autorização, histórico, falhas e comunicação quando aplicável. “Fluxo completo” é unidade de construção; não cria fluxo novo nem significa que toda tela dispara e-mail. Chat não gera e-mail. Produção, migrations e canais externos exigem escopo próprio.
 
@@ -18,7 +18,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | --- | --- | --- | --- |
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
 | 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; sessão/telas hospedadas e leitura real de empresas, aceite global pendente |
-| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A homologada no piloto A/B; 2B conectada e testada com Admin e Cliente B, com prova Cliente A pendente; composição simplificada autorizada para testes |
+| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A e 2B homologadas funcionalmente no piloto A/B; próxima entrega 2C; frontend final pendente |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
 | 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
@@ -191,8 +191,8 @@ Cada linha é uma entrega independente, incluindo contrato/adaptador real de tes
 - [x] Conectar diretório, estrutura, cadastro, edição, arquivamento, privados, prévia de importação e histórico no piloto A/B. Registrar SQL, rollback e testes focados na [ficha 2B](contracts/TEAM_2B.md).
 - [x] Exercitar o fluxo autenticado de Cliente B no navegador integrado. Confirmar persistência, dados privados, importação, ausentes e arquivamento. Validar equivalência e corte individual na cópia descartável.
 - [x] Validar Admin com MFA no navegador integrado. Confirmar seleção A/B, filtro de arquivados, abertura por teclado, recarga e restauração da seção ao voltar e avançar.
-- [ ] Conferir Equipe com Cliente A autenticado no navegador integrado.
-- [ ] Validar a informação de finalidade, necessidade e guarda antes de abrir a coleta de dados reais.
+- [x] Conferir Equipe com Cliente A autenticado no navegador integrado. Reativação, alteração, privados, recarga, estrutura, recusa de ficha B e arquivamento com trilha passaram no CALI MAPA.
+**Coleta real antes do lançamento.** Validar a informação de finalidade, necessidade e guarda antes de abrir a coleta de dados reais.
 
 **Frontend antes do lançamento.** A paridade visual do layout, navegação e Equipe por perfil com a publicação 83 permanece pendente. Felipe autorizou em 05/11 a continuidade da homologação funcional na composição simplificada. A substituição visual fica para a implementação do frontend final.
 
@@ -306,4 +306,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A tem cadastro e comprovação validados no CALI MAPA, com gestão de acesso ainda isolada. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A e a 2B têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A 2C segue como próxima entrega funcional. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).

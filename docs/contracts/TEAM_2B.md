@@ -24,7 +24,9 @@ As operações de Equipe não emitem convite, criam perfil Auth ou concedem logi
 
 ## Estado
 
-### Entregue na candidata e instalado para homologação
+Homologação funcional concluída no piloto A/B em 05/11/2026. Admin, Cliente A e Cliente B passaram nas jornadas autenticadas descritas abaixo. A interface simplificada foi autorizada para os testes. A paridade visual e a abertura para dados reais continuam como condições do primeiro lançamento.
+
+### Entregue e homologado no piloto
 
 - `/cliente/equipe` deriva a empresa da sessão. `/admin/equipe` oferece seleção explícita entre A/B. Diretório pagina 25 fichas, separa arquivadas e preserva filtro, página, mês e ficha na URL. Estrutura agrupa pessoas vigentes por departamento e gestor direto.
 - O [diretório](../../supabase/proposals/team-2b/directory.sql) e a [manutenção](../../supabase/proposals/team-2b/maintenance.sql) projetam os campos profissionais, registram movimentos no mês atual ou anterior de Brasília, preservam a preimagem e rejeitam gestores inválidos e ciclos. Arquivamento remove do quadro atual e preserva situação e histórico. Cadastro e importação não confirmam o mês.
@@ -42,7 +44,9 @@ Cliente B autenticado passou pelo fluxo no navegador integrado. Criou `QA-2B-B-0
 
 Admin autenticado com MFA selecionou A e B, consultou os dados privados sintéticos de B e cadastrou e arquivou `QA-2B-A-ADMIN` em A. Na rodada de 05/11, o filtro Arquivada localizou a ficha A. Enter abriu a ficha e a recarga preservou empresa, filtro e ficha. A troca para B limpou o detalhe de A. O histórico de B mostrou seus próprios movimentos, e Voltar/Avançar restaurou a seção da URL. A edição nativa do mês por teclado consultou outubro de 2026, mostrou ausência de movimentos e confirmação, e restaurou os movimentos ao retornar a novembro.
 
-Dois Clientes equivalentes da mesma empresa foram provados no PostgreSQL descartável. O segundo alterou a ficha e leu os dados privados. Após revogá-lo, a sessão antiga perdeu a leitura e o primeiro manteve a ficha atualizada. A rodada autenticada de Equipe no CALI MAPA cobre Admin e Cliente B. A prova de Equipe com Cliente A no navegador integrado permanece pendente.
+Cliente A autenticado no navegador integrado reativou `QA-2B-A-ADMIN`, alterou o cargo e gravou remuneração sintética com declaração de origem. A recarga preservou o cargo e o dado privado. A estrutura apresentou o vínculo no departamento correto. Ao receber na URL a empresa e a ficha sintéticas de B, a sessão continuou no contexto de A e retornou ficha indisponível. A ficha de A voltou a ser arquivada, mantendo situação ativa e a trilha de admissão, arquivamento e reativação. A consulta independente confirmou cadastro, valor privado e preimagem da reativação. As três fichas usadas na rodada A/B terminaram arquivadas.
+
+Dois Clientes equivalentes da mesma empresa foram provados no PostgreSQL descartável. O segundo alterou a ficha e leu os dados privados. Após revogá-lo, a sessão antiga perdeu a leitura e o primeiro manteve a ficha atualizada. A rodada autenticada de Equipe no CALI MAPA cobre Admin e Clientes A/B. A prova de dois Clientes da mesma empresa permanece restrita ao banco descartável.
 
 A composição atual serve à validação funcional. Em 05/11, Felipe confirmou a continuidade dos testes com essa interface simplificada e adiou sua substituição. A homologação funcional da 2B pode avançar nesse formato. A paridade visual continua obrigatória antes do lançamento, comparando navegação, layout e Equipe de cada perfil com a rota correspondente da publicação 83 e aplicando as diferenças de regra aprovadas. A interface final exige implementação e conferência próprias. A ampliação para dados reais exige validação do conteúdo de finalidade, necessidade e guarda no [inventário de privacidade](../DATA_PRIVACY.md).
 

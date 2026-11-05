@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 05/11/2026 — Fechamento funcional da 2B no piloto A/B
+
+- Cliente A autenticado no navegador integrado reativou e alterou a própria ficha, gravou dado privado sintético com declaração e confirmou a persistência após recarga. A estrutura apresentou o vínculo de A. Uma URL com a empresa e a ficha sintéticas de B preservou o contexto de A e retornou ficha indisponível.
+- A ficha A voltou a ser arquivada, com a situação profissional ativa e o histórico preservados. A consulta independente confirmou cargo, dado privado e preimagem de reativação. As três fichas sintéticas da rodada A/B terminaram arquivadas.
+- A homologação funcional da 2B fecha no piloto. Admin e Clientes A/B têm prova autenticada no CALI MAPA. Equivalência de dois Clientes da mesma empresa, corte individual e concorrência continuam sustentados pela cópia descartável. A composição simplificada segue autorizada para testes, com frontend final e validação para coleta real pendentes antes do lançamento. Próxima entrega funcional: 2C, dados e confirmação mensais. [Contrato e rollback](contracts/TEAM_2B.md).
+
 ## 05/11/2026 — Continuidade funcional da 2B com composição simplificada
 
 - Felipe confirmou a continuidade dos testes com o layout simplificado. A implementação da paridade visual com a publicação 83 fica registrada para o frontend final, antes do lançamento. Os ajustes visuais iniciados nesta rodada foram retirados integralmente.
