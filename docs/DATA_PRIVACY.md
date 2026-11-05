@@ -85,3 +85,9 @@ Aceite futuro: informação apresentada coincide com campo/uso; Cliente A não r
 A edição de teste no CALI MAPA é restrita a Admin com MFA e ao piloto A/B. Nome, cargo, e-mail, telefone, WhatsApp e aniversário identificam contato comercial. Ficam na ficha privada do Admin, separados de perfil, convite e termos. A auditoria registra a operação sem copiar valores do contato. A logo preparada no navegador vai para Storage privado. Trocar ou retirar o vínculo conserva o objeto. Usar somente dados sintéticos até a CALI validar a necessidade de cada campo, a informação ao contato e a guarda.
 
 B teve acesso ao PDF sintético recusado pela origem após o corte. Um caminho já usado ainda entregou bytes até o arquivamento privado das duas fixtures. O cache local já preenchido continuou disponível. Esta prova separa o acesso novo aos arquivos de cópias já recebidas. [Contrato e limite de liberação](contracts/ACCESS_COMPANIES.md#ficha-admin-e-corte-de-arquivos--0411).
+
+## Equipe 2B no piloto sintético
+
+O diretório, a estrutura e o histórico usam projeções profissionais. Remuneração, data de revisão salarial, gênero e informação de filhos são consultados somente após abrir a seção privada. O Cliente precisa de sessão vigente, aceite e vínculo com a empresa. Admin exige MFA. A escrita privada registra nomes dos campos alterados, sem copiar seus valores para a trilha. A prévia do CSV consulta a base profissional. Valores privados do arquivo só seguem na confirmação, com declaração de origem por linha. Células privadas vazias conservam o dado anterior.
+
+A prova do CALI MAPA usou fichas sintéticas, arquivadas após a rodada. Arquivar preserva dados e histórico. A CALI ainda precisa validar a finalidade, a necessidade de coleta e as regras de guarda para uso real. [Contrato de Equipe](contracts/TEAM_2B.md).

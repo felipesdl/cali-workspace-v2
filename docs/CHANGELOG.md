@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 04/11/2026 — Equipe conectada no piloto 2B
+
+- Cliente consulta e mantém Equipe da própria empresa. Admin escolhe A/B. A ficha inclui cadastro, edição, movimentação, arquivamento, privados em seção própria e importação com prévia. Estrutura e histórico usam os dados existentes, sem confirmar meses.
+- Dez RPCs V2 instaladas no CALI MAPA para homologação sintética A/B, com sessão e aceite e MFA para Admin. A prova SQL descartável confirmou isolamento, preimagem, declaração, arquivamento, preservação de snapshots e rollback atômico do CSV.
+- A interface foi exercitada no navegador integrado com transporte sintético, inclusive a prévia do CSV e o formulário a 390 px. No CALI MAPA, B gravou a ficha profissional e privada, importou o CSV com dado privado declarado e confirmou a persistência após recarga. As duas fichas sintéticas foram arquivadas. A cópia isolada confirmou dois Clientes equivalentes e corte individual. A rodada Admin autenticada continua pendente. [Plano, contrato e rollback](contracts/TEAM_2B.md).
+
 ## 04/11/2026 — Rota revogável para os PDFs de homologação
 
 - CALI MAPA recebeu a Edge `workspace-pilot-pdf` v1 com JWT obrigatório. A rota entrega só os dois PDFs sintéticos arquivados, com verificação de SHA-256, sessão, empresa e aceite antes de ler e antes de responder. A resposta usa `private, no-store`.

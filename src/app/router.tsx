@@ -1,3 +1,5 @@
+import { teamSearchSchema } from '../api/modules/team/schemas';
+import { type TeamService } from '../api/modules/team/hosted';
 import { type ReactElement } from 'react';
 import { ClientOverview } from '../features/client-account/ClientOverview';
 import { ClientCompanyPage } from '../features/client-account/ClientCompanyPage';
@@ -7,6 +9,7 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
   redirect,
   type RouterHistory,
@@ -32,6 +35,7 @@ const rootRoute = createRootRouteWithContext<{
   session: SessionController | null;
   access: HostedAccessApi | null;
   companies: CompaniesService;
+  team?: TeamService | null;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -101,7 +105,12 @@ const clientChildren = [
   clientChild('/', ClientOverview),
   clientAccountChild('empresa', ClientCompanyPage),
   clientAccountChild('termos', ClientTermsPage),
-  clientChild('equipe'),
+  createRoute({
+    getParentRoute: () => clientRoute,
+    path: 'equipe',
+    validateSearch: (search) => teamSearchSchema.parse(search),
+    component: lazyRouteComponent(() => import('../features/team/TeamPage'), 'ClientTeamPage'),
+  }),
   clientChild('horas'),
   clientChild('cronograma'),
   clientChild('registros'),
@@ -119,7 +128,12 @@ const adminChildren = [
   adminChild('documentos'),
   adminChild('relatorios'),
   adminChild('avisos'),
-  adminChild('equipe'),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'equipe',
+    validateSearch: (search) => teamSearchSchema.parse(search),
+    component: lazyRouteComponent(() => import('../features/team/TeamPage'), 'AdminTeamPage'),
+  }),
   adminChild('propostas'),
 ] as const;
 
@@ -158,7 +172,7 @@ export function createAppRouter(
   history?: RouterHistory,
   queryClient = createQueryClient(),
   session: SessionController | null = null,
-  services?: { access: HostedAccessApi; companies: CompaniesService },
+  services?: { access: HostedAccessApi; companies: CompaniesService; team?: TeamService | null },
 ) {
   return createRouter({
     routeTree,
@@ -168,6 +182,7 @@ export function createAppRouter(
       session,
       access: services?.access ?? null,
       companies: services?.companies ?? companiesService,
+      team: services?.team ?? null,
     },
     defaultPreload: false,
   });

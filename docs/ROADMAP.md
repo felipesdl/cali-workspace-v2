@@ -18,7 +18,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | --- | --- | --- | --- |
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
 | 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; sessão/telas hospedadas e leitura real de empresas, aceite global pendente |
-| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A homologada no piloto A/B do CALI MAPA; próxima entrega 2B — Equipe |
+| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A homologada no piloto A/B; 2B com Equipe conectada, aguardando QA autenticado |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
 | 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
@@ -182,8 +182,16 @@ Cada linha é uma entrega independente, incluindo contrato/adaptador real de tes
 | Entrega | Dependências | Conteúdo e aceite observável |
 | --- | --- | --- |
 | 2A — Empresa e acessos | 1; conta, adesão, convite e ciclo | Admin cadastra/acompanha empresa e acessos; Cliente entra no contexto correto; até quatro acessos equivalentes; sem principal; revogar um preserva demais; conta bloqueada não mantém acesso; aceite/privacidade versionados; perfil e retorno contextual necessários |
-| 2B — Equipe | 2A; contratos de pessoas, privados e histórico | Cadastro/consulta/alteração/arquivamento e importação com prévia; todos os Clientes mantêm Equipe; Cliente/Admin informam/consultam privados permitidos; sem dados de outra empresa; ausentes no CSV não são desligados; datas efetivas, histórico e leitores coerentes |
+| [2B — Equipe](contracts/TEAM_2B.md) | 2A; contratos de pessoas, privados e histórico | Cadastro/consulta/alteração/arquivamento e importação com prévia; todos os Clientes mantêm Equipe; Cliente/Admin informam/consultam privados permitidos; sem dados de outra empresa; ausentes no CSV não são desligados; datas efetivas, histórico e leitores coerentes |
 | 2C — Dados mensais e confirmação | 2B e períodos/métricas/revisão mensal | Pedido de dados aparece só ao Cliente; Cliente lança; correção posterior só Admin; confirmação e resumos consistentes; cenários vazios/retroativos e falhas; fórmulas oficiais preservadas; comunicação apenas conforme contrato definido |
+
+**Acompanhamento 2B — Equipe**
+
+- [x] Inventariar referência 83 e catálogo ativo. Separar Equipe da confirmação mensal.
+- [x] Conectar diretório, estrutura, cadastro, edição, arquivamento, privados, prévia de importação e histórico no piloto A/B. Registrar SQL, rollback e testes focados na [ficha 2B](contracts/TEAM_2B.md).
+- [x] Exercitar o fluxo autenticado de Cliente B no navegador integrado. Confirmar persistência, dados privados, importação, ausentes e arquivamento. Validar equivalência e corte individual na cópia descartável.
+- [ ] Concluir a rodada Admin autenticada no navegador integrado com seleção A/B.
+- [ ] Validar a informação de finalidade, necessidade e guarda antes de abrir a coleta de dados reais.
 
 DS, tabelas, campos, overlays, modelos/hooks e cache necessários são entregues junto dos consumidores. Declarar quem possui cada estado: URL para contexto compartilhável, local para transitório, cache para respostas remotas e context somente para responsabilidades realmente transversais. Views não importam SDK ou fixtures.
 

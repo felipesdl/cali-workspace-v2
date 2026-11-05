@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Link, useRouteContext } from '@tanstack/react-router';
+import { teamSearchSchema } from '../api/modules/team/schemas';
 import { Button } from '../components/ds/button/Button';
 import { useWorkspaceSession } from '../api/modules/access/hooks/useWorkspaceSession';
 
@@ -14,7 +15,7 @@ export function WorkspaceLayout({
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), [title]);
-  const { session } = useRouteContext({ from: '__root__' });
+  const { session, team } = useRouteContext({ from: '__root__' });
   const state = useWorkspaceSession();
   const admin = state.phase === 'resolved' && state.access.profile?.role === 'admin';
   return (
@@ -38,6 +39,15 @@ export function WorkspaceLayout({
               search={{ q: '', status: 'all' }}
             >
               Empresas e acessos
+            </Link>
+          )}
+          {admin && team && (
+            <Link
+              className="tw:text-brand tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+              to="/admin/equipe"
+              search={teamSearchSchema.parse({})}
+            >
+              Equipe
             </Link>
           )}
           <Button variant="secondary" onClick={() => void session?.signOut()}>

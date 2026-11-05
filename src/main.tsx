@@ -7,6 +7,7 @@ import { createSessionController } from './app/session/controller';
 import { createQueryClient } from './api/query-client';
 import { createWorkspaceClient } from './api/supabase';
 import { createHostedAccessApi } from './api/modules/access/api';
+import { createHostedTeam } from './api/modules/team/hosted';
 import { composeCompaniesService } from './api/modules/companies/api';
 import './styles/tokens.css';
 import './styles/tailwind.css';
@@ -38,11 +39,18 @@ try {
         )
       : null;
   const session = access ? createSessionController(access, cache) : null;
+  const team =
+    client &&
+    environment.mode === 'supabase' &&
+    import.meta.env.DEV &&
+    environment.url === 'https://kqtbfeeqbcllwvlkbrkq.supabase.co'
+      ? createHostedTeam(client)
+      : null;
   const router = createAppRouter(
     undefined,
     cache,
     session,
-    access ? { access, companies: composeCompaniesService(client) } : undefined,
+    access ? { access, companies: composeCompaniesService(client), team } : undefined,
   );
   root.render(
     <React.StrictMode>
