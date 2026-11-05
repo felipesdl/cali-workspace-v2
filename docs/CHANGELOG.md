@@ -1,5 +1,14 @@
 # Registro de mudanças
 
+
+## 05/11/2026 — Preparação local da agenda DISC autenticada
+
+- FLOW-17/3A: worker local distingue `action=scheduled` do processamento manual Admin. Agenda exige JWT de serviço exato e hook/flag privados, recusa Origin e campos externos de relógio/documento, mantendo JWT obrigatório no gateway. Rechecagem antes de reserva/envio e limite de cinco tarefas/45 segundos para iniciar reservas preservam desligamento e execução limitada.
+- Incremento `supabase/proposals/disc-3/scheduler.sql` lê JWT pelo Vault, agrupa despertares, preserva fila em falha de infraestrutura e aplica janela de dias úteis/8h–18h de Brasília na reserva e validação dos lembretes/avisos. Tentativas, lease, janela idempotente e recibos permanecem. Até vinte tarefas inelegíveis são descartadas por reserva, sem bloquear a próxima tarefa válida.
+- Ativação, desligamento e rollback separados em arquivos próprios. Nenhum segredo no SQL/cron/Git, nenhum grant novo ou aplicação hospedada. Rollback restaura definições anteriores e preserva registros/histórico; duas conexões provam reserva única por `SKIP LOCKED`.
+- `npm run verify` passou: **256 testes/38 arquivos**, formatação/lint/tipos/configuração, **35 documentos/811 links locais**, SPA e bundles autocontidos. Nova prova SQL descartável passou com **21 verificações**, incluindo duas conexões e rollback; a regressão SQL DISC existente passou uma vez. Transportes/Vault/cron desta prova são sintéticos; não certificam infraestrutura hospedada. Avisos conhecidos de chunk principal/anotações Rollup permanecem. CI remota não comprovada. Conferência documental após o registro final: 35 documentos/812 links válidos.
+- README, arquitetura, permissões, ficha de fluxo, [contrato](contracts/DISC_3.md), runbook e roadmap atualizados. Frontend não mudou. CALI MAPA permanece na versão 4, manual, `enabled=false` e sem cron DISC. Não houve conexão ao hospedado, SQL remoto, exportação, deploy ou envio neste lote; bateria suspensa intocada. Aplicação/ativação continuam sujeitas ao preflight e gate DEC-28 separados.
+
 ## 05/11/2026 — Publicação restrita do PDF DISC, sem alteração do banco
 
 - Após esclarecer que o banco atual seguirá destinado a staging, Felipe autorizou somente a revisão do gerador de PDF. Deploy separado da execução de backup/ambientes e registrado como exceção específica na DEC-28. Nenhuma exportação do banco, migration, mudança de permissões ou escrita de dados foi executada nesta rodada.

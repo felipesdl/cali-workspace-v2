@@ -1,6 +1,7 @@
 import { normalizeDiscImage } from '../_shared/disc-image.ts';
 import { z } from 'zod';
 import { createDiscHandler, discDocumentSchema, discJobSchema } from './handler.ts';
+import { matchesSchedulerBearer } from './scheduler-auth.ts';
 
 declare const Deno: {
   env: { get: (name: string) => string | undefined };
@@ -39,6 +40,7 @@ function base64(bytes: Uint8Array) {
 }
 Deno.serve(
   createDiscHandler({
+    authorizeScheduler: (authorization) => matchesSchedulerBearer(authorization, privateKey),
     async authorize(authorization) {
       try {
         await rpc('v2_disc_admin', { p_campaign: null }, authorization, publicKey);

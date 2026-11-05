@@ -216,3 +216,5 @@ ClientEntry escolhe composição pela existência do controller de sessão; Conn
 ## DISC V2
 
 `api/modules/disc` concentra schemas/services/hooks; features separam questionário público, avaliador Admin e gestão. O conteúdo narrativo e renderer PDF são exclusivos do servidor. `cali_v2_disc` guarda campanhas, respostas, fila, eventos e revisões congeladas, com wrappers por público. O worker autenticado constrói anexos em memória e revalida documento antes da resposta; WebP usa WASM incorporado. `pdf-lib` 1.17.1 e `@jsquash/webp` 1.5.0 atendem geração de PDF e compatibilidade da foto já existente; não trocam stack da SPA. [Contrato](contracts/DISC_3.md).
+
+A preparação local de agenda usa `pg_cron` para chamar `kick()` e `pg_net` para transporte fixo ao worker. Vault fornece o JWT de serviço; hook privado e flag controlam a autorização de execução. Despertares são agrupados em intervalo mínimo de um minuto; reserva usa `SKIP LOCKED`, tentativas e idempotência já existentes. Relógio ajustável existe somente em função privada para provas descartáveis. Não há componente, contexto ou acesso do frontend a credenciais da agenda. O incremento permanece fora do hospedado.

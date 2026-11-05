@@ -214,3 +214,5 @@ A [2C](contracts/TEAM_MONTHLY_2C.md) tem contrato e prova próprios, sem ampliar
 ## DISC V2 — piloto de 05/11/2026
 
 Os wrappers `v2_disc_admin/command/document` exigem Admin com MFA e aceite para operações internas. `v2_disc_client` deriva empresa da sessão e retorna somente gestão aprovada/liberada. `v2_disc_document` permite ao Cliente somente essa mesma gestão; resultado individual exige Admin. `v2_disc_public` recebe capacidade do convite e retorna contexto/participação, nunca resultado. `v2_disc_worker` é exclusivo do papel servidor. O schema privado não concede leitura direta a anon/authenticated/service_role. [Contrato, provas e limites](contracts/DISC_3.md).
+
+Preparação local do agendamento: `action=scheduled` exige JWT de serviço exato do worker e hook privado com `config.enabled=true`; rejeita Origin de navegador e parâmetros de documento/relógio. `verify_jwt=true` permanece obrigatório no gateway. O segredo é lido do Vault pelo banco, sem novo grant na API. `worker_at` e seu relógio de teste permanecem privados; a RPC usa o relógio do servidor. Esse incremento não foi aplicado/publicado no CALI MAPA.

@@ -26,7 +26,7 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 - Escopo confirmado: padronizar todos os fluxos de Cliente e Admin e consolidar identidade bordô, marfim e dourado.
 - O código de `patricia258/app.cali` foi consultado somente em leitura como referência de contratos. Não é o destino da refatoração.
 
-O [contrato DISC](docs/contracts/DISC_3.md) distingue implementação local, worker hospedado versão 4, provas sintéticas e agenda pendente. O processamento de envios é manual e restrito; nenhum cron novo DISC está ativo.
+O [contrato DISC](docs/contracts/DISC_3.md) distingue implementação local, worker hospedado versão 4, provas sintéticas e agenda pendente. O disparo agendado autenticado tem código, incremento SQL e rollback testados localmente; aplicação e ativação hospedadas continuam separadas. O processamento de envios é manual e restrito; nenhum cron novo DISC está ativo.
 
 ## Executar
 

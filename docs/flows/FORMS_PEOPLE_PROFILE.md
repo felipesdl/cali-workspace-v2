@@ -60,4 +60,4 @@ Aceite proposto: Cliente não lista respostas gerais Forms; slug fechado; tipos/
 
 ## Implementação V2 em 05/11/2026
 
-DISC possui domínio privado separado, wrappers por público, questionário, avaliador e gestão conectados no piloto. A prova hospedada e os testes descartáveis estão no [contrato DISC](../contracts/DISC_3.md). A exposição individual legada foi evitada por isolamento de tabelas/tokens, sem alterar o leitor da V1. Cadência automática está desligada; revisão final do PDF ainda depende de deploy autorizado. Forms/Mapa continuam na fase 4E.
+DISC possui domínio privado separado, wrappers por público, questionário, avaliador e gestão conectados no piloto. A prova hospedada e os testes descartáveis estão no [contrato DISC](../contracts/DISC_3.md). A exposição individual legada foi evitada por isolamento de tabelas/tokens, sem alterar o leitor da V1. PDF versão 4 foi publicado por autorização específica. A agenda autenticada tem preparação e provas locais; aplicação/ativação hospedadas continuam pendentes, com cadência automática desligada. Forms/Mapa continuam na fase 4E.

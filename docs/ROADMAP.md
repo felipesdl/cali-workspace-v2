@@ -250,7 +250,8 @@ DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciênci
 3A/3B/3C têm código, contratos e provas sintéticas. Questionário completo, PDF individual aceito pelo provedor, avaliador Admin, gestão liberada somente a A e PDF privado foram exercitados. Limiar 4/5/14/15, rejeições, replay e histórico têm prova SQL descartável. [Evidências e limites](contracts/DISC_3.md).
 
 - [x] Publicar revisão do worker de PDF após autorização explícita: versão 4 ativa, JWT obrigatório, código publicado conferido e catálogo inalterado.
-- [ ] Definir e autorizar ativação do agendamento autenticado; nenhum cron/automação está ativo.
+- [x] Implementar e testar localmente agenda autenticada, janela de envio/retentativa, concorrência, desligamento e rollback, sem alterar o hospedado.
+- [ ] Aplicar incremento SQL e worker compatível após preflight/gate DEC-28; configurar Vault e autorizar ativação do cron restrito. Nenhum cron/automação DISC está ativo.
 - [ ] Validar textos/finalidade/guarda para coleta real e paridade visual antes do lançamento.
 
 Esses itens impedem declarar a fase 3 pronta para operação real. Não reabrem a bateria suspensa nem exigem repetir a homologação completa.

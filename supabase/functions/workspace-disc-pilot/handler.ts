@@ -87,8 +87,8 @@ const jobSchema = z.object({
   }),
   respondent: individualSchema.nullable(),
 });
-const commandSchema = z.object({
-  action: z.literal('document').optional(),
+const commandSchema = z.strictObject({
+  action: z.enum(['document', 'scheduled']).optional(),
   campaignId: z.uuid().nullable().optional(),
   resultId: z.uuid().nullable().optional(),
 });
@@ -104,6 +104,7 @@ const baseHeaders = {
 };
 export type DiscWorkerPorts = {
   authorize: (authorization: string) => Promise<boolean>;
+  authorizeScheduler: (authorization: string) => Promise<boolean>;
   authorizeHook: (secret: string) => Promise<boolean>;
   document: (
     authorization: string,
@@ -176,13 +177,18 @@ export function createDiscHandler(ports: DiscWorkerPorts) {
     if (request.method !== 'POST') return json({ error: 'Método indisponível.' }, 405);
     const authorization = request.headers.get('Authorization') ?? '';
     const hook = request.headers.get('x-cali-disc-hook') ?? '';
-    if (!authorization.startsWith('Bearer ') && !hook)
-      return json({ error: 'Sessão necessária.' }, 401);
+    if (!authorization.startsWith('Bearer ')) return json({ error: 'Sessão necessária.' }, 401);
     try {
       const raw = await request.text();
       if (raw.length > 2000) return json({ error: 'Pedido excede o limite.' }, 400);
       const parsed = commandSchema.safeParse(JSON.parse(raw || '{}'));
       if (!parsed.success) return json({ error: 'Pedido inválido.' }, 400);
+      const scheduled = parsed.data.action === 'scheduled';
+      if (
+        scheduled &&
+        (origin || parsed.data.campaignId !== undefined || parsed.data.resultId !== undefined)
+      )
+        return json({ error: 'Pedido de agenda inválido.' }, 403);
       if (parsed.data.action === 'document') {
         if (!authorization.startsWith('Bearer ')) return json({ error: 'Sessão necessária.' }, 401);
         const doc = documentSchema.parse(
@@ -213,15 +219,21 @@ export function createDiscHandler(ports: DiscWorkerPorts) {
           },
         });
       }
-      if (
-        !(authorization.startsWith('Bearer ')
-          ? await ports.authorize(authorization)
-          : await ports.authorizeHook(hook))
-      )
+      if (scheduled) {
+        if (
+          !hook ||
+          !(await ports.authorizeScheduler(authorization)) ||
+          !(await ports.authorizeHook(hook))
+        )
+          return json({ error: 'Agenda sem autorização vigente.' }, 403);
+      } else if (!(await ports.authorize(authorization))) {
         return json({ error: 'Admin com MFA e aceite vigente necessário.' }, 403);
+      }
       let processed = 0,
         failed = 0;
-      for (let index = 0; index < 5; index++) {
+      const startedAt = Date.now();
+      for (let index = 0; index < 5 && Date.now() - startedAt < 45000; index++) {
+        if (scheduled && !(await ports.authorizeHook(hook))) break;
         const claimed = await ports.claim();
         if (!claimed) break;
         const job = jobSchema.parse(claimed);
@@ -263,6 +275,8 @@ export function createDiscHandler(ports: DiscWorkerPorts) {
                 : `Participações pendentes: ${job.payload.pending}.`,
           });
           if (!(await ports.validate(job.id))) throw new Error('Contexto do envio alterado.');
+          if (scheduled && !(await ports.authorizeHook(hook)))
+            throw new Error('Agenda desativada durante o processamento.');
           const providerId = await ports.send({
             ...email,
             to: job.recipient,

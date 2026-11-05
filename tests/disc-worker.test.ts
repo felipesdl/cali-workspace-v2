@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { PDFDocument } from 'pdf-lib';
 import { readFile } from 'node:fs/promises';
 import { normalizeDiscImage } from '../supabase/functions/_shared/disc-image';
+import { matchesSchedulerBearer } from '../supabase/functions/workspace-disc-pilot/scheduler-auth';
 import {
   createDiscHandler,
   discDocumentSchema,
@@ -13,6 +14,7 @@ import {
 function fixture() {
   const ports: DiscWorkerPorts = {
     authorize: vi.fn(async () => true),
+    authorizeScheduler: vi.fn(async () => false),
     authorizeHook: vi.fn(async () => false),
     document: vi.fn(async () => {
       throw new Error('Não autorizado');
@@ -35,6 +37,116 @@ const request = (
     body: JSON.stringify(body),
   });
 describe('worker DISC por público e confirmação do provedor', () => {
+  it('exige o JWT de serviço exato, sem aceitar chave sb_secret ou token de sessão', async () => {
+    expect(
+      await matchesSchedulerBearer('Bearer machine.payload.signature', 'machine.payload.signature'),
+    ).toBe(true);
+    expect(
+      await matchesSchedulerBearer('Bearer user.payload.signature', 'machine.payload.signature'),
+    ).toBe(false);
+    expect(await matchesSchedulerBearer('Bearer sb_secret_fixture', 'sb_secret_fixture')).toBe(
+      false,
+    );
+    expect(
+      await matchesSchedulerBearer('machine.payload.signature', 'machine.payload.signature'),
+    ).toBe(false);
+  });
+
+  it('separa agenda da sessão Admin, exige hook vigente e recusa origem do navegador', async () => {
+    const { ports, handler } = fixture();
+    const headers = {
+      Authorization: 'Bearer machine.payload.signature',
+      'x-cali-disc-hook': 'synthetic-hook',
+    };
+    expect((await handler(request({ action: 'scheduled' }, headers))).status).toBe(403);
+    vi.mocked(ports.authorizeScheduler).mockResolvedValue(true);
+    expect((await handler(request({ action: 'scheduled' }, headers))).status).toBe(403);
+    vi.mocked(ports.authorizeHook).mockResolvedValue(true);
+    expect(
+      (
+        await handler(
+          request({ action: 'scheduled' }, { ...headers, Origin: 'http://127.0.0.1:5173' }),
+        )
+      ).status,
+    ).toBe(403);
+    expect(
+      (await handler(request({ action: 'scheduled', campaignId: null }, headers))).status,
+    ).toBe(403);
+    expect(
+      (await handler(request({ action: 'scheduled', now: '2026-11-05' }, headers))).status,
+    ).toBe(400);
+    expect(ports.claim).not.toHaveBeenCalled();
+    expect(ports.authorize).not.toHaveBeenCalled();
+    expect(await (await handler(request({ action: 'scheduled' }, headers))).json()).toEqual({
+      processed: 0,
+      failed: 0,
+    });
+  });
+
+  it('desativação entre reserva e envio impede chamada ao provedor', async () => {
+    const { ports, handler } = fixture();
+    vi.mocked(ports.authorizeScheduler).mockResolvedValue(true);
+    vi.mocked(ports.authorizeHook)
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(true)
+      .mockResolvedValue(false);
+    vi.mocked(ports.claim).mockResolvedValueOnce(scheduledInvite());
+    const response = await handler(
+      request(
+        { action: 'scheduled' },
+        {
+          Authorization: 'Bearer machine.payload.signature',
+          'x-cali-disc-hook': 'synthetic-hook',
+        },
+      ),
+    );
+    expect(await response.json()).toEqual({ processed: 0, failed: 1 });
+    expect(ports.send).not.toHaveBeenCalled();
+    expect(ports.record).toHaveBeenCalledWith(
+      scheduledInvite().id,
+      'failed',
+      expect.objectContaining({ error: expect.any(String) }),
+    );
+  });
+
+  it('entrega agendada mantém chave de tarefa e encerra lote no orçamento de tempo', async () => {
+    const { ports, handler } = fixture();
+    let now = 0;
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => now);
+    vi.mocked(ports.authorizeScheduler).mockResolvedValue(true);
+    vi.mocked(ports.authorizeHook).mockResolvedValue(true);
+    vi.mocked(ports.claim).mockResolvedValue(scheduledInvite());
+    vi.mocked(ports.send).mockImplementation(async () => {
+      now = 60000;
+      return 'provider-qa';
+    });
+    try {
+      expect(
+        await (
+          await handler(
+            request(
+              { action: 'scheduled' },
+              {
+                Authorization: 'Bearer machine.payload.signature',
+                'x-cali-disc-hook': 'synthetic-hook',
+              },
+            ),
+          )
+        ).json(),
+      ).toEqual({ processed: 1, failed: 0 });
+      expect(ports.claim).toHaveBeenCalledTimes(1);
+      expect(ports.send).toHaveBeenCalledWith(
+        expect.objectContaining({ key: `cali-disc-${scheduledInvite().id}` }),
+      );
+      expect(ports.record).toHaveBeenCalledWith(scheduledInvite().id, 'sent', {
+        providerId: 'provider-qa',
+      });
+      expect(ports.authorize).not.toHaveBeenCalled();
+    } finally {
+      clock.mockRestore();
+    }
+  });
+
   it('recusa acesso anônimo e Admin não autorizado sem reservar envios', async () => {
     const { ports, handler } = fixture();
     expect(
@@ -178,3 +290,19 @@ describe('worker DISC por público e confirmação do provedor', () => {
     ).toBe(403);
   });
 });
+
+function scheduledInvite() {
+  return discJobSchema.parse({
+    id: '00000000-0000-4000-8000-000000000001',
+    kind: 'invite',
+    recipient: 'qa@synthetic.invalid',
+    title: '[TESTE V2] Agenda',
+    organization: 'Empresa sintética',
+    name: 'Pessoa sintética',
+    token: '00000000-0000-4000-8000-000000000002',
+    deadline: '2026-11-12T02:59:00Z',
+    created_at: '2026-11-05T12:00:00Z',
+    payload: {},
+    respondent: null,
+  });
+}
