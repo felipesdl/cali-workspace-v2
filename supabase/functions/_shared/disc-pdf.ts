@@ -217,6 +217,11 @@ class DiscPdfWriter {
     this.ensureSpace(height);
   }
 
+  space(height: number): void {
+    this.ensureSpace(height);
+    this.y -= height;
+  }
+
   text(
     value: string,
     options: {
@@ -390,11 +395,8 @@ async function drawProvidedImage(
 async function drawSignature(writer: DiscPdfWriter, input: DiscPdfInput): Promise<void> {
   const signer = input.signer;
   if (!signer?.full_name) return;
+  writer.reserve(130);
   writer.heading('Assinatura responsável', 'section');
-  const page = writer.currentPage;
-  const blockY = writer.currentY - 51;
-  await drawProvidedImage(writer.document, page, input.avatar, LEFT, blockY - 6, 42, 42);
-  await drawProvidedImage(writer.document, page, input.signature, LEFT + 52, blockY + 3, 122, 33);
   writer.text(signer.full_name, { size: 10, font: writer.fonts.bold, gap: 2 });
   writer.text(`${signer.job_title?.trim() || 'Responsável técnica'} · CALI RH`, {
     size: 9,
@@ -408,6 +410,22 @@ async function drawSignature(writer: DiscPdfWriter, input: DiscPdfInput): Promis
       color: MUTED,
       gap: 4,
     });
+  if (input.avatar || input.signature) {
+    writer.reserve(54);
+    const page = writer.currentPage;
+    const imageTop = writer.currentY;
+    await drawProvidedImage(writer.document, page, input.avatar, LEFT, imageTop - 42, 42, 42);
+    await drawProvidedImage(
+      writer.document,
+      page,
+      input.signature,
+      input.avatar ? LEFT + 54 : LEFT,
+      imageTop - 33,
+      122,
+      33,
+    );
+    writer.space(54);
+  }
 }
 
 function drawCover(writer: DiscPdfWriter, input: DiscPdfInput, subtitle: string): void {

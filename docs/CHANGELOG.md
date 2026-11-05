@@ -1,5 +1,12 @@
 # Registro de mudanças
 
+## 05/11/2026 — Publicação restrita do PDF DISC, sem alteração do banco
+
+- Após esclarecer que o banco atual seguirá destinado a staging, Felipe autorizou somente a revisão do gerador de PDF. Deploy separado da execução de backup/ambientes e registrado como exceção específica na DEC-28. Nenhuma exportação do banco, migration, mudança de permissões ou escrita de dados foi executada nesta rodada.
+- A versão 3 publicou os recortes quantitativos e a versão 4 corrigiu sobreposição da foto no texto da assinatura encontrada na inspeção visual. A regressão com foto sintética falhou no código anterior e passou com a área reservada. `npm run verify` passou com **252 testes/38 arquivos**, além de formatação/lint/tipos/configuração/links e builds.
+- Função `workspace-disc-pilot` confirmada **v4 ACTIVE**, JWT obrigatório e agenda desligada. Conferência remota confirmou bundle idêntico ao testado; hashes de funções, policies, triggers e relações/ACL permaneceram iguais antes/depois. Fontes e metadados anteriores preservados para rollback fora do Git.
+- Admin autenticado baixou relatório qualitativo existente sem mudar aprovação/liberação. Render Poppler conferido: A4, uma página, assinatura/foto legíveis sem sobreposição. Agregados quantitativos têm prova local de renderer/handler; não houve nova rodada quantitativa hospedada porque o relatório de A continua retirado. Nenhum envio ou retomada da bateria suspensa. [Provas e limites](contracts/DISC_3.md#publicação-restrita-do-pdf--05112026).
+
 ## 05/11/2026 — Plano de recuperação e staging/produção aprovado
 
 - Felipe aprovou DEC-28: antecipar preservação do estado atual e ensaio de restauração, consolidar baseline/migrations e planejar CALI MAPA como staging, com produção em projeto separado e sem fixtures. Próximas migrations, alterações de permissões e deploys hospedados dependem da recuperação comprovada; trabalho local independente continua.

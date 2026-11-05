@@ -7,7 +7,7 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 ## Estado atual — 05/11/2026
 
 - DEC-28 antecipa preservação do banco/Storage e teste de restauração antes das próximas migrations, alterações de permissões e deploys hospedados. CALI MAPA será staging; produção será outro projeto, criado com baseline/migrations validadas e sem fixtures. Backup anterior não está comprovado; separação ainda não executada. [Plano e critérios](docs/RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
-- A 2A, a 2B e a 2C estão homologadas funcionalmente no piloto sintético A/B do CALI MAPA. A fase 1 continua em andamento no escopo global. A fase 3, perfil comportamental DISC, foi implementada no piloto; revisão final do worker, agendamento autenticado e aceite para coleta real continuam pendentes. [Estado por fase](docs/ROADMAP.md).
+- A 2A, a 2B e a 2C estão homologadas funcionalmente no piloto sintético A/B do CALI MAPA. A fase 1 continua em andamento no escopo global. A fase 3, perfil comportamental DISC, foi implementada no piloto, com worker PDF versão 4 publicado por autorização específica. Agendamento autenticado e aceite para coleta real continuam pendentes. [Estado por fase](docs/ROADMAP.md).
 - Cliente conectado usa Início, Minha empresa, Termos e privacidade, Equipe e gestão DISC liberada. Equipe deriva a empresa da sessão e permite cadastro, edição, arquivamento, privados com declaração, importação CSV com prévia, estrutura e histórico. Demais módulos conectados apresentam sua preparação. A composição simplificada foi autorizada para os testes. A paridade visual com a publicação 83 será implementada e validada no frontend final antes do lançamento.
 - Admin conectado mantém Empresas e acessos, seleciona A/B em Equipe e administra campanhas/avaliador/gestão DISC, com MFA. O piloto validou cadastro, comprovação por versão documental, ficha administrativa, convites individuais e transições do ciclo. O limite de quatro vagas sob concorrência foi comprovado na cópia descartável. As referências e limitações ficam nos [contratos de empresas/acesso](docs/contracts/ACCESS_COMPANIES.md) e [Equipe](docs/contracts/TEAM_2B.md).
 - Dados mensais estão conectados no piloto: primeiro lançamento Cliente, correção Admin com motivo, confirmação/reconfirmação, vagas e indicadores essenciais de até 12 referências. A pendência no Início é exclusiva do Cliente, sem ativar e-mail. [Contrato mensal](docs/contracts/TEAM_MONTHLY_2C.md).
@@ -26,7 +26,7 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 - Escopo confirmado: padronizar todos os fluxos de Cliente e Admin e consolidar identidade bordô, marfim e dourado.
 - O código de `patricia258/app.cali` foi consultado somente em leitura como referência de contratos. Não é o destino da refatoração.
 
-O [contrato DISC](docs/contracts/DISC_3.md) distingue implementação local, worker hospedado versão 2, provas sintéticas e ativação pendente. O processamento de envios é manual e restrito; nenhum cron novo DISC está ativo.
+O [contrato DISC](docs/contracts/DISC_3.md) distingue implementação local, worker hospedado versão 4, provas sintéticas e agenda pendente. O processamento de envios é manual e restrito; nenhum cron novo DISC está ativo.
 
 ## Executar
 

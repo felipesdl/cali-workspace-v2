@@ -61,6 +61,70 @@ function baseInput(audience: DiscPdfInput['audience']): DiscPdfInput {
 }
 
 describe('artefatos DISC de homologação', () => {
+  it('preserva área da foto sem sobrepor nome, cargo ou registro de assinatura', async () => {
+    const avatar = new Uint8Array(
+      await readFile(new URL('./fixtures/disc-signature-photo.png', import.meta.url)),
+    );
+    const images: Array<{ page: PDFPage; x: number; y: number; width: number; height: number }> =
+      [];
+    const lines: Array<{ page: PDFPage; text: string; x: number; y: number; size: number }> = [];
+    const drawImage = PDFPage.prototype.drawImage;
+    const drawText = PDFPage.prototype.drawText;
+    const imageSpy = vi.spyOn(PDFPage.prototype, 'drawImage').mockImplementation(function (
+      this: PDFPage,
+      image,
+      options,
+    ) {
+      images.push({
+        page: this,
+        x: options?.x ?? 0,
+        y: options?.y ?? 0,
+        width: options?.width ?? image.width,
+        height: options?.height ?? image.height,
+      });
+      return drawImage.call(this, image, options);
+    });
+    const textSpy = vi.spyOn(PDFPage.prototype, 'drawText').mockImplementation(function (
+      this: PDFPage,
+      text,
+      options,
+    ) {
+      lines.push({
+        page: this,
+        text,
+        x: options?.x ?? 0,
+        y: options?.y ?? 0,
+        size: options?.size ?? 11,
+      });
+      return drawText.call(this, text, options);
+    });
+    try {
+      await createDiscPdf({
+        ...baseInput('management'),
+        mode: 'qualitative',
+        sampleSize: null,
+        avatar,
+        signer: { full_name: 'Responsável sintética', job_title: 'Cargo sintético' },
+      });
+      expect(images).toHaveLength(1);
+      const photo = images[0];
+      const signatureLines = lines.filter((line) =>
+        /Responsável sintética|Cargo sintético|registrada para esta revisão/.test(line.text),
+      );
+      expect(signatureLines).toHaveLength(3);
+      for (const line of signatureLines) {
+        if (line.page !== photo.page || line.x >= photo.x + photo.width) continue;
+        expect(
+          photo.y + photo.height <= line.y - line.size * 0.3 || photo.y >= line.y + line.size,
+        ).toBe(true);
+      }
+      expect(photo.y).toBeGreaterThan(67);
+    } finally {
+      imageSpy.mockRestore();
+      textSpy.mockRestore();
+    }
+  });
+
   it('converte fixture WebP sintética em PNG com dimensões válidas', async () => {
     const webp = new Uint8Array(
       await readFile(new URL('./fixtures/disc-synthetic.webp', import.meta.url)),

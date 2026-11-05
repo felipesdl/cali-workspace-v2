@@ -22,7 +22,7 @@ DEC-28, aprovada em 05/11/2026, antecipa a preservação e a prova de restauraç
 - [ ] Formalizar CALI MAPA como staging e preparar projeto de produção separado, sem fixtures, com configuração, Auth, Storage, funções, segredos e canais próprios; conferir recursos/custos antes de provisionar.
 - [ ] Definir promoção staging/produção por commit e migration, backups, rollback e autorização de lançamento.
 
-Plano registrado não significa backup, restauração ou novos ambientes executados. A revisão final do worker DISC e sua agenda continuam pendentes; esta decisão não autoriza seu deploy.
+Plano registrado não significa backup, restauração ou novos ambientes executados. O worker PDF DISC foi atualizado posteriormente por autorização específica de Felipe, separada deste plano de banco. A agenda permanece pendente; não há autorização implícita de migrations ou produção.
 
 ## Fases e dependências
 
@@ -234,7 +234,7 @@ DS, tabelas, campos, overlays, modelos/hooks e cache necessários são entregues
 
 DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciência Cliente: DEC-12 continua vigente. Todo envio real externo usa apenas destino de teste autorizado; cenário simulado não certifica entrega. Canais não usados pela operação não são acrescentados para preencher checklist.
 
-**Gates de operação real:** revisão final do worker, ativação de agenda autenticada, textos/finalidade/guarda e frontend final. Contratos de projeção/token, liberação e assinatura/protocolo estão implementados e testados no piloto. Método de cálculo existente é preservado, sem novo algoritmo de avaliação. Não certificar validade científica nesta padronização.
+**Gates de operação real:** ativação de agenda autenticada, textos/finalidade/guarda e frontend final. A revisão do worker PDF foi publicada por autorização específica em 05/11. Contratos de projeção/token, liberação e assinatura/protocolo estão implementados e testados no piloto. Método de cálculo existente é preservado, sem novo algoritmo de avaliação. Não certificar validade científica nesta padronização.
 
 **Execução de 05/11:** Felipe autorizou 3A, 3B e 3C em conjunto. [Plano, inventário e contrato](contracts/DISC_3.md). Investigações e interfaces independentes seguem em paralelo; banco, aprovação e entrega seguem suas dependências.
 
@@ -249,7 +249,7 @@ DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciênci
 
 3A/3B/3C têm código, contratos e provas sintéticas. Questionário completo, PDF individual aceito pelo provedor, avaliador Admin, gestão liberada somente a A e PDF privado foram exercitados. Limiar 4/5/14/15, rejeições, replay e histórico têm prova SQL descartável. [Evidências e limites](contracts/DISC_3.md).
 
-- [ ] Autorizar/aplicar revisão final do worker de PDF: deploy recusado pela revisão automática; versão 2 com JWT permanece ativa.
+- [x] Publicar revisão do worker de PDF após autorização explícita: versão 4 ativa, JWT obrigatório, código publicado conferido e catálogo inalterado.
 - [ ] Definir e autorizar ativação do agendamento autenticado; nenhum cron/automação está ativo.
 - [ ] Validar textos/finalidade/guarda para coleta real e paridade visual antes do lançamento.
 
