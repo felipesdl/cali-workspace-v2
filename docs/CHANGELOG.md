@@ -3,7 +3,9 @@
 ## 04/11/2026 — Homologação do convite temporário A2
 
 - Publicada a versão 3 da função `workspace-access-pilot` no CALI MAPA com verificação de JWT preservada. A flag de provisionamento foi ativada para uma lista com um único destinatário aprovado na empresa sintética A. O Admin reservou a vaga A2, que ficou aguardando primeiro acesso.
-- A tela de acesso passou a oferecer saída quando a sessão está bloqueada e o backend já retirou o perfil. A correção foi verificada no navegador e no teste de regressão. O primeiro login, a revogação e a retirada do destinatário temporário seguem pendentes.
+- A tela de acesso passou a oferecer saída quando a sessão está bloqueada e o backend já retirou o perfil. A correção foi verificada no navegador e em oito testes focados.
+- A2 entrou pela primeira vez, aceitou os termos e abriu a empresa A. A1 abriu a mesma empresa em uma sessão separada. Revogar A2 bloqueou sua aba após recarga. A1 continuou consultando a empresa e o banco confirmou sessões válidas de A1 e B.
+- A conta temporária, o perfil, o convite, a reserva e a permissão do destinatário foram removidos. A consulta posterior confirmou zero registros desses tipos para A2 e duas matrículas originais. A flag de provisionamento foi desligada. Arquivos e cache após o corte seguem pendentes.
 
 ## 04/11/2026 — Cadastro conectado e preparação do primeiro convite
 

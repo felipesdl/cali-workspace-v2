@@ -98,7 +98,9 @@ O [SQL de reservas](../supabase/proposals/hosted-access-pilot/provision-invites.
 
 Para a homologação, conferir um novo e-mail de teste e vincular a aprovação somente à empresa escolhida. Publicar a revisão da Edge com `CALI_PILOT_PROVISIONING=true` e abrir a ficha Admin de desenvolvimento com `VITE_CALI_PILOT_PROVISIONING=true`. Reservar uma vaga, pedir um código na aba Cliente, validar admissão e revogação individual com os demais vínculos como controle. Para suspender após ativação, desligar a flag da Edge e retirar os GRANTs das RPCs de reserva e preparação. Preservar o histórico.
 
-Em 04/11, a versão 3 da Edge foi publicada pelo terminal, com verificação de JWT preservada. A flag foi ativada com um destinatário temporário aprovado para A. O Admin confirmou a reserva A2. O teste aguarda o primeiro login e o aceite pelo titular. Após a homologação, revogar o acesso A2, conferir o corte e retirar o destinatário temporário. Remover a flag local de homologação ao encerrar.
+Em 04/11, a versão 3 da Edge foi publicada pelo terminal, com verificação de JWT preservada. O Admin reservou A2 para um destinatário temporário aprovado. A2 entrou, confirmou o aceite e abriu a empresa A. A1 abriu a mesma empresa em sessão separada. Após revogar A2 pelo Admin, a recarga de sua aba foi bloqueada e a recarga de A1 manteve a empresa acessível. A leitura do banco confirmou que A2 perdeu acesso e que as sessões de A1 e B continuaram válidas.
+
+Ao encerrar, a limpeza exigiu correspondência entre conta, metadado Auth, convite, reserva e destinatário temporário já revogado. A consulta confirmou zero contas, perfis, convites, reservas e permissões para A2, com as duas matrículas originais preservadas. A flag de provisionamento foi desligada. A homologação de arquivos após corte tem roteiro separado.
 
 ## Candidata de corte no servidor — sem execução
 
