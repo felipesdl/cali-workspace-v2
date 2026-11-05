@@ -1,6 +1,6 @@
 # Plano de padronização por fluxos completos
 
-Atualização: 05/11/2026. **Fases 2A e 2B funcionalmente fechadas no piloto A/B do CALI MAPA. Fase 1 segue em andamento no seu escopo global.** A V2 é a base do primeiro lançamento operacional. Patrícia confirmou que ainda não usa nenhuma versão e que os dados são de teste. A V1 publicada serve como referência em leitura e o backend usa fixtures conforme DEC-27. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é a referência funcional. As [regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
+Atualização: 05/11/2026. **Fases 2A, 2B e 2C funcionalmente fechadas no piloto A/B do CALI MAPA. Fase 1 segue em andamento no seu escopo global.** A V2 é a base do primeiro lançamento operacional. Patrícia confirmou que ainda não usa nenhuma versão e que os dados são de teste. A V1 publicada serve como referência em leitura e o backend usa fixtures conforme DEC-27. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é a referência funcional. As [regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
 
 Objetivo: padronizar todos os fluxos Cliente/Admin sem passar várias fases construindo camadas antes da primeira jornada utilizável. Cada entrega fecha uma tarefa com interface, dados, regra, autorização, histórico, falhas e comunicação quando aplicável. “Fluxo completo” é unidade de construção; não cria fluxo novo nem significa que toda tela dispara e-mail. Chat não gera e-mail. Produção, migrations e canais externos exigem escopo próprio.
 
@@ -18,7 +18,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | --- | --- | --- | --- |
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
 | 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; sessão/telas hospedadas e leitura real de empresas, aceite global pendente |
-| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A e 2B homologadas funcionalmente no piloto A/B; próxima entrega 2C; frontend final pendente |
+| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A, 2B e 2C homologadas funcionalmente no piloto A/B; frontend final pendente |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
 | 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
@@ -198,9 +198,9 @@ Cada linha é uma entrega independente, incluindo contrato/adaptador real de tes
 
 - [x] Conferir catálogo ativo e referência 83. Registrar fronteiras, janela e DEC-05/10 no [contrato 2C](contracts/TEAM_MONTHLY_2C.md).
 - [x] Implementar leitura e primeiro lançamento Cliente, correção Admin, auditoria e proteção da escrita direta no piloto. SQL descartável e primeira rodada autenticada A/Admin passaram.
-- [ ] Implementar confirmação, snapshots e vagas com versão e transação.
-- [ ] Conectar pendência Cliente, métricas e indicadores essenciais preservando fórmulas.
-- [ ] Homologar A/B/Admin no navegador integrado e registrar testes focados, limites e rollback.
+- [x] Implementar confirmação, snapshots e vagas com versão e transação. Preimagem, replay, token obsoleto e falha atômica passaram na cópia descartável.
+- [x] Conectar pendência Cliente, métricas e indicadores essenciais preservando fórmulas. Aviso do Início desaparece após confirmar; nulos e denominador zero permanecem explícitos.
+- [x] Homologar A/B/Admin no navegador integrado e registrar testes focados, limites e rollback. Confirmação/reconfirmação, vaga/cancelamento, correção Admin, mês anterior vazio, recarga, contexto e mobile passaram. Complemento de leitura direta aplicado somente A/B.
 
 **Frontend antes do lançamento.** A paridade visual do layout, navegação e Equipe por perfil com a publicação 83 permanece pendente. Felipe autorizou em 05/11 a continuidade da homologação funcional na composição simplificada. A substituição visual fica para a implementação do frontend final.
 
@@ -314,4 +314,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A e a 2B têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A 2C segue como próxima entrega funcional. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A, a 2B e a 2C têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A fase 3 é a próxima etapa funcional do roadmap. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).

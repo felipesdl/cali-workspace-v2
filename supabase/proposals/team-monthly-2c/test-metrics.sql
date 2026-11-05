@@ -26,6 +26,9 @@ begin
  if written<>cali_workspace.v2_write_pilot_team_metrics(company,month,null,fields,null,request) then
   raise exception 'Replay não repetiu resultado'; end if;
  version:=(written->>'updatedAt')::timestamptz;
+ update cali_workspace.team_month_metrics set planned_hours=900 where company_id=company and reference_month=month;
+ if found or cali_workspace.v2_read_pilot_team_month(company,month)->'metrics'->>'planned_hours'<>'100' then
+  raise exception 'UPDATE direto alterou o piloto'; end if;
  begin
   perform cali_workspace.v2_write_pilot_team_metrics(company,month,version,fields,null,gen_random_uuid());
   raise exception 'Cliente corrigiu após gravado';

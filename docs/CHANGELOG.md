@@ -1,5 +1,14 @@
 # Registro de mudanças
 
+## 05/11/2026 — Fechamento funcional da 2C no piloto A/B
+
+- **Autor/escopo:** Codex; continuidade autorizada por Felipe. Confirmação mensal, snapshots versionados, vagas/eventos, pendência Cliente e indicadores essenciais foram conectados ao CALI MAPA somente no piloto sintético A/B. Mantidas composição simplificada, referência 83 e DEC-05/10.
+- **Implementação:** novo serviço/schema de revisão, hook mensal, componentes de conferência/indicadores/pendência e atalho funcional de Equipe no Início. SQL separado para confirmação e leitura direta, com rollback sem excluir histórico. Cliente inicial/Admin correção continuam no lote `7cac12d`. Token/preimagem/idempotência/transação protegem confirmação e vagas; seis policies alinham leitura direta ao aceite vigente no piloto. Guardas e escritores legados não foram alterados.
+- **Homologação:** A confirmou/reconfirmou novembro e cancelou a vaga sintética; Admin revisou com motivo. B lançou zero horas e confirmou mês vazio. A confirmou outubro pelo aviso do Início, removido após a gravação. Recarga, contexto A/B, tentativa de seleção por URL Cliente e editor a 390 px passaram. Fórmulas e distinção resumo atual/série histórica de arquivados foram preservadas e explicitadas.
+- **Provas:** SQL focado descartável passou, incluindo replay, token obsoleto, falha atômica, Cliente equivalente, vaga omitida, preimagem, 12 referências e leitura direta com/sem aceite/MFA. Sessão/termos são simulados nessa prova; A/B/Admin reais complementam no navegador. Auditoria hospedada conferiu versões e preimagens consistentes, nenhuma vaga sintética aberta e operações únicas.
+- **Gates:** `npm run verify` passou com 225 testes/33 arquivos, lint, TypeScript, formatação, configuração, documentação e builds. A execução automática com 33 workers teve oito falhas de espera; `maxWorkers: 2` foi fixado sem aumentar timeouts e a suíte inteira passou. O aviso de chunk principal acima de 500 kB permanece.
+- **Limites/rollback:** 2C homologada funcionalmente no piloto; fase 1 global, frontend final e coleta real permanecem pendentes. Nenhum e-mail/scheduler ativado, merge ou deploy realizado. Bateria suspensa intocada. [Contrato, arquivos, evidências e ordem dos rollbacks](contracts/TEAM_MONTHLY_2C.md).
+
 ## 05/11/2026 — Lançamento e correção de métricas 2C
 
 - Duas RPCs e a auditoria privada de métricas foram instaladas no piloto A/B após preflight. As policies adicionais bloqueiam escrita direta de métricas no recorte do piloto. Cliente faz o primeiro lançamento; correção exige Admin com MFA, motivo e preimagem. Replay confere ator e payload.

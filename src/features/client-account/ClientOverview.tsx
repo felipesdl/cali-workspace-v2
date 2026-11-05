@@ -1,10 +1,14 @@
-import { Link } from '@tanstack/react-router';
+import { Link, useRouteContext } from '@tanstack/react-router';
 import { clientAccountPaths } from '../../app/navigation';
+import { TeamMonthlyReminder } from '../team/TeamMonthlyReminder';
+import { teamSearchSchema } from '../../api/modules/team/schemas';
 const linkClass =
   'tw:text-brand tw:underline tw:underline-offset-4 tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus';
 export function ClientOverview() {
+  const { team } = useRouteContext({ from: '__root__' });
   return (
     <div className="tw:grid tw:gap-6">
+      <TeamMonthlyReminder />
       <section aria-labelledby="client-account-access-title">
         <h2 id="client-account-access-title" className="tw:mt-0 tw:text-section tw:text-brand">
           Sua empresa no Workspace
@@ -14,6 +18,13 @@ export function ClientOverview() {
           e privacidade.
         </p>
         <ul className="tw:grid tw:gap-3 tw:pl-5">
+          {team && (
+            <li>
+              <Link className={linkClass} to="/cliente/equipe" search={teamSearchSchema.parse({})}>
+                Consultar equipe
+              </Link>
+            </li>
+          )}
           <li>
             <Link className={linkClass} to={clientAccountPaths.company}>
               Consultar minha empresa
@@ -34,9 +45,9 @@ export function ClientOverview() {
           Próximas áreas do seu Workspace
         </h2>
         <p className="tw:mb-0">
-          Equipe, Horas, Calendário, Ocorrências, Documentos, Relatórios, Projetos e Avisos estão em
-          preparação. As informações serão disponibilizadas após a integração e validação de cada
-          área.
+          {!team && 'Equipe, '}Horas, Calendário, Ocorrências, Documentos, Relatórios, Projetos e
+          Avisos estão em preparação. As informações serão disponibilizadas após a integração e
+          validação de cada área.
         </p>
       </section>
     </div>

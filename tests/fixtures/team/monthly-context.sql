@@ -3,6 +3,7 @@ create role authenticated;
 create role anon;
 create role service_role;
 create schema auth;
+create table auth.users(id uuid primary key);
 create schema cali_workspace;
 create schema cali_session_guard;
 grant usage on schema cali_workspace,cali_session_guard to authenticated;
@@ -45,6 +46,7 @@ insert into cali_workspace.profiles values
  ('00000000-0000-4000-8000-000000000015','6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76','client',true);
 insert into cali_session_guard.pilot_accounts(profile_id,company_id)
  select id,company_id from cali_workspace.profiles where role='client' and company_id in(select company_id from cali_session_guard.pilot_companies);
+insert into auth.users select id from cali_workspace.profiles;
 \ir directory.sql
 alter table cali_workspace.team_months add column confirmed_by uuid,
  add column confirmed_at timestamptz not null default clock_timestamp(),add column revision integer not null default 1;

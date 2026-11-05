@@ -46,7 +46,13 @@ begin
     raise exception using errcode='22023',message='Selecione um mês válido até a referência atual.';
   end if;
   select jsonb_build_object('companyId',p_company_id,'referenceMonth',p_month,
-    'metrics',(select to_jsonb(m) from cali_workspace.team_month_metrics m where m.company_id=p_company_id and m.reference_month=p_month),
+    'companyName',(select display_name from cali_workspace.companies where id=p_company_id),
+    'metrics',(select to_jsonb(m) from (
+      select company_id,reference_month,planned_hours,absence_medical_hours,absence_leave_hours,
+        absence_unjustified_hours,absence_accident_hours,overtime_hours,hour_bank_balance,
+        approved_headcount,enps_score,climate_score,climate_participation,notes,updated_by,created_at,updated_at
+      from cali_workspace.team_month_metrics where company_id=p_company_id and reference_month=p_month
+    ) m),
     'review',(select jsonb_build_object('revision',r.revision,'confirmedAt',r.confirmed_at,'answers',r.answers)
       from cali_workspace.team_month_reviews r where r.company_id=p_company_id and r.reference_month=p_month),
     'events',coalesce((select jsonb_agg(to_jsonb(e) order by e.recorded_at desc,e.id) from (

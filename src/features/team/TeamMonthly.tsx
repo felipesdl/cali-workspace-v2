@@ -12,6 +12,8 @@ import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { formatServerInstant } from '../../lib/dates';
+import { TeamMonthReview } from './TeamMonthReview';
+import { TeamMonthlyIndicators } from './TeamMonthlyIndicators';
 
 const numericFields = [
   { key: 'planned_hours', label: 'Horas previstas', min: 0 },
@@ -284,6 +286,7 @@ export function TeamMonthly({
       className="tw:grid tw:min-w-0 tw:gap-5 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
     >
       <h2 className="tw:m-0 tw:text-section tw:font-bold tw:text-brand">Dados do mês</h2>
+      <p className="tw:m-0 tw:text-caption tw:text-muted-copy">{data.companyName}</p>
       <Field id="team-metrics-month" label="Mês de referência">
         <input
           type="month"
@@ -344,6 +347,8 @@ export function TeamMonthly({
           <p className="tw:text-caption tw:text-muted-copy">Nenhum lançamento registrado.</p>
         )}
       </section>
+      <TeamMonthReview monthly={month} data={data} navigate={navigate} />
+      {month.review.data && <TeamMonthlyIndicators data={data} review={month.review.data} />}
     </section>
   );
 }

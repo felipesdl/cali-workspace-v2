@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
+import { monthlyReviewState, monthlyVacancy, type ReviewCommand } from './monthly-review';
 
 const hours = z.number().nonnegative().nullable();
 export const monthlyFields = z.strictObject({
@@ -27,6 +28,7 @@ export const monthlyRecord = monthlyFields.extend({
 export type MonthlyRecord = z.infer<typeof monthlyRecord>;
 export const monthlyState = z.object({
   companyId: z.uuid(),
+  companyName: z.string(),
   referenceMonth: z.iso.date(),
   metrics: monthlyRecord.nullable(),
   review: z
@@ -63,6 +65,31 @@ export type MonthlyCommand = {
 
 export function createHostedTeamMonthly(client: WorkspaceClient) {
   return {
+    async readReview(companyId: string, month: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_team_review', { p_company_id: companyId, p_month: month })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível carregar a conferência do mês.');
+      const state = monthlyReviewState.parse(data);
+      if (state.companyId !== companyId || state.referenceMonth !== month)
+        throw new Error('Conferência fora da referência solicitada.');
+      return state;
+    },
+    async confirm(command: ReviewCommand) {
+      const { data, error } = await client.rpc('v2_confirm_pilot_team_month', {
+        p_company_id: command.companyId,
+        p_month: command.month,
+        p_expected_token: command.token,
+        p_vacancies: z.array(monthlyVacancy).max(200).parse(command.vacancies),
+        p_reason: command.reason.trim() || null,
+        p_request_id: command.requestId,
+      });
+      if (error?.code === '40001')
+        throw new Error('A equipe ou os dados do mês mudaram. Recarregue antes de confirmar.');
+      if (error?.code === '22023' || error?.code === '42501') throw new Error(error.message);
+      if (error) throw new Error('Não foi possível confirmar o mês.');
+      return monthlyWriteResult.parse(data);
+    },
     async read(companyId: string, month: string, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_read_pilot_team_month', {

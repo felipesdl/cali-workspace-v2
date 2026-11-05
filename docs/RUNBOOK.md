@@ -147,6 +147,8 @@ npm run dev -- --host 127.0.0.1
 
 Formatação exclui Markdown e TSX/CSS legados explicitados em `.prettierignore`. As oito composições de prévia enumeradas no ESLint mantêm exceção de variáveis/imports não usados; regras de hooks continuam ativas. Não chamar isso de normalização integral do legado. Ao migrar uma feature, remover sua exceção e validar no mesmo recorte.
 
+Vitest limita a execução a dois workers em `vitest.config.ts`. A rodada de 05/11 com concorrência automática abriu 33 workers e teve oito falhas de espera/timeout nas jornadas de UI. O limite reduz a disputa de recursos; os timeouts e as asserções permanecem inalterados. O conjunto continua executando todos os arquivos.
+
 ## Estilos e formatação
 
 Tailwind 4.3.3 e plugin Vite 4.3.3 são dependências de desenvolvimento fixas; Prettier usa `prettier-plugin-tailwindcss` 0.8.1 e `tailwindStylesheet: ./src/styles/tailwind.css`. Executar `npm run format` após alterar classes. Tema/utilities usam prefixo `tw:`, sem Preflight/cascade layers durante a coexistência; tokens e breakpoints ficam na folha canônica, sem configuração JS paralela. [Política, consumidores migrados e inventário restante](DESIGN_SYSTEM.md#política-de-css).

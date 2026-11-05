@@ -5,6 +5,7 @@ import { isPilotCompany } from '../companies/onboarding';
 import { type TeamSearch } from './schemas';
 import { writeMonthOptions } from './maintenance';
 import { type MonthlyCommand } from './monthly';
+import { type ReviewCommand } from './monthly-review';
 
 export function useTeamMonthly(search: Pick<TeamSearch, 'companyId' | 'month'>) {
   const { monthly } = useRouteContext({ from: '__root__' });
@@ -25,6 +26,25 @@ export function useTeamMonthly(search: Pick<TeamSearch, 'companyId' | 'month'>) 
         ? ({ signal }) => monthly.read(companyId, month, signal)
         : skipToken,
   });
+  const review = useQuery({
+    queryKey: [...key, month, 'review'],
+    queryFn:
+      enabled && monthly && companyId
+        ? ({ signal }) => monthly.readReview(companyId, month, signal)
+        : skipToken,
+  });
+  const confirm = useMutation({
+    mutationFn: (command: Omit<ReviewCommand, 'companyId' | 'month'>) => {
+      if (!enabled || !monthly || !companyId) throw new Error('Conferência indisponível.');
+      return monthly.confirm({ ...command, companyId, month });
+    },
+    retry: false,
+    onSuccess: () =>
+      Promise.all([
+        cache.invalidateQueries({ queryKey: key }),
+        cache.invalidateQueries({ queryKey: ['team', profile?.id, companyId] }),
+      ]),
+  });
   const write = useMutation({
     mutationFn: (command: Omit<MonthlyCommand, 'companyId' | 'month'>) => {
       if (!enabled || !monthly || !companyId) throw new Error('Dados mensais indisponíveis.');
@@ -35,6 +55,8 @@ export function useTeamMonthly(search: Pick<TeamSearch, 'companyId' | 'month'>) 
   });
   return {
     state,
+    review,
+    confirm,
     write,
     companyId,
     month,

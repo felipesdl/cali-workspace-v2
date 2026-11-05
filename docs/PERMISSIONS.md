@@ -205,3 +205,8 @@ RPCs de issue/delivery/consume são exclusivas de serviço; papéis do navegador
 ## O que falta provar antes de implementar acesso real
 
 Obter definições ausentes e schema/policies efetivos, reconciliar guards diferentes, transições amplas e efeitos compostos. Depois, em ambiente isolado, executar por ator: sem sessão, Admin com/sem condição de MFA, Cliente principal A, adicional A, Cliente B, inativo e sessão existente de conta encerrada. Provar leitura, escrita, RPC, storage e URL direta conforme cada superfície. Essa etapa é futura e exige ambiente identificado; não foi simulada como concluída.
+
+
+## Dados mensais V2 — piloto A/B em 05/11/2026
+
+A [2C](contracts/TEAM_MONTHLY_2C.md) tem contrato e prova próprios, sem ampliar a matriz histórica acima para todos os domínios. Cliente admitido com sessão e aceite vigentes lê a própria empresa, lança métricas apenas quando ausentes e confirma/reconfirma mês atual/anterior. Admin exige MFA, consulta A/B, corrige métricas gravadas com motivo/preimagem e reconfirma com motivo. Nenhum desses papéis modifica métricas do piloto por INSERT/UPDATE direto. Seis policies restritivas alinham a leitura direta mensal à guarda de ator/empresa/sessão/MFA/aceite somente em A/B. Fora do piloto permanecem os predicados anteriores. A auditoria privada não concede SELECT a `authenticated`; as RPCs retornam apenas o histórico permitido. Partner fica fora da entrega 2C.

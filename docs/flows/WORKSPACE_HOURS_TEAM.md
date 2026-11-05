@@ -1,6 +1,6 @@
 # Workspace, Horas, Equipe e perfil
 
-Fichas FLOW-04/07/08/14. Herdam [contexto, estados e validação comuns](README.md). Nenhuma operação executada. [Matriz de permissões](../PERMISSIONS.md).
+Fichas FLOW-04/07/08/14. Herdam [contexto, estados e validação comuns](README.md). As tabelas abaixo registram a referência histórica; a execução da V2 está nos contratos [2B](../contracts/TEAM_2B.md) e [2C](../contracts/TEAM_MONTHLY_2C.md). [Matriz de permissões](../PERMISSIONS.md).
 
 ## Alvo V2 confirmado em 26/10/2026 para FLOW-08
 
@@ -82,6 +82,10 @@ People Analytics está liberado na UI para Admin, plano Full ou frente ativa; in
 **Continuidade/falhas:** empresa/mês/aba têm estado e alguns parâmetros (`mes`, `aba`); colunas são preferência local por usuário/empresa. Mudança de empresa fecha detalhes/importação. Formulário/CSV preserva erro; origem privada precisa de consentimento operacional definido, não inferido do label.
 
 **Aceite proposto para o alvo decidido:** até quatro Clientes equivalentes mantendo Equipe; remoção de um sem dependência de principal; Cliente informa/lê privados da própria empresa e não de outra; importação duplicada/gestor inexistente; faltantes preservados; janela de período; reativação de arquivada; 12 meses/retroatividade; lançamento inicial de métricas pelo Cliente e correção posterior somente pelo Admin, com autoria/histórico. Não mudar cálculo de headcount. **Pendências técnicas:** `REF-10/11`; fórmula/qualidade continuam em `OPEN-05`, sem nova regra inventada.
+
+### Execução V2 no piloto — 05/11/2026
+
+A [2B](../contracts/TEAM_2B.md) e a [2C](../contracts/TEAM_MONTHLY_2C.md) foram homologadas funcionalmente com A/B/Admin no CALI MAPA. Clientes equivalentes mantêm cadastro e confirmam o mês; métricas iniciais são do Cliente e correções posteriores do Admin com MFA, motivo e preimagem. Confirmação, vagas e snapshots usam operação própria, sem reenviar cadastro/métricas. Histórico, concorrência e recortes temporais seguem o contrato dono. A pendência em FLOW-04 aparece somente ao Cliente no Início e leva ao mês anterior. E-mails não foram ativados. Paridade visual e coleta real seguem pendentes antes do lançamento.
 
 ## FLOW-14 — Perfil, localizador e notificações
 
