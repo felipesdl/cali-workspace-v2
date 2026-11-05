@@ -1,3 +1,6 @@
+import { isPilotCompany } from '../onboarding';
+import { type HostedAdministration } from '../hosted-administration';
+import { type CompanyAdministration, type AdministrationValues } from '../administration-schemas';
 import { type ConfirmAdhesionEvidence, type RetractAdhesionEvidence } from '../evidence-schemas';
 import {
   type AttachCompanyDocument,
@@ -73,14 +76,26 @@ export function useCompanyAccessHistory(companyId: string) {
 
 export function useCompanyAdministration(companyId: string) {
   const scope = useCompaniesScope();
-  const management = scope.service.management;
-  return useQuery({
+  const service = scope.service.hostedAdministration ?? scope.service.management?.administration;
+  return useQuery<CompanyAdministration | HostedAdministration>({
     queryKey: companyKeys.administration(scope.actor, companyId),
     enabled: scope.enabled,
-    queryFn: management
-      ? ({ signal }) => management.administration.read(companyId, signal)
-      : skipToken,
+    queryFn: service ? ({ signal }) => service.read(companyId, signal) : skipToken,
   });
+}
+
+export function useCompanyAdministrationCapability(companyId: string) {
+  const scope = useCompaniesScope();
+  const hosted = Boolean(scope.service.hostedAdministration);
+  return {
+    hosted,
+    available: scope.enabled && (hosted || Boolean(scope.service.management)),
+    canEdit:
+      scope.enabled &&
+      (hosted
+        ? import.meta.env.DEV && isPilotCompany(companyId)
+        : Boolean(scope.service.management)),
+  };
 }
 export function useAdministrationHistory(companyId: string) {
   const scope = useCompaniesScope();
@@ -94,9 +109,41 @@ export function useAdministrationHistory(companyId: string) {
   });
 }
 export function useUpdateAdministration() {
-  return useManagementMutation((service, input: UpdateAdministration) =>
-    service.administration.update(input),
-  );
+  const scope = useCompaniesScope();
+  const cache = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      record,
+      values,
+      requestId,
+    }: {
+      record: CompanyAdministration | HostedAdministration;
+      values: AdministrationValues;
+      requestId: string;
+    }) => {
+      if (!scope.enabled) throw new Error('Edição indisponível.');
+      if (
+        'updatedAt' in record &&
+        import.meta.env.DEV &&
+        scope.service.hostedAdministration &&
+        isPilotCompany(record.companyId)
+      ) {
+        await scope.service.hostedAdministration.update(record, values);
+        return;
+      }
+      if (!('revision' in record) || !scope.service.management)
+        throw new Error('Edição indisponível.');
+      const input: UpdateAdministration = {
+        companyId: record.companyId,
+        expectedRevision: record.revision,
+        requestId,
+        values,
+      };
+      await scope.service.management.administration.update(input);
+    },
+    retry: false,
+    onSuccess: () => cache.invalidateQueries({ queryKey: companyKeys.all(scope.actor) }),
+  });
 }
 
 export function useCompanyRegistration(companyId: string) {

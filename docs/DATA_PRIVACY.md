@@ -79,3 +79,9 @@ Antes de migrar/coletar os campos do recorte, registrar suas finalidades, consum
 O prazo de 45 dias encontrado no código para elegibilidade de eliminação de empresa é uma regra técnica observada daquele caminho. Não constitui prazo geral de guarda dos campos nem comprovação de adequação dos textos de privacidade.
 
 Aceite futuro: informação apresentada coincide com campo/uso; Cliente A não recebe privados de B; logs/e-mails/arquivos respeitam projeções declaradas; versão/aceite conferidos; política de ciclo de vida testada no ambiente isolado autorizado. A revisão do texto e dos prazos deve ser registrada pelos responsáveis, sem presumir aprovação com base apenas na criação deste documento.
+
+## Ficha hospedada e arquivos sintéticos — 04/11
+
+A edição de teste no CALI MAPA é restrita a Admin com MFA e ao piloto A/B. Nome, cargo, e-mail, telefone, WhatsApp e aniversário identificam contato comercial. Ficam na ficha privada do Admin, separados de perfil, convite e termos. A auditoria registra a operação sem copiar valores do contato. A logo preparada no navegador vai para Storage privado. Trocar ou retirar o vínculo conserva o objeto. Usar somente dados sintéticos até a CALI validar a necessidade de cada campo, a informação ao contato e a guarda.
+
+B teve acesso ao PDF sintético recusado pela origem após o corte. Um caminho já usado ainda entregou bytes até o arquivamento privado das duas fixtures. O cache local já preenchido continuou disponível. Esta prova separa o acesso novo aos arquivos de cópias já recebidas. [Contrato e limite de liberação](contracts/ACCESS_COMPANIES.md#ficha-admin-e-corte-de-arquivos--0411).

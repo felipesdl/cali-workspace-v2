@@ -1,5 +1,12 @@
 # Registro de mudanças
 
+## 04/11/2026 — Ficha Admin conectada e corte de arquivos A/B
+
+- O Admin ganhou edição das condições contratuais, configurações financeiras e referências documentais, além de serviço, contato comercial e logo. As RPCs do CALI MAPA exigem MFA, empresa A/B e a versão da linha aberta no formulário. Na empresa B, o Admin gravou uma observação, trocou para Build Essencial, salvou contato sintético e enviou uma logo privada. A consulta independente confirmou os dados e o objeto. Renovação e automações ficaram desativadas.
+- No Chrome, B leu seu próprio PDF e teve o de A e a emissão de nova URL assinada recusados. Após revogar B, A ainda leu o próprio PDF e B teve uma URL inédita recusada. A URL de B já usada ainda entregou bytes antes da contenção. Os dois PDFs sintéticos sem referência foram movidos para a área privada Admin, com SHA-256 preservado. Uma nova requisição pela URL antiga de B foi recusada. A cópia que já estava no navegador continuou acessível pelo cache normal.
+- B foi reautorizada depois da prova. O banco confirmou o vínculo ativo, o corte preservado e zero sessões de B posteriores ao corte. A política adicional de contenção ficou como proposta. O CALI MAPA mantém a guarda de termos e corte anterior. Arquivos com cache e links históricos permanecem como gate de liberação. [Contrato, evidência e rollback](contracts/ACCESS_COMPANIES.md#ficha-admin-e-corte-de-arquivos--0411).
+- Lint, typecheck, build e SQL focal em PostgreSQL descartável passaram. A suíte Vitest passou com 212 testes e dois workers após carregar a ficha antes do teste de adesão. A execução inicial com a concorrência padrão teve falhas de espera na UI. A bateria suspensa de runtime ficou fora desta rodada.
+
 ## 04/11/2026 — Homologação do convite temporário A2
 
 - Publicada a versão 3 da função `workspace-access-pilot` no CALI MAPA com verificação de JWT preservada. A flag de provisionamento foi ativada para uma lista com um único destinatário aprovado na empresa sintética A. O Admin reservou a vaga A2, que ficou aguardando primeiro acesso.

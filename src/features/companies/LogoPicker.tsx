@@ -8,11 +8,13 @@ export function LogoPicker({
   selection,
   disabled,
   error,
+  hosted = false,
 }: {
   value: CompanyLogo | null;
   selection: ReturnType<typeof useLogoSelection>;
   disabled: boolean;
   error?: string;
+  hosted?: boolean;
 }) {
   const message = selection.error || error;
   return (
@@ -37,7 +39,10 @@ export function LogoPicker({
       </Field>
       <p id="registration-logo-help" className="tw:m-0 tw:text-caption tw:text-muted-copy">
         JPG, PNG, WEBP, AVIF ou SVG, até 12 MB. Preparada localmente em até 1200 px e 700 KB; SVG
-        vira imagem raster. A logo só é registrada ao salvar o cadastro, sem upload.
+        vira imagem raster.{' '}
+        {hosted
+          ? 'Ao salvar, a imagem vai para o armazenamento privado da empresa.'
+          : 'A logo só é registrada ao salvar o cadastro, sem upload.'}
       </p>
       {selection.reading && <p role="status">Preparando logo…</p>}
       {(value || selection.reading) && (

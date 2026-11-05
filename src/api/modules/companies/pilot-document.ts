@@ -42,10 +42,15 @@ export async function preparePilotDocument(client: WorkspaceClient, companyId: s
   const bucket = client.storage.from('cali-workspace-private');
   const uploaded = await bucket.upload(path, new Blob([pdf], { type: 'application/pdf' }), {
     contentType: 'application/pdf',
+    cacheControl: '0',
     upsert: false,
   });
   if (uploaded.error) {
-    const existing = await bucket.download(path);
+    const existing = await bucket.download(
+      path,
+      { cacheNonce: crypto.randomUUID() },
+      { cache: 'no-store' },
+    );
     if (existing.error || (await existing.data.text()) !== pdf) throw unavailable();
   }
 

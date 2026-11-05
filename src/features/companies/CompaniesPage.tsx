@@ -1,3 +1,4 @@
+import { HostedBrand } from './HostedBrand';
 import { HostedRegistration } from './HostedRegistration';
 import { CompanyContractDocuments } from './CompanyContractDocuments';
 import { CompanyRegistrationData } from './CompanyRegistrationData';
@@ -60,6 +61,7 @@ export function CompaniesPage() {
             key={`hosted-registration:${search.companyId}`}
             companyId={search.companyId}
           />
+          <HostedBrand key={`hosted-brand:${search.companyId}`} companyId={search.companyId} />
           <CompanyRegistrationData
             key={`registration-data:${search.companyId}`}
             companyId={search.companyId}

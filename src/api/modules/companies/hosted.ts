@@ -1,3 +1,5 @@
+import { createHostedBrand } from './hosted-brand';
+import { createHostedAdministration } from './hosted-administration';
 import { createPilotReservations } from './pilot-reservations';
 import { createHostedRegistration } from './hosted-registration';
 import { readHostedCompanyIdentity } from './identity';
@@ -28,12 +30,12 @@ const companyFields = 'id,display_name,legal_name,status,service_plan,service_ty
 const inviteFields = 'id,company_id,email,full_name,active,platform_access,is_primary,invited_at';
 const unavailable = () => new Error('Não foi possível consultar os dados. Tente novamente.');
 function mapCompany(row: z.infer<typeof companyRecord>) {
-  const plan = row.service_plan?.toLowerCase();
+  const plan = companySchema.shape.plan.safeParse(row.service_plan?.toLowerCase() ?? null);
   return companySchema.parse({
     id: row.id,
     displayName: row.display_name,
     status: row.status,
-    plan: plan === 'full' || plan === 'partner' || plan === 'build' ? plan : null,
+    plan: plan.data ?? null,
     createdOn: row.created_at.slice(0, 10),
   });
 }
@@ -41,6 +43,8 @@ export function createHostedCompaniesService(client: WorkspaceClient): Companies
   return {
     management: null,
     pilotReservations: createPilotReservations(client),
+    hostedAdministration: createHostedAdministration(client),
+    hostedBrand: createHostedBrand(client),
     hostedRegistration: createHostedRegistration(client),
     onboarding: createCompanyOnboarding(client),
     cycles: createHostedCycles(client),

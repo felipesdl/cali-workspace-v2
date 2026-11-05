@@ -163,10 +163,12 @@ export function HostedRegistration({ companyId }: { companyId: string }) {
       {query.data && !editing && (
         <>
           <dl className="tw:m-0 tw:grid tw:grid-cols-2 tw:gap-3 tw:mobile:grid-cols-1 tw:[&_dd]:m-0 tw:[&_dd]:wrap-anywhere tw:[&_dd]:whitespace-pre-wrap tw:[&_dt]:text-caption tw:[&_dt]:text-muted-copy">
-            <div>
-              <dt>Serviço contratado</dt>
-              <dd>{query.data.service_type ?? query.data.service_plan ?? 'Não informado'}</dd>
-            </div>
+            {!canEdit && (
+              <div>
+                <dt>Serviço contratado</dt>
+                <dd>{query.data.service_type ?? query.data.service_plan ?? 'Não informado'}</dd>
+              </div>
+            )}
             {fieldNames.map((name) => (
               <div key={name}>
                 <dt>{name === 'branches' ? 'Filiais' : fields[name]}</dt>

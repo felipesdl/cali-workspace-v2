@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import {
   useCompanyAdministration,
-  useCompanyManagementAvailable,
+  useCompanyAdministrationCapability,
 } from '../../api/modules/companies/hooks/useCompanyManagement';
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
@@ -9,7 +9,15 @@ import { AdministrationEditor } from './AdministrationEditor';
 import { AdministrationSummary } from './AdministrationSummary';
 import { AdministrationHistory } from './AdministrationHistory';
 
-function AdministrationPanel({ companyId }: { companyId: string }) {
+function AdministrationPanel({
+  companyId,
+  hosted,
+  canEdit,
+}: {
+  companyId: string;
+  hosted: boolean;
+  canEdit: boolean;
+}) {
   const record = useCompanyAdministration(companyId);
   const heading = useRef<HTMLHeadingElement>(null);
   const [editing, setEditing] = useState(false);
@@ -58,32 +66,40 @@ function AdministrationPanel({ companyId }: { companyId: string }) {
       )}
       {record.data && !editing && (
         <>
-          {record.data.revision === 0 && (
+          {'revision' in record.data && record.data.revision === 0 && (
             <FeedbackState kind="empty">
               Contrato, financeiro e referências documentais ainda não informados nesta
               demonstração.
             </FeedbackState>
           )}
-          {record.data.revision > 0 && <AdministrationSummary values={record.data.values} />}
-          <Button
-            variant="secondary"
-            className="tw:mt-4"
-            onClick={() => {
-              setSaved(false);
-              setEditing(true);
-            }}
-          >
-            Editar ficha administrativa
-          </Button>
+          {('updatedAt' in record.data || record.data.revision > 0) && (
+            <AdministrationSummary values={record.data.values} />
+          )}
+          {canEdit && (
+            <Button
+              variant="secondary"
+              className="tw:mt-4"
+              onClick={() => {
+                setSaved(false);
+                setEditing(true);
+              }}
+            >
+              Editar ficha administrativa
+            </Button>
+          )}
         </>
       )}
-      {saved && <p role="status">Ficha administrativa salva na demonstração.</p>}
-      <AdministrationHistory companyId={companyId} />
+      {saved && (
+        <p role="status">
+          {hosted ? 'Ficha administrativa salva.' : 'Ficha administrativa salva na demonstração.'}
+        </p>
+      )}
+      {!hosted && <AdministrationHistory companyId={companyId} />}
     </section>
   );
 }
 export function CompanyAdministration({ companyId }: { companyId: string }) {
-  const available = useCompanyManagementAvailable();
+  const { available, hosted, canEdit } = useCompanyAdministrationCapability(companyId);
   if (!available) return null;
-  return <AdministrationPanel companyId={companyId} />;
+  return <AdministrationPanel companyId={companyId} hosted={hosted} canEdit={canEdit} />;
 }

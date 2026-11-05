@@ -11,7 +11,11 @@ import { createCompaniesService } from '../src/api/modules/companies/service';
 import { createMockHttpClient } from '../src/mocks/http/client';
 import { createCompaniesMockAdapter } from '../src/mocks/adapters/companies';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
-beforeAll(() => vi.stubGlobal('crypto', webcrypto));
+beforeAll(async () => {
+  vi.stubGlobal('crypto', webcrypto);
+  // O fluxo começa na ficha. A transformação do módulo lazy não faz parte desse teste.
+  await import('../src/features/companies/CompaniesPage');
+});
 afterAll(() => vi.unstubAllGlobals());
 async function openApp(withDocument = false) {
   const service = createCompaniesService(createMockHttpClient(createCompaniesMockAdapter()));

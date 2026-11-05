@@ -1,3 +1,4 @@
+import { type HostedAdministration } from '../../../api/modules/companies/hosted-administration';
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { type CompanyAdministration } from '../../../api/modules/companies/administration-schemas';
@@ -5,7 +6,7 @@ import { useUpdateAdministration } from '../../../api/modules/companies/hooks/us
 import { administrationDraftSchema, administrationToDraft } from '../administration-draft';
 
 export function useAdministrationEditor(
-  record: CompanyAdministration,
+  record: CompanyAdministration | HostedAdministration,
   onClose: (saved: boolean) => void,
 ) {
   const [original] = useState(() => structuredClone(record));
@@ -17,8 +18,7 @@ export function useAdministrationEditor(
     onSubmit: async ({ value }) => {
       try {
         await update.mutateAsync({
-          companyId: original.companyId,
-          expectedRevision: original.revision,
+          record: original,
           requestId,
           values: administrationDraftSchema.parse(value),
         });

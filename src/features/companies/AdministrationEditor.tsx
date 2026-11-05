@@ -1,3 +1,4 @@
+import { type HostedAdministration } from '../../api/modules/companies/hosted-administration';
 import { type CompanyAdministration } from '../../api/modules/companies/administration-schemas';
 import { Button } from '../../components/ds/button/Button';
 import { useAdministrationEditor } from './hooks/useAdministrationEditor';
@@ -9,7 +10,7 @@ export function AdministrationEditor({
   onClose,
   onReload,
 }: {
-  record: CompanyAdministration;
+  record: CompanyAdministration | HostedAdministration;
   onClose: (saved: boolean) => void;
   onReload: () => void;
 }) {
@@ -25,8 +26,9 @@ export function AdministrationEditor({
       }}
     >
       <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
-        Somente dados sintéticos nesta demonstração. Campos não informados permanecem em branco;
-        números sem separador de milhar. Salvar registra a ficha inteira.
+        {'updatedAt' in record
+          ? 'Informe as condições acordadas com a empresa. Salvar registra a ficha inteira.'
+          : 'Somente dados sintéticos nesta demonstração. Campos não informados permanecem em branco. Salvar registra a ficha inteira.'}
       </p>
       {administrationGroups.map((group) => (
         <AdministrationFields key={group.title} {...group} form={form} pending={update.isPending} />
