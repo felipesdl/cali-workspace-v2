@@ -110,6 +110,25 @@ describe('aceite explícito na jornada de acesso', () => {
 });
 
 describe('continuidade antes da autenticação', () => {
+  it('permite sair de uma sessão bloqueada sem perfil e voltar ao formulário', async () => {
+    const { router, api } = fixture();
+    api.read = async () => ({
+      status: 'blocked',
+      profile: null,
+      companyStatus: null,
+      terms: null,
+      termsAccepted: false,
+    });
+    api.signOut = vi.fn(async () => {});
+    await act(async () => {
+      await router.load();
+    });
+    render(<App router={router} />);
+    await userEvent.setup().click(await screen.findByRole('button', { name: 'Sair' }));
+    expect(api.signOut).toHaveBeenCalledOnce();
+    expect(await screen.findByRole('textbox', { name: 'E-mail' })).toBeTruthy();
+  });
+
   it('revalidação ao voltar do e-mail preserva etapa e código digitado', async () => {
     const { router, session, api } = fixture(false, true);
     await act(async () => {

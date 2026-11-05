@@ -167,7 +167,7 @@ Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de pon
 
 - [x] Conectar a leitura de serviço e plano e editar segmento, horas, endereço e filiais no recorte A/B. Conferir persistência e auditoria após recarga em B.
 - [x] Preparar banco e interface da reserva por convite. Instalar o banco sem destinatários aprovados. Provar provisionamento e cancelamento na cópia descartável.
-- [ ] Homologar a reserva e o primeiro acesso de um Cliente novo no CALI MAPA, com dois vínculos na mesma empresa. Confirmar revogação individual e arquivos após o corte.
+- [ ] Homologar o primeiro acesso de um Cliente novo no CALI MAPA, com dois vínculos na mesma empresa. A Edge está ativa e a reserva A2 foi confirmada no Admin. Falta concluir login, revogação individual, arquivos após o corte e retirada do destinatário temporário.
 - [ ] Conectar os campos complementares restantes, incluindo contato comercial, logo, troca de plano e condições contratuais. Definir o recorte do financeiro operacional antes de tratar cobrança como critério de fechamento.
 
 Para o primeiro lançamento, conduzir a fila de homologação da 2A nesta ordem:

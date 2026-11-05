@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 04/11/2026 — Homologação do convite temporário A2
+
+- Publicada a versão 3 da função `workspace-access-pilot` no CALI MAPA com verificação de JWT preservada. A flag de provisionamento foi ativada para uma lista com um único destinatário aprovado na empresa sintética A. O Admin reservou a vaga A2, que ficou aguardando primeiro acesso.
+- A tela de acesso passou a oferecer saída quando a sessão está bloqueada e o backend já retirou o perfil. A correção foi verificada no navegador e no teste de regressão. O primeiro login, a revogação e a retirada do destinatário temporário seguem pendentes.
+
 ## 04/11/2026 — Cadastro conectado e preparação do primeiro convite
 
 - O Admin lê serviço e plano do banco e edita segmento, horas mensais, endereço e filiais na homologação A/B. A [RPC](../supabase/proposals/company-onboarding/update-pilot-registration.sql) exige Admin com MFA e a versão exibida da ficha. A auditoria registra os nomes dos campos alterados. No navegador, B persistiu segmento e cidade após recarga. O banco confirmou um evento para B e 12,5 horas preservadas.

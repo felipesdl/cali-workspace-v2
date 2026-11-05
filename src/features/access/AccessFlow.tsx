@@ -86,7 +86,7 @@ export function AccessFlow({
           acceptance={acceptance}
         />
         {acceptance.message && <p role="alert">{acceptance.message}</p>}
-        {access?.profile && (
+        {(access?.profile || access?.status === 'blocked') && (
           <div className="tw:mt-6">
             <Button variant="secondary" onClick={() => void session.signOut()}>
               Sair
