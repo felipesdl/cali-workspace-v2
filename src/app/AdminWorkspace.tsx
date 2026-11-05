@@ -14,12 +14,15 @@ const CompaniesPage = lazy(() =>
 export function AdminWorkspace() {
   const pathname = useLocation({ select: (location) => location.pathname });
   const navigate = useNavigate();
-  const { access, team } = useRouteContext({ from: '__root__' });
+  const { access, team, disc } = useRouteContext({ from: '__root__' });
   const showTeam = Boolean(team && pathname === adminPaths.people);
+  const showDisc = Boolean(disc && pathname === '/admin/perfil');
   if (access)
     return (
-      <WorkspaceLayout title={showTeam ? 'Equipe' : 'Empresas e acessos'}>
-        {showTeam ? null : pathname === '/admin/clientes' ? (
+      <WorkspaceLayout
+        title={showDisc ? 'Perfil comportamental' : showTeam ? 'Equipe' : 'Empresas e acessos'}
+      >
+        {showTeam || showDisc ? null : pathname === '/admin/clientes' ? (
           <Suspense fallback={<FeedbackState kind="loading">Carregando empresas…</FeedbackState>}>
             <CompaniesPage />
           </Suspense>

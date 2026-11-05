@@ -19,7 +19,7 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
 | 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; sessão/telas hospedadas e leitura real de empresas, aceite global pendente |
 | 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A, 2B e 2C homologadas funcionalmente no piloto A/B; frontend final pendente |
-| 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
+| 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Implementada no piloto; ativação final pendente |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
 | 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
 | 6 — Homologação global do recorte | Entregas aplicáveis de 2–4; 5 somente se autorizada no recorte | Regressão entre fluxos, evidência de permissões, UX e aceite de produto | Planejada |
@@ -222,7 +222,26 @@ DS, tabelas, campos, overlays, modelos/hooks e cache necessários são entregues
 
 DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciência Cliente: DEC-12 continua vigente. Todo envio real externo usa apenas destino de teste autorizado; cenário simulado não certifica entrega. Canais não usados pela operação não são acrescentados para preencher checklist.
 
-**Bloqueios:** contratos de projeção/token, liberação, assinatura/protocolo e envio; TEC-01/02/03; retenção/exportação aplicáveis. Método de cálculo existente é preservado, sem novo algoritmo de avaliação. Não certificar validade científica nesta padronização.
+**Gates de operação real:** revisão final do worker, ativação de agenda autenticada, textos/finalidade/guarda e frontend final. Contratos de projeção/token, liberação e assinatura/protocolo estão implementados e testados no piloto. Método de cálculo existente é preservado, sem novo algoritmo de avaliação. Não certificar validade científica nesta padronização.
+
+**Execução de 05/11:** Felipe autorizou 3A, 3B e 3C em conjunto. [Plano, inventário e contrato](contracts/DISC_3.md). Investigações e interfaces independentes seguem em paralelo; banco, aprovação e entrega seguem suas dependências.
+
+- [x] Inventariar contratos ativos e referência 83 em leitura; separar públicos conforme DEC-13.
+- [x] Implementar e provar fundação privada, versões e fila de entrega no piloto.
+- [x] Conectar 3A no piloto manual: convite, resposta, agradecimento, PDF e comunicação de teste.
+- [x] Conectar 3B: avaliador interno sem acesso Cliente/público.
+- [x] Conectar 3C no piloto: gestão, aprovação/liberação, assinatura/protocolo e entrega.
+- [x] Homologar recorte sintético de limites, permissões, falhas/replay, navegador e artefatos; registrar rollback e PR.
+
+### Estado da entrega DISC em 05/11
+
+3A/3B/3C têm código, contratos e provas sintéticas. Questionário completo, PDF individual aceito pelo provedor, avaliador Admin, gestão liberada somente a A e PDF privado foram exercitados. Limiar 4/5/14/15, rejeições, replay e histórico têm prova SQL descartável. [Evidências e limites](contracts/DISC_3.md).
+
+- [ ] Autorizar/aplicar revisão final do worker de PDF: deploy recusado pela revisão automática; versão 2 com JWT permanece ativa.
+- [ ] Definir e autorizar ativação do agendamento autenticado; nenhum cron/automação está ativo.
+- [ ] Validar textos/finalidade/guarda para coleta real e paridade visual antes do lançamento.
+
+Esses itens impedem declarar a fase 3 pronta para operação real. Não reabrem a bateria suspensa nem exigem repetir a homologação completa.
 
 ## Fase 4 — Demais fluxos Cliente/Admin
 

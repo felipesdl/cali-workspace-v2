@@ -1,0 +1,153 @@
+import { normalizeDiscImage } from '../_shared/disc-image.ts';
+import { z } from 'zod';
+import { createDiscHandler, discDocumentSchema, discJobSchema } from './handler.ts';
+
+declare const Deno: {
+  env: { get: (name: string) => string | undefined };
+  serve: (handler: (request: Request) => Promise<Response>) => void;
+};
+const project = Deno.env.get('SUPABASE_URL');
+const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
+const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+const resendKey = Deno.env.get('RESEND_API_KEY');
+if (project !== 'https://kqtbfeeqbcllwvlkbrkq.supabase.co' || !anonKey || !serviceKey || !resendKey)
+  throw new Error('Configuração DISC do piloto indisponível.');
+const url = project;
+const publicKey = anonKey;
+const privateKey = serviceKey;
+async function rpc(name: string, body: object, authorization: string, key: string) {
+  const response = await fetch(`${url}/rest/v1/rpc/${name}`, {
+    method: 'POST',
+    redirect: 'error',
+    signal: AbortSignal.timeout(8000),
+    headers: {
+      apikey: key,
+      Authorization: authorization,
+      'Content-Type': 'application/json',
+      'Content-Profile': 'cali_workspace',
+    },
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) throw new Error('Operação DISC recusada.');
+  return response.json();
+}
+function base64(bytes: Uint8Array) {
+  let value = '';
+  for (let start = 0; start < bytes.length; start += 16384)
+    value += String.fromCharCode(...bytes.subarray(start, start + 16384));
+  return btoa(value);
+}
+Deno.serve(
+  createDiscHandler({
+    async authorize(authorization) {
+      try {
+        await rpc('v2_disc_admin', { p_campaign: null }, authorization, publicKey);
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    async authorizeHook(secret) {
+      return (
+        (await rpc(
+          'v2_disc_worker',
+          { p_action: 'authorize_hook', p_fields: { secret } },
+          `Bearer ${privateKey}`,
+          privateKey,
+        )) === true
+      );
+    },
+    async document(authorization, campaign, result) {
+      return discDocumentSchema.parse(
+        await rpc(
+          'v2_disc_document',
+          { p_campaign: campaign, p_result: result },
+          authorization,
+          publicKey,
+        ),
+      );
+    },
+    async validate(id) {
+      return (
+        (await rpc(
+          'v2_disc_worker',
+          { p_action: 'validate', p_job: id },
+          `Bearer ${privateKey}`,
+          privateKey,
+        )) === true
+      );
+    },
+    async claim() {
+      const data = await rpc(
+        'v2_disc_worker',
+        { p_action: 'claim' },
+        `Bearer ${privateKey}`,
+        privateKey,
+      );
+      return data === null ? null : discJobSchema.parse(data);
+    },
+    async record(id, state, fields) {
+      await rpc(
+        'v2_disc_worker',
+        { p_action: state, p_job: id, p_fields: fields },
+        `Bearer ${privateKey}`,
+        privateKey,
+      );
+    },
+    async readAsset(input) {
+      const asset = new URL(input);
+      if (
+        asset.protocol !== 'https:' ||
+        ![new URL(url).hostname, 'app.calirh.com'].includes(asset.hostname) ||
+        asset.username ||
+        asset.password
+      )
+        throw new Error('Origem do arquivo de assinatura recusada.');
+      const response = await fetch(asset, {
+        redirect: 'error',
+        cache: 'no-store',
+        signal: AbortSignal.timeout(8000),
+      });
+      const mime = response.headers.get('Content-Type') ?? '';
+      if (
+        !response.ok ||
+        !['image/png', 'image/jpeg', 'image/webp'].some((value) => mime.startsWith(value))
+      )
+        throw new Error('Foto ou assinatura indisponível.');
+      if (Number(response.headers.get('Content-Length') ?? 0) > 3000000)
+        throw new Error('Imagem excede limite.');
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      if (bytes.length > 3000000) throw new Error('Imagem excede limite.');
+      return normalizeDiscImage(bytes, mime);
+    },
+    async send(input) {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        redirect: 'error',
+        signal: AbortSignal.timeout(15000),
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          'Content-Type': 'application/json',
+          'Idempotency-Key': input.key,
+        },
+        body: JSON.stringify({
+          from: 'CALI RH <workspace@calirh.com>',
+          reply_to: 'nao-responda@calirh.com',
+          to: [input.to],
+          subject: input.subject,
+          html: input.html,
+          text: input.text,
+          ...(input.attachment
+            ? {
+                attachments: [
+                  { filename: 'CALI-perfil-homologacao.pdf', content: base64(input.attachment) },
+                ],
+              }
+            : {}),
+        }),
+      });
+      if (!response.ok) throw new Error('Provedor não confirmou envio.');
+      return z.object({ id: z.string().min(1) }).parse(await response.json()).id;
+    },
+  }),
+);

@@ -6,9 +6,9 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 
 ## Estado atual — 05/11/2026
 
-- A 2A, a 2B e a 2C estão homologadas funcionalmente no piloto sintético A/B do CALI MAPA. A fase 1 continua em andamento no escopo global. A próxima etapa funcional é a fase 3, perfil comportamental DISC. [Estado por fase](docs/ROADMAP.md).
-- Cliente conectado usa Início, Minha empresa, Termos e privacidade e Equipe. Equipe deriva a empresa da sessão e permite cadastro, edição, arquivamento, privados com declaração, importação CSV com prévia, estrutura e histórico. Demais módulos conectados apresentam sua preparação. A composição simplificada foi autorizada para os testes. A paridade visual com a publicação 83 será implementada e validada no frontend final antes do lançamento.
-- Admin conectado mantém Empresas e acessos e seleciona A/B em Equipe, com MFA. O piloto validou cadastro, comprovação por versão documental, ficha administrativa, convites individuais e transições do ciclo. O limite de quatro vagas sob concorrência foi comprovado na cópia descartável. As referências e limitações ficam nos [contratos de empresas/acesso](docs/contracts/ACCESS_COMPANIES.md) e [Equipe](docs/contracts/TEAM_2B.md).
+- A 2A, a 2B e a 2C estão homologadas funcionalmente no piloto sintético A/B do CALI MAPA. A fase 1 continua em andamento no escopo global. A fase 3, perfil comportamental DISC, foi implementada no piloto; revisão final do worker, agendamento autenticado e aceite para coleta real continuam pendentes. [Estado por fase](docs/ROADMAP.md).
+- Cliente conectado usa Início, Minha empresa, Termos e privacidade, Equipe e gestão DISC liberada. Equipe deriva a empresa da sessão e permite cadastro, edição, arquivamento, privados com declaração, importação CSV com prévia, estrutura e histórico. Demais módulos conectados apresentam sua preparação. A composição simplificada foi autorizada para os testes. A paridade visual com a publicação 83 será implementada e validada no frontend final antes do lançamento.
+- Admin conectado mantém Empresas e acessos, seleciona A/B em Equipe e administra campanhas/avaliador/gestão DISC, com MFA. O piloto validou cadastro, comprovação por versão documental, ficha administrativa, convites individuais e transições do ciclo. O limite de quatro vagas sob concorrência foi comprovado na cópia descartável. As referências e limitações ficam nos [contratos de empresas/acesso](docs/contracts/ACCESS_COMPANIES.md) e [Equipe](docs/contracts/TEAM_2B.md).
 - Dados mensais estão conectados no piloto: primeiro lançamento Cliente, correção Admin com motivo, confirmação/reconfirmação, vagas e indicadores essenciais de até 12 referências. A pendência no Início é exclusiva do Cliente, sem ativar e-mail. [Contrato mensal](docs/contracts/TEAM_MONTHLY_2C.md).
 - A homologação de Equipe no navegador integrado cobre Admin e Clientes A/B. Equivalência de dois Clientes da mesma empresa e corte individual têm prova em banco descartável. A coleta de dados reais exige validação de finalidade, necessidade e guarda. Demonstrações dos demais módulos continuam disponíveis como referência de composição.
 - TanStack Router controla URLs Cliente/Admin. SDK Supabase 2.118.0, adapter Auth, namespace próprio, eventos/revalidação e guardas estão conectados às telas de código/MFA/termos e callback PKCE. A cobertura global de sessão e os cenários de callback continuam no roadmap.
@@ -24,6 +24,8 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 - Interações demonstrativas não comprovam persistência, envio, aprovação ou ciência. Consumidores conectados precisam da confirmação da operação; evidências atuais e limites estão no changelog.
 - Escopo confirmado: padronizar todos os fluxos de Cliente e Admin e consolidar identidade bordô, marfim e dourado.
 - O código de `patricia258/app.cali` foi consultado somente em leitura como referência de contratos. Não é o destino da refatoração.
+
+O [contrato DISC](docs/contracts/DISC_3.md) distingue implementação local, worker hospedado versão 2, provas sintéticas e ativação pendente. O processamento de envios é manual e restrito; nenhum cron novo DISC está ativo.
 
 ## Executar
 

@@ -15,7 +15,7 @@ export function WorkspaceLayout({
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), [title]);
-  const { session, team } = useRouteContext({ from: '__root__' });
+  const { session, team, disc } = useRouteContext({ from: '__root__' });
   const state = useWorkspaceSession();
   const admin = state.phase === 'resolved' && state.access.profile?.role === 'admin';
   return (
@@ -48,6 +48,15 @@ export function WorkspaceLayout({
               search={teamSearchSchema.parse({})}
             >
               Equipe
+            </Link>
+          )}
+          {admin && disc && (
+            <Link
+              to="/admin/perfil"
+              search={{}}
+              className="tw:text-brand tw:underline tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
+            >
+              Perfil comportamental
             </Link>
           )}
           <Button variant="secondary" onClick={() => void session?.signOut()}>

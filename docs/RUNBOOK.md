@@ -209,3 +209,9 @@ Baseline mínima de empresa/perfil/adesão aplicada pelo runner; SQL com rollbac
 Executar `npm run verify` para conferir o conjunto atual. Testes de mocks/adapters locais não certificam Supabase, envio de e-mail, Calendar/Meet/Drive ou sessão real. QA de navegador deve registrar revisão e viewport, incluindo o comportamento da tela empresas; não extrapolar esse resultado para todas as prévias.
 
 Retomar contratos de acesso/empresa e ambiente isolado antes da primeira conexão de teste real. O oficial é somente leitura. Não iniciar migrations, outbound, deploy ou sincronização com produção como consequência de um build verde.
+
+## DISC V2 — piloto manual
+
+`npm run disc:functions:build` gera bundle autocontido em `supabase/.temp/workspace-disc-pilot`; não inicia runtime, não envia e-mail e não faz deploy. `bash supabase/proposals/disc-3/test.sh` executa prova PostgreSQL descartável por socket Unix com limpeza; não inicia a bateria suspensa de Auth/Edge/Docker. O contrato detalha precondições e rollback: [DISC](contracts/DISC_3.md).
+
+No CALI MAPA, worker versão 2 permanece com JWT obrigatório, allowlist de dois destinatários e `config.enabled=false`. Nenhum cron novo DISC está instalado. Não aplicar revisão final nem ativar agenda implicitamente: deploy foi recusado pela revisão automática. Conferir catálogo/versão, autorização explícita e preimagem antes de operação posterior.

@@ -1,3 +1,4 @@
+import { createHostedDisc } from './api/modules/disc/service';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { readEnvironment } from './config/environment';
@@ -57,6 +58,7 @@ try {
           companies: composeCompaniesService(client),
           team,
           monthly: team && client ? createHostedTeamMonthly(client) : null,
+          disc: team && client ? createHostedDisc(client) : null,
         }
       : undefined,
   );

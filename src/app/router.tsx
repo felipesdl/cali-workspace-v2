@@ -1,3 +1,5 @@
+import { z } from 'zod';
+import { type DiscService } from '../api/modules/disc/service';
 import { teamSearchSchema } from '../api/modules/team/schemas';
 import { type TeamService } from '../api/modules/team/hosted';
 import { type TeamMonthlyService } from '../api/modules/team/monthly';
@@ -38,6 +40,7 @@ const rootRoute = createRootRouteWithContext<{
   companies: CompaniesService;
   team?: TeamService | null;
   monthly?: TeamMonthlyService | null;
+  disc?: DiscService | null;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -113,6 +116,14 @@ const clientChildren = [
     validateSearch: (search) => teamSearchSchema.parse(search),
     component: lazyRouteComponent(() => import('../features/team/TeamPage'), 'ClientTeamPage'),
   }),
+  createRoute({
+    getParentRoute: () => clientRoute,
+    path: 'perfil',
+    component: lazyRouteComponent(
+      () => import('../features/disc/ClientDiscPage'),
+      'ClientDiscPage',
+    ),
+  }),
   clientChild('horas'),
   clientChild('cronograma'),
   clientChild('registros'),
@@ -135,6 +146,12 @@ const adminChildren = [
     path: 'equipe',
     validateSearch: (search) => teamSearchSchema.parse(search),
     component: lazyRouteComponent(() => import('../features/team/TeamPage'), 'AdminTeamPage'),
+  }),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'perfil',
+    validateSearch: (search) => z.object({ campaign: z.uuid().optional() }).parse(search),
+    component: lazyRouteComponent(() => import('./routes/AdminDiscRoute'), 'AdminDiscRoute'),
   }),
   adminChild('propostas'),
 ] as const;
@@ -162,7 +179,17 @@ const callbackRoute = createRoute({
   component: AuthCallbackPage,
 });
 
+const discRespondentRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/disc/convite/$token',
+  component: lazyRouteComponent(
+    () => import('../features/disc/DiscRespondentPage'),
+    'DiscRespondentPage',
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
+  discRespondentRoute,
   accessGateRoute,
   callbackRoute,
   indexRoute,
@@ -179,6 +206,7 @@ export function createAppRouter(
     companies: CompaniesService;
     team?: TeamService | null;
     monthly?: TeamMonthlyService | null;
+    disc?: DiscService | null;
   },
 ) {
   return createRouter({
@@ -191,6 +219,7 @@ export function createAppRouter(
       companies: services?.companies ?? companiesService,
       team: services?.team ?? null,
       monthly: services?.monthly ?? null,
+      disc: services?.disc ?? null,
     },
     defaultPreload: false,
   });

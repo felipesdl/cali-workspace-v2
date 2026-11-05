@@ -12,6 +12,7 @@ const titles: Readonly<Record<string, string>> = {
   [clientAccountPaths.company]: 'Minha empresa',
   [clientAccountPaths.terms]: 'Termos e privacidade',
   [clientPaths.team]: 'Equipe',
+  '/cliente/perfil': 'Perfil comportamental',
   [clientPaths.hours]: 'Horas',
   [clientPaths.calendar]: 'Calendário',
   [clientPaths.records]: 'Ocorrências',
@@ -21,7 +22,7 @@ const titles: Readonly<Record<string, string>> = {
   [clientPaths.notices]: 'Avisos',
 };
 export function ConnectedClientWorkspace() {
-  const { team } = useRouteContext({ from: '__root__' });
+  const { team, disc } = useRouteContext({ from: '__root__' });
   const pathname = useLocation({ select: (location) => location.pathname });
   return (
     <WorkspaceLayout
@@ -39,6 +40,14 @@ export function ConnectedClientWorkspace() {
               {item.label}
             </Link>
           ))}
+          {disc && (
+            <Link
+              to="/cliente/perfil"
+              className="tw:text-brand tw:underline-offset-4 tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
+            >
+              Perfil comportamental
+            </Link>
+          )}
           {team && (
             <Link
               className="tw:text-brand tw:underline-offset-4 tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"

@@ -1,5 +1,16 @@
 # Registro de mudanças
 
+
+## 05/11/2026 — DISC 3A, 3B e 3C no piloto sintético
+
+- Questionário da publicação 83 preservado (18 blocos naturais, seis de pressão, `cali-disc-v1.1`), convite, recusa/prazo, resposta idempotente e agradecimento sem resultados. Avaliador/escores/PDF são internos ao Admin. Gestão separa cinco a 14 respostas qualitativas e 15 ou mais agregadas, com parecer, assinatura/foto, protocolo, aprovação/liberação e histórico.
+- Schema privado e wrappers próprios aplicados no CALI MAPA após inventário; nenhuma das 34 funções legadas mudou. Uma resposta foi concluída no navegador; 14 fixtures adicionais validaram o limiar em A e cinco fixtures compuseram a campanha sem conta. São dados fictícios, não coleta real ou 20 jornadas completas.
+- Admin criou, aprovou, liberou e retirou gestão; Cliente A consultou e baixou somente gestão própria; B permaneceu vazio. PDF técnico baixado pelo Admin. Retirada voltou a rascunho/revisão 10, preservou histórico e removeu a leitura Cliente. Com conta: app e aviso; sem conta: PDF ao gestor. Provedor aceitou quatro tarefas distintas, sem comprovar inbox e sem envios a endereços de fixtures.
+- Renderer e e-mail ficam no servidor. Foto WebP é normalizada em memória, com WASM incorporado e limites; fixtures de imagem são sintéticas. Repetição de tarefa usa chave estável, falhas não viram entrega, retentativas têm intervalo/limite. Documento revalida autorização e revisão após geração. Corrigidos identificador do download de gestão, descarte de agregados no handler e conflito falso após operação própria; regressões adicionadas.
+- `npm run verify`: **251 testes/38 arquivos**, formatação, lint, tipos, configuração local, links e build SPA/bundles autocontidos passaram. SQL descartável por socket Unix passou com fronteiras 4/5/14/15, permissões, assinatura/histórico, replay/concorrência, expiração/recusa, fila/cadência e entrega sem conta. Poppler conferiu PDFs sintéticos e paginação; aviso conhecido do chunk principal permanece. CI remota não comprovada.
+- **Limites de ativação:** worker hospedado permanece na versão 2, JWT obrigatório, agenda DISC desligada e sem cron novo. Revisão local seguinte inclui todos os agregados no PDF; novo deploy foi recusado pela revisão automática por exigir autorização explícita. Não foi contornado. Foto privada não foi copiada para diagnóstico local. Não houve publicação da SPA, merge, coleta real ou retomada da bateria Auth/Edge/Docker suspensa.
+- README, roadmap, fluxo, arquitetura, privacidade, permissões, runbook e [contrato DISC com rollback](contracts/DISC_3.md) atualizados. Paridade visual, textos/guarda e agenda autenticada continuam gates do primeiro lançamento.
+
 ## 05/11/2026 — Fechamento funcional da 2C no piloto A/B
 
 - **Autor/escopo:** Codex; continuidade autorizada por Felipe. Confirmação mensal, snapshots versionados, vagas/eventos, pendência Cliente e indicadores essenciais foram conectados ao CALI MAPA somente no piloto sintético A/B. Mantidas composição simplificada, referência 83 e DEC-05/10.

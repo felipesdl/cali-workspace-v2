@@ -210,3 +210,7 @@ Obter definições ausentes e schema/policies efetivos, reconciliar guards difer
 ## Dados mensais V2 — piloto A/B em 05/11/2026
 
 A [2C](contracts/TEAM_MONTHLY_2C.md) tem contrato e prova próprios, sem ampliar a matriz histórica acima para todos os domínios. Cliente admitido com sessão e aceite vigentes lê a própria empresa, lança métricas apenas quando ausentes e confirma/reconfirma mês atual/anterior. Admin exige MFA, consulta A/B, corrige métricas gravadas com motivo/preimagem e reconfirma com motivo. Nenhum desses papéis modifica métricas do piloto por INSERT/UPDATE direto. Seis policies restritivas alinham a leitura direta mensal à guarda de ator/empresa/sessão/MFA/aceite somente em A/B. Fora do piloto permanecem os predicados anteriores. A auditoria privada não concede SELECT a `authenticated`; as RPCs retornam apenas o histórico permitido. Partner fica fora da entrega 2C.
+
+## DISC V2 — piloto de 05/11/2026
+
+Os wrappers `v2_disc_admin/command/document` exigem Admin com MFA e aceite para operações internas. `v2_disc_client` deriva empresa da sessão e retorna somente gestão aprovada/liberada. `v2_disc_document` permite ao Cliente somente essa mesma gestão; resultado individual exige Admin. `v2_disc_public` recebe capacidade do convite e retorna contexto/participação, nunca resultado. `v2_disc_worker` é exclusivo do papel servidor. O schema privado não concede leitura direta a anon/authenticated/service_role. [Contrato, provas e limites](contracts/DISC_3.md).

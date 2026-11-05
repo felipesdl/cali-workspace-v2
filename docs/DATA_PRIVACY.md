@@ -93,3 +93,9 @@ B teve acesso ao PDF sintético recusado pela origem após o corte. Um caminho j
 O diretório, a estrutura e o histórico usam projeções profissionais. Remuneração, data de revisão salarial, gênero e informação de filhos são consultados somente após abrir a seção privada. O Cliente precisa de sessão vigente, aceite e vínculo com a empresa. Admin exige MFA. A escrita privada registra nomes dos campos alterados, sem copiar seus valores para a trilha. A prévia do CSV consulta a base profissional. Valores privados do arquivo só seguem na confirmação, com declaração de origem por linha. Células privadas vazias conservam o dado anterior.
 
 A prova do CALI MAPA usou fichas sintéticas, arquivadas após a rodada. Arquivar preserva dados e histórico. A CALI ainda precisa validar a finalidade, a necessidade de coleta e as regras de guarda para uso real. [Contrato de Equipe](contracts/TEAM_2B.md).
+
+## DISC V2 — recorte sintético de 05/11/2026
+
+Nome/e-mail do convite identificam participação e entrega do PDF próprio. Cargo é contexto opcional. Respostas/escores são restritos ao avaliador interno; Cliente recebe somente agregado aprovado/liberado da própria empresa. Cinco a 14 respostas não expõem contagens; a partir de 15, agregados sem nomes. Foto/assinatura profissional integram o artefato assinado, congelado por revisão; não são credenciais de acesso. Fila e auditoria registram destinatário/tipo/revisão e confirmação do provedor.
+
+O piloto usa respostas fictícias e dois destinatários autorizados, não versionados. Consentimento exibido é de homologação sintética e não autoriza coleta real. Conteúdo final, finalidade, guarda, exclusão/exportação e comunicação precisam de validação CALI; nenhum prazo foi inventado. Retirada de liberação impede novas consultas, sem prometer apagar PDF já entregue/baixado. [Contrato](contracts/DISC_3.md).

@@ -57,3 +57,7 @@ Retorno Admin por link/campanha/resposta; resposta pública deve distinguir fech
 Aceite proposto: Cliente não lista respostas gerais Forms; slug fechado; tipos/campos/arquivo fora do path; edição Admin preserva evidência; token inválido/convite expirado/recusado; três lembretes/janela/fuso; gestão com 4/5/14/15 respostas, sem resultado/parecer, não liberada e outra empresa; sem nomes; assinatura/foto/protocolo e revisão coerentes; avaliador negado ao Cliente/respondente inclusive por API/arquivo/token; agradecimento e PDF por e-mail sem metodologia/cálculos; falha/repetição de envio e retorno a rascunho após alteração. Não validar cientificamente o método nesta tarefa documental.
 
 **Pendências técnicas:** `REF-19` (edição/histórico Forms), `REF-20` (efetivar públicos/token de DEC-13), `REF-21` (Mapa sem corpo SQL), `REF-16` (envio), `REF-22` (retenção/exportação). DISC já é produto oficial, sem nova decisão de inclusão. Forms/Mapa continuam rastreados separadamente; não eliminar módulos por omissão.
+
+## Implementação V2 em 05/11/2026
+
+DISC possui domínio privado separado, wrappers por público, questionário, avaliador e gestão conectados no piloto. A prova hospedada e os testes descartáveis estão no [contrato DISC](../contracts/DISC_3.md). A exposição individual legada foi evitada por isolamento de tabelas/tokens, sem alterar o leitor da V1. Cadência automática está desligada; revisão final do PDF ainda depende de deploy autorizado. Forms/Mapa continuam na fase 4E.
