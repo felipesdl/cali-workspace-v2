@@ -51,7 +51,7 @@ Não afirmar que **todas** as horas Partner passam pela fila: migration posterio
 
 ## FLOW-16 — Auditoria e tratamento de satisfação
 
-O [leitor piloto de auditoria](../contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin) cobre eventos operacionais selecionados, com empresa e mês, sem metadados livres.
+O [leitor piloto de auditoria](../contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin) cobre eventos operacionais selecionados, com empresa e mês, sem metadados livres. O [acompanhamento de notas baixas](../contracts/PHASE_4_READ.md#acompanhamento-admin-de-satisfação) registra tema e anotação sem editar a avaliação original.
 
 Alvo confirmado: geração, aprovação, liberação e envio de relatórios são eventos distintos de auditoria, vinculados ao objeto/revisão e ator. [Regras de produto](../PRODUCT_RULES.md) não permitem usar um toast ou fila como comprovação de entrega externa. Administração de equipe CALI continua no recorte Admin; área Partner completa permanece posterior no roadmap.
 

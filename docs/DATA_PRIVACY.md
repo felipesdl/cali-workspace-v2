@@ -123,3 +123,7 @@ A consulta Cliente expõe sua própria nota e comentário. O motivo e a resposta
 ## Propostas e auditoria Admin
 
 A consulta de propostas projeta identificador, versão, situação e valores do recorte inscrito. Contatos, briefing e PDF não são devolvidos. Auditoria mostra autoria, data e evento selecionado, sem notas ou metadados livres. Só Admin com MFA no piloto. [Contrato](contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin).
+
+## Acompanhamento de satisfação
+
+O Admin consulta a avaliação de 1 a 3 da empresa selecionada. Tema e anotação de acompanhamento não são devolvidos ao Cliente e não entram como texto livre na auditoria. A operação não modifica avaliação nem envia comunicações. [Contrato](contracts/PHASE_4_READ.md#acompanhamento-admin-de-satisfação).

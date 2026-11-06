@@ -122,3 +122,11 @@ Auditoria consulta os eventos selecionados de `activity_log` da empresa, paginad
 Instalar `admin-audit-read.sql` depois das propostas de relatórios. Instalar `commercial-read.sql` somente após conferir as tabelas e tipos efetivos do Portal, e cadastrar apenas as oportunidades sintéticas revisadas. As duas telas exigem Admin com MFA, empresa piloto e `VITE_CALI_PHASE4_ADMIN_READ=true` além da flag de leitura. Sem fallback a fixtures na composição hospedada. O rollback retira RPCs da V2, mantendo os dados e as inscrições.
 
 PostgreSQL descartável confirmou negação a Cliente e Admin sem MFA, escopo por empresa e inscrição, versões e valor preservados, fronteira do mês em Brasília e ausência de campos privados. Sem acesso ao Portal hospedado, alteração de políticas, migration no CALI MAPA ou envio. Editor, cálculo, destinatário, publicação, aceite e trilhas adicionais ainda precisam de contrato e homologação.
+
+## Acompanhamento Admin de satisfação
+
+Admin com MFA vê as avaliações de 1 a 3 da empresa piloto: ocorrência, entrega original e correção de entregável. A revisão corrigida tem identificador próprio, sem reutilizar a avaliação ou o acompanhamento anterior. As notas 4 e 5 ficam fora deste recorte de acompanhamento de notas baixas.
+
+Tema e anotação ficam em `satisfaction_followups`, separados da avaliação. Salvar ou atualizar não muda nota, comentário nem autoria do Cliente e não gera comunicação. O banco confere empresa, origem, data da avaliação e a versão do acompanhamento; uma alteração obsoleta não sobrescreve a mais recente. Repetir o mesmo conteúdo não duplica evento. Auditoria registra o acompanhamento sem projetar sua anotação interna.
+
+Instalar `satisfaction-operations.sql` depois das operações de entregáveis e ocorrências, com as tabelas legadas `nps_responses` e `satisfaction_followups` conferidas. A consulta usa `VITE_CALI_PHASE4_ADMIN_READ=true`; o formulário requer também `VITE_CALI_PHASE4_WRITE=true`. O rollback retira RPCs, mantendo avaliações e acompanhamentos. PostgreSQL descartável validou escopo, MFA, reexecução, conflito, separação da revisão e preservação do feedback. Painel agregado, trilhas adicionais e homologação no CALI MAPA ficam em aberto.

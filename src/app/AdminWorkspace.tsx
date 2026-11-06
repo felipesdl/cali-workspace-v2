@@ -20,11 +20,13 @@ export function AdminWorkspace() {
   const showDisc = Boolean(disc && pathname === '/admin/perfil');
   const adminReadTitle =
     adminRead &&
-    (pathname === '/admin/auditoria'
-      ? 'Auditoria'
-      : pathname === '/admin/propostas'
-        ? 'Propostas'
-        : null);
+    (pathname === '/admin/satisfacao'
+      ? 'Satisfação'
+      : pathname === '/admin/auditoria'
+        ? 'Auditoria'
+        : pathname === '/admin/propostas'
+          ? 'Propostas'
+          : null);
   const operationsTitle =
     adminReadTitle ||
     (projectWorkspace &&

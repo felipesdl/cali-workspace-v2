@@ -2,6 +2,7 @@
 \ir ../../../tests/fixtures/phase4/agenda-changes.sql
 \ir ../../../tests/fixtures/phase4/record-reviews.sql
 \ir ../../../tests/fixtures/phase4/admin-read.sql
+\ir ../../../tests/fixtures/phase4/satisfaction.sql
 \ir read-projects.sql
 \ir read-catalogs.sql
 \ir project-operations.sql
@@ -19,6 +20,7 @@
 \ir report-release-operations.sql
 \ir admin-audit-read.sql
 \ir commercial-read.sql
+\ir satisfaction-operations.sql
 \ir forms-operations.sql
 
 begin;
@@ -147,6 +149,7 @@ rollback;
 grant usage on schema cali_workspace to service_role;
 \ir test-report-release.sql
 \ir test-admin-read.sql
+\ir test-satisfaction.sql
 \ir rollback-write.sql
 do $$
 begin

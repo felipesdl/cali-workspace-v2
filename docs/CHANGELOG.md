@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Acompanhamento de avaliações baixas
+
+- Admin acompanha avaliações de ocorrência, entrega e revisão corrigida. Tema e anotação ficam separados do feedback original, com guarda contra sobrescrita e auditoria sem nota interna. [Contrato](contracts/PHASE_4_READ.md#acompanhamento-admin-de-satisfação).
+
 ## 06/11/2026 — Leitura de propostas e auditoria
 
 - Admin consulta propostas inscritas por empresa, com valores e versões preservados, e eventos selecionados de auditoria por mês de Brasília. Banco descartável valida escopo, MFA e minimização de dados. [Contrato](contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin).

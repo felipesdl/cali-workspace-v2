@@ -20,6 +20,7 @@ const auditEvents = [
   'record_reopen_decided',
   'agenda_change_requested',
   'agenda_change_decided',
+  'satisfaction_followup_saved',
 ] as const;
 export type AuditEvent = (typeof auditEvents)[number];
 
@@ -77,8 +78,56 @@ const commercial = page.extend({
   ),
 });
 
+const satisfactionSource = z.enum(['record', 'deliverable']);
+const theme = z.enum(['prazo', 'qualidade', 'comunicacao', 'atendimento', 'outro']);
+export type FollowupTheme = z.infer<typeof theme>;
+const satisfactionEntry = z.object({
+  source: satisfactionSource,
+  response: z.string().min(1).max(64),
+  title: z.string(),
+  score: z.number().int().min(1).max(3),
+  comment: z.string().nullable(),
+  ratedAt: z.iso.datetime({ offset: true }),
+  followup: z
+    .object({
+      theme: theme.nullable(),
+      note: z.string().nullable(),
+      handledAt: z.iso.datetime({ offset: true }),
+    })
+    .nullable(),
+});
+export type SatisfactionEntry = z.infer<typeof satisfactionEntry>;
+const satisfaction = page.extend({ entries: z.array(satisfactionEntry) });
+
 export function createAdminRead(client: WorkspaceClient) {
   return {
+    async satisfaction(company: string, page: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_satisfaction', {
+          p_company_id: company,
+          p_page: page,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar as avaliações.');
+      const result = satisfaction.parse(data);
+      if (result.companyId !== company) throw new Error('Contexto divergente.');
+      return result;
+    },
+    async saveFollowup(company: string, entry: SatisfactionEntry, nextTheme: string, note: string) {
+      const { data, error } = await client.rpc('v2_save_pilot_satisfaction_followup', {
+        p_company_id: company,
+        p_source: entry.source,
+        p_response: entry.response,
+        p_rated_at: entry.ratedAt,
+        p_expected_followup: entry.followup?.handledAt ?? null,
+        p_theme: nextTheme ? theme.parse(nextTheme) : null,
+        p_note: z.string().trim().max(2000).parse(note),
+      });
+      if (error?.code === '40001')
+        throw new Error('A avaliação ou o acompanhamento mudou. Atualize a consulta.');
+      if (error) throw new Error('Não foi possível registrar o acompanhamento.');
+      return z.uuid().parse(data);
+    },
     async audit(company: string, month: string | null, page: number, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_read_pilot_audit', {

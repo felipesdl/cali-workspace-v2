@@ -123,6 +123,13 @@ export function WorkspaceLayout({
               >
                 Auditoria
               </Link>
+              <Link
+                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                to="/admin/satisfacao"
+                search={workspaceSearch.parse({})}
+              >
+                Satisfação
+              </Link>
             </>
           )}
           <Button variant="secondary" onClick={() => void session?.signOut()}>

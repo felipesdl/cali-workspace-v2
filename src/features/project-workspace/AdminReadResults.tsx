@@ -24,6 +24,7 @@ const auditLabels = {
   record_reopen_requested: 'Solicitou reabertura de ocorrência',
   record_reopen_decided: 'Decidiu reabertura de ocorrência',
   agenda_change_requested: 'Pediu alteração de agenda',
+  satisfaction_followup_saved: 'Registrou acompanhamento de avaliação',
   agenda_change_decided: 'Decidiu alteração de agenda',
 } as const satisfies Record<AuditEvent, string>;
 const opportunityLabels = {

@@ -260,6 +260,15 @@ const adminChildren = [
       'AdminAuditPage',
     ),
   }),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'satisfacao',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'AdminSatisfactionPage',
+    ),
+  }),
 ] as const;
 
 export const companiesRoute = createRoute({

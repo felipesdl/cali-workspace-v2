@@ -30,7 +30,7 @@ begin
           'document_revision_added','document_published','document_withdrawn',
           'deliverable_reopened','deliverable_client_approved',
           'record_open','account_record_feedback','record_reopen_requested','record_reopen_decided',
-          'agenda_change_requested','agenda_change_decided'
+          'agenda_change_requested','agenda_change_decided','satisfaction_followup_saved'
         )
     ), page as (
       select f.id::text as id,f.created_at as "at",f.event_type as event,f.entity_type as "entity",

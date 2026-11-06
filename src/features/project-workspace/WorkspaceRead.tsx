@@ -1,3 +1,4 @@
+import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { DeliveryPdf, DocumentLibrary } from './DocumentLibrary';
 import {
@@ -13,7 +14,7 @@ import { OpenRecord, RecordConversation } from './RecordActions';
 import { PrivacyActions, ReportAcknowledgment, ReportReadiness } from './ReportPrivacyActions';
 import { HourActions } from './HourActions';
 import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getRouteApi,
   useLocation,
@@ -42,6 +43,7 @@ const adminHours = getRouteApi('/admin/horas');
 const adminPrivacy = getRouteApi('/admin/privacidade');
 const adminForms = getRouteApi('/admin/formularios');
 const adminAudit = getRouteApi('/admin/auditoria');
+const adminSatisfaction = getRouteApi('/admin/satisfacao');
 const adminCommercial = getRouteApi('/admin/propostas');
 const clientHours = getRouteApi('/cliente/horas');
 const panel = 'tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
@@ -793,6 +795,72 @@ export function AdminCommercialPage() {
   const navigate = adminCommercial.useNavigate();
   return (
     <AdminCommercial
+      search={search}
+      update={(change) => void navigate({ search: { ...search, ...change } })}
+    />
+  );
+}
+
+function AdminSatisfaction({ search, update }: Props) {
+  const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
+  const { companyId, actor, admin } = useScope(search);
+  const cache = useQueryClient();
+  const key = ['phase4-satisfaction', actor, companyId];
+  const result = useQuery({
+    queryKey: [...key, search.page],
+    queryFn:
+      admin && adminRead && companyId
+        ? ({ signal }) => adminRead.satisfaction(companyId, search.page, signal)
+        : skipToken,
+  });
+  if (!admin || !adminRead) return null;
+  const service = adminRead;
+  return (
+    <div className="tw:grid tw:gap-4">
+      <CompanySelect search={search} update={update} />
+      {!companyId ? (
+        <p>Selecione uma empresa.</p>
+      ) : result.isPending ? (
+        <FeedbackState kind="loading">Carregando avaliações…</FeedbackState>
+      ) : result.isError ? (
+        <FeedbackState kind="error" onRetry={() => void result.refetch()}>
+          Não foi possível consultar as avaliações.
+        </FeedbackState>
+      ) : (
+        <>
+          {result.data.entries.length ? (
+            <SatisfactionResults
+              entries={result.data.entries}
+              save={
+                domainOperations
+                  ? async (entry, theme, note) => {
+                      try {
+                        return await service.saveFollowup(companyId, entry, theme, note);
+                      } finally {
+                        await Promise.all([
+                          cache.invalidateQueries({ queryKey: key }),
+                          cache.invalidateQueries({ queryKey: ['phase4-audit', actor, companyId] }),
+                        ]);
+                      }
+                    }
+                  : undefined
+              }
+            />
+          ) : (
+            <FeedbackState kind="empty">Nenhuma avaliação de 1 a 3 nesta página.</FeedbackState>
+          )}
+          <Pages total={result.data.total} search={search} update={update} />
+        </>
+      )}
+    </div>
+  );
+}
+
+export function AdminSatisfactionPage() {
+  const search = adminSatisfaction.useSearch();
+  const navigate = adminSatisfaction.useNavigate();
+  return (
+    <AdminSatisfaction
       search={search}
       update={(change) => void navigate({ search: { ...search, ...change } })}
     />
