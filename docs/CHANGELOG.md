@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Condições e aprovação interna de propostas
+
+- Admin com permissão do Portal pode editar condições de rascunho e aprovar a versão salva no piloto. A operação preserva valor e registra auditoria. [Contrato](contracts/PHASE_4_READ.md#rascunho-e-aprovação-interna-de-propostas)
+
 ## 06/11/2026 — Acompanhamento de avaliações baixas
 
 - Admin acompanha avaliações de ocorrência, entrega e revisão corrigida. Tema e anotação ficam separados do feedback original, com guarda contra sobrescrita e auditoria sem nota interna. [Contrato](contracts/PHASE_4_READ.md#acompanhamento-admin-de-satisfação).

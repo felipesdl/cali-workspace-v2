@@ -21,6 +21,8 @@ const auditEvents = [
   'agenda_change_requested',
   'agenda_change_decided',
   'satisfaction_followup_saved',
+  'commercial_proposal_edited',
+  'commercial_proposal_approved',
 ] as const;
 export type AuditEvent = (typeof auditEvents)[number];
 
@@ -99,6 +101,14 @@ const satisfactionEntry = z.object({
 export type SatisfactionEntry = z.infer<typeof satisfactionEntry>;
 const satisfaction = page.extend({ entries: z.array(satisfactionEntry) });
 
+const commercialDraft = z.object({
+  id: z.uuid(),
+  updatedAt: z.iso.datetime({ offset: true }),
+  paymentTerms: z.string().nullable(),
+  publicNotes: z.string().nullable(),
+  validityDays: z.number().int().min(1).max(120),
+});
+type CommercialDraftChange = { paymentTerms: string; publicNotes: string; validityDays: number };
 export function createAdminRead(client: WorkspaceClient) {
   return {
     async satisfaction(company: string, page: number, signal: AbortSignal) {
@@ -141,6 +151,39 @@ export function createAdminRead(client: WorkspaceClient) {
       if (result.companyId !== company || result.month !== month)
         throw new Error('Contexto divergente.');
       return result;
+    },
+    async commercialDraft(company: string, proposal: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_commercial_draft', {
+          p_company_id: company,
+          p_proposal_id: proposal,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar o rascunho.');
+      const draft = commercialDraft.nullable().parse(data);
+      if (draft && draft.id !== proposal) throw new Error('Proposta divergente.');
+      return draft;
+    },
+    async saveCommercialDraft(
+      company: string,
+      proposal: string,
+      expected: string,
+      change?: CommercialDraftChange,
+    ) {
+      const { data, error } = await client.rpc('v2_save_pilot_commercial_draft', {
+        p_company_id: company,
+        p_proposal_id: proposal,
+        p_expected: expected,
+        p_action: change ? 'edit' : 'approve',
+        p_payment_terms: change?.paymentTerms ?? null,
+        p_public_notes: change?.publicNotes ?? null,
+        p_validity_days: change?.validityDays ?? null,
+      });
+      if (error?.code === '40001') throw new Error('A proposta mudou. Atualize a consulta.');
+      if (error?.code === '42501')
+        throw new Error('Seu acesso não permite editar esta proposta no Portal.');
+      if (error) throw new Error('Não foi possível salvar a proposta.');
+      return z.literal(proposal).parse(data);
     },
     async commercial(company: string, page: number, signal: AbortSignal) {
       const { data, error } = await client

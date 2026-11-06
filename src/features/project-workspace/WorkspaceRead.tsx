@@ -1,3 +1,4 @@
+import { CommercialDraftEditor } from './CommercialDraftEditor';
 import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { DeliveryPdf, DocumentLibrary } from './DocumentLibrary';
@@ -753,7 +754,7 @@ export function AdminAuditPage() {
 }
 
 function AdminCommercial({ search, update }: Props) {
-  const { adminRead } = useRouteContext({ from: '__root__' });
+  const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
   const { companyId, actor, admin } = useScope(search);
   const result = useQuery({
     queryKey: ['phase4-commercial', actor, companyId, search.page],
@@ -777,7 +778,21 @@ function AdminCommercial({ search, update }: Props) {
       ) : (
         <>
           {result.data.entries.length ? (
-            <CommercialResults entries={result.data.entries} />
+            <CommercialResults
+              entries={result.data.entries}
+              editor={
+                domainOperations
+                  ? (proposal) => (
+                      <CommercialDraftEditor
+                        company={companyId}
+                        actor={actor}
+                        proposal={proposal}
+                        service={adminRead}
+                      />
+                    )
+                  : undefined
+              }
+            />
           ) : (
             <FeedbackState kind="empty">
               Nenhuma proposta ou oportunidade vinculada a esta empresa nesta página.

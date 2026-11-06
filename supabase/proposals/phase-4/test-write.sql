@@ -20,6 +20,7 @@
 \ir report-release-operations.sql
 \ir admin-audit-read.sql
 \ir commercial-read.sql
+\ir commercial-draft.sql
 \ir satisfaction-operations.sql
 \ir forms-operations.sql
 
@@ -149,6 +150,7 @@ rollback;
 grant usage on schema cali_workspace to service_role;
 \ir test-report-release.sql
 \ir test-admin-read.sql
+\ir test-commercial-draft.sql
 \ir test-satisfaction.sql
 \ir rollback-write.sql
 do $$

@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import {
   type AdminReadService,
   type AuditEvent,
@@ -24,6 +25,8 @@ const auditLabels = {
   record_reopen_requested: 'Solicitou reabertura de ocorrência',
   record_reopen_decided: 'Decidiu reabertura de ocorrência',
   agenda_change_requested: 'Pediu alteração de agenda',
+  commercial_proposal_edited: 'Editou proposta comercial',
+  commercial_proposal_approved: 'Aprovou proposta internamente',
   satisfaction_followup_saved: 'Registrou acompanhamento de avaliação',
   agenda_change_decided: 'Decidiu alteração de agenda',
 } as const satisfies Record<AuditEvent, string>;
@@ -77,8 +80,10 @@ export function AuditResults({
 
 export function CommercialResults({
   entries,
+  editor,
 }: {
   entries: Awaited<ReturnType<AdminReadService['commercial']>>['entries'];
+  editor?: (proposal: string) => ReactNode;
 }) {
   return (
     <ul className="tw:grid tw:gap-2">
@@ -94,6 +99,7 @@ export function CommercialResults({
             </p>
           )}
           {entry.total !== null && <p>Valor registrado: {money.format(entry.total)}</p>}
+          {entry.proposalId && entry.proposalStatus === 'rascunho' && editor?.(entry.proposalId)}
           {!entry.proposalId && <p>Sem proposta registrada.</p>}
           {entry.updatedAt && <p>Atualização: {formatServerInstant(entry.updatedAt)} (Brasília)</p>}
         </li>
