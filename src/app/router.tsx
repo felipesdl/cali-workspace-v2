@@ -1,3 +1,4 @@
+import { type AdminReadService } from '../api/modules/project-workspace/admin-read';
 import { type DocumentOperations } from '../api/modules/project-workspace/documents';
 import { type AgendaOperations } from '../api/modules/project-workspace/agenda';
 import { type DomainOperations } from '../api/modules/project-workspace/domain-operations';
@@ -56,6 +57,7 @@ const rootRoute = createRootRouteWithContext<{
   domainOperations?: DomainOperations | null;
   documentOperations?: DocumentOperations | null;
   agendaOperations?: AgendaOperations | null;
+  adminRead?: AdminReadService | null;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -240,7 +242,24 @@ const adminChildren = [
     validateSearch: (search) => z.object({ campaign: z.uuid().optional() }).parse(search),
     component: lazyRouteComponent(() => import('./routes/AdminDiscRoute'), 'AdminDiscRoute'),
   }),
-  adminChild('propostas'),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'propostas',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'AdminCommercialPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'auditoria',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'AdminAuditPage',
+    ),
+  }),
 ] as const;
 
 export const companiesRoute = createRoute({
@@ -300,6 +319,7 @@ export function createAppRouter(
     domainOperations?: DomainOperations | null;
     documentOperations?: DocumentOperations | null;
     agendaOperations?: AgendaOperations | null;
+    adminRead?: AdminReadService | null;
   },
 ) {
   return createRouter({
@@ -319,6 +339,7 @@ export function createAppRouter(
       domainOperations: services?.domainOperations ?? null,
       documentOperations: services?.documentOperations ?? null,
       agendaOperations: services?.agendaOperations ?? null,
+      adminRead: services?.adminRead ?? null,
     },
     defaultPreload: false,
   });

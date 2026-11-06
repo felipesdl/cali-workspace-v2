@@ -1,3 +1,4 @@
+import { AuditResults, CommercialResults } from './AdminReadResults';
 import { DeliveryPdf, DocumentLibrary } from './DocumentLibrary';
 import {
   CreateReportDraft,
@@ -40,6 +41,8 @@ const clientProjects = getRouteApi('/cliente/entregaveis');
 const adminHours = getRouteApi('/admin/horas');
 const adminPrivacy = getRouteApi('/admin/privacidade');
 const adminForms = getRouteApi('/admin/formularios');
+const adminAudit = getRouteApi('/admin/auditoria');
+const adminCommercial = getRouteApi('/admin/propostas');
 const clientHours = getRouteApi('/cliente/horas');
 const panel = 'tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
 const labels: Readonly<Record<string, string>> = {
@@ -683,5 +686,115 @@ export function AdminFormsPage() {
         <p>Selecione uma empresa.</p>
       )}
     </div>
+  );
+}
+
+function AdminAudit({ search, update }: Props) {
+  const { adminRead } = useRouteContext({ from: '__root__' });
+  const { companyId, actor, admin } = useScope(search);
+  const month = search.month ?? null;
+  const result = useQuery({
+    queryKey: ['phase4-audit', actor, companyId, month, search.page],
+    queryFn:
+      admin && adminRead && companyId
+        ? ({ signal }) => adminRead.audit(companyId, month, search.page, signal)
+        : skipToken,
+  });
+  if (!admin || !adminRead) return null;
+  return (
+    <div className="tw:grid tw:gap-4">
+      <CompanySelect search={search} update={update} />
+      <Field id="audit-month" label="Mês da auditoria">
+        <input
+          id="audit-month"
+          type="month"
+          value={month?.slice(0, 7) ?? ''}
+          onChange={(event) =>
+            update({
+              month: event.currentTarget.value ? `${event.currentTarget.value}-01` : undefined,
+              page: 1,
+            })
+          }
+        />
+      </Field>
+      {!companyId ? (
+        <p>Selecione uma empresa.</p>
+      ) : result.isPending ? (
+        <FeedbackState kind="loading">Carregando eventos…</FeedbackState>
+      ) : result.isError ? (
+        <FeedbackState kind="error" onRetry={() => void result.refetch()}>
+          Não foi possível consultar a auditoria.
+        </FeedbackState>
+      ) : (
+        <>
+          {result.data.entries.length ? (
+            <AuditResults entries={result.data.entries} />
+          ) : (
+            <FeedbackState kind="empty">Nenhum evento nesta página.</FeedbackState>
+          )}
+          <Pages total={result.data.total} search={search} update={update} />
+        </>
+      )}
+    </div>
+  );
+}
+
+export function AdminAuditPage() {
+  const search = adminAudit.useSearch();
+  const navigate = adminAudit.useNavigate();
+  return (
+    <AdminAudit
+      search={search}
+      update={(change) => void navigate({ search: { ...search, ...change } })}
+    />
+  );
+}
+
+function AdminCommercial({ search, update }: Props) {
+  const { adminRead } = useRouteContext({ from: '__root__' });
+  const { companyId, actor, admin } = useScope(search);
+  const result = useQuery({
+    queryKey: ['phase4-commercial', actor, companyId, search.page],
+    queryFn:
+      admin && adminRead && companyId
+        ? ({ signal }) => adminRead.commercial(companyId, search.page, signal)
+        : skipToken,
+  });
+  if (!admin || !adminRead) return null;
+  return (
+    <div className="tw:grid tw:gap-4">
+      <CompanySelect search={search} update={update} />
+      {!companyId ? (
+        <p>Selecione uma empresa.</p>
+      ) : result.isPending ? (
+        <FeedbackState kind="loading">Carregando propostas…</FeedbackState>
+      ) : result.isError ? (
+        <FeedbackState kind="error" onRetry={() => void result.refetch()}>
+          Não foi possível consultar as propostas.
+        </FeedbackState>
+      ) : (
+        <>
+          {result.data.entries.length ? (
+            <CommercialResults entries={result.data.entries} />
+          ) : (
+            <FeedbackState kind="empty">
+              Nenhuma proposta ou oportunidade vinculada a esta empresa nesta página.
+            </FeedbackState>
+          )}
+          <Pages total={result.data.total} search={search} update={update} />
+        </>
+      )}
+    </div>
+  );
+}
+
+export function AdminCommercialPage() {
+  const search = adminCommercial.useSearch();
+  const navigate = adminCommercial.useNavigate();
+  return (
+    <AdminCommercial
+      search={search}
+      update={(change) => void navigate({ search: { ...search, ...change } })}
+    />
   );
 }

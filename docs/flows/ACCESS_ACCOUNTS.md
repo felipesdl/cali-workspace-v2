@@ -148,6 +148,8 @@ Fonte exibe essas ações, mas não estabelece uma máquina SQL restrita de todo
 
 ## FLOW-03 — Proposta comercial e oportunidade
 
+A [consulta Admin da V2](../contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin) lê somente oportunidades inscritas no piloto. Editor, aprovação, envio e aceite continuam fora do incremento.
+
 **Objetivo/atores:** Admin trata oportunidade, calcula/edita proposta, revisa e envia. Destinatário comercial não é automaticamente usuário Cliente. Fontes: [tipos/transporte Portal](SOURCES.md#portal), [editor](SOURCES.md#proposal-ui), [rotas](SOURCES.md#routes).
 
 **Entrada/dados/composição:** `/admin/propostas`, editor por `submissionId` e preview por `proposalId`; dados de briefing, pacote, preço/base, extras, desconto, vigência/validade, escopo, condição e destinatário. Origem `public.cali_submissions/cali_proposals/cali_pricing_rules/cali_activity`, distinta de `cali_workspace`.

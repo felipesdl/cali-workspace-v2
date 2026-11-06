@@ -15,20 +15,28 @@ const CompaniesPage = lazy(() =>
 export function AdminWorkspace() {
   const pathname = useLocation({ select: (location) => location.pathname });
   const navigate = useNavigate();
-  const { access, team, disc, projectWorkspace } = useRouteContext({ from: '__root__' });
+  const { access, team, disc, projectWorkspace, adminRead } = useRouteContext({ from: '__root__' });
   const showTeam = Boolean(team && pathname === adminPaths.people);
   const showDisc = Boolean(disc && pathname === '/admin/perfil');
+  const adminReadTitle =
+    adminRead &&
+    (pathname === '/admin/auditoria'
+      ? 'Auditoria'
+      : pathname === '/admin/propostas'
+        ? 'Propostas'
+        : null);
   const operationsTitle =
-    projectWorkspace &&
-    (pathname === '/admin/formularios'
-      ? 'Formulários'
-      : pathname === '/admin/privacidade'
-        ? 'Privacidade'
-        : pathname === adminPaths.projects
-          ? 'Projetos'
-          : pathname === adminPaths.hours
-            ? 'Horas'
-            : phase4CatalogFromPath(pathname)?.title);
+    adminReadTitle ||
+    (projectWorkspace &&
+      (pathname === '/admin/formularios'
+        ? 'Formulários'
+        : pathname === '/admin/privacidade'
+          ? 'Privacidade'
+          : pathname === adminPaths.projects
+            ? 'Projetos'
+            : pathname === adminPaths.hours
+              ? 'Horas'
+              : phase4CatalogFromPath(pathname)?.title));
   if (access)
     return (
       <WorkspaceLayout

@@ -1,3 +1,4 @@
+import { createAdminRead } from './api/modules/project-workspace/admin-read';
 import { createDocumentOperations } from './api/modules/project-workspace/documents';
 import { createAgendaOperations } from './api/modules/project-workspace/agenda';
 import { createDomainOperations } from './api/modules/project-workspace/domain-operations';
@@ -78,6 +79,10 @@ try {
           domainOperations: phase4Write ? createDomainOperations(phase4Write) : null,
           documentOperations: phase4Write ? createDocumentOperations(phase4Write) : null,
           agendaOperations: phase4Write ? createAgendaOperations(phase4Write) : null,
+          adminRead:
+            phase4 && import.meta.env.VITE_CALI_PHASE4_ADMIN_READ === 'true'
+              ? createAdminRead(phase4)
+              : null,
         }
       : undefined,
   );

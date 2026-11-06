@@ -17,7 +17,7 @@ export function WorkspaceLayout({
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), [title]);
-  const { session, team, disc, projectWorkspace, domainOperations } = useRouteContext({
+  const { session, team, disc, projectWorkspace, domainOperations, adminRead } = useRouteContext({
     from: '__root__',
   });
   const state = useWorkspaceSession();
@@ -106,6 +106,24 @@ export function WorkspaceLayout({
             >
               Formulários
             </Link>
+          )}
+          {admin && adminRead && (
+            <>
+              <Link
+                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                to="/admin/propostas"
+                search={workspaceSearch.parse({})}
+              >
+                Propostas
+              </Link>
+              <Link
+                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                to="/admin/auditoria"
+                search={workspaceSearch.parse({})}
+              >
+                Auditoria
+              </Link>
+            </>
           )}
           <Button variant="secondary" onClick={() => void session?.signOut()}>
             Sair

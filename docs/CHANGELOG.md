@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Leitura de propostas e auditoria
+
+- Admin consulta propostas inscritas por empresa, com valores e versões preservados, e eventos selecionados de auditoria por mês de Brasília. Banco descartável valida escopo, MFA e minimização de dados. [Contrato](contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin).
+
 ## 06/11/2026 — Avaliação e reabertura de ocorrências
 
 - Cliente avalia a ocorrência finalizada e pede reabertura. CALI decide com motivo de recusa obrigatório. Validação descartável cobre isolamento, MFA, reexecução e menções de chat sem e-mail. [Contrato](contracts/PHASE_4_READ.md#avaliação-e-reabertura-de-ocorrências).

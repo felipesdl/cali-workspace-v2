@@ -1,6 +1,8 @@
 -- Desativa o incremento operacional. Dados produzidos e recibos de reexecução ficam preservados.
 begin;
 set local lock_timeout = '5s';
+drop function if exists cali_workspace.v2_read_pilot_audit(uuid,date,integer);
+drop function if exists cali_workspace.v2_read_pilot_commercial(uuid,integer);
 drop function if exists cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date);
 drop function if exists cali_workspace.v2_add_pilot_project_item(uuid,uuid,uuid,text,text,uuid,timestamp without time zone);
 drop function if exists cali_workspace.v2_share_pilot_schedule(uuid,uuid);

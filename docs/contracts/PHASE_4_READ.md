@@ -112,3 +112,13 @@ Cliente pode pedir reabertura em espera, finalizada ou cancelada. Para ocorrênc
 Instalar `record-operations.sql` e `record-review-operations.sql` depois de `operation-receipts.sql`. A leitura e as transições dependem das tabelas e RPCs de avaliação e reabertura instaladas. As notificações legadas da avaliação/pedido/decisão podem enfileirar e-mail; isolar transporte antes de homologar. Mensagens e menções gravadas neste fluxo não habilitam e-mail de chat. O rollback retira RPCs da V2 e preserva registros.
 
 PostgreSQL descartável verificou nota inválida, avaliação de outro acesso, isolamento A/B, MFA, pedido único, recusa, aprovação, reexecução e menção sem e-mail de chat. A prova usa dependências legadas sintéticas. Homologação no CALI MAPA e paridade visual permanecem pendentes.
+
+## Propostas e auditoria no piloto Admin
+
+Propostas consulta `public.cali_submissions` e `public.cali_proposals` apenas para oportunidades de teste inscritas explicitamente em `cali_session_guard.phase4_commercial_scope` para a empresa selecionada. A inscrição usa identificador, nunca nome, domínio ou e-mail. Cada versão exibe o valor registrado e seu estado; aprovação interna não vira aceite, e o estado do Portal não comprova o ator ou a entrega de e-mail. Briefing, contatos, notas, cálculos, arquivo e chaves de transporte não entram na projeção. Sem escrita no Portal.
+
+Auditoria consulta os eventos selecionados de `activity_log` da empresa, paginados e filtráveis por mês de Brasília. A projeção inclui evento, instante, autor e, quando disponíveis, protocolo e revisão. Metadados livres, notas e hashes ficam fora. Geração e publicação de relatório aparecem como eventos separados. Esta é uma projeção de leitura de uma fonte; não certifica imutabilidade nem substitui todas as trilhas da publicação 83.
+
+Instalar `admin-audit-read.sql` depois das propostas de relatórios. Instalar `commercial-read.sql` somente após conferir as tabelas e tipos efetivos do Portal, e cadastrar apenas as oportunidades sintéticas revisadas. As duas telas exigem Admin com MFA, empresa piloto e `VITE_CALI_PHASE4_ADMIN_READ=true` além da flag de leitura. Sem fallback a fixtures na composição hospedada. O rollback retira RPCs da V2, mantendo os dados e as inscrições.
+
+PostgreSQL descartável confirmou negação a Cliente e Admin sem MFA, escopo por empresa e inscrição, versões e valor preservados, fronteira do mês em Brasília e ausência de campos privados. Sem acesso ao Portal hospedado, alteração de políticas, migration no CALI MAPA ou envio. Editor, cálculo, destinatário, publicação, aceite e trilhas adicionais ainda precisam de contrato e homologação.

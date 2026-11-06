@@ -119,3 +119,7 @@ A geração usa resumo aprovado, indicadores agregados e a identidade visual da 
 ## Avaliação e reabertura de ocorrências
 
 A consulta Cliente expõe sua própria nota e comentário. O motivo e a resposta integram a conversa da empresa; não são notas internas. Decisão e pedido são rastreáveis por autor e ocorrência. A reabertura não apaga a avaliação ou movimenta horas. [Contrato](contracts/PHASE_4_READ.md#avaliação-e-reabertura-de-ocorrências).
+
+## Propostas e auditoria Admin
+
+A consulta de propostas projeta identificador, versão, situação e valores do recorte inscrito. Contatos, briefing e PDF não são devolvidos. Auditoria mostra autoria, data e evento selecionado, sem notas ou metadados livres. Só Admin com MFA no piloto. [Contrato](contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin).
