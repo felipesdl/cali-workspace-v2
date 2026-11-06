@@ -15,6 +15,7 @@ drop function if exists cali_workspace.v2_set_pilot_notice_state(uuid,uuid,text,
 drop function if exists cali_workspace.v2_ack_pilot_notice(uuid,uuid,boolean);
 drop function if exists cali_workspace.v2_create_pilot_report_draft(uuid,uuid,date,text,text);
 drop function if exists cali_workspace.v2_update_pilot_report_draft(uuid,uuid,timestamptz,text,text);
+drop function if exists cali_workspace.v2_list_pilot_report_approvals(uuid,uuid,integer);
 drop function if exists cali_workspace.v2_list_pilot_forms(uuid,integer);
 drop function if exists cali_workspace.v2_set_pilot_form_state(uuid,uuid,text,text);
 drop function if exists cali_workspace.v2_pilot_hour_action(uuid,uuid,text,uuid,uuid,date,integer,text,text,boolean);

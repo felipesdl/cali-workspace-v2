@@ -107,3 +107,7 @@ Título, nome do arquivo, bytes, autoria e data de cada revisão dão suporte à
 ## PDFs de entregáveis no piloto
 
 Somente PDFs sintéticos. Bytes, nome, autor e instante de upload ficam no histórico privado. A liberação pertence à revisão do entregável. A API confere sessão, empresa e visibilidade a cada download, sem cache ou link público. Reabertura ou ajuste retira a publicação e preserva a trilha para Admin. Cópias já baixadas não são removidas. [Contrato e limites](contracts/PHASE_4_READ.md#pdf-privado-de-entregável).
+
+## Histórico de aprovação interna de relatórios
+
+O retrato privado registra resumo, fontes, versão, autor e instante de aprovação, mais referências da identidade CALI necessárias à geração futura. A consulta Admin devolve apenas metadados de revisão. Reabrir preserva histórico e registra motivo. Cliente não consulta o histórico interno. [Contrato e limites](contracts/PHASE_4_READ.md#revisões-de-aprovação-interna-do-relatório).

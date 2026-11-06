@@ -143,5 +143,7 @@ begin
  assert to_regprocedure('cali_workspace.v2_acknowledge_pilot_report(uuid,uuid)') is null;
  assert to_regprocedure('cali_workspace.v2_list_pilot_privacy_requests(uuid,integer)') is null;
  assert to_regclass('cali_session_guard.phase4_operation_receipts') is not null;
+ assert to_regprocedure('cali_workspace.v2_list_pilot_report_approvals(uuid,uuid,integer)') is null;
+ assert to_regclass('cali_session_guard.phase4_report_approvals') is not null;
  assert (select count(*) from cali_workspace.projects)=3;
 end $$;

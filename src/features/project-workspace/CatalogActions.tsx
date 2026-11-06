@@ -1,7 +1,9 @@
+import { formatServerInstant } from '../../lib/dates';
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { Button } from '../../components/ds/button/Button';
+import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { Field } from '../../components/ds/field/Field';
 import { ActionForm } from './ActionForm';
 
@@ -168,32 +170,77 @@ export function ReportDraftActions({
   summary: string | null;
 }) {
   const { operations, refresh } = useCatalogActions({ company, actor }, 'reports');
-  if (!operations || (status !== 'draft' && status !== 'review')) return null;
+  const cache = useQueryClient();
+  const approvalsKey = ['phase4-report-approvals', actor, company, id];
+  const editable = status === 'draft' || status === 'review';
+  const approved = status === 'approved';
+  const approvals = useQuery({
+    queryKey: approvalsKey,
+    queryFn:
+      operations && (editable || approved)
+        ? ({ signal }) => operations.reportApprovals(company, id, signal)
+        : skipToken,
+  });
+  if (!operations || (!editable && !approved)) return null;
+  const reportOperations = operations;
+  type Action = Parameters<typeof reportOperations.updateReport>[3];
+  async function update(action: Action, text?: string) {
+    const result = await reportOperations.updateReport(company, id, expected, action, text);
+    await Promise.all([refresh(result), cache.invalidateQueries({ queryKey: approvalsKey })]);
+    return result;
+  }
   return (
     <div className="tw:grid tw:gap-2">
-      <ActionForm
-        label="Salvar resumo executivo"
-        submit={async (fields) =>
-          refresh(
-            await operations.updateReport(company, id, expected, 'edit', read(fields, 'summary')),
-          )
-        }
-      >
-        {(prefix) => <ReportSummary prefix={prefix} summary={summary ?? ''} />}
-      </ActionForm>
-      <ActionForm
-        label={status === 'draft' ? 'Iniciar revisão interna' : 'Aprovar versão interna'}
-        submit={async () =>
-          refresh(
-            await operations.updateReport(
-              company,
-              id,
-              expected,
-              status === 'draft' ? 'review' : 'approve',
-            ),
-          )
-        }
-      />
+      {editable && (
+        <>
+          <ActionForm
+            label="Salvar resumo executivo"
+            submit={(fields) => update('edit', read(fields, 'summary'))}
+          >
+            {(prefix) => <ReportSummary prefix={prefix} summary={summary ?? ''} />}
+          </ActionForm>
+          <ActionForm
+            label={status === 'draft' ? 'Iniciar revisão interna' : 'Aprovar versão interna'}
+            submit={() => update(status === 'draft' ? 'review' : 'approve')}
+          />
+        </>
+      )}
+      {approvals.isError && (
+        <FeedbackState kind="error" onRetry={() => void approvals.refetch()}>
+          Não foi possível consultar o histórico de aprovação.
+        </FeedbackState>
+      )}
+      {Boolean(approvals.data?.length) && (
+        <details>
+          <summary>Histórico das últimas aprovações</summary>
+          <ul>
+            {approvals.data?.map((item) => (
+              <li key={item.version}>
+                Versão {item.version} · {formatServerInstant(item.approvedAt)}
+                {item.protocol && ` · ${item.protocol}`}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+      {approved && Boolean(approvals.data?.length) && (
+        <ActionForm
+          label="Reabrir aprovação interna"
+          submit={(fields) => update('reopen', read(fields, 'reason'))}
+        >
+          {(prefix) => (
+            <Field id={prefix + 'reason'} label="Motivo da reabertura">
+              <textarea
+                id={prefix + 'reason'}
+                name="reason"
+                minLength={3}
+                maxLength={4000}
+                required
+              />
+            </Field>
+          )}
+        </ActionForm>
+      )}
     </div>
   );
 }

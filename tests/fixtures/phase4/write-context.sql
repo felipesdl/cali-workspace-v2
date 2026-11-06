@@ -203,6 +203,11 @@ $$;
 create function cali_workspace.build_report_source_snapshot(uuid,date,date) returns jsonb language sql as $$
  select jsonb_build_object('company',$1,'start',$2,'end',$3);
 $$;
+create function cali_workspace.profile_signer_snapshot() returns jsonb language sql stable as $$
+ select jsonb_build_object('full_name','Responsável CALI sintética','avatar_url',
+   case when current_setting('cali.qa_no_report_avatar',true)<>'yes' or current_setting('cali.qa_no_report_avatar',true) is null
+     then 'fixture:avatar' end,'signature_style','script');
+$$;
 create table cali_workspace.forms(
  id uuid primary key,company_id uuid,slug text,title text,status text,questions jsonb,
  created_at timestamptz default clock_timestamp(),updated_at timestamptz default clock_timestamp()

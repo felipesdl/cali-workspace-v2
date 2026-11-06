@@ -57,6 +57,7 @@ export type RecordAction = z.infer<typeof recordAction>;
 
 function rejected(code?: string) {
   if (code === '40001') return new Error('O registro mudou. Confira a situação atual.');
+  if (code === 'P4R01') return new Error('Confira a assinatura e a foto configuradas da CALI.');
   if (code === '42501') return new Error('Operação indisponível para este perfil.');
   return new Error('Não foi possível concluir a operação.');
 }
@@ -121,18 +122,37 @@ export function createDomainOperations(client: WorkspaceClient) {
       company: string,
       id: string,
       expected: string,
-      action: 'edit' | 'review' | 'approve',
-      summary?: string,
+      action: 'edit' | 'review' | 'approve' | 'reopen',
+      text?: string,
     ) {
       const { data, error } = await client.rpc('v2_update_pilot_report_draft', {
         p_company_id: company,
         p_report_id: id,
         p_expected: expected,
         p_action: action,
-        p_summary: summary ?? null,
+        p_summary: text ?? null,
       });
       if (error) throw rejected(error.code);
       return z.uuid().parse(data);
+    },
+    async reportApprovals(company: string, report: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_list_pilot_report_approvals', {
+          p_company_id: company,
+          p_report_id: report,
+          p_page: 1,
+        })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      return z
+        .array(
+          z.object({
+            version: z.number().int().positive(),
+            approvedAt: z.string(),
+            protocol: z.string().nullable(),
+          }),
+        )
+        .parse(data);
     },
     async forms(company: string, page: number, signal: AbortSignal) {
       const { data, error } = await client

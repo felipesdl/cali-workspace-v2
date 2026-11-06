@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Revisões internas de relatório
+
+- Aprovação registra o retrato do relatório por versão. Reabertura interna exige motivo, preserva a versão anterior e volta o mesmo relatório a rascunho. Escopo Admin e isolamento validados em banco descartável. [Contrato](contracts/PHASE_4_READ.md#revisões-de-aprovação-interna-do-relatório).
+
 ## 06/11/2026 — PDF privado de entregável
 
 - O envio para revisão publica o PDF vinculado. Ajuste ou reabertura retira a revisão anterior, preserva o histórico e exige outro PDF para reenviar. Prova descartável cobre versão obsoleta, isolamento A/B, retirada e nova aprovação. Itens com arquivo ou link legado ficam fora deste fluxo. [Contrato](contracts/PHASE_4_READ.md#pdf-privado-de-entregável).
