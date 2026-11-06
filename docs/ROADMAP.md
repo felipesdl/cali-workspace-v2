@@ -263,6 +263,8 @@ Esses itens impedem declarar a fase 3 pronta para operação real. Não reabrem 
 
 Conduzir cada domínio por entrega completa; dependências são de dados/operação, não barreiras artificiais de lote. A primeira entrega não elimina as demais do escopo.
 
+**Em andamento (05/11):** [consultas da fase 4](contracts/PHASE_4_READ.md) implementadas nos cinco recortes, com SQL validado em PostgreSQL descartável. Escritas, aplicação no ambiente de homologação, prova autenticada e paridade visual continuam pendentes.
+
 | Entrega | Conteúdo | Dependências e saída |
 | --- | --- | --- |
 | 4A — Projetos e entregáveis | Frentes, planejamento, cronograma, revisão, execução, aprovação, ajustes e conversas | Empresa e contratos de projeto; regras de prazo/capacidade reconciliadas; reabertura com motivo/histórico, indisponível até liberação e nova aprovação; frentes contratadas não se confundem com workstreams |

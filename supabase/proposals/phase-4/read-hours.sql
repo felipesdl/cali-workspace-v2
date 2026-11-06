@@ -1,0 +1,40 @@
+-- FLOW-07. Extrato do período com a visibilidade e a elegibilidade operacional do catálogo efetivo.
+begin;
+set local lock_timeout = '5s';
+
+create function cali_workspace.v2_read_pilot_hours(p_company_id uuid, p_month date, p_page integer)
+returns jsonb language plpgsql stable security definer set search_path = ''
+as $$
+declare
+  actor uuid := cali_session_guard.require_pilot_team_actor(p_company_id);
+  admin boolean := exists(select 1 from cali_workspace.profiles where id=actor and role::text='admin');
+begin
+  if p_month is null or not isfinite(p_month) or extract(day from p_month)<>1
+    or p_page is null or p_page not between 1 and 10000 then
+    raise exception using errcode='22023', message='Período ou página de horas inválidos.';
+  end if;
+  if not admin and not coalesce(cali_workspace.client_hours_enabled_for_period(p_company_id,p_month),false) then
+    return jsonb_build_object('companyId',p_company_id,'month',p_month,'visible',false);
+  end if;
+  return (
+    with matched as (
+      select h.id,h.work_date,h.minutes,h.description,h.category,
+        case when admin then h.internal_note end as internal_note
+      from cali_workspace.hour_entries h
+      where h.company_id=p_company_id and h.work_date>=p_month
+        and h.work_date<(p_month+interval '1 month')::date
+        and (admin or (h.client_visible and cali_workspace.hour_project_operational(h.project_id)))
+    ), page as (
+      select * from matched order by work_date desc,id limit 25 offset (p_page-1)*25
+    )
+    select jsonb_build_object('companyId',p_company_id,'month',p_month,'visible',true,
+      'total',(select count(*) from matched),'minutes',(select coalesce(sum(minutes),0) from matched),
+      'entries',coalesce((select jsonb_agg(jsonb_strip_nulls(to_jsonb(page)) order by work_date desc,id) from page),'[]'::jsonb))
+  );
+end;
+$$;
+
+revoke all on function cali_workspace.v2_read_pilot_hours(uuid,date,integer) from public,anon,authenticated,service_role;
+grant execute on function cali_workspace.v2_read_pilot_hours(uuid,date,integer) to authenticated;
+notify pgrst, 'reload schema';
+commit;

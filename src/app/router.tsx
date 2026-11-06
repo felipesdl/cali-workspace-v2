@@ -1,3 +1,5 @@
+import { type ProjectWorkspace } from '../api/modules/project-workspace/service';
+import { workspaceSearch } from '../api/modules/project-workspace/schemas';
 import { z } from 'zod';
 import { type DiscService } from '../api/modules/disc/service';
 import { teamSearchSchema } from '../api/modules/team/schemas';
@@ -41,6 +43,7 @@ const rootRoute = createRootRouteWithContext<{
   team?: TeamService | null;
   monthly?: TeamMonthlyService | null;
   disc?: DiscService | null;
+  projectWorkspace?: ProjectWorkspace | null;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -106,7 +109,28 @@ function clientAccountChild<const Path extends string>(path: Path, component: ()
 function adminChild<const Path extends string>(path: Path) {
   return createRoute({ getParentRoute: () => adminRoute, path });
 }
+const phase4CatalogPage = lazyRouteComponent(
+  () => import('../features/project-workspace/WorkspaceRead'),
+  'Phase4CatalogPage',
+);
+function clientCatalogChild<const Path extends string>(path: Path) {
+  return createRoute({
+    getParentRoute: () => clientRoute,
+    path,
+    validateSearch: workspaceSearch,
+    component: phase4CatalogPage,
+  });
+}
+function adminCatalogChild<const Path extends string>(path: Path) {
+  return createRoute({
+    getParentRoute: () => adminRoute,
+    path,
+    validateSearch: workspaceSearch,
+    component: phase4CatalogPage,
+  });
+}
 const clientChildren = [
+  clientCatalogChild('frentes'),
   clientChild('/', ClientOverview),
   clientAccountChild('empresa', ClientCompanyPage),
   clientAccountChild('termos', ClientTermsPage),
@@ -124,23 +148,56 @@ const clientChildren = [
       'ClientDiscPage',
     ),
   }),
-  clientChild('horas'),
-  clientChild('cronograma'),
-  clientChild('registros'),
-  clientChild('documentos'),
-  clientChild('relatorios'),
-  clientChild('entregaveis'),
-  clientChild('avisos'),
+  createRoute({
+    getParentRoute: () => clientRoute,
+    path: 'horas',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'ClientHoursPage',
+    ),
+  }),
+  clientCatalogChild('cronograma'),
+  clientCatalogChild('registros'),
+  clientCatalogChild('documentos'),
+  clientCatalogChild('relatorios'),
+  createRoute({
+    getParentRoute: () => clientRoute,
+    path: 'entregaveis',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'ClientProjectsPage',
+    ),
+  }),
+  clientCatalogChild('avisos'),
 ] as const;
 const adminChildren = [
+  adminCatalogChild('frentes'),
   adminChild('/'),
-  adminChild('projetos'),
-  adminChild('horas'),
-  adminChild('calendario'),
-  adminChild('registros'),
-  adminChild('documentos'),
-  adminChild('relatorios'),
-  adminChild('avisos'),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'projetos',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'AdminProjectsPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'horas',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'AdminHoursPage',
+    ),
+  }),
+  adminCatalogChild('calendario'),
+  adminCatalogChild('registros'),
+  adminCatalogChild('documentos'),
+  adminCatalogChild('relatorios'),
+  adminCatalogChild('avisos'),
   createRoute({
     getParentRoute: () => adminRoute,
     path: 'equipe',
@@ -207,6 +264,7 @@ export function createAppRouter(
     team?: TeamService | null;
     monthly?: TeamMonthlyService | null;
     disc?: DiscService | null;
+    projectWorkspace?: ProjectWorkspace | null;
   },
 ) {
   return createRouter({
@@ -220,6 +278,7 @@ export function createAppRouter(
       team: services?.team ?? null,
       monthly: services?.monthly ?? null,
       disc: services?.disc ?? null,
+      projectWorkspace: services?.projectWorkspace ?? null,
     },
     defaultPreload: false,
   });

@@ -1,3 +1,5 @@
+import { phase4CatalogLinks } from './phase4-navigation';
+import { workspaceSearch } from '../api/modules/project-workspace/schemas';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Link, useRouteContext } from '@tanstack/react-router';
 import { teamSearchSchema } from '../api/modules/team/schemas';
@@ -15,7 +17,7 @@ export function WorkspaceLayout({
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), [title]);
-  const { session, team, disc } = useRouteContext({ from: '__root__' });
+  const { session, team, disc, projectWorkspace } = useRouteContext({ from: '__root__' });
   const state = useWorkspaceSession();
   const admin = state.phase === 'resolved' && state.access.profile?.role === 'admin';
   return (
@@ -58,6 +60,34 @@ export function WorkspaceLayout({
             >
               Perfil comportamental
             </Link>
+          )}
+          {projectWorkspace && (
+            <>
+              <Link
+                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                to={admin ? '/admin/projetos' : '/cliente/entregaveis'}
+                search={workspaceSearch.parse({})}
+              >
+                Projetos
+              </Link>
+              <Link
+                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                to={admin ? '/admin/horas' : '/cliente/horas'}
+                search={workspaceSearch.parse({})}
+              >
+                Horas
+              </Link>
+              {phase4CatalogLinks.map((item) => (
+                <Link
+                  key={item.module}
+                  className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                  to={admin ? item.admin : item.client}
+                  search={workspaceSearch.parse({})}
+                >
+                  {item.title}
+                </Link>
+              ))}
+            </>
           )}
           <Button variant="secondary" onClick={() => void session?.signOut()}>
             Sair

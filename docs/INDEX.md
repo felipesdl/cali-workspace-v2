@@ -22,6 +22,7 @@ Atualização: 03/11/2026. Base de desenvolvimento: este repositório V2. Escopo
 | Quais contratos mínimos de acesso/empresa estão reconciliados? | [Contratos do recorte](contracts/ACCESS_COMPANIES.md) |
 | Como implementar e homologar Equipe? | [Plano e contrato 2B](contracts/TEAM_2B.md) |
 | Como implementar os três públicos DISC? | [Plano e contrato da fase 3](contracts/DISC_3.md) |
+| O que já está integrado na fase 4? | [Contratos das consultas e próximos lotes](contracts/PHASE_4_READ.md) |
 | Como lançar e confirmar os dados mensais? | [Plano e contrato 2C](contracts/TEAM_MONTHLY_2C.md) |
 | Qual ambiente isolado usar e o que foi comprovado? | [Ambiente local dedicado](LOCAL_ENVIRONMENT.md) |
 | Como adaptar dados e autorização? | [Dados e contratos](DATA_CONTRACTS.md) |

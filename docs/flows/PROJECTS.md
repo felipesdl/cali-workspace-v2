@@ -30,15 +30,15 @@ Após liberar correção, o entregável exige **nova aprovação do Cliente (DEC
 | `client_review` | Aprovar Cliente | Própria empresa e revisão pending | Revisão approved; projeto `active`, timestamps, frentes planned passam active; desloca datas e recalcula forecast |
 | Execução | Pausar/suspender/cancelar/retomar Admin | RPC lifecycle exige Admin, alvo/justificativa e guardas específicas | `execution_status=paused/suspended/cancelled/normal`; eventos e eventual recálculo de datas; cancelar projeto também fecha planejamento |
 
-Prazo da revisão é alterado por migration posterior usando `pg_get_functiondef/replace`: `now()+24*client_response_business_days` horas, padrão 3. É evidência de intenção de 72 horas corridas no código, não prova do patch aplicado. Esse prazo não substitui o prazo de dúvida de relatório, que continua outro contrato.
+O catálogo do CALI MAPA confirmou que abertura e resolução de ajuste calculam o prazo em 24h × parâmetro, com padrão de 72 horas corridas. O prazo de dúvida de relatório continua em outro contrato.
 
-O runtime posterior [de regras v39](SOURCES.md#schedule-v39) também chama `client_request_project_schedule_adjustment_v39`, com ações de reagendar/trocar ordem e checagem visual de complexidade equivalente. Seu corpo SQL não foi localizado. As guardas da RPC v38 da tabela acima não certificam esse caminho v39.
+O corpo de `client_request_project_schedule_adjustment_v39` confirma revisão pendente, no máximo dois pedidos, data obrigatória para reagendamento e entregável distinto do mesmo projeto com complexidade equivalente para troca. O timestamp não é checado como bloqueio pela RPC. [Consultas e pendências](../contracts/PHASE_4_READ.md).
 
 **Visibilidade:** Cliente só acessa projeto da própria empresa nos planning statuses enumerados no predicado (`client_review`, `adjustment_requested`, `approved`, `active`, `rebriefing`, `closed`). Entrega também requer visibilidade, vínculo a projeto e não cancelada. Rascunho não é conteúdo cliente. Admin tem políticas amplas além das RPCs específicas.
 
 **Continuidade/falhas:** preserve projeto selecionado e objeto no retorno; deep links não podem depender de texto do DOM. Runtime atual deriva contexto de seletores e injeta dialogs; V2 precisa registrar ação explicitamente. Conflito de revisão já respondida deve atualizar estado, não repetir mutação. Criação de projeto/frentes e uploads não foram demonstrados como uma transação única.
 
-**Aceite proposto:** ocultar draft de Cliente; primeira/segunda/terceira revisão; rejeição com justificativa; concorrência de aprovação/ajuste; deslocamento de datas com timezone; pausa e retomada com dependências; empresa diferente negada. **Dúvidas:** `REF-07` (guardas diferentes e caminhos diretos), `REF-23` (patch/ordem aplicada), `REF-24` (continuidade); `OPEN-03` ganha evidência estática, mas contrato ativo permanece não verificado.
+**Aceite proposto:** ocultar draft de Cliente; primeira/segunda/terceira revisão; rejeição com justificativa; concorrência de aprovação/ajuste; deslocamento de datas com timezone; pausa e retomada com dependências; empresa diferente negada. **Dúvidas:** `REF-07` (guardas diferentes e caminhos diretos), `REF-23` (patch/ordem aplicada), `REF-24` (continuidade); `OPEN-03` tem corpo instalado conferido; faltam regras de vencimento e validação das transições.
 
 ## FLOW-06 — Executar, revisar, aprovar entrega e subtarefa
 

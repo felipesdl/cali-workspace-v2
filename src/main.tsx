@@ -1,3 +1,4 @@
+import { createProjectWorkspace } from './api/modules/project-workspace/service';
 import { createHostedDisc } from './api/modules/disc/service';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -59,6 +60,10 @@ try {
           team,
           monthly: team && client ? createHostedTeamMonthly(client) : null,
           disc: team && client ? createHostedDisc(client) : null,
+          projectWorkspace:
+            team && client && import.meta.env.VITE_CALI_PHASE4_READ === 'true'
+              ? createProjectWorkspace(client)
+              : null,
         }
       : undefined,
   );

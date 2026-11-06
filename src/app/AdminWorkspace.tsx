@@ -1,3 +1,4 @@
+import { phase4CatalogFromPath } from './phase4-navigation';
 import { lazy, Suspense } from 'react';
 import { Outlet, useLocation, useNavigate, useRouteContext } from '@tanstack/react-router';
 import AdminPreview from '../AdminPreview';
@@ -14,15 +15,25 @@ const CompaniesPage = lazy(() =>
 export function AdminWorkspace() {
   const pathname = useLocation({ select: (location) => location.pathname });
   const navigate = useNavigate();
-  const { access, team, disc } = useRouteContext({ from: '__root__' });
+  const { access, team, disc, projectWorkspace } = useRouteContext({ from: '__root__' });
   const showTeam = Boolean(team && pathname === adminPaths.people);
   const showDisc = Boolean(disc && pathname === '/admin/perfil');
+  const operationsTitle =
+    projectWorkspace &&
+    (pathname === adminPaths.projects
+      ? 'Projetos'
+      : pathname === adminPaths.hours
+        ? 'Horas'
+        : phase4CatalogFromPath(pathname)?.title);
   if (access)
     return (
       <WorkspaceLayout
-        title={showDisc ? 'Perfil comportamental' : showTeam ? 'Equipe' : 'Empresas e acessos'}
+        title={
+          operationsTitle ||
+          (showDisc ? 'Perfil comportamental' : showTeam ? 'Equipe' : 'Empresas e acessos')
+        }
       >
-        {showTeam || showDisc ? null : pathname === '/admin/clientes' ? (
+        {showTeam || showDisc || operationsTitle ? null : pathname === '/admin/clientes' ? (
           <Suspense fallback={<FeedbackState kind="loading">Carregando empresas…</FeedbackState>}>
             <CompaniesPage />
           </Suspense>

@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## 05/11/2026 — Consultas da fase 4
+
+- Inventário em leitura do CALI MAPA confirmou prazo padrão de 72 horas corridas, RPC de ajuste v39 e divergências de comunicação e reabertura.
+- Projeções para projetos/entregáveis, horas/agenda, ocorrências/documentos/avisos, relatórios e frentes contratadas. Rotas Admin e Cliente protegidas pelo piloto; composição de homologação, sem paridade visual declarada.
+- PostgreSQL descartável validou isolamento A/B, MFA, aceite, sessão revogada, campos privados, filtros e rollback. `npm run verify` passou: 257 testes em 39 arquivos, 37 documentos e 827 links locais, SPA e bundles. Sem alteração hospedada, deploy, envio ou execução da bateria suspensa. [Contrato e pendências](contracts/PHASE_4_READ.md).
+
 ## 05/11/2026 — Prova temporária do cron DISC e roteiro da Patrícia
 
 - A primeira chamada pelo cron recebeu HTTP 403. O JWT legado do Vault diferia da credencial interna do runtime. O worker v7 usa o SHA-256 do JWT do Vault para validar o agendador, preservando JWT obrigatório no gateway, hook privado e autorização do Admin.
