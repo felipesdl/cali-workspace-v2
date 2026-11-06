@@ -80,6 +80,10 @@ begin
  timer := cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'start',project,p_description=>'Timer QA');
  perform cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'pause',p_timer_id=>timer);
  assert cali_workspace.v2_pilot_active_timers(a)#>>'{0,status}'='paused';
+ begin
+  perform cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'start',project,p_description=>'Segundo timer');
+  raise exception 'Segundo timer aceito com pausa ativa';
+ exception when serialization_failure then null; end;
  perform cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'resume',p_timer_id=>timer);
  request := gen_random_uuid();
  perform cali_workspace.v2_pilot_hour_action(a,request,'stop',p_timer_id=>timer);

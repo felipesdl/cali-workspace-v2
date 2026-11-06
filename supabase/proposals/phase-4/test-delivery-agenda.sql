@@ -67,7 +67,8 @@ begin
    raise exception 'Confirmação duplicada';
  exception when serialization_failure then null; end;
  reset role;
- assert (select count(*) from cali_workspace.fixture_feedback where delivery_id=delivery)=2;
+ assert (select score from cali_workspace.fixture_feedback where delivery_id=delivery)=5;
+ assert (select score from cali_session_guard.phase4_delivery_corrections where delivery_id=delivery)=4;
  assert (select count(*) from cali_workspace.events where title='Reunião QA')=1;
  assert (select count(*) from cali_workspace.scheduling_requests where title='Reunião QA')=1;
 end $$;

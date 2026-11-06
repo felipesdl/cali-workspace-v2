@@ -132,9 +132,18 @@ alter table cali_workspace.deliverables add column is_document boolean default f
  add column approved_at timestamptz, add column approval_requested_at timestamptz, add column client_response_at timestamptz,
  add column locked_at timestamptz, add column work_closed_at timestamptz, add column work_close_reason text,
  add column work_closed_by uuid;
-create table cali_workspace.fixture_feedback(delivery_id uuid,score integer);
+alter table cali_workspace.work_timers add column deliverable_id uuid;
+create unique index fixture_one_open_timer on cali_workspace.work_timers(user_id,company_id)
+where status in ('active','paused');
+create table cali_workspace.deliverable_tasks(
+ deliverable_id uuid,status text,completed_at timestamptz,work_closed_at timestamptz,work_close_reason text
+);
+create function cali_workspace.close_timer_session_at(uuid,timestamptz,text,uuid) returns void language sql as $$
+ update cali_workspace.work_timers set status='stopped' where id=$1;
+$$;
+create table cali_workspace.fixture_feedback(delivery_id uuid,user_id uuid,score integer,primary key(delivery_id,user_id));
 create function cali_workspace.client_approve_deliverable_with_feedback(uuid,integer,text) returns void language sql as $$
- insert into cali_workspace.fixture_feedback values($1,$2);
+ insert into cali_workspace.fixture_feedback values($1,auth.uid(),$2);
  update cali_workspace.deliverables set status='approved',approved_at=clock_timestamp(),updated_at=clock_timestamp() where id=$1;
 $$;
 create function cali_workspace.request_deliverable_adjustment(uuid,text,integer) returns void language sql as $$

@@ -2,6 +2,24 @@
 begin;
 set local lock_timeout = '5s';
 
+-- A nota da correção é por revisão. Os índices legados preservam uma nota por usuário e item.
+create table if not exists cali_session_guard.phase4_delivery_corrections (
+  id bigint generated always as identity primary key,
+  company_id uuid not null,
+  delivery_id uuid not null,
+  opened_by uuid not null,
+  opened_at timestamptz not null default clock_timestamp(),
+  reason text not null,
+  previous_approved_at timestamptz,
+  approved_by uuid,
+  approved_at timestamptz,
+  score integer check (score between 1 and 5),
+  comment text
+);
+revoke all on cali_session_guard.phase4_delivery_corrections from public,anon,authenticated,service_role;
+create unique index if not exists phase4_one_open_delivery_correction
+  on cali_session_guard.phase4_delivery_corrections(company_id,delivery_id) where approved_at is null;
+
 create function cali_workspace.v2_pilot_delivery_action(
   p_company_id uuid,p_project_id uuid,p_delivery_id uuid,p_expected timestamptz,
   p_action text,p_status text default null,p_note text default null,p_score integer default null
@@ -12,6 +30,10 @@ declare
   actor uuid;
   delivery cali_workspace.deliverables%rowtype;
   admin boolean;
+  correction bigint;
+  timer_id uuid;
+  approved_time timestamptz;
+
 begin
   if p_action is null or p_action not in ('status','reopen','approve','adjust')
     or length(p_note)>4000 then
@@ -37,7 +59,29 @@ begin
       if coalesce(p_score,0) not between 1 and 5 or (p_score<=3 and coalesce(length(btrim(p_note)),0)<3) then
         raise exception using errcode='22023', message='Confira a avaliação e o comentário.';
       end if;
-      perform cali_workspace.client_approve_deliverable_with_feedback(p_delivery_id,p_score,p_note);
+      select c.id into correction from cali_session_guard.phase4_delivery_corrections c
+      where c.company_id=p_company_id and c.delivery_id=p_delivery_id and c.approved_at is null for update;
+      if correction is null then
+        perform cali_workspace.client_approve_deliverable_with_feedback(p_delivery_id,p_score,p_note);
+      else
+        approved_time := clock_timestamp();
+        for timer_id in select t.id from cali_workspace.work_timers t where t.company_id=p_company_id
+          and t.deliverable_id=p_delivery_id and t.status in ('active','paused') for update
+        loop
+          perform cali_workspace.close_timer_session_at(timer_id,approved_time,'timer_closed_by_client_approval',actor);
+        end loop;
+        update cali_session_guard.phase4_delivery_corrections set approved_by=actor,approved_at=approved_time,
+          score=p_score,comment=nullif(btrim(p_note),'') where id=correction;
+        update cali_workspace.deliverables set status='approved',client_response_at=approved_time,approved_at=approved_time,
+          work_closed_at=coalesce(work_closed_at,approved_time),work_close_reason=coalesce(work_close_reason,'client_approval'),
+          locked_at=approved_time,updated_at=approved_time where id=p_delivery_id;
+        update cali_workspace.deliverable_tasks set status='done',completed_at=coalesce(completed_at,approved_time),
+          work_closed_at=coalesce(work_closed_at,approved_time),work_close_reason=coalesce(work_close_reason,'client_approval')
+        where deliverable_id=p_delivery_id and status<>'cancelled';
+        insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
+        values(p_company_id,actor,'deliverable_client_approved','deliverable',p_delivery_id,
+          jsonb_build_object('correction_id',correction,'score',p_score,'comment_provided',nullif(btrim(p_note),'') is not null));
+      end if;
     when 'adjust' then
       if coalesce(length(btrim(p_note)),0)<3 then raise exception using errcode='22023', message='Informe o ajuste.'; end if;
       perform cali_workspace.request_deliverable_adjustment(p_delivery_id,p_note,0);
@@ -59,6 +103,8 @@ begin
         or exists(select 1 from cali_workspace.files f where f.deliverable_id=p_delivery_id) then
         raise exception using errcode='22023', message='A reabertura deste item exige retirada dos arquivos publicados.';
       end if;
+      insert into cali_session_guard.phase4_delivery_corrections(company_id,delivery_id,opened_by,reason,previous_approved_at)
+      values(p_company_id,p_delivery_id,actor,btrim(p_note),delivery.approved_at);
       insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
       values(p_company_id,actor,'deliverable_reopened','deliverable',p_delivery_id,
         jsonb_build_object('reason',btrim(p_note),'previous_approval',delivery.approved_at,

@@ -126,7 +126,7 @@ export function HourActions({ company, actor }: { company: string; actor?: strin
         )}
       </ActionForm>
       {timers.isError && <p role="alert">Não foi possível carregar os timers.</p>}
-      {timers.isSuccess && !timers.data.some((timer) => timer.status === 'active') && (
+      {timers.isSuccess && timers.data.length === 0 && (
         <ActionForm
           label="Iniciar timer"
           submit={(values, id) => submit({ kind: 'start', ...read(values) }, id)}

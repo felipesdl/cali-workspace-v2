@@ -3,7 +3,7 @@
 ## 05/11/2026 — Execução, agenda, mural, relatórios e Forms
 
 - Operações piloto para execução do projeto, correção e nova aprovação de entregável sem arquivo. Solicitação e confirmação de agenda contratual comum, com situação externa lida do evento.
-- Publicação dirigida de aviso com ciência e retirada, retrato de fontes e aprovação interna de relatório mensal, abertura e encerramento de formulários existentes. Provas descartáveis cobrem isolamento, replay, revisão antiga e estado de sincronização. [Escopo e pendências](contracts/PHASE_4_READ.md#segundo-incremento-de-operações).
+- Publicação dirigida de aviso com ciência e retirada, retrato de fontes e aprovação interna de relatório mensal, abertura e encerramento de formulários existentes. Provas descartáveis cobrem isolamento, reexecução, revisão antiga e estado de sincronização. A conferência de índices do CALI MAPA confirmou uma avaliação legada por Cliente e entregável e um timer aberto por Admin e empresa. A correção guarda avaliação própria e a pausa impede iniciar outro timer. [Escopo e pendências](contracts/PHASE_4_READ.md#segundo-incremento-de-operações).
 
 ## 05/11/2026 — Operações iniciais da fase 4
 

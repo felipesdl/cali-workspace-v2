@@ -40,6 +40,10 @@ begin
       coalesce(p_client_visible,false),null,null
     );
   elsif p_action='start' then
+    if exists(select 1 from cali_workspace.work_timers t where t.user_id=actor and t.company_id=p_company_id
+      and t.status in ('active','paused')) then
+      raise exception using errcode='40001', message='Conclua o timer aberto antes de iniciar outro.';
+    end if;
     if nullif(btrim(p_description),'') is null then
       raise exception using errcode='22023', message='Informe a descrição da atividade.';
     end if;
@@ -55,7 +59,7 @@ begin
     end if;
     if p_action='resume' and exists(select 1 from cali_workspace.work_timers t
       where t.user_id=actor and t.company_id=p_company_id and t.status='active') then
-      raise exception using errcode='40001', message='Pause o timer ativo antes de retomar outro.';
+      raise exception using errcode='40001', message='Conclua o timer ativo antes de retomar outro.';
     end if;
     case p_action
       when 'pause' then perform cali_workspace.pause_work_timer(p_timer_id);
