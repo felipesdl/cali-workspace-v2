@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — PDF e publicação de relatório executivo
+
+- O piloto gera o PDF da revisão aprovada, publica no Workspace e registra ciência. Reabertura retira o acesso Cliente e preserva o histórico. Nova ciência em correção depende de pedido Admin. Provas locais cobrem Inter, três revisões e isolamento. [Contrato e pendências](contracts/PHASE_4_READ.md#pdf-executivo-publicação-e-ciência-por-revisão).
+
 ## 06/11/2026 — Revisões internas de relatório
 
 - Aprovação registra o retrato do relatório por versão. Reabertura interna exige motivo, preserva a versão anterior e volta o mesmo relatório a rascunho. Escopo Admin e isolamento validados em banco descartável. [Contrato](contracts/PHASE_4_READ.md#revisões-de-aprovação-interna-do-relatório).

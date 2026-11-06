@@ -101,6 +101,9 @@ export const catalog = z.object({
       noticeAcknowledged: z.boolean().nullable().optional(),
       noticeEditable: z.boolean().optional(),
       reportUpdatedAt: z.string().nullable().optional(),
+      reportVersion: z.number().int().positive().nullable().optional(),
+      reportPdfReady: z.boolean().optional(),
+      reportPreviouslyReleased: z.boolean().optional(),
     }),
   ),
 });

@@ -201,7 +201,9 @@ create or replace function cali_workspace.report_generation_readiness_v61(uuid,t
    'collected_days',4,'required_days',20,'available_on',$3+19,'can_generate_official',$3='2026-10-01');
 $$;
 create function cali_workspace.build_report_source_snapshot(uuid,date,date) returns jsonb language sql as $$
- select jsonb_build_object('company',$1,'start',$2,'end',$3);
+ select jsonb_build_object('company',$1,'start',$2,'end',$3,
+  'hours',jsonb_build_object('contractedHours',12,'consumedMinutes',115,'internalNote','QA reservado'),
+  'deliverables',jsonb_build_object('approvedCount',4,'createdCount',5));
 $$;
 create function cali_workspace.profile_signer_snapshot() returns jsonb language sql stable as $$
  select jsonb_build_object('full_name','Responsável CALI sintética','avatar_url',

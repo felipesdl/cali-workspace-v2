@@ -111,3 +111,7 @@ Somente PDFs sintéticos. Bytes, nome, autor e instante de upload ficam no hist�
 ## Histórico de aprovação interna de relatórios
 
 O retrato privado registra resumo, fontes, versão, autor e instante de aprovação, mais referências da identidade CALI necessárias à geração futura. A consulta Admin devolve apenas metadados de revisão. Reabrir preserva histórico e registra motivo. Cliente não consulta o histórico interno. [Contrato e limites](contracts/PHASE_4_READ.md#revisões-de-aprovação-interna-do-relatório).
+
+## PDF executivo liberado no piloto
+
+A geração usa resumo aprovado, indicadores agregados e a identidade visual da responsável. Notas e comentários brutos não integram o PDF. A cópia e as ciências ficam no histórico privado. O Cliente acessa somente a versão liberada da própria empresa; a retirada bloqueia novos downloads. Nenhum e-mail é disparado nesse fluxo. [Contrato](contracts/PHASE_4_READ.md#pdf-executivo-publicação-e-ciência-por-revisão).

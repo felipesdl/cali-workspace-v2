@@ -58,6 +58,9 @@ try {
       : null;
   const phase4 = team && client && import.meta.env.VITE_CALI_PHASE4_READ === 'true' ? client : null;
   const phase4Write = import.meta.env.VITE_CALI_PHASE4_WRITE === 'true' ? phase4 : null;
+  const reportRelease = Boolean(
+    phase4Write && import.meta.env.VITE_CALI_PHASE4_REPORT_RELEASE === 'true',
+  );
   const router = createAppRouter(
     undefined,
     cache,
@@ -69,7 +72,7 @@ try {
           team,
           monthly: team && client ? createHostedTeamMonthly(client) : null,
           disc: team && client ? createHostedDisc(client) : null,
-          projectWorkspace: phase4 ? createProjectWorkspace(phase4) : null,
+          projectWorkspace: phase4 ? createProjectWorkspace(phase4, reportRelease) : null,
           projectOperations: phase4Write ? createProjectOperations(phase4Write) : null,
           hourOperations: phase4Write ? createHourOperations(phase4Write) : null,
           domainOperations: phase4Write ? createDomainOperations(phase4Write) : null,

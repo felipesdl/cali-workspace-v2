@@ -5,6 +5,7 @@ import {
   NoticeItemAction,
   PublishNotice,
   ReportDraftActions,
+  ReportPublicationActions,
 } from './CatalogActions';
 import { AgendaActions } from './AgendaActions';
 import { OpenRecord, RecordConversation } from './RecordActions';
@@ -567,9 +568,12 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                       Abrir conversa
                     </Button>
                   )}
-                  {module === 'reports' && !admin && item.acknowledgmentAvailable && (
-                    <ReportAcknowledgment company={companyId} report={item.id} />
-                  )}
+                  {module === 'reports' &&
+                    !admin &&
+                    !item.reportVersion &&
+                    item.acknowledgmentAvailable && (
+                      <ReportAcknowledgment company={companyId} report={item.id} />
+                    )}
                   {module === 'notices' && (
                     <NoticeItemAction
                       company={companyId}
@@ -588,6 +592,20 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                       status={item.status}
                       expected={item.reportUpdatedAt}
                       summary={item.summary}
+                      released={item.status === 'published' && Boolean(item.reportVersion)}
+                    />
+                  )}
+                  {module === 'reports' && item.reportVersion && (
+                    <ReportPublicationActions
+                      company={companyId}
+                      actor={actor}
+                      id={item.id}
+                      version={item.reportVersion}
+                      pdfReady={Boolean(item.reportPdfReady)}
+                      published={item.status === 'published'}
+                      admin={admin}
+                      previouslyReleased={Boolean(item.reportPreviouslyReleased)}
+                      acknowledgmentAvailable={Boolean(item.acknowledgmentAvailable)}
                     />
                   )}
                   {item.summary && (

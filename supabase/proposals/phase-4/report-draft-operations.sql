@@ -14,6 +14,41 @@ create table if not exists cali_session_guard.phase4_report_approvals (
 alter table cali_session_guard.phase4_report_approvals enable row level security;
 revoke all on cali_session_guard.phase4_report_approvals from public,anon,authenticated,service_role;
 
+create sequence if not exists cali_session_guard.phase4_executive_protocol maxvalue 999999;
+alter table cali_session_guard.phase4_report_approvals
+  add column if not exists render_protocol text unique,
+  add column if not exists render_nonce uuid,
+  add column if not exists render_requested_at timestamptz,
+  add column if not exists render_requested_by uuid;
+
+create table if not exists cali_session_guard.phase4_report_pdfs (
+  report_id uuid not null,
+  version integer not null,
+  content bytea not null check (octet_length(content) between 8 and 2097152),
+  generated_at timestamptz not null default clock_timestamp(),
+  primary key (report_id,version),
+  foreign key (report_id,version) references cali_session_guard.phase4_report_approvals(report_id,version)
+);
+create table if not exists cali_session_guard.phase4_report_releases (
+  report_id uuid not null,
+  version integer not null,
+  released_at timestamptz not null,
+  released_by uuid not null,
+  requires_ack boolean not null,
+  withdrawn_at timestamptz,
+  acknowledged_by uuid,
+  acknowledged_at timestamptz,
+  primary key (report_id,version),
+  foreign key (report_id,version) references cali_session_guard.phase4_report_pdfs(report_id,version)
+);
+create unique index if not exists phase4_report_one_release
+  on cali_session_guard.phase4_report_releases(report_id) where withdrawn_at is null;
+alter table cali_session_guard.phase4_report_pdfs enable row level security;
+alter table cali_session_guard.phase4_report_releases enable row level security;
+revoke all on cali_session_guard.phase4_report_pdfs,cali_session_guard.phase4_report_releases
+  from public,anon,authenticated,service_role;
+revoke all on sequence cali_session_guard.phase4_executive_protocol from public,anon,authenticated,service_role;
+
 create or replace function cali_workspace.v2_create_pilot_report_draft(
   p_company_id uuid,p_report_id uuid,p_month date,p_title text,p_summary text
 )
@@ -107,12 +142,14 @@ begin
       insert into cali_session_guard.phase4_report_approvals(report_id,company_id,version,approved_by,approved_at,snapshot)
       values(p_report_id,p_company_id,coalesce(report_row.version,1),actor,report_row.approved_at,
         jsonb_build_object('reportId',p_report_id,'companyId',p_company_id,'title',report_row.title,
-          'protocol',report_row.protocol,'periodStart',report_row.period_start,'periodEnd',report_row.period_end,
+          'protocol',report_row.protocol,'companyName',(select display_name from cali_workspace.companies where id=p_company_id),'periodStart',report_row.period_start,'periodEnd',report_row.period_end,
           'summary',report_row.executive_summary,'source',report_row.source_snapshot,
           'signer',jsonb_build_object('full_name',signer->>'full_name','job_title',signer->>'job_title',
             'avatar_url',signer->>'avatar_url','signature_mode',signer->>'signature_mode',
             'signature_url',signer->>'signature_url','signature_style',signer->>'signature_style')));
     when 'reopen' then
+      update cali_session_guard.phase4_report_releases set withdrawn_at=clock_timestamp()
+      where report_id=p_report_id and version=report_row.version and withdrawn_at is null;
       update cali_workspace.reports set status='draft',version=report_row.version+1,approved_at=null,
         approved_by=null,review_started_at=null,updated_at=clock_timestamp() where id=p_report_id;
   end case;
@@ -136,7 +173,8 @@ begin
   end if;
   return (
     select coalesce(jsonb_agg(to_jsonb(page) order by version desc),'[]'::jsonb) from (
-      select a.version,a.approved_at as "approvedAt",a.snapshot->>'protocol' as protocol
+      select a.version,a.approved_at as "approvedAt",coalesce(a.render_protocol,a.snapshot->>'protocol') as protocol,
+        exists(select 1 from cali_session_guard.phase4_report_pdfs p where p.report_id=a.report_id and p.version=a.version) as "pdfReady"
       from cali_session_guard.phase4_report_approvals a
       where a.company_id=p_company_id and a.report_id=p_report_id
       order by version desc limit 25 offset (p_page-1)*25

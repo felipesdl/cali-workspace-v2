@@ -1,3 +1,4 @@
+import { decodePdf, pdfPayload } from './pdf-payload';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 
@@ -13,12 +14,6 @@ const documentRow = revision.omit({ id: true }).extend({
   revisionId: z.uuid(),
   publishedRevision: z.uuid().nullable(),
   acknowledged: z.boolean(),
-});
-const payload = z.object({
-  id: z.uuid(),
-  fileName: z.string(),
-  content: z.string().max(2_850_000),
-  sha256: z.string().regex(/^[a-f0-9]{64}$/),
 });
 export type PilotDocument = z.infer<typeof documentRow>;
 
@@ -138,18 +133,9 @@ export function createDocumentOperations(client: WorkspaceClient) {
         })
         .abortSignal(signal);
       if (error) throw errorMessage(error.code);
-      const result = payload.parse(data);
+      const result = pdfPayload.parse(data);
       if (result.id !== revisionId) throw errorMessage();
-      const bytes = Uint8Array.from(atob(result.content), (char) => char.charCodeAt(0));
-      const digest = await crypto.subtle.digest('SHA-256', bytes);
-      const hex = Array.from(new Uint8Array(digest), (byte) =>
-        byte.toString(16).padStart(2, '0'),
-      ).join('');
-      if (hex !== result.sha256) throw new Error('Não foi possível conferir a integridade do PDF.');
-      return {
-        blob: new Blob([bytes], { type: 'application/octet-stream' }),
-        fileName: result.fileName,
-      };
+      return decodePdf(result);
     },
     async acknowledge(company: string, document: string, revisionId: string) {
       const { data, error } = await client.rpc('v2_ack_pilot_document', {

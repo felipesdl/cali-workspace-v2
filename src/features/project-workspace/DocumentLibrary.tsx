@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
+import { PdfDownload } from './PdfDownload';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   type DocumentOperations,
@@ -20,48 +21,11 @@ function Download({
   operations,
   documentId,
   revisionId,
-}: Pick<Scope, 'company' | 'operations'> & {
-  documentId: string;
-  revisionId: string;
-}) {
-  const pending = useRef<AbortController | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  useEffect(() => () => pending.current?.abort(), []);
-
-  async function download() {
-    if (pending.current) return;
-    const request = new AbortController();
-    pending.current = request;
-    setBusy(true);
-    setError('');
-    try {
-      const result = await operations.download(company, documentId, revisionId, request.signal);
-      if (request.signal.aborted) return;
-      const url = URL.createObjectURL(result.blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = result.fileName;
-      document.body.append(anchor);
-      anchor.click();
-      anchor.remove();
-      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    } catch (cause) {
-      if (!request.signal.aborted)
-        setError(cause instanceof Error ? cause.message : 'Não foi possível baixar o PDF.');
-    } finally {
-      pending.current = null;
-      if (!request.signal.aborted) setBusy(false);
-    }
-  }
-
+}: Pick<Scope, 'company' | 'operations'> & { documentId: string; revisionId: string }) {
   return (
-    <div>
-      <Button variant="secondary" disabled={busy} onClick={() => void download()}>
-        {busy ? 'Baixando…' : 'Baixar PDF'}
-      </Button>
-      {error && <p role="alert">{error}</p>}
-    </div>
+    <PdfDownload
+      download={(signal) => operations.download(company, documentId, revisionId, signal)}
+    />
   );
 }
 

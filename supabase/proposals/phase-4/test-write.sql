@@ -11,6 +11,7 @@
 \ir report-privacy-operations.sql
 \ir notice-operations.sql
 \ir report-draft-operations.sql
+\ir report-release-operations.sql
 \ir forms-operations.sql
 
 begin;
@@ -134,6 +135,8 @@ rollback;
 \ir test-delivery-agenda.sql
 \ir test-catalog-actions.sql
 \ir test-documents.sql
+grant usage on schema cali_workspace to service_role;
+\ir test-report-release.sql
 \ir rollback-write.sql
 do $$
 begin

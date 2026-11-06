@@ -1,3 +1,4 @@
+import { decodePdf, pdfPayload } from './pdf-payload';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 
@@ -57,6 +58,7 @@ export type RecordAction = z.infer<typeof recordAction>;
 
 function rejected(code?: string) {
   if (code === '40001') return new Error('O registro mudou. Confira a situação atual.');
+  if (code === 'P4R02') return new Error('Gere o PDF desta revisão antes de publicar.');
   if (code === 'P4R01') return new Error('Confira a assinatura e a foto configuradas da CALI.');
   if (code === '42501') return new Error('Operação indisponível para este perfil.');
   return new Error('Não foi possível concluir a operação.');
@@ -150,9 +152,50 @@ export function createDomainOperations(client: WorkspaceClient) {
             version: z.number().int().positive(),
             approvedAt: z.string(),
             protocol: z.string().nullable(),
+            pdfReady: z.boolean().optional(),
           }),
         )
         .parse(data);
+    },
+    async generateReportPdf(companyId: string, reportId: string, version: number) {
+      const { data, error } = await client.functions.invoke('workspace-executive-pdf', {
+        body: { companyId, reportId, version },
+      });
+      if (error)
+        throw new Error('Não foi possível gerar o PDF. Confira a coleta, a foto e a assinatura.');
+      return z.object({ id: z.literal(reportId) }).parse(data).id;
+    },
+    async releaseReport(company: string, report: string, version: number, requestAck: boolean) {
+      const { data, error } = await client.rpc('v2_release_pilot_report', {
+        p_company_id: company,
+        p_report_id: report,
+        p_version: version,
+        p_request_ack: requestAck,
+      });
+      if (error) throw rejected(error.code);
+      return z.literal(report).parse(data);
+    },
+    async reportPdf(company: string, report: string, version: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_report_pdf', {
+          p_company_id: company,
+          p_report_id: report,
+          p_version: version,
+        })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      return decodePdf(
+        pdfPayload.extend({ id: z.literal(report), version: z.literal(version) }).parse(data),
+      );
+    },
+    async acknowledgeReportRelease(company: string, report: string, version: number) {
+      const { data, error } = await client.rpc('v2_ack_pilot_report_release', {
+        p_company_id: company,
+        p_report_id: report,
+        p_version: version,
+      });
+      if (error) throw rejected(error.code);
+      return z.literal(report).parse(data);
     },
     async forms(company: string, page: number, signal: AbortSignal) {
       const { data, error } = await client

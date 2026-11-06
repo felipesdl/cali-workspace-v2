@@ -8,7 +8,7 @@ import {
   type WorkspaceSearch,
 } from './schemas';
 
-export function createProjectWorkspace(client: WorkspaceClient) {
+export function createProjectWorkspace(client: WorkspaceClient, reportRelease = false) {
   return {
     async list(companyId: string, page: number, signal: AbortSignal) {
       const { data, error } = await client
@@ -47,14 +47,16 @@ export function createProjectWorkspace(client: WorkspaceClient) {
       page: number,
       signal: AbortSignal,
     ) {
-      const { data, error } = await client
-        .rpc('v2_read_pilot_catalog', {
-          p_company_id: companyId,
-          p_module: module,
-          p_month: month,
-          p_page: page,
-        })
-        .abortSignal(signal);
+      const request =
+        module === 'reports' && reportRelease
+          ? client.rpc('v2_read_pilot_report_catalog', { p_company_id: companyId, p_page: page })
+          : client.rpc('v2_read_pilot_catalog', {
+              p_company_id: companyId,
+              p_module: module,
+              p_month: month,
+              p_page: page,
+            });
+      const { data, error } = await request.abortSignal(signal);
       if (error) throw new Error('Não foi possível consultar esta área.');
       const result = catalog.parse(data);
       if (result.companyId !== companyId || result.module !== module || result.month !== month)

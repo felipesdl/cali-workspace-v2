@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "docs:check": "node scripts/check-docs.mjs",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run local:config:check && npm run docs:check && npm run build && npm run local:functions:build && npm run disc:functions:build",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run local:config:check && npm run docs:check && npm run build && npm run local:functions:build && npm run disc:functions:build && npm run executive:functions:build",
     "local:config:check": "node scripts/local-environment.ts --check-config",
     "local:preflight": "node scripts/local-environment.ts --preflight",
     "local:db:inspect": "node scripts/local-database.ts --inspect",
@@ -25,10 +25,13 @@
     "local:mail:test": "node scripts/local-mail.ts",
     "local:functions:build": "node scripts/build-local-functions.ts",
     "local:access:test": "node scripts/local-access-test.ts",
-    "disc:functions:build": "node scripts/build-disc-functions.ts"
+    "disc:functions:build": "node scripts/build-disc-functions.ts",
+    "executive:functions:build": "node scripts/build-executive-functions.ts"
   },
   "dependencies": {
+    "@fontsource/inter": "5.2.5",
     "@jsquash/webp": "1.5.0",
+    "@pdf-lib/fontkit": "1.1.1",
     "@supabase/supabase-js": "2.118.0",
     "@tanstack/react-form": "1.33.5",
     "@tanstack/react-query": "5.105.0",

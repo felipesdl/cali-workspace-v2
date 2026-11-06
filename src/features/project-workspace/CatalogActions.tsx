@@ -1,8 +1,10 @@
+import { PdfDownload } from './PdfDownload';
 import { formatServerInstant } from '../../lib/dates';
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { Button } from '../../components/ds/button/Button';
+import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { Field } from '../../components/ds/field/Field';
 import { ActionForm } from './ActionForm';
@@ -163,17 +165,19 @@ export function ReportDraftActions({
   status,
   expected,
   summary,
+  released,
 }: Scope & {
   id: string;
   status: string | null;
   expected: string;
   summary: string | null;
+  released: boolean;
 }) {
   const { operations, refresh } = useCatalogActions({ company, actor }, 'reports');
   const cache = useQueryClient();
   const approvalsKey = ['phase4-report-approvals', actor, company, id];
   const editable = status === 'draft' || status === 'review';
-  const approved = status === 'approved';
+  const approved = status === 'approved' || released;
   const approvals = useQuery({
     queryKey: approvalsKey,
     queryFn:
@@ -218,6 +222,13 @@ export function ReportDraftActions({
               <li key={item.version}>
                 Versão {item.version} · {formatServerInstant(item.approvedAt)}
                 {item.protocol && ` · ${item.protocol}`}
+                {item.pdfReady && (
+                  <PdfDownload
+                    download={(signal) =>
+                      reportOperations.reportPdf(company, id, item.version, signal)
+                    }
+                  />
+                )}
               </li>
             ))}
           </ul>
@@ -240,6 +251,88 @@ export function ReportDraftActions({
             </Field>
           )}
         </ActionForm>
+      )}
+    </div>
+  );
+}
+
+export function ReportPublicationActions({
+  company,
+  actor,
+  id,
+  version,
+  pdfReady,
+  published,
+  admin,
+  previouslyReleased,
+  acknowledgmentAvailable,
+}: Scope & {
+  id: string;
+  version: number;
+  pdfReady: boolean;
+  published: boolean;
+  admin: boolean;
+  previouslyReleased: boolean;
+  acknowledgmentAvailable: boolean;
+}) {
+  const { operations, refresh } = useCatalogActions({ company, actor }, 'reports');
+  const cache = useQueryClient();
+  if (!operations) return null;
+  return (
+    <div className="tw:grid tw:gap-2">
+      {pdfReady && (
+        <PdfDownload
+          key={version}
+          download={(signal) => operations.reportPdf(company, id, version, signal)}
+        />
+      )}
+      {admin && !published && !pdfReady && (
+        <ActionForm
+          label="Gerar PDF da revisão"
+          submit={async () => {
+            const result = await operations.generateReportPdf(company, id, version);
+            await Promise.all([
+              refresh(result),
+              cache.invalidateQueries({
+                queryKey: ['phase4-report-approvals', actor, company, id],
+              }),
+            ]);
+            return result;
+          }}
+        />
+      )}
+      {admin && !published && pdfReady && (
+        <ActionForm
+          label="Publicar no Workspace"
+          submit={async (fields) =>
+            refresh(
+              await operations.releaseReport(
+                company,
+                id,
+                version,
+                previouslyReleased && fields.get('requestAck') === 'on',
+              ),
+            )
+          }
+        >
+          {(prefix) =>
+            previouslyReleased ? (
+              <Checkbox id={prefix + 'requestAck'} name="requestAck">
+                Solicitar nova ciência
+              </Checkbox>
+            ) : (
+              <p>A primeira publicação solicita ciência ao Cliente.</p>
+            )
+          }
+        </ActionForm>
+      )}
+      {!admin && acknowledgmentAvailable && (
+        <ActionForm
+          label="Registrar ciência desta revisão"
+          submit={async () =>
+            refresh(await operations.acknowledgeReportRelease(company, id, version))
+          }
+        />
       )}
     </div>
   );
