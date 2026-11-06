@@ -17,7 +17,9 @@ export function WorkspaceLayout({
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), [title]);
-  const { session, team, disc, projectWorkspace } = useRouteContext({ from: '__root__' });
+  const { session, team, disc, projectWorkspace, domainOperations } = useRouteContext({
+    from: '__root__',
+  });
   const state = useWorkspaceSession();
   const admin = state.phase === 'resolved' && state.access.profile?.role === 'admin';
   return (
@@ -88,6 +90,14 @@ export function WorkspaceLayout({
                 </Link>
               ))}
             </>
+          )}
+          {admin && domainOperations && (
+            <Link
+              className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
+              to="/admin/privacidade"
+            >
+              Privacidade
+            </Link>
           )}
           <Button variant="secondary" onClick={() => void session?.signOut()}>
             Sair

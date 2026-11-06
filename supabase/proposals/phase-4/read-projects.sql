@@ -48,7 +48,7 @@ begin
       'project',jsonb_build_object('id',p.id,'name',p.name,'protocol',p.protocol,
         'description',p.description,'planning_status',p.planning_status,'execution_status',p.execution_status,
         'roadmap_start_date',p.roadmap_start_date,'roadmap_end_date',p.roadmap_end_date),
-      'review',(select jsonb_build_object('status',r.status,'number',r.request_number,'dueAt',r.response_due_at)
+      'review',(select jsonb_build_object('id',r.id,'status',r.status,'number',r.request_number,'dueAt',r.response_due_at,'note',r.response_note)
         from cali_workspace.project_review_requests r
         where r.company_id=p_company_id and r.project_id=p.id
         order by r.request_number desc,r.created_at desc,r.id desc limit 1),

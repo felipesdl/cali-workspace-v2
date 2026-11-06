@@ -1,0 +1,22 @@
+-- Desativa o incremento operacional. Dados produzidos e recibos de reexecução ficam preservados.
+begin;
+set local lock_timeout = '5s';
+drop function if exists cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date);
+drop function if exists cali_workspace.v2_add_pilot_project_item(uuid,uuid,uuid,text,text,uuid,timestamp without time zone);
+drop function if exists cali_workspace.v2_share_pilot_schedule(uuid,uuid);
+drop function if exists cali_workspace.v2_respond_pilot_schedule(uuid,uuid,uuid,text,text,text,uuid,text,date,uuid);
+drop function if exists cali_workspace.v2_pilot_hour_action(uuid,uuid,text,uuid,uuid,date,integer,text,text,boolean);
+drop function if exists cali_workspace.v2_pilot_active_timers(uuid);
+drop function if exists cali_workspace.v2_read_pilot_record(uuid,uuid,integer);
+drop function if exists cali_workspace.v2_pilot_record_action(uuid,uuid,uuid,text,text,text,boolean,text,text);
+drop function if exists cali_workspace.v2_acknowledge_pilot_report(uuid,uuid);
+drop function if exists cali_workspace.v2_pilot_report_readiness(uuid,date);
+drop function if exists cali_workspace.v2_list_pilot_privacy_requests(uuid,integer);
+drop function if exists cali_workspace.v2_submit_pilot_privacy_request(uuid,uuid,text,text);
+drop function if exists cali_workspace.v2_answer_pilot_privacy_request(uuid,uuid,text);
+drop trigger if exists zz_phase4_record_mention_in_app on cali_workspace.notifications;
+drop function if exists cali_session_guard.phase4_record_mention_in_app();
+drop function if exists cali_session_guard.require_phase4_role(uuid,text);
+drop function if exists cali_session_guard.read_phase4_receipt(uuid,uuid,uuid,bytea);
+notify pgrst, 'reload schema';
+commit;

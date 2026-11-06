@@ -1,3 +1,7 @@
+import { OpenRecord, RecordConversation } from './RecordActions';
+import { PrivacyActions, ReportAcknowledgment, ReportReadiness } from './ReportPrivacyActions';
+import { HourActions } from './HourActions';
+import { CreateProject, ProjectActions } from './ProjectActions';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import {
   getRouteApi,
@@ -24,6 +28,7 @@ import { ClientModulePending } from '../client-account/ClientModulePending';
 const adminProjects = getRouteApi('/admin/projetos');
 const clientProjects = getRouteApi('/cliente/entregaveis');
 const adminHours = getRouteApi('/admin/horas');
+const adminPrivacy = getRouteApi('/admin/privacidade');
 const clientHours = getRouteApi('/cliente/horas');
 const panel = 'tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
 const labels: Readonly<Record<string, string>> = {
@@ -88,7 +93,12 @@ function CompanySelect({ search, update }: Props) {
         id="operations-company"
         value={search.companyId ?? ''}
         onChange={(event) =>
-          update({ companyId: event.currentTarget.value || undefined, project: undefined, page: 1 })
+          update({
+            companyId: event.currentTarget.value || undefined,
+            project: undefined,
+            record: undefined,
+            page: 1,
+          })
         }
       >
         <option value="">Selecione a empresa</option>
@@ -191,6 +201,15 @@ function Projects({ search, update }: Props) {
                   )}
                 </p>
               )}
+              <ProjectActions
+                key={project}
+                company={companyId}
+                actor={actor}
+                project={project}
+                planning={detail.data.project.planning_status}
+                review={detail.data.review}
+                admin={admin}
+              />
               <div className="tw:my-4 tw:flex tw:gap-2">
                 <Button
                   aria-pressed={section === 'deliverables'}
@@ -230,6 +249,14 @@ function Projects({ search, update }: Props) {
         </>
       ) : list.data ? (
         <>
+          {admin && (
+            <CreateProject
+              key={companyId}
+              company={companyId}
+              actor={actor}
+              open={(created) => update({ project: created, page: 1 })}
+            />
+          )}
           {list.data.projects.length ? (
             <ul className="tw:grid tw:gap-3">
               {list.data.projects.map((row) => (
@@ -307,6 +334,7 @@ function Hours({ search, update }: Props) {
     <div className="tw:grid tw:gap-4">
       {admin && <CompanySelect search={search} update={update} />}
       <MonthSelect month={month} update={update} />
+      {admin && companyId && <HourActions key={companyId} company={companyId} actor={actor} />}
       {!companyId ? (
         <FeedbackState kind="empty">
           {admin ? 'Selecione uma empresa.' : 'Horas indisponíveis para esta empresa.'}
@@ -396,11 +424,13 @@ export function ClientHoursPage() {
 
 function Catalog({ search, update, module }: Props & { module: CatalogModule }) {
   const { service, actor, companyId, admin, connected } = useScope(search);
+  const { domainOperations } = useRouteContext({ from: '__root__' });
+  const record = module === 'records' && domainOperations ? search.record : undefined;
   const month = module === 'calendar' ? (search.month ?? currentMonth()) : null;
   const result = useQuery({
     queryKey: ['phase4-catalog', actor, companyId, module, month, search.page],
     queryFn:
-      service && companyId
+      service && companyId && !record
         ? ({ signal }) => service.catalog(companyId, module, month, search.page, signal)
         : skipToken,
   });
@@ -409,10 +439,31 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
     <div className="tw:grid tw:gap-4">
       {admin && <CompanySelect search={search} update={update} />}
       {month && <MonthSelect month={month} update={update} />}
+      {module === 'reports' && admin && companyId && (
+        <ReportReadiness key={companyId} company={companyId} actor={actor} />
+      )}
+      {module === 'records' && companyId && !record && (
+        <OpenRecord
+          key={companyId}
+          company={companyId}
+          actor={actor}
+          admin={admin}
+          select={(id) => update({ record: id })}
+        />
+      )}
       {!companyId ? (
         <FeedbackState kind="empty">
           {admin ? 'Selecione uma empresa.' : 'Consulta indisponível para esta empresa.'}
         </FeedbackState>
+      ) : record ? (
+        <RecordConversation
+          key={record}
+          company={companyId}
+          actor={actor}
+          admin={admin}
+          record={record}
+          back={() => update({ record: undefined })}
+        />
       ) : result.isPending ? (
         <FeedbackState kind="loading">Carregando informações…</FeedbackState>
       ) : result.isError ? (
@@ -437,6 +488,14 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                       .filter(Boolean)
                       .join(' · ')}
                   </p>
+                  {module === 'records' && domainOperations && (
+                    <Button variant="secondary" onClick={() => update({ record: item.id })}>
+                      Abrir conversa
+                    </Button>
+                  )}
+                  {module === 'reports' && !admin && item.acknowledgmentAvailable && (
+                    <ReportAcknowledgment company={companyId} report={item.id} />
+                  )}
                   {item.summary && (
                     <p className="tw:mt-2 tw:break-words tw:whitespace-pre-line">{item.summary}</p>
                   )}
@@ -470,5 +529,26 @@ export function Phase4CatalogPage() {
         })
       }
     />
+  );
+}
+
+export function AdminPrivacyPage() {
+  const search = adminPrivacy.useSearch();
+  const navigate = adminPrivacy.useNavigate();
+  const { companyId, actor, admin } = useScope(search);
+  const { domainOperations } = useRouteContext({ from: '__root__' });
+  if (!admin || !domainOperations) return null;
+  return (
+    <div className="tw:grid tw:gap-4">
+      <CompanySelect
+        search={search}
+        update={(change) => void navigate({ search: { ...search, ...change } })}
+      />
+      {companyId ? (
+        <PrivacyActions key={companyId} company={companyId} actor={actor} admin />
+      ) : (
+        <p>Selecione uma empresa.</p>
+      )}
+    </div>
   );
 }

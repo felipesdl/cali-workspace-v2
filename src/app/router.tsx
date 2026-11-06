@@ -1,3 +1,8 @@
+import { type DomainOperations } from '../api/modules/project-workspace/domain-operations';
+import {
+  type HourOperations,
+  type ProjectOperations,
+} from '../api/modules/project-workspace/operations';
 import { type ProjectWorkspace } from '../api/modules/project-workspace/service';
 import { workspaceSearch } from '../api/modules/project-workspace/schemas';
 import { z } from 'zod';
@@ -44,6 +49,9 @@ const rootRoute = createRootRouteWithContext<{
   monthly?: TeamMonthlyService | null;
   disc?: DiscService | null;
   projectWorkspace?: ProjectWorkspace | null;
+  projectOperations?: ProjectOperations | null;
+  hourOperations?: HourOperations | null;
+  domainOperations?: DomainOperations | null;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -174,6 +182,15 @@ const clientChildren = [
 ] as const;
 const adminChildren = [
   adminCatalogChild('frentes'),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'privacidade',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'AdminPrivacyPage',
+    ),
+  }),
   adminChild('/'),
   createRoute({
     getParentRoute: () => adminRoute,
@@ -265,6 +282,9 @@ export function createAppRouter(
     monthly?: TeamMonthlyService | null;
     disc?: DiscService | null;
     projectWorkspace?: ProjectWorkspace | null;
+    projectOperations?: ProjectOperations | null;
+    hourOperations?: HourOperations | null;
+    domainOperations?: DomainOperations | null;
   },
 ) {
   return createRouter({
@@ -279,6 +299,9 @@ export function createAppRouter(
       monthly: services?.monthly ?? null,
       disc: services?.disc ?? null,
       projectWorkspace: services?.projectWorkspace ?? null,
+      projectOperations: services?.projectOperations ?? null,
+      hourOperations: services?.hourOperations ?? null,
+      domainOperations: services?.domainOperations ?? null,
     },
     defaultPreload: false,
   });

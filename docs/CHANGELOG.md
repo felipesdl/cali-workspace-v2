@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 05/11/2026 — Operações iniciais da fase 4
+
+- Rascunho, composição e revisão de cronograma. Horas manuais e timer Admin. Ocorrências com nota interna e conversa sem e-mail. Prontidão de relatório, ciência inicial e pedidos de privacidade.
+- PostgreSQL descartável validou guardas, reexecução, separação por empresa e titular, revisão obsoleta, conversas e menções. O lote permanece como proposta SQL para homologação. [Operações e pendências](contracts/PHASE_4_READ.md#primeiro-incremento-de-operações).
+
 ## 05/11/2026 — Consultas da fase 4
 
 - Inventário em leitura do CALI MAPA confirmou prazo padrão de 72 horas corridas, RPC de ajuste v39 e divergências de comunicação e reabertura.

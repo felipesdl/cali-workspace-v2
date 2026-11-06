@@ -5,6 +5,7 @@ const monthSchema = z.iso.date().refine((date) => date.endsWith('-01'));
 export const workspaceSearch = z.object({
   companyId: z.uuid().optional().catch(undefined),
   project: z.uuid().optional().catch(undefined),
+  record: z.uuid().optional().catch(undefined),
   section: sectionSchema.default('deliverables').catch('deliverables'),
   page: z.coerce.number().int().min(1).max(10000).default(1).catch(1),
   month: monthSchema.optional().catch(undefined),
@@ -29,7 +30,13 @@ export const projectDetail = z.object({
   companyId: z.uuid(),
   project: project.extend({ description: z.string().nullable() }),
   review: z
-    .object({ status: z.string(), number: z.number().int(), dueAt: z.string().nullable() })
+    .object({
+      id: z.uuid().optional(),
+      status: z.string(),
+      number: z.number().int(),
+      dueAt: z.string().nullable(),
+      note: z.string().nullable().optional(),
+    })
     .nullable(),
   items: z.object({
     total: z.number().int().nonnegative(),
@@ -89,6 +96,7 @@ export const catalog = z.object({
       instant: z.string().nullable(),
       day: z.iso.date().nullable(),
       summary: z.string().nullable(),
+      acknowledgmentAvailable: z.boolean().optional(),
     }),
   ),
 });

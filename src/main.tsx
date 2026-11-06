@@ -1,3 +1,8 @@
+import { createDomainOperations } from './api/modules/project-workspace/domain-operations';
+import {
+  createHourOperations,
+  createProjectOperations,
+} from './api/modules/project-workspace/operations';
 import { createProjectWorkspace } from './api/modules/project-workspace/service';
 import { createHostedDisc } from './api/modules/disc/service';
 import React from 'react';
@@ -49,6 +54,8 @@ try {
     environment.url === 'https://kqtbfeeqbcllwvlkbrkq.supabase.co'
       ? createHostedTeam(client)
       : null;
+  const phase4 = team && client && import.meta.env.VITE_CALI_PHASE4_READ === 'true' ? client : null;
+  const phase4Write = import.meta.env.VITE_CALI_PHASE4_WRITE === 'true' ? phase4 : null;
   const router = createAppRouter(
     undefined,
     cache,
@@ -60,10 +67,10 @@ try {
           team,
           monthly: team && client ? createHostedTeamMonthly(client) : null,
           disc: team && client ? createHostedDisc(client) : null,
-          projectWorkspace:
-            team && client && import.meta.env.VITE_CALI_PHASE4_READ === 'true'
-              ? createProjectWorkspace(client)
-              : null,
+          projectWorkspace: phase4 ? createProjectWorkspace(phase4) : null,
+          projectOperations: phase4Write ? createProjectOperations(phase4Write) : null,
+          hourOperations: phase4Write ? createHourOperations(phase4Write) : null,
+          domainOperations: phase4Write ? createDomainOperations(phase4Write) : null,
         }
       : undefined,
   );

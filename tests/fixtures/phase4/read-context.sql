@@ -5,7 +5,7 @@ create table cali_workspace.projects(id uuid primary key,company_id uuid,name te
 create table cali_workspace.project_workstreams(id uuid,company_id uuid,project_id uuid,name text,
  protocol text,status text,execution_status text,sort_order integer);
 create table cali_workspace.project_review_requests(id uuid,company_id uuid,project_id uuid,status text,
- request_number integer,response_due_at timestamptz,created_at timestamptz);
+ request_number integer,response_due_at timestamptz,created_at timestamptz,response_note text);
 create table cali_workspace.deliverables(id uuid,company_id uuid,project_id uuid,title text,protocol text,
  status text,execution_status text,due_at timestamptz,sort_order integer,client_visible boolean);
 create table cali_workspace.hour_entries(id uuid,company_id uuid,project_id uuid,work_date date,
@@ -20,7 +20,7 @@ create table cali_workspace.notices(id uuid,title text,protocol text,status text
  notice_date date,body text,audience text);
 create table cali_workspace.notice_targets(notice_id uuid,company_id uuid);
 create table cali_workspace.reports(id uuid,company_id uuid,title text,protocol text,status text,
- published_at timestamptz,period_start date,executive_summary text);
+ published_at timestamptz,period_start date,executive_summary text, revision_parent_id uuid,version integer default 1, acknowledged_at timestamptz);
 create table cali_workspace.company_fronts(id uuid,company_id uuid,scope_label text,front_code text,status text,started_at date);
 
 create function cali_workspace.current_company_id() returns uuid language sql stable as $$
@@ -66,8 +66,8 @@ begin
  insert into cali_workspace.project_workstreams values
   (gen_random_uuid(),a,pa,'Frente do projeto','WS','active','active',1);
  insert into cali_workspace.project_review_requests values
-  (gen_random_uuid(),a,pa,'approved',1,'2026-11-04Z','2026-11-01Z'),
-  (gen_random_uuid(),a,pa,'pending',2,'2026-11-14Z','2026-11-11Z');
+  (gen_random_uuid(),a,pa,'approved',1,'2026-11-04Z','2026-11-01Z',null),
+  (gen_random_uuid(),a,pa,'pending',2,'2026-11-14Z','2026-11-11Z',null);
  insert into cali_workspace.deliverables values
   (d1,a,pa,'Entrega pública','E1','in_progress','active','2026-11-05Z',1,true),
   (d2,a,pa,'Entrega interna','E2','in_progress','active',null,2,false);
@@ -94,8 +94,8 @@ begin
   (nb,'Outra empresa','N3','published','2026-11-01Z','2026-11-01','Mensagem','targeted');
  insert into cali_workspace.notice_targets values (nb,b);
  insert into cali_workspace.reports values
-  (gen_random_uuid(),a,'Publicado','R1','published','2026-11-01Z','2026-11-01','Resumo'),
-  (gen_random_uuid(),a,'Rascunho','R2','draft',null,'2026-11-01','Resumo interno');
+  (gen_random_uuid(),a,'Publicado','R1','published','2026-11-01Z','2026-11-01','Resumo',null,1,null),
+  (gen_random_uuid(),a,'Rascunho','R2','draft',null,'2026-11-01','Resumo interno',null,1,null);
  insert into cali_workspace.company_fronts values
   (gen_random_uuid(),a,'Frente ativa','F1','active','2026-11-01'),
   (gen_random_uuid(),a,'Frente encerrada','F2','ended','2026-11-01');
