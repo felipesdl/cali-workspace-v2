@@ -133,6 +133,7 @@ export function createProjectOperations(client: WorkspaceClient) {
     if (error?.code === '40001')
       throw new Error('O registro mudou. Confira a versão atual e tente novamente.');
     if (error?.code === '42501') throw new Error('Operação indisponível para este perfil.');
+    if (error?.code === 'P4D01') throw new Error('Anexe uma nova revisão do PDF antes de enviar.');
     if (error?.code === '22023') throw new Error('Revise os dados da operação.');
     if (error)
       throw new Error('Não foi possível concluir. Confira a composição e o estado do projeto.');

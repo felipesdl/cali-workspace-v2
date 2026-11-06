@@ -20,7 +20,7 @@ revoke all on cali_session_guard.phase4_delivery_corrections from public,anon,au
 create unique index if not exists phase4_one_open_delivery_correction
   on cali_session_guard.phase4_delivery_corrections(company_id,delivery_id) where approved_at is null;
 
-create function cali_workspace.v2_pilot_delivery_action(
+create or replace function cali_workspace.v2_pilot_delivery_action(
   p_company_id uuid,p_project_id uuid,p_delivery_id uuid,p_expected timestamptz,
   p_action text,p_status text default null,p_note text default null,p_score integer default null
 )
@@ -33,6 +33,11 @@ declare
   correction bigint;
   timer_id uuid;
   approved_time timestamptz;
+  pdf_document uuid;
+  previous_pdf uuid;
+  min_pdf_number integer;
+  latest_pdf uuid;
+  latest_pdf_number integer;
 
 begin
   if p_action is null or p_action not in ('status','reopen','approve','adjust')
@@ -52,6 +57,14 @@ begin
   end if;
   if not admin and (delivery.status<>'client_review' or not cali_workspace.client_can_view_deliverable(p_delivery_id)) then
     raise exception using errcode='42501', message='O entregável não está disponível para revisão.';
+  end if;
+
+  select d.id,d.published_revision,d.min_delivery_revision into pdf_document,previous_pdf,min_pdf_number
+  from cali_session_guard.phase4_documents d where d.delivery_id=p_delivery_id and d.company_id=p_company_id
+  for update;
+  if pdf_document is not null then
+    select v.id,v.number into latest_pdf,latest_pdf_number from cali_session_guard.phase4_document_revisions v
+    where v.document_id=pdf_document order by v.number desc limit 1;
   end if;
 
   case p_action
@@ -92,6 +105,15 @@ begin
         raise exception using errcode='22023', message='Transição indisponível.';
       end if;
       if p_status='client_review' then
+        if pdf_document is not null and (latest_pdf is null or latest_pdf_number<min_pdf_number) then
+          raise exception using errcode='P4D01', message='Anexe uma nova revisão do PDF antes de enviar.';
+        end if;
+        if latest_pdf is not null and latest_pdf is distinct from previous_pdf then
+          update cali_session_guard.phase4_documents set published_revision=latest_pdf where id=pdf_document;
+          insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
+          values(p_company_id,actor,'document_published','document',pdf_document,
+            jsonb_build_object('deliveryId',p_delivery_id,'revisionId',latest_pdf));
+        end if;
         update cali_workspace.deliverables set client_visible=true where id=p_delivery_id;
       end if;
       perform cali_workspace.change_deliverable_status(p_delivery_id,p_status,p_note);
@@ -114,11 +136,21 @@ begin
         work_close_reason=null,work_closed_by=null,updated_at=clock_timestamp()
       where id=p_delivery_id;
   end case;
+  if pdf_document is not null and p_action in ('adjust','reopen') then
+    update cali_session_guard.phase4_documents set published_revision=null,
+      min_delivery_revision=greatest(min_delivery_revision,coalesce(latest_pdf_number,0)+1)
+    where id=pdf_document;
+    if previous_pdf is not null then
+      insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
+      values(p_company_id,actor,'document_withdrawn','document',pdf_document,
+        jsonb_build_object('deliveryId',p_delivery_id,'previousRevisionId',previous_pdf));
+    end if;
+  end if;
   return p_delivery_id;
 end;
 $$;
 
-create function cali_workspace.v2_pilot_project_lifecycle(
+create or replace function cali_workspace.v2_pilot_project_lifecycle(
   p_company_id uuid,p_project_id uuid,p_expected text,p_action text,p_note text,p_resume date
 )
 returns uuid language plpgsql security definer set search_path = ''

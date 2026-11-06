@@ -263,7 +263,7 @@ Esses itens impedem declarar a fase 3 pronta para operação real. Não reabrem 
 
 Conduzir cada domínio por entrega completa; dependências são de dados/operação, não barreiras artificiais de lote. A primeira entrega não elimina as demais do escopo.
 
-**Em andamento (05/11):** [consultas da fase 4](contracts/PHASE_4_READ.md) implementadas nos cinco recortes, com SQL validado em PostgreSQL descartável. Os incrementos operacionais cobrem cronograma, execução e revisão de entregáveis sem arquivo, horas, agenda ordinária, ocorrências, mural, PDFs privados por revisão, preparação/aprovação interna de relatório, estados de Forms e pedidos de privacidade. A matriz do contrato detalha o que ainda falta em cada recorte. Aplicação no ambiente de homologação, prova autenticada e paridade visual continuam pendentes.
+**Em andamento (05/11):** [consultas da fase 4](contracts/PHASE_4_READ.md) implementadas nos cinco recortes, com SQL validado em PostgreSQL descartável. Os incrementos operacionais cobrem cronograma, execução e revisão de entregáveis com PDF privado no piloto, horas, agenda ordinária, ocorrências, mural, PDFs privados por revisão, preparação/aprovação interna de relatório, estados de Forms e pedidos de privacidade. A matriz do contrato detalha o que ainda falta em cada recorte. Aplicação no ambiente de homologação, prova autenticada e paridade visual continuam pendentes.
 
 | Entrega | Conteúdo | Dependências e saída |
 | --- | --- | --- |

@@ -24,6 +24,7 @@ export type PilotDocument = z.infer<typeof documentRow>;
 
 function errorMessage(code?: string) {
   if (code === '40001') return new Error('O documento mudou. Recarregue e tente novamente.');
+  if (code === 'PGRST202') return new Error('PDF do entregável ainda indisponível neste ambiente.');
   if (code === '42501') return new Error('Esta versão está indisponível para o seu acesso.');
   if (code === '22023') return new Error('Confira os dados e selecione um PDF de até 2 MiB.');
   return new Error('Não foi possível concluir a operação de documento.');
@@ -51,6 +52,36 @@ export function createDocumentOperations(client: WorkspaceClient) {
         .abortSignal(signal);
       if (error) throw errorMessage(error.code);
       return z.array(documentRow).parse(data);
+    },
+    async delivery(company: string, deliveryId: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_delivery_pdf_info', {
+          p_company_id: company,
+          p_delivery_id: deliveryId,
+        })
+        .abortSignal(signal);
+      if (error) throw errorMessage(error.code);
+      return documentRow.nullable().parse(data);
+    },
+    async addDelivery(
+      company: string,
+      deliveryId: string,
+      document: string,
+      id: string,
+      expected: string | null,
+      file: File,
+    ) {
+      const { data, error } = await client.rpc('v2_add_pilot_delivery_pdf', {
+        p_company_id: company,
+        p_delivery_id: deliveryId,
+        p_document_id: document,
+        p_revision_id: id,
+        p_expected_latest: expected,
+        p_file_name: file.name,
+        p_pdf_base64: await encodePdf(file),
+      });
+      if (error) throw errorMessage(error.code);
+      return z.uuid().parse(data);
     },
     async history(company: string, document: string, page: number, signal: AbortSignal) {
       const { data, error } = await client

@@ -1,4 +1,4 @@
-import { DocumentLibrary } from './DocumentLibrary';
+import { DeliveryPdf, DocumentLibrary } from './DocumentLibrary';
 import {
   CreateReportDraft,
   FormAdministration,
@@ -152,6 +152,7 @@ function Pages({ total, search, update }: Props & { total: number }) {
 
 function Projects({ search, update }: Props) {
   const { service, actor, companyId, admin, connected } = useScope(search);
+  const { documentOperations } = useRouteContext({ from: '__root__' });
   const { page, section, project } = search;
   const list = useQuery({
     queryKey: ['projects', actor, companyId, page],
@@ -253,6 +254,24 @@ function Projects({ search, update }: Props) {
                         {label(row.status)} · {label(row.execution_status)}
                         {row.due_at ? ` · Prazo ${formatServerInstant(row.due_at)}` : ''}
                       </p>
+                      {section === 'deliverables' &&
+                        documentOperations &&
+                        (admin || row.status === 'client_review' || row.status === 'approved') && (
+                          <DeliveryPdf
+                            company={companyId}
+                            actor={actor}
+                            operations={documentOperations}
+                            project={project}
+                            delivery={row.id}
+                            status={row.status}
+                            admin={admin}
+                            canEdit={
+                              row.execution_status === 'normal' &&
+                              detail.data?.project.execution_status === 'normal' &&
+                              ['active', 'rebriefing'].includes(detail.data.project.planning_status)
+                            }
+                          />
+                        )}
                       {section === 'deliverables' &&
                         row.updated_at &&
                         row.execution_status === 'normal' &&

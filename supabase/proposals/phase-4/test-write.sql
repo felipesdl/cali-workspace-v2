@@ -2,6 +2,7 @@
 \ir read-projects.sql
 \ir read-catalogs.sql
 \ir project-operations.sql
+\ir document-operations.sql
 \ir delivery-operations.sql
 \ir operation-receipts.sql
 \ir agenda-operations.sql
@@ -11,7 +12,6 @@
 \ir notice-operations.sql
 \ir report-draft-operations.sql
 \ir forms-operations.sql
-\ir document-operations.sql
 
 begin;
 do $$

@@ -69,33 +69,44 @@ function Upload({
   company,
   operations,
   item,
+  delivery,
   refresh,
 }: Pick<Scope, 'company' | 'operations'> & {
   item?: PilotDocument;
+  delivery?: string;
   refresh: () => Promise<void>;
 }) {
   return (
     <ActionForm
-      label={item ? 'Adicionar revisão' : 'Salvar novo documento'}
+      label={item ? 'Adicionar revisão' : delivery ? 'Anexar PDF' : 'Salvar novo documento'}
       submit={async (values, request) => {
         const file = values.get('pdf');
         if (!(file instanceof File) || file.size === 0) throw new Error('Selecione um PDF.');
         const title = item?.title ?? String(values.get('title') ?? '').trim();
-        const result = await operations.add(
-          company,
-          item?.id ?? request,
-          request,
-          item?.revisionId ?? null,
-          title,
-          file,
-        );
+        const result = delivery
+          ? await operations.addDelivery(
+              company,
+              delivery,
+              item?.id ?? request,
+              request,
+              item?.revisionId ?? null,
+              file,
+            )
+          : await operations.add(
+              company,
+              item?.id ?? request,
+              request,
+              item?.revisionId ?? null,
+              title,
+              file,
+            );
         await refresh();
         return result;
       }}
     >
       {(prefix) => (
         <>
-          {!item && (
+          {!item && !delivery && (
             <Field id={prefix + 'title'} label="Título do documento">
               <input id={prefix + 'title'} name="title" required maxLength={180} />
             </Field>
@@ -320,5 +331,102 @@ export function DocumentLibrary({ company, actor, operations, admin }: Scope & {
         </>
       )}
     </section>
+  );
+}
+
+const pdfUploadStates = new Set([
+  'in_progress',
+  'internal_review',
+  'adjustment_requested',
+  'rebriefing',
+]);
+
+export function DeliveryPdf({
+  company,
+  actor,
+  operations,
+  admin,
+  project,
+  delivery,
+  status,
+  canEdit,
+}: Scope & {
+  admin: boolean;
+  project: string;
+  delivery: string;
+  status: string;
+  canEdit: boolean;
+}) {
+  const [showHistory, setShowHistory] = useState(false);
+  const cache = useQueryClient();
+  const key = ['phase4-delivery-pdf', actor, company, project, delivery];
+  const pdf = useQuery({
+    queryKey: key,
+    queryFn: ({ signal }) => operations.delivery(company, delivery, signal),
+  });
+  if (pdf.isPending) return <FeedbackState kind="loading">Consultando PDF…</FeedbackState>;
+  if (pdf.isError)
+    return (
+      <FeedbackState kind="error" onRetry={() => void pdf.refetch()}>
+        Não foi possível consultar o PDF do entregável.
+      </FeedbackState>
+    );
+  const item = pdf.data;
+  const canUpload = admin && canEdit && pdfUploadStates.has(status);
+  if (!item && !canUpload) return null;
+
+  async function refresh() {
+    await Promise.all([
+      cache.invalidateQueries({ queryKey: key }),
+      cache.invalidateQueries({ queryKey: ['project', actor, company, project] }),
+      cache.invalidateQueries({ queryKey: ['phase4-document-history', actor, company] }),
+    ]);
+  }
+  return (
+    <div className="tw:my-3 tw:grid tw:gap-2">
+      {item && (
+        <>
+          <p>
+            PDF · Revisão {item.number} · {item.fileName}
+            {item.publishedRevision === item.revisionId && ' · Publicada'}
+          </p>
+          <Download
+            key={item.revisionId}
+            company={company}
+            operations={operations}
+            documentId={item.id}
+            revisionId={item.revisionId}
+          />
+        </>
+      )}
+      {canUpload && (
+        <>
+          <Upload
+            company={company}
+            operations={operations}
+            item={item ?? undefined}
+            delivery={delivery}
+            refresh={refresh}
+          />
+          <p>O PDF fica disponível ao Cliente quando o entregável é enviado para revisão.</p>
+        </>
+      )}
+      {admin && item && (
+        <>
+          <div>
+            <Button
+              variant="secondary"
+              aria-expanded={showHistory}
+              onClick={() => setShowHistory(!showHistory)}
+            >
+              {showHistory ? 'Ocultar histórico do PDF' : 'Ver histórico do PDF'}
+            </Button>
+          </div>
+          {showHistory && (
+            <History company={company} actor={actor} operations={operations} item={item} />
+          )}
+        </>
+      )}
+    </div>
   );
 }

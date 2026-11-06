@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — PDF privado de entregável
+
+- O envio para revisão publica o PDF vinculado. Ajuste ou reabertura retira a revisão anterior, preserva o histórico e exige outro PDF para reenviar. Prova descartável cobre versão obsoleta, isolamento A/B, retirada e nova aprovação. Itens com arquivo ou link legado ficam fora deste fluxo. [Contrato](contracts/PHASE_4_READ.md#pdf-privado-de-entregável).
+
 ## 06/11/2026 — PDFs privados por revisão
 
 - Biblioteca do piloto em Documentos com upload privado de PDF, histórico, publicação, retirada, download com nova autorização e ciência por revisão.

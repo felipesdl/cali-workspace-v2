@@ -143,6 +143,8 @@ it('registra ciência da revisão publicada na empresa da sessão e atualiza o d
       documentOperations: {
         list,
         acknowledge,
+        delivery: unexpected,
+        addDelivery: unexpected,
         history: unexpected,
         add: unexpected,
         publication: unexpected,

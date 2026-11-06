@@ -103,3 +103,7 @@ O piloto usa respostas fictícias e dois destinatários autorizados, não versio
 ### PDFs versionados do piloto da fase 4
 
 Título, nome do arquivo, bytes, autoria e data de cada revisão dão suporte à publicação e ao histórico. A ciência guarda ator, revisão e data. A biblioteca concede ao Cliente acesso somente à revisão publicada da sua empresa. A retirada preserva registros e bloqueia novas consultas dessa revisão. O piloto prevê apenas dados sintéticos. Retenção, descarte e informação ao titular continuam sujeitos à revisão CALI antes de coleta real. [Fluxo e validação](contracts/PHASE_4_READ.md#pdfs-privados-por-revisão)
+
+## PDFs de entregáveis no piloto
+
+Somente PDFs sintéticos. Bytes, nome, autor e instante de upload ficam no histórico privado. A liberação pertence à revisão do entregável. A API confere sessão, empresa e visibilidade a cada download, sem cache ou link público. Reabertura ou ajuste retira a publicação e preserva a trilha para Admin. Cópias já baixadas não são removidas. [Contrato e limites](contracts/PHASE_4_READ.md#pdf-privado-de-entregável).
