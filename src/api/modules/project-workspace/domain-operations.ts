@@ -63,6 +63,107 @@ function rejected(code?: string) {
 
 export function createDomainOperations(client: WorkspaceClient) {
   return {
+    async publishNotice(
+      company: string,
+      id: string,
+      category: string,
+      title: string,
+      body: string,
+      day: string,
+    ) {
+      const { data, error } = await client.rpc('v2_publish_pilot_notice', {
+        p_company_id: company,
+        p_notice_id: id,
+        p_category: z.enum(['feriado', 'atendimento', 'comunicado']).parse(category),
+        p_title: title,
+        p_body: body,
+        p_date: z.iso.date().parse(day),
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
+    async noticeState(
+      company: string,
+      id: string,
+      current: string,
+      next: 'published' | 'archived',
+    ) {
+      const { data, error } = await client.rpc('v2_set_pilot_notice_state', {
+        p_company_id: company,
+        p_notice_id: id,
+        p_expected: current,
+        p_next: next,
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
+    async noticeAcknowledgment(company: string, id: string, confirm: boolean) {
+      const { data, error } = await client.rpc('v2_ack_pilot_notice', {
+        p_company_id: company,
+        p_notice_id: id,
+        p_confirm: confirm,
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
+    async createReport(company: string, id: string, month: string, title: string, summary: string) {
+      const { data, error } = await client.rpc('v2_create_pilot_report_draft', {
+        p_company_id: company,
+        p_report_id: id,
+        p_month: z.iso.date().parse(month),
+        p_title: title,
+        p_summary: summary,
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
+    async updateReport(
+      company: string,
+      id: string,
+      expected: string,
+      action: 'edit' | 'review' | 'approve',
+      summary?: string,
+    ) {
+      const { data, error } = await client.rpc('v2_update_pilot_report_draft', {
+        p_company_id: company,
+        p_report_id: id,
+        p_expected: expected,
+        p_action: action,
+        p_summary: summary ?? null,
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
+    async forms(company: string, page: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_list_pilot_forms', {
+          p_company_id: company,
+          p_page: page,
+        })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      return z
+        .array(
+          z.object({
+            id: z.uuid(),
+            slug: z.string(),
+            title: z.string(),
+            status: z.enum(['draft', 'open', 'closed']),
+            responses: z.number().int().nonnegative(),
+          }),
+        )
+        .parse(data);
+    },
+    async formState(company: string, id: string, current: string, next: 'open' | 'closed') {
+      const { data, error } = await client.rpc('v2_set_pilot_form_state', {
+        p_company_id: company,
+        p_form_id: id,
+        p_expected: current,
+        p_next: next,
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
     async readRecord(company: string, record: string, page: number, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_read_pilot_record', { p_company_id: company, p_record_id: record, p_page: page })

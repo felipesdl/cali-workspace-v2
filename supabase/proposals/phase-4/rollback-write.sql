@@ -5,6 +5,18 @@ drop function if exists cali_workspace.v2_create_pilot_project(uuid,uuid,text,te
 drop function if exists cali_workspace.v2_add_pilot_project_item(uuid,uuid,uuid,text,text,uuid,timestamp without time zone);
 drop function if exists cali_workspace.v2_share_pilot_schedule(uuid,uuid);
 drop function if exists cali_workspace.v2_respond_pilot_schedule(uuid,uuid,uuid,text,text,text,uuid,text,date,uuid);
+drop function if exists cali_workspace.v2_pilot_delivery_action(uuid,uuid,uuid,timestamptz,text,text,text,integer);
+drop function if exists cali_workspace.v2_pilot_project_lifecycle(uuid,uuid,text,text,text,date);
+drop function if exists cali_workspace.v2_list_pilot_appointments(uuid,integer);
+drop function if exists cali_workspace.v2_request_pilot_appointment(uuid,uuid,text,text,text,text,jsonb);
+drop function if exists cali_workspace.v2_respond_pilot_appointment(uuid,uuid,text,text,integer);
+drop function if exists cali_workspace.v2_publish_pilot_notice(uuid,uuid,text,text,text,date);
+drop function if exists cali_workspace.v2_set_pilot_notice_state(uuid,uuid,text,text);
+drop function if exists cali_workspace.v2_ack_pilot_notice(uuid,uuid,boolean);
+drop function if exists cali_workspace.v2_create_pilot_report_draft(uuid,uuid,date,text,text);
+drop function if exists cali_workspace.v2_update_pilot_report_draft(uuid,uuid,timestamptz,text,text);
+drop function if exists cali_workspace.v2_list_pilot_forms(uuid,integer);
+drop function if exists cali_workspace.v2_set_pilot_form_state(uuid,uuid,text,text);
 drop function if exists cali_workspace.v2_pilot_hour_action(uuid,uuid,text,uuid,uuid,date,integer,text,text,boolean);
 drop function if exists cali_workspace.v2_pilot_active_timers(uuid);
 drop function if exists cali_workspace.v2_read_pilot_record(uuid,uuid,integer);

@@ -1,10 +1,16 @@
 \ir ../../../tests/fixtures/phase4/write-context.sql
 \ir read-projects.sql
+\ir read-catalogs.sql
 \ir project-operations.sql
+\ir delivery-operations.sql
 \ir operation-receipts.sql
+\ir agenda-operations.sql
 \ir hours-operations.sql
 \ir record-operations.sql
 \ir report-privacy-operations.sql
+\ir notice-operations.sql
+\ir report-draft-operations.sql
+\ir forms-operations.sql
 
 begin;
 do $$
@@ -120,6 +126,8 @@ begin
 end $$;
 rollback;
 \echo Fase 4: operações locais de projetos, horas, ocorrências, ciência e privacidade validadas.
+\ir test-delivery-agenda.sql
+\ir test-catalog-actions.sql
 \ir rollback-write.sql
 do $$
 begin

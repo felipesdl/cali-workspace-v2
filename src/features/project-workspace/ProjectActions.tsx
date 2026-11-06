@@ -273,3 +273,206 @@ function ReviewNote({ prefix }: { prefix: string }) {
     </Field>
   );
 }
+
+const deliveryStates = {
+  in_progress: 'Em execução',
+  internal_review: 'Em revisão interna',
+  client_review: 'Enviar para revisão do Cliente',
+  standby: 'Em espera',
+  rebriefing: 'Revisão de escopo',
+  cancelled: 'Cancelar',
+} as const;
+
+export function DeliveryActions({
+  company,
+  actor,
+  project,
+  delivery,
+  expected,
+  status,
+  admin,
+}: {
+  company: string;
+  actor?: string;
+  project: string;
+  delivery: string;
+  expected: string;
+  status: string;
+  admin: boolean;
+}) {
+  const submit = useProjectAction(company, actor, project);
+  if (!submit || status === 'cancelled') return null;
+  const scope = { kind: 'deliverable', project, delivery, expected } as const;
+  if (admin && status === 'approved')
+    return (
+      <ActionForm
+        label="Reabrir para correção"
+        submit={(fields) =>
+          submit({
+            ...scope,
+            decision: 'reopen',
+            note: value(fields, 'note'),
+          })
+        }
+      >
+        {(prefix) => <ReviewNote prefix={prefix} />}
+      </ActionForm>
+    );
+  if (admin)
+    return (
+      <ActionForm
+        label="Atualizar entregável"
+        submit={(fields) => {
+          const next = value(fields, 'status');
+          if (!isDeliveryState(next)) return Promise.reject(new Error('Selecione a situação.'));
+          return submit({
+            ...scope,
+            decision: 'status',
+            status: next,
+            note: value(fields, 'note'),
+          });
+        }}
+      >
+        {(prefix) => (
+          <>
+            <Field id={prefix + 'status'} label="Próxima situação">
+              <select id={prefix + 'status'} name="status" required defaultValue="">
+                <option value="" disabled>
+                  Selecione
+                </option>
+                {Object.entries(deliveryStates)
+                  .filter(([key]) => key !== status)
+                  .map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
+                  ))}
+              </select>
+            </Field>
+            <Field
+              id={prefix + 'note'}
+              label="Motivo para espera, revisão de escopo ou cancelamento"
+            >
+              <textarea id={prefix + 'note'} name="note" maxLength={4000} />
+            </Field>
+          </>
+        )}
+      </ActionForm>
+    );
+  if (status !== 'client_review') return null;
+  return (
+    <div className="tw:grid tw:gap-3">
+      <ActionForm
+        label="Aprovar entregável"
+        submit={(fields) =>
+          submit({
+            ...scope,
+            decision: 'approve',
+            score: Number(fields.get('score')),
+            note: value(fields, 'note'),
+          })
+        }
+      >
+        {(prefix) => (
+          <>
+            <Field id={prefix + 'score'} label="Avaliação de 1 a 5">
+              <select id={prefix + 'score'} name="score" required defaultValue="">
+                <option value="" disabled>
+                  Selecione
+                </option>
+                {[1, 2, 3, 4, 5].map((score) => (
+                  <option key={score} value={score}>
+                    {score}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field id={prefix + 'note'} label="Comentário obrigatório para notas de 1 a 3">
+              <textarea id={prefix + 'note'} name="note" maxLength={4000} />
+            </Field>
+          </>
+        )}
+      </ActionForm>
+      <ActionForm
+        label="Solicitar ajuste do entregável"
+        submit={(fields) =>
+          submit({
+            ...scope,
+            decision: 'adjust',
+            note: value(fields, 'note'),
+          })
+        }
+      >
+        {(prefix) => <ReviewNote prefix={prefix} />}
+      </ActionForm>
+    </div>
+  );
+}
+
+function isDeliveryState(value: string): value is keyof typeof deliveryStates {
+  return Object.prototype.hasOwnProperty.call(deliveryStates, value);
+}
+
+export function LifecycleActions({
+  company,
+  actor,
+  project,
+  execution,
+}: {
+  company: string;
+  actor?: string;
+  project: string;
+  execution: string;
+}) {
+  const submit = useProjectAction(company, actor, project);
+  if (!submit || execution === 'cancelled') return null;
+  const actions =
+    execution === 'normal'
+      ? ([
+          { key: 'pause', label: 'Pausar' },
+          { key: 'suspend', label: 'Suspender' },
+          { key: 'cancel', label: 'Cancelar' },
+        ] as const)
+      : ([
+          { key: 'resume', label: 'Retomar' },
+          { key: 'cancel', label: 'Cancelar' },
+        ] as const);
+  return (
+    <ActionForm
+      label="Registrar ação de execução"
+      submit={(fields) => {
+        const decision = actions.find((item) => item.key === fields.get('action'))?.key;
+        if (!decision) return Promise.reject(new Error('Selecione a ação.'));
+        return submit({
+          kind: 'lifecycle',
+          project,
+          expected: execution,
+          decision,
+          note: value(fields, 'note'),
+          resume: value(fields, 'resume') || null,
+        });
+      }}
+    >
+      {(prefix) => (
+        <>
+          <Field id={prefix + 'action'} label="Ação">
+            <select id={prefix + 'action'} name="action" required defaultValue="">
+              <option value="" disabled>
+                Selecione
+              </option>
+              {actions.map(({ key, label }) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <ReviewNote prefix={prefix} />
+          <Field id={prefix + 'resume'} label="Data planejada de retomada">
+            <input id={prefix + 'resume'} name="resume" type="date" />
+          </Field>
+        </>
+      )}
+    </ActionForm>
+  );
+}

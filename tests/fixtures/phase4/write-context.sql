@@ -127,3 +127,78 @@ create function cali_workspace.fixture_as(role text) returns void language sql a
   when 'clientB' then '{"sub":"00000000-0000-4000-8000-000000000012","aal":"aal1"}'
   else '{"sub":"00000000-0000-4000-8000-000000000015","aal":"aal1"}' end,true);
 $$;
+
+alter table cali_workspace.deliverables add column is_document boolean default false, add column final_drive_url text,
+ add column approved_at timestamptz, add column approval_requested_at timestamptz, add column client_response_at timestamptz,
+ add column locked_at timestamptz, add column work_closed_at timestamptz, add column work_close_reason text,
+ add column work_closed_by uuid;
+create table cali_workspace.fixture_feedback(delivery_id uuid,score integer);
+create function cali_workspace.client_approve_deliverable_with_feedback(uuid,integer,text) returns void language sql as $$
+ insert into cali_workspace.fixture_feedback values($1,$2);
+ update cali_workspace.deliverables set status='approved',approved_at=clock_timestamp(),updated_at=clock_timestamp() where id=$1;
+$$;
+create function cali_workspace.request_deliverable_adjustment(uuid,text,integer) returns void language sql as $$
+ update cali_workspace.deliverables set status='adjustment_requested',updated_at=clock_timestamp() where id=$1;
+$$;
+create function cali_workspace.change_deliverable_status(uuid,text,text) returns void language sql as $$
+ update cali_workspace.deliverables set status=$2,updated_at=clock_timestamp() where id=$1;
+$$;
+create function cali_workspace.admin_set_project_lifecycle_v44(uuid,text,text,uuid,text,date) returns void language sql as $$
+ update cali_workspace.projects set execution_status=case $2 when 'resume' then 'normal' else 'paused' end where id=$1;
+$$;
+
+alter table cali_workspace.events add column sync_status text;
+create table cali_workspace.scheduling_requests (
+ id uuid primary key default gen_random_uuid(),company_id uuid,title text,request_mode text,status text default 'submitted',
+ created_at timestamptz default clock_timestamp(),admin_note text,requested_slots jsonb,admin_proposed_slots jsonb default '[]',
+ confirmed_event_id uuid,extra_visit boolean default false,billable_extra boolean default false,urgency_fee_applies boolean default false
+);
+create function cali_workspace.preview_my_scheduling_policy_v66(text,timestamptz,text)
+returns jsonb language sql as $$ select jsonb_build_object('requiresAcknowledgement',($2 at time zone 'America/Sao_Paulo')::time='21:00') $$;
+create function cali_workspace.resolve_meeting_entitlement_v66(uuid,text,timestamptz,uuid)
+returns jsonb language sql as $$ select '{"billable":false}'::jsonb $$;
+create function cali_workspace.create_scheduling_request_v2(text,text,text,text,jsonb,text,boolean) returns jsonb language sql as $$
+ insert into cali_workspace.scheduling_requests(company_id,title,request_mode,requested_slots)
+ values(cali_workspace.current_company_id(),$2,$1,$5) returning jsonb_build_object('id',id);
+$$;
+create function cali_workspace.admin_respond_scheduling_request_v1(uuid,jsonb,text,boolean)
+returns void language sql as $$
+ update cali_workspace.scheduling_requests set status=case when $4 then 'declined' else 'client_review' end,
+ admin_proposed_slots=$2,admin_note=$3 where id=$1;
+$$;
+create function cali_workspace.client_accept_scheduling_proposal_v2(uuid,integer,boolean) returns void language sql as $$
+ with confirmed as (
+  insert into cali_workspace.events(id,company_id,title,event_type,starts_at,ends_at,visibility,sync_status)
+  select gen_random_uuid(),r.company_id,r.title,'meeting',(r.admin_proposed_slots->$2->>'startsAt')::timestamptz,
+    (r.admin_proposed_slots->$2->>'endsAt')::timestamptz,'client','pending'
+  from cali_workspace.scheduling_requests r where r.id=$1 returning id
+ )
+ update cali_workspace.scheduling_requests set status='confirmed',confirmed_event_id=(select id from confirmed) where id=$1;
+$$;
+
+alter table cali_workspace.notices add primary key(id);
+alter table cali_workspace.notices add column category text, add column created_by uuid;
+alter table cali_workspace.reports add primary key(id);
+alter table cali_workspace.reports add column reference_month date, add column report_type text,
+ add column period_end date, add column source_snapshot jsonb, add column generated_at timestamptz,
+ add column data_refreshed_at timestamptz, add column sent_at timestamptz, add column review_started_at timestamptz,
+ add column approved_at timestamptz, add column approved_by uuid;
+create function cali_workspace.fixture_report_touch() returns trigger language plpgsql as $$
+begin new.updated_at:=clock_timestamp(); return new; end $$;
+create trigger fixture_report_touch before update on cali_workspace.reports
+for each row execute function cali_workspace.fixture_report_touch();
+create or replace function cali_workspace.report_generation_readiness_v61(uuid,text,date,date) returns jsonb language sql as $$
+ select jsonb_build_object('mode',case when $3='2026-10-01' then 'official' else 'preview' end,
+   'collected_days',4,'required_days',20,'available_on',$3+19,'can_generate_official',$3='2026-10-01');
+$$;
+create function cali_workspace.build_report_source_snapshot(uuid,date,date) returns jsonb language sql as $$
+ select jsonb_build_object('company',$1,'start',$2,'end',$3);
+$$;
+create table cali_workspace.forms(
+ id uuid primary key,company_id uuid,slug text,title text,status text,questions jsonb,
+ created_at timestamptz default clock_timestamp(),updated_at timestamptz default clock_timestamp()
+);
+create table cali_workspace.form_responses(id uuid primary key,form_id uuid);
+insert into cali_workspace.forms(id,company_id,slug,title,status,questions) values(
+ '40000000-0000-4000-8000-000000000001','9c5ab148-78b8-4410-9338-58c44222a5db','form-qa','Formulário A','draft','[{"label":"Pergunta"}]'
+);

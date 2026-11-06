@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 05/11/2026 — Execução, agenda, mural, relatórios e Forms
+
+- Operações piloto para execução do projeto, correção e nova aprovação de entregável sem arquivo. Solicitação e confirmação de agenda contratual comum, com situação externa lida do evento.
+- Publicação dirigida de aviso com ciência e retirada, retrato de fontes e aprovação interna de relatório mensal, abertura e encerramento de formulários existentes. Provas descartáveis cobrem isolamento, replay, revisão antiga e estado de sincronização. [Escopo e pendências](contracts/PHASE_4_READ.md#segundo-incremento-de-operações).
+
 ## 05/11/2026 — Operações iniciais da fase 4
 
 - Rascunho, composição e revisão de cronograma. Horas manuais e timer Admin. Ocorrências com nota interna e conversa sem e-mail. Prontidão de relatório, ciência inicial e pedidos de privacidade.

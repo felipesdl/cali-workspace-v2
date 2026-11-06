@@ -23,6 +23,33 @@ const action = z.discriminatedUnion('kind', [
     workstream: z.uuid().nullable(),
     due: z.iso.datetime({ local: true }),
   }),
+  z.object({
+    kind: z.literal('deliverable'),
+    project: z.uuid(),
+    delivery: z.uuid(),
+    expected: z.string().min(1),
+    decision: z.enum(['status', 'reopen', 'approve', 'adjust']),
+    status: z
+      .enum([
+        'in_progress',
+        'internal_review',
+        'client_review',
+        'standby',
+        'rebriefing',
+        'cancelled',
+      ])
+      .optional(),
+    note: z.string().trim().max(4000),
+    score: z.number().int().min(1).max(5).optional(),
+  }),
+  z.object({
+    kind: z.literal('lifecycle'),
+    project: z.uuid(),
+    expected: z.string(),
+    decision: z.enum(['pause', 'suspend', 'cancel', 'resume']),
+    note: z.string().trim().min(3).max(4000),
+    resume: z.iso.date().nullable(),
+  }),
   z.object({ kind: z.literal('share'), project: z.uuid() }),
   z.object({
     kind: z.literal('respond'),
@@ -64,6 +91,26 @@ export function createProjectOperations(client: WorkspaceClient) {
             p_kind: command.kind === 'add-workstream' ? 'workstream' : 'deliverable',
             p_workstream_id: command.kind === 'add-deliverable' ? command.workstream : null,
             p_due: command.kind === 'add-deliverable' ? command.due : null,
+          });
+        case 'deliverable':
+          return client.rpc('v2_pilot_delivery_action', {
+            ...scope,
+            p_project_id: command.project,
+            p_delivery_id: command.delivery,
+            p_expected: command.expected,
+            p_action: command.decision,
+            p_status: command.status ?? null,
+            p_note: command.note,
+            p_score: command.score ?? null,
+          });
+        case 'lifecycle':
+          return client.rpc('v2_pilot_project_lifecycle', {
+            ...scope,
+            p_project_id: command.project,
+            p_expected: command.expected,
+            p_action: command.decision,
+            p_note: command.note,
+            p_resume: command.resume,
           });
         case 'share':
           return client.rpc('v2_share_pilot_schedule', { ...scope, p_project_id: command.project });

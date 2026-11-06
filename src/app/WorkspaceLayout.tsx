@@ -99,6 +99,14 @@ export function WorkspaceLayout({
               Privacidade
             </Link>
           )}
+          {admin && domainOperations && (
+            <Link
+              className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
+              to="/admin/formularios"
+            >
+              Formulários
+            </Link>
+          )}
           <Button variant="secondary" onClick={() => void session?.signOut()}>
             Sair
           </Button>

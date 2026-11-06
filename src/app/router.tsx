@@ -1,3 +1,4 @@
+import { type AgendaOperations } from '../api/modules/project-workspace/agenda';
 import { type DomainOperations } from '../api/modules/project-workspace/domain-operations';
 import {
   type HourOperations,
@@ -52,6 +53,7 @@ const rootRoute = createRootRouteWithContext<{
   projectOperations?: ProjectOperations | null;
   hourOperations?: HourOperations | null;
   domainOperations?: DomainOperations | null;
+  agendaOperations?: AgendaOperations | null;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -184,6 +186,15 @@ const adminChildren = [
   adminCatalogChild('frentes'),
   createRoute({
     getParentRoute: () => adminRoute,
+    path: 'formularios',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'AdminFormsPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => adminRoute,
     path: 'privacidade',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
@@ -285,6 +296,7 @@ export function createAppRouter(
     projectOperations?: ProjectOperations | null;
     hourOperations?: HourOperations | null;
     domainOperations?: DomainOperations | null;
+    agendaOperations?: AgendaOperations | null;
   },
 ) {
   return createRouter({
@@ -302,6 +314,7 @@ export function createAppRouter(
       projectOperations: services?.projectOperations ?? null,
       hourOperations: services?.hourOperations ?? null,
       domainOperations: services?.domainOperations ?? null,
+      agendaOperations: services?.agendaOperations ?? null,
     },
     defaultPreload: false,
   });

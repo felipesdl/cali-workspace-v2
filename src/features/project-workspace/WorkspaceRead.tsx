@@ -1,7 +1,15 @@
+import {
+  CreateReportDraft,
+  FormAdministration,
+  NoticeItemAction,
+  PublishNotice,
+  ReportDraftActions,
+} from './CatalogActions';
+import { AgendaActions } from './AgendaActions';
 import { OpenRecord, RecordConversation } from './RecordActions';
 import { PrivacyActions, ReportAcknowledgment, ReportReadiness } from './ReportPrivacyActions';
 import { HourActions } from './HourActions';
-import { CreateProject, ProjectActions } from './ProjectActions';
+import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import {
   getRouteApi,
@@ -29,6 +37,7 @@ const adminProjects = getRouteApi('/admin/projetos');
 const clientProjects = getRouteApi('/cliente/entregaveis');
 const adminHours = getRouteApi('/admin/horas');
 const adminPrivacy = getRouteApi('/admin/privacidade');
+const adminForms = getRouteApi('/admin/formularios');
 const clientHours = getRouteApi('/cliente/horas');
 const panel = 'tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
 const labels: Readonly<Record<string, string>> = {
@@ -210,6 +219,14 @@ function Projects({ search, update }: Props) {
                 review={detail.data.review}
                 admin={admin}
               />
+              {admin && ['active', 'rebriefing'].includes(detail.data.project.planning_status) && (
+                <LifecycleActions
+                  company={companyId}
+                  actor={actor}
+                  project={project}
+                  execution={detail.data.project.execution_status}
+                />
+              )}
               <div className="tw:my-4 tw:flex tw:gap-2">
                 <Button
                   aria-pressed={section === 'deliverables'}
@@ -235,6 +252,21 @@ function Projects({ search, update }: Props) {
                         {label(row.status)} · {label(row.execution_status)}
                         {row.due_at ? ` · Prazo ${formatServerInstant(row.due_at)}` : ''}
                       </p>
+                      {section === 'deliverables' &&
+                        row.updated_at &&
+                        row.execution_status === 'normal' &&
+                        detail.data?.project.execution_status === 'normal' &&
+                        ['active', 'rebriefing'].includes(detail.data.project.planning_status) && (
+                          <DeliveryActions
+                            company={companyId}
+                            actor={actor}
+                            project={project}
+                            delivery={row.id}
+                            expected={row.updated_at}
+                            status={row.status}
+                            admin={admin}
+                          />
+                        )}
                     </li>
                   ))}
                 </ul>
@@ -439,6 +471,16 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
     <div className="tw:grid tw:gap-4">
       {admin && <CompanySelect search={search} update={update} />}
       {month && <MonthSelect month={month} update={update} />}
+      {module === 'calendar' && companyId && (
+        <AgendaActions key={companyId} company={companyId} actor={actor} admin={admin} />
+      )}
+
+      {module === 'notices' && admin && companyId && (
+        <PublishNotice key={companyId} company={companyId} actor={actor} />
+      )}
+      {module === 'reports' && admin && companyId && (
+        <CreateReportDraft key={companyId} company={companyId} actor={actor} />
+      )}
       {module === 'reports' && admin && companyId && (
         <ReportReadiness key={companyId} company={companyId} actor={actor} />
       )}
@@ -496,6 +538,26 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                   {module === 'reports' && !admin && item.acknowledgmentAvailable && (
                     <ReportAcknowledgment company={companyId} report={item.id} />
                   )}
+                  {module === 'notices' && (
+                    <NoticeItemAction
+                      company={companyId}
+                      actor={actor}
+                      id={item.id}
+                      status={item.status}
+                      editable={item.noticeEditable}
+                      acknowledged={item.noticeAcknowledged}
+                    />
+                  )}
+                  {module === 'reports' && admin && item.reportUpdatedAt && (
+                    <ReportDraftActions
+                      company={companyId}
+                      actor={actor}
+                      id={item.id}
+                      status={item.status}
+                      expected={item.reportUpdatedAt}
+                      summary={item.summary}
+                    />
+                  )}
                   {item.summary && (
                     <p className="tw:mt-2 tw:break-words tw:whitespace-pre-line">{item.summary}</p>
                   )}
@@ -546,6 +608,27 @@ export function AdminPrivacyPage() {
       />
       {companyId ? (
         <PrivacyActions key={companyId} company={companyId} actor={actor} admin />
+      ) : (
+        <p>Selecione uma empresa.</p>
+      )}
+    </div>
+  );
+}
+
+export function AdminFormsPage() {
+  const search = adminForms.useSearch();
+  const navigate = adminForms.useNavigate();
+  const { companyId, actor, admin } = useScope(search);
+  const { domainOperations } = useRouteContext({ from: '__root__' });
+  if (!admin || !domainOperations) return null;
+  return (
+    <div className="tw:grid tw:gap-4">
+      <CompanySelect
+        search={search}
+        update={(change) => void navigate({ search: { ...search, ...change } })}
+      />
+      {companyId ? (
+        <FormAdministration key={companyId} company={companyId} actor={actor} />
       ) : (
         <p>Selecione uma empresa.</p>
       )}

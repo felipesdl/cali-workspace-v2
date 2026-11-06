@@ -42,11 +42,14 @@ begin
  assert payload->>'visible'='false' and not (payload ? 'entries');
  foreach mod in array array['calendar','records','documents','notices','reports','fronts'] loop
   payload := cali_workspace.v2_read_pilot_catalog(a,mod,'2026-11-01',1);
-  assert payload->>'total'='1',mod;
-  assert payload#>>'{entries,0,title}'=case mod when 'calendar' then 'Cruza início do mês'
+  assert payload->>'total'=case when mod='calendar' then '2' else '1' end,mod;
+  assert payload#>>'{entries,0,title}'=case mod when 'calendar' then 'Geral'
    when 'records' then 'Visível' when 'documents' then 'Publicado' when 'notices' then 'Geral'
    when 'reports' then 'Publicado' else 'Frente ativa' end,mod;
   assert not (payload#>'{entries,0}' ?| array['path','storage_path','url','internal_note']),mod;
+  if mod='calendar' then
+   assert payload#>>'{entries,1,title}'='Cruza início do mês';
+  end if;
  end loop;
  perform set_config('test.terms','false',true);
  begin

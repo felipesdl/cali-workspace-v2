@@ -48,6 +48,7 @@ export const projectDetail = z.object({
         status: z.string(),
         execution_status: z.string(),
         due_at: z.string().nullable(),
+        updated_at: z.string().nullable().optional(),
       }),
     ),
   }),
@@ -97,6 +98,9 @@ export const catalog = z.object({
       day: z.iso.date().nullable(),
       summary: z.string().nullable(),
       acknowledgmentAvailable: z.boolean().optional(),
+      noticeAcknowledged: z.boolean().nullable().optional(),
+      noticeEditable: z.boolean().optional(),
+      reportUpdatedAt: z.string().nullable().optional(),
     }),
   ),
 });

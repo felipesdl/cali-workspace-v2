@@ -1,3 +1,4 @@
+import { createAgendaOperations } from './api/modules/project-workspace/agenda';
 import { createDomainOperations } from './api/modules/project-workspace/domain-operations';
 import {
   createHourOperations,
@@ -71,6 +72,7 @@ try {
           projectOperations: phase4Write ? createProjectOperations(phase4Write) : null,
           hourOperations: phase4Write ? createHourOperations(phase4Write) : null,
           domainOperations: phase4Write ? createDomainOperations(phase4Write) : null,
+          agendaOperations: phase4Write ? createAgendaOperations(phase4Write) : null,
         }
       : undefined,
   );

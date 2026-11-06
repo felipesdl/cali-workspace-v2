@@ -20,13 +20,15 @@ export function AdminWorkspace() {
   const showDisc = Boolean(disc && pathname === '/admin/perfil');
   const operationsTitle =
     projectWorkspace &&
-    (pathname === '/admin/privacidade'
-      ? 'Privacidade'
-      : pathname === adminPaths.projects
-        ? 'Projetos'
-        : pathname === adminPaths.hours
-          ? 'Horas'
-          : phase4CatalogFromPath(pathname)?.title);
+    (pathname === '/admin/formularios'
+      ? 'Formulários'
+      : pathname === '/admin/privacidade'
+        ? 'Privacidade'
+        : pathname === adminPaths.projects
+          ? 'Projetos'
+          : pathname === adminPaths.hours
+            ? 'Horas'
+            : phase4CatalogFromPath(pathname)?.title);
   if (access)
     return (
       <WorkspaceLayout

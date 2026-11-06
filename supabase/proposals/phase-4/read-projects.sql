@@ -54,12 +54,12 @@ begin
         order by r.request_number desc,r.created_at desc,r.id desc limit 1),
       'items',(
         with matched as (
-          select d.id,d.title as name,d.protocol,d.status,d.execution_status,d.due_at,d.sort_order
+          select d.id,d.title as name,d.protocol,d.status,d.execution_status,d.due_at,d.sort_order,d.updated_at
           from cali_workspace.deliverables d
           where p_section='deliverables' and d.company_id=p_company_id and d.project_id=p.id
             and (admin or cali_workspace.client_can_view_deliverable(d.id))
           union all
-          select w.id,w.name,w.protocol,w.status,w.execution_status,null::timestamptz,w.sort_order
+          select w.id,w.name,w.protocol,w.status,w.execution_status,null::timestamptz,w.sort_order,null::timestamptz
           from cali_workspace.project_workstreams w
           where p_section='workstreams' and w.company_id=p_company_id and w.project_id=p.id
         ), page as (
