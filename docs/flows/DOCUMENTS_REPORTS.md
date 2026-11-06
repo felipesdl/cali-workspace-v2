@@ -19,6 +19,8 @@ Após nova liberação, ciência do relatório corrigido só é exigida **se Adm
 
 ## FLOW-11 — Arquivo, versão, publicação, ciência e Drive
 
+A biblioteca V2 para PDFs novos do piloto implementa revisão imutável, publicação, retirada, histórico Admin e ciência Cliente. Os testes isolados do contrato não cobrem arquivos legados, Drive nem anexos de entregáveis. [Implementação e evidências](../contracts/PHASE_4_READ.md#pdfs-privados-por-revisão)
+
 **Objetivo/atores/entrada:** Admin prepara/versiona/publica/arquiva em `/admin/documentos`; Cliente consulta conteúdo compartilhado em `/cliente/documentos`, registra ciência e solicita cópia ao Drive. Arquivo final de uma entrega não fica disponível por ter sido apenas anexado à conversa.
 
 **Fontes:** [Admin UI](SOURCES.md#documents-admin), [Cliente UI](SOURCES.md#documents-client), [policy files/comments](SOURCES.md#files-policy), [INSERT comentários](SOURCES.md#file-comments), [storage](SOURCES.md#file-storage), [Drive EDGE](SOURCES.md#drive).

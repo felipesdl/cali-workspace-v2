@@ -1,3 +1,4 @@
+import { DocumentLibrary } from './DocumentLibrary';
 import {
   CreateReportDraft,
   FormAdministration,
@@ -456,7 +457,7 @@ export function ClientHoursPage() {
 
 function Catalog({ search, update, module }: Props & { module: CatalogModule }) {
   const { service, actor, companyId, admin, connected } = useScope(search);
-  const { domainOperations } = useRouteContext({ from: '__root__' });
+  const { domainOperations, documentOperations } = useRouteContext({ from: '__root__' });
   const record = module === 'records' && domainOperations ? search.record : undefined;
   const month = module === 'calendar' ? (search.month ?? currentMonth()) : null;
   const result = useQuery({
@@ -470,6 +471,15 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
   return (
     <div className="tw:grid tw:gap-4">
       {admin && <CompanySelect search={search} update={update} />}
+      {module === 'documents' && companyId && documentOperations && (
+        <DocumentLibrary
+          key={companyId}
+          company={companyId}
+          actor={actor}
+          operations={documentOperations}
+          admin={admin}
+        />
+      )}
       {month && <MonthSelect month={month} update={update} />}
       {module === 'calendar' && companyId && (
         <AgendaActions key={companyId} company={companyId} actor={actor} admin={admin} />
@@ -514,6 +524,9 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
         </FeedbackState>
       ) : (
         <>
+          {module === 'documents' && documentOperations && (
+            <h2 className="tw:text-section">Acervo anterior</h2>
+          )}
           {result.data.entries.length ? (
             <ul className="tw:grid tw:gap-3">
               {result.data.entries.map((item) => (

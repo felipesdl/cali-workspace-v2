@@ -11,6 +11,7 @@
 \ir notice-operations.sql
 \ir report-draft-operations.sql
 \ir forms-operations.sql
+\ir document-operations.sql
 
 begin;
 do $$
@@ -132,6 +133,7 @@ rollback;
 \echo Fase 4: operações locais de projetos, horas, ocorrências, ciência e privacidade validadas.
 \ir test-delivery-agenda.sql
 \ir test-catalog-actions.sql
+\ir test-documents.sql
 \ir rollback-write.sql
 do $$
 begin

@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## 06/11/2026 — PDFs privados por revisão
+
+- Biblioteca do piloto em Documentos com upload privado de PDF, histórico, publicação, retirada, download com nova autorização e ciência por revisão.
+- Testes descartáveis comprovam escopo de empresa, revogação, publicação e retirada. A rodada HTTP passou em 13 verificações com JWTs sintéticos e cabeçalho sem cache. O gate do repositório passou com 258 testes. A rota Cliente foi testada com serviço simulado. O roteiro da aplicação e a reversão preservam os dados. [Contrato](contracts/PHASE_4_READ.md#pdfs-privados-por-revisão)
+
 ## 05/11/2026 — Execução, agenda, mural, relatórios e Forms
 
 - Operações piloto para execução do projeto, correção e nova aprovação de entregável sem arquivo. Solicitação e confirmação de agenda contratual comum, com situação externa lida do evento.

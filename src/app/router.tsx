@@ -1,3 +1,4 @@
+import { type DocumentOperations } from '../api/modules/project-workspace/documents';
 import { type AgendaOperations } from '../api/modules/project-workspace/agenda';
 import { type DomainOperations } from '../api/modules/project-workspace/domain-operations';
 import {
@@ -53,6 +54,7 @@ const rootRoute = createRootRouteWithContext<{
   projectOperations?: ProjectOperations | null;
   hourOperations?: HourOperations | null;
   domainOperations?: DomainOperations | null;
+  documentOperations?: DocumentOperations | null;
   agendaOperations?: AgendaOperations | null;
 }>()({
   component: Outlet,
@@ -296,6 +298,7 @@ export function createAppRouter(
     projectOperations?: ProjectOperations | null;
     hourOperations?: HourOperations | null;
     domainOperations?: DomainOperations | null;
+    documentOperations?: DocumentOperations | null;
     agendaOperations?: AgendaOperations | null;
   },
 ) {
@@ -314,6 +317,7 @@ export function createAppRouter(
       projectOperations: services?.projectOperations ?? null,
       hourOperations: services?.hourOperations ?? null,
       domainOperations: services?.domainOperations ?? null,
+      documentOperations: services?.documentOperations ?? null,
       agendaOperations: services?.agendaOperations ?? null,
     },
     defaultPreload: false,

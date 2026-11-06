@@ -28,6 +28,12 @@ drop function if exists cali_workspace.v2_submit_pilot_privacy_request(uuid,uuid
 drop function if exists cali_workspace.v2_answer_pilot_privacy_request(uuid,uuid,text);
 drop trigger if exists zz_phase4_record_mention_in_app on cali_workspace.notifications;
 drop function if exists cali_session_guard.phase4_record_mention_in_app();
+drop function if exists cali_workspace.v2_add_pilot_document_revision(uuid,uuid,uuid,uuid,text,text,text);
+drop function if exists cali_workspace.v2_set_pilot_document_publication(uuid,uuid,uuid,uuid);
+drop function if exists cali_workspace.v2_list_pilot_documents(uuid,integer);
+drop function if exists cali_workspace.v2_list_pilot_document_history(uuid,uuid,integer);
+drop function if exists cali_workspace.v2_read_pilot_document_pdf(uuid,uuid,uuid);
+drop function if exists cali_workspace.v2_ack_pilot_document(uuid,uuid,uuid);
 drop function if exists cali_session_guard.require_phase4_role(uuid,text);
 drop function if exists cali_session_guard.read_phase4_receipt(uuid,uuid,uuid,bytea);
 notify pgrst, 'reload schema';

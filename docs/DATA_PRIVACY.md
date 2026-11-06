@@ -99,3 +99,7 @@ A prova do CALI MAPA usou fichas sintéticas, arquivadas após a rodada. Arquiva
 Nome/e-mail do convite identificam participação e entrega do PDF próprio. Cargo é contexto opcional. Respostas/escores são restritos ao avaliador interno; Cliente recebe somente agregado aprovado/liberado da própria empresa. Cinco a 14 respostas não expõem contagens; a partir de 15, agregados sem nomes. Foto/assinatura profissional integram o artefato assinado, congelado por revisão; não são credenciais de acesso. Fila e auditoria registram destinatário/tipo/revisão e confirmação do provedor.
 
 O piloto usa respostas fictícias e dois destinatários autorizados, não versionados. Consentimento exibido é de homologação sintética e não autoriza coleta real. Conteúdo final, finalidade, guarda, exclusão/exportação e comunicação precisam de validação CALI; nenhum prazo foi inventado. Retirada de liberação impede novas consultas, sem prometer apagar PDF já entregue/baixado. [Contrato](contracts/DISC_3.md).
+
+### PDFs versionados do piloto da fase 4
+
+Título, nome do arquivo, bytes, autoria e data de cada revisão dão suporte à publicação e ao histórico. A ciência guarda ator, revisão e data. A biblioteca concede ao Cliente acesso somente à revisão publicada da sua empresa. A retirada preserva registros e bloqueia novas consultas dessa revisão. O piloto prevê apenas dados sintéticos. Retenção, descarte e informação ao titular continuam sujeitos à revisão CALI antes de coleta real. [Fluxo e validação](contracts/PHASE_4_READ.md#pdfs-privados-por-revisão)
