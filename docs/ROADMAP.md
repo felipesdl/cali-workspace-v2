@@ -254,7 +254,7 @@ DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciênci
 - [x] Conferir em leitura worker, extensões, fila e preimagem do rollback no CALI MAPA. Em 05/11, agenda desligada, segredo Vault ausente e recuperação DEC-28 sem evidência.
 - [x] Aplicar incremento privado da agenda, publicar worker v5 e configurar Vault no CALI MAPA, com dispensa de backup para o lote e rollback conferido.
 - [x] Homologar a chamada autenticada do cron DISC no CALI MAPA com fila vazia e desligamento confirmado.
-- [ ] Na rodada com Patrícia, definir URL de homologação e executar o [roteiro funcional](HOMOLOGACAO_PATRICIA.md). Incluir envio pelo cron somente se previsto na janela de teste.
+- [ ] Preparar o ambiente de homologação e concluir a validação interna do DISC. Incluir envio pelo cron somente se previsto na janela de teste. Patrícia valida o DISC no aceite final da V2.
 - [ ] Validar textos/finalidade/guarda para coleta real e paridade visual antes do lançamento.
 
 Esses itens impedem declarar a fase 3 pronta para operação real. Não reabrem a bateria suspensa nem exigem repetir a homologação completa.
@@ -329,6 +329,8 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 **5 — Partner:** adiar a área completa; antes de incluí-la, fechar público, atribuições, matriz e paridade próprios. Não conflitar com a gestão Admin de equipe CALI já prevista. O recorte Cliente/Admin pode ser homologado sem essa expansão.
 
 **6 — Homologação:** os 18 IDs/subfluxos aplicáveis têm evidência real ou adiamento explicitamente aprovado. Executar regressão entre módulos, isolamento e decisões vigentes; mídia/PDF/e-mail e tela concordam; sem operação obrigatória apenas simulada, bloqueio crítico oculto ou dados fictícios tratados como reais. UX/mobile/teclado são conferidos em cada entrega e novamente nos percursos cruzados. Resumo Admin segue RESUMO-01/DEC-19 e exige evidência de operação; conteúdo Partner não faz parte do aceite Admin/Cliente.
+
+**Aceite com Patrícia:** compartilhar o acesso quando todo o escopo combinado da V2 estiver concluído, a validação interna tiver passado e o ambiente de homologação estiver pronto. Completar o [roteiro de aceite](HOMOLOGACAO_PATRICIA.md) com os fluxos entregues até lá.
 
 **7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. DEC-28 antecipa a primeira preservação e prova de restauração para antes de novas alterações hospedadas; no release, renovar a cópia e confirmar os projetos de staging/produção separados. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
 

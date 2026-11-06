@@ -1,6 +1,8 @@
 # Homologação funcional com Patrícia
 
-Usar empresas e dados de teste no CALI MAPA. Patrícia valida o fluxo como dona do produto. Felipe prepara o ambiente, acompanha a rodada e registra o aceite por tarefa. A versão atual usa as telas simplificadas de homologação.
+Patrícia participa do aceite final, após a conclusão de todo o escopo combinado da V2, a validação interna e a preparação do ambiente de homologação. Até lá, este roteiro é material de preparação. A versão atual usa telas simplificadas para os testes internos.
+
+Na rodada final, usar empresas e dados de teste no CALI MAPA. Felipe prepara o ambiente, acompanha a rodada e registra o aceite por tarefa. Completar a lista abaixo com os módulos que ainda estão em implementação antes de compartilhar o acesso.
 
 ## Preparar antes de enviar o acesso
 

@@ -26,7 +26,7 @@ Base escolhida para evolução do sistema, conforme confirmação do usuário em
 - Escopo confirmado: padronizar todos os fluxos de Cliente e Admin e consolidar identidade bordô, marfim e dourado.
 - O código de `patricia258/app.cali` foi consultado somente em leitura como referência de contratos. Não é o destino da refatoração.
 
-O [contrato DISC](docs/contracts/DISC_3.md) distingue implementação local, worker hospedado v7 e prova temporária da agenda. O incremento SQL, Vault e hash da credencial estão configurados no CALI MAPA. O [roteiro da Patrícia](docs/HOMOLOGACAO_PATRICIA.md) lista o preparo da próxima rodada. O processamento de envios é manual e restrito; nenhum cron novo DISC está ativo.
+O [contrato DISC](docs/contracts/DISC_3.md) distingue implementação local, worker hospedado v7 e prova temporária da agenda. O incremento SQL, Vault e hash da credencial estão configurados no CALI MAPA. O [roteiro da Patrícia](docs/HOMOLOGACAO_PATRICIA.md) fica reservado para o aceite final, após a conclusão e a validação interna da V2. O processamento de envios é manual e restrito; nenhum cron novo DISC está ativo.
 
 ## Executar
 
