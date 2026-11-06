@@ -1,4 +1,5 @@
 \ir ../../../tests/fixtures/phase4/write-context.sql
+\ir ../../../tests/fixtures/phase4/agenda-changes.sql
 \ir read-projects.sql
 \ir read-catalogs.sql
 \ir project-operations.sql
@@ -6,6 +7,7 @@
 \ir delivery-operations.sql
 \ir operation-receipts.sql
 \ir agenda-operations.sql
+\ir agenda-change-operations.sql
 \ir hours-operations.sql
 \ir record-operations.sql
 \ir report-privacy-operations.sql
@@ -133,6 +135,7 @@ end $$;
 rollback;
 \echo Fase 4: operações locais de projetos, horas, ocorrências, ciência e privacidade validadas.
 \ir test-delivery-agenda.sql
+\ir test-agenda-changes.sql
 \ir test-catalog-actions.sql
 \ir test-documents.sql
 grant usage on schema cali_workspace to service_role;
@@ -146,6 +149,7 @@ begin
  assert to_regprocedure('cali_workspace.v2_acknowledge_pilot_report(uuid,uuid)') is null;
  assert to_regprocedure('cali_workspace.v2_list_pilot_privacy_requests(uuid,integer)') is null;
  assert to_regclass('cali_session_guard.phase4_operation_receipts') is not null;
+ assert to_regprocedure('cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer)') is null;
  assert to_regprocedure('cali_workspace.v2_list_pilot_report_approvals(uuid,uuid,integer)') is null;
  assert to_regclass('cali_session_guard.phase4_report_approvals') is not null;
  assert (select count(*) from cali_workspace.projects)=3;

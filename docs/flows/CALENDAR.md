@@ -33,6 +33,8 @@ Na remarcação ordinária localizada, Cliente oferece duas opções distintas, 
 
 ## Continuidade, falhas e efeitos
 
+O [piloto V2 de alteração ordinária](../contracts/PHASE_4_READ.md#remarcação-e-cancelamento-de-reunião-ordinária) reaproveita as RPCs de mudança, exige decisão com motivo e revalida conflito na confirmação. O cancelamento apresentado é local ao Workspace. Transporte e sincronização externos ainda precisam de homologação.
+
 - Deep links levam ao pedido/evento correto; filtros de calendário não concedem acesso. Pedido de remarcação não deve aparecer como nova reunião confirmada.
 - E-mail, convite Google, criação de Meet e sincronização são etapas separadas. `pending`, registro local e toast não comprovam evento externo ou entrega ao participante.
 - Repetição/concorrência: trigger impede pedidos pendentes duplicados por slots em determinadas condições; não é garantia universal de idempotência entre v1/v2/extra.

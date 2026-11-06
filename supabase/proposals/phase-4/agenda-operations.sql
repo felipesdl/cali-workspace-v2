@@ -1,8 +1,8 @@
--- FLOW-09. Pedidos ordinários do contrato. Extras e remarcação exigem contratos próprios.
+-- FLOW-09. Pedidos ordinários do contrato. Extras permanecem fora do piloto.
 begin;
 set local lock_timeout = '5s';
 
-create function cali_workspace.v2_list_pilot_appointments(p_company_id uuid,p_page integer)
+create or replace function cali_workspace.v2_list_pilot_appointments(p_company_id uuid,p_page integer)
 returns jsonb language plpgsql stable security definer set search_path = ''
 as $$
 declare
@@ -13,10 +13,21 @@ begin
   end if;
   return (
     select coalesce(jsonb_agg(to_jsonb(page) order by created_at desc,id),'[]'::jsonb) from (
-      select r.id,r.title,r.status,r.request_mode,r.created_at,r.admin_note,r.requested_slots,r.admin_proposed_slots,
-        e.sync_status from cali_workspace.scheduling_requests r
+      select r.id,r.title,case when e.cancelled_at is not null then 'cancelled' else r.status end as status,
+        r.request_mode,r.created_at,r.admin_note,r.requested_slots,r.admin_proposed_slots,
+        case when e.cancelled_at is null then e.sync_status end as sync_status,
+        e.starts_at as "meetingAt",
+        coalesce(r.status='confirmed' and e.visibility='client' and e.event_type='meeting'
+          and e.starts_at>now() and e.cancelled_at is null,false) as "canRequestChange",
+        case when c.id is not null then jsonb_build_object('id',c.id,'action',c.action,'status',c.status,
+          'reason',c.reason,'slots',c.slots,'note',c.decision_note) end as "latestChange" from cali_workspace.scheduling_requests r
       left join cali_workspace.events e on e.id=r.confirmed_event_id and e.company_id=r.company_id
+      left join lateral (
+        select * from cali_workspace.agenda_change_requests x where x.event_id=e.id and x.company_id=e.company_id
+        order by (x.status='pending') desc,x.created_at desc,x.id limit 1
+      ) c on true
       where r.company_id=p_company_id and not r.extra_visit and not r.billable_extra and not r.urgency_fee_applies
+        and not r.online_extra_requested
       order by r.created_at desc,r.id limit 25 offset (p_page-1)*25
     ) page
   );

@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Alterações da agenda ordinária
+
+- Cliente pede remarcação ou cancelamento; Admin decide com motivo. A reunião só muda após aprovação, com nova conferência de conflito e sem duplicar evento. Prova local cobre isolamento, MFA e reexecução. [Contrato](contracts/PHASE_4_READ.md#remarcação-e-cancelamento-de-reunião-ordinária).
+
 ## 06/11/2026 — PDF e publicação de relatório executivo
 
 - O piloto gera o PDF da revisão aprovada, publica no Workspace e registra ciência. Reabertura retira o acesso Cliente e preserva o histórico. Nova ciência em correção depende de pedido Admin. Provas locais cobrem Inter, três revisões e isolamento. [Contrato e pendências](contracts/PHASE_4_READ.md#pdf-executivo-publicação-e-ciência-por-revisão).

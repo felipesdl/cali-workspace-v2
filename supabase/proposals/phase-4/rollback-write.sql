@@ -10,6 +10,8 @@ drop function if exists cali_workspace.v2_pilot_project_lifecycle(uuid,uuid,text
 drop function if exists cali_workspace.v2_list_pilot_appointments(uuid,integer);
 drop function if exists cali_workspace.v2_request_pilot_appointment(uuid,uuid,text,text,text,text,jsonb);
 drop function if exists cali_workspace.v2_respond_pilot_appointment(uuid,uuid,text,text,integer);
+drop function if exists cali_workspace.v2_request_pilot_agenda_change(uuid,uuid,uuid,text,text,jsonb);
+drop function if exists cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer);
 drop function if exists cali_workspace.v2_publish_pilot_notice(uuid,uuid,text,text,text,date);
 drop function if exists cali_workspace.v2_set_pilot_notice_state(uuid,uuid,text,text);
 drop function if exists cali_workspace.v2_ack_pilot_notice(uuid,uuid,boolean);

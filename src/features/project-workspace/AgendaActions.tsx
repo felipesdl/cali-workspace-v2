@@ -5,6 +5,7 @@ import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { formatServerInstant } from '../../lib/dates';
 import { ActionForm } from './ActionForm';
+import { AgendaChangeActions } from './AgendaChangeActions';
 
 const statusLabels: Record<string, string> = {
   submitted: 'Aguardando análise da CALI',
@@ -12,7 +13,7 @@ const statusLabels: Record<string, string> = {
   confirmed: 'Confirmado na agenda',
   completed: 'Realizado',
   declined: 'Recusado',
-  cancelled: 'Cancelado',
+  cancelled: 'Cancelado no Workspace',
   not_occurred: 'Não realizado',
   reschedule_review: 'Remarcação em análise',
 };
@@ -129,6 +130,19 @@ export function AgendaActions({
               {statusLabels[item.status] ?? item.status} ·{' '}
               {item.request_mode === 'remote' ? 'Online' : 'Presencial'}
             </p>
+            {item.meetingAt && item.status !== 'cancelled' && (
+              <p>{formatServerInstant(item.meetingAt)} (Brasília)</p>
+            )}
+            <AgendaChangeActions
+              company={company}
+              appointment={item.id}
+              admin={admin}
+              eligible={Boolean(item.canRequestChange)}
+              active={item.status === 'confirmed'}
+              change={item.latestChange}
+              agenda={agenda}
+              refresh={refresh}
+            />
             {item.admin_note && <p className="tw:break-words">{item.admin_note}</p>}
             {item.sync_status && (
               <p>

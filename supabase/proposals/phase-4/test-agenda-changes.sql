@@ -1,0 +1,85 @@
+begin;
+do $$
+<<qa>>
+declare
+  a constant uuid := '9c5ab148-78b8-4410-9338-58c44222a5db';
+  b constant uuid := '6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76';
+  e uuid := gen_random_uuid();
+  appointment uuid := gen_random_uuid();
+  request uuid := gen_random_uuid();
+  change uuid;
+  conflict uuid := gen_random_uuid();
+  current_at timestamptz := (current_date+8+time '10:00') at time zone 'America/Sao_Paulo';
+  choice_day date := (select min(current_date+n) from generate_series(12,20) n where extract(isodow from current_date+n)<6);
+  choices jsonb := jsonb_build_array(
+    jsonb_build_object('start',choice_day||'T09:00','end',choice_day||'T10:00'),
+    jsonb_build_object('start',choice_day||'T14:00','end',choice_day||'T15:00'));
+  meeting timestamptz := (choice_day+time '09:00') at time zone 'America/Sao_Paulo';
+begin
+  insert into cali_workspace.events(id,company_id,title,event_type,starts_at,ends_at,visibility,sync_status)
+  values(e,a,'Encontro de teste','meeting',current_at,current_at+interval '1 hour','client','synced');
+  insert into cali_workspace.scheduling_requests(id,company_id,title,request_mode,status,requested_slots,confirmed_event_id)
+  values(appointment,a,'Encontro de teste','remote','confirmed','[]',e);
+  set local role authenticated;
+  perform cali_workspace.fixture_as('clientB');
+  begin
+    perform cali_workspace.v2_request_pilot_agenda_change(b,appointment,request,'cancel','Outra empresa','[]');
+    raise exception 'Pedido cruzado aceito';
+  exception when insufficient_privilege then null; end;
+  perform cali_workspace.fixture_as('clientA');
+  begin
+    perform cali_workspace.v2_request_pilot_agenda_change(a,appointment,request,'reschedule','Horário repetido',
+      jsonb_build_array(choices->0,choices->0));
+    raise exception 'Opções iguais aceitas';
+  exception when invalid_parameter_value then null; end;
+  change := cali_workspace.v2_request_pilot_agenda_change(a,appointment,request,'reschedule','Conflito de agenda',choices);
+  assert cali_workspace.v2_request_pilot_agenda_change(a,appointment,request,'reschedule','Conflito de agenda',choices)=change;
+  assert (cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,meetingAt}')::timestamptz=current_at;
+  begin
+    perform cali_workspace.v2_request_pilot_agenda_change(a,appointment,gen_random_uuid(),'cancel','Pedido concorrente','[]');
+    raise exception 'Segundo pedido pendente aceito';
+  exception when serialization_failure then null; end;
+  perform cali_workspace.fixture_as('admin1');
+  begin
+    perform cali_workspace.v2_decide_pilot_agenda_change(a,change,true,'Horário confirmado',0);
+    raise exception 'Decisão sem MFA aceita';
+  exception when insufficient_privilege then null; end;
+
+  reset role;
+  insert into cali_workspace.events(id,company_id,title,event_type,starts_at,ends_at,visibility)
+  values(conflict,a,'Evento concorrente','meeting',meeting,meeting+interval '1 hour','client');
+  set local role authenticated;
+  perform cali_workspace.fixture_as('admin');
+  begin
+    perform cali_workspace.v2_decide_pilot_agenda_change(a,change,true,'Horário confirmado',0);
+    raise exception 'Conflito de horário aceito';
+  exception when serialization_failure then null; end;
+  assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,latestChange,status}'='pending';
+
+  reset role;
+  update cali_workspace.events set cancelled_at=clock_timestamp() where id=conflict;
+  set local role authenticated;
+  perform cali_workspace.fixture_as('admin');
+  assert cali_workspace.v2_decide_pilot_agenda_change(a,change,true,'Horário confirmado',0)=change;
+  assert cali_workspace.v2_decide_pilot_agenda_change(a,change,true,'Horário confirmado',0)=change;
+  assert (cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,meetingAt}')::timestamptz=meeting;
+  assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,sync_status}'='pending';
+  perform cali_workspace.fixture_as('clientA');
+  change := cali_workspace.v2_request_pilot_agenda_change(a,appointment,gen_random_uuid(),'cancel','Primeira tentativa','[]');
+  perform cali_workspace.fixture_as('admin');
+  assert cali_workspace.v2_decide_pilot_agenda_change(a,change,false,'Manter a reunião',null)=change;
+  assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,status}'='confirmed';
+  assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,latestChange,status}'='declined';
+  perform cali_workspace.fixture_as('clientA');
+  change := cali_workspace.v2_request_pilot_agenda_change(a,appointment,gen_random_uuid(),'cancel','Motivo sintético','[]');
+  assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,status}'='confirmed';
+  perform cali_workspace.fixture_as('admin');
+  assert cali_workspace.v2_decide_pilot_agenda_change(a,change,true,'Cancelamento confirmado',null)=change;
+  assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,status}'='cancelled';
+  assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,sync_status}' is null;
+  reset role;
+  assert (select count(*) from cali_workspace.events where title='Encontro de teste')=1;
+  assert (select count(*) from cali_workspace.agenda_change_requests where event_id=e)=3;
+end $$;
+rollback;
+\echo Fase 4: pedido, remarcação e cancelamento de reunião ordinária validados no piloto isolado.

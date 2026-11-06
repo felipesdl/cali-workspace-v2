@@ -2,6 +2,20 @@ import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 
 const slot = z.object({ startsAt: z.string(), endsAt: z.string() });
+const changeKind = z.enum(['cancel', 'reschedule']);
+const change = z.object({
+  id: z.uuid(),
+  action: changeKind,
+  status: z.enum(['pending', 'approved', 'declined']),
+  reason: z.string(),
+  slots: z.array(slot),
+  note: z.string().nullable(),
+});
+export type AppointmentChange = z.infer<typeof change>;
+const localSlot = z.object({
+  start: z.iso.datetime({ local: true }),
+  end: z.iso.datetime({ local: true }),
+});
 const appointments = z.array(
   z.object({
     id: z.uuid(),
@@ -13,6 +27,9 @@ const appointments = z.array(
     requested_slots: z.array(slot),
     admin_proposed_slots: z.array(slot),
     sync_status: z.string().nullable(),
+    meetingAt: z.string().nullable().optional(),
+    canRequestChange: z.boolean().optional(),
+    latestChange: change.nullable().optional(),
   }),
 );
 const request = z.object({
@@ -20,12 +37,7 @@ const request = z.object({
   title: z.string().trim().min(2).max(160),
   purpose: z.string().trim().max(2000),
   location: z.string().trim().max(400),
-  slots: z
-    .array(
-      z.object({ start: z.iso.datetime({ local: true }), end: z.iso.datetime({ local: true }) }),
-    )
-    .min(1)
-    .max(2),
+  slots: z.array(localSlot).min(1).max(2),
 });
 export type AppointmentRequest = z.infer<typeof request>;
 
@@ -56,6 +68,51 @@ export function createAgendaOperations(client: WorkspaceClient) {
         throw new Error('Confira as opções e a cobertura do encontro no contrato.');
       if (error) throw new Error('Não foi possível registrar a solicitação.');
       return z.uuid().parse(data);
+    },
+    async requestChange(
+      company: string,
+      appointment: string,
+      id: string,
+      action: AppointmentChange['action'],
+      reason: string,
+      slots: z.infer<typeof localSlot>[],
+    ) {
+      const { data, error } = await client.rpc('v2_request_pilot_agenda_change', {
+        p_company_id: company,
+        p_appointment_id: appointment,
+        p_request_id: id,
+        p_action: action,
+        p_reason: z.string().trim().min(5).max(2000).parse(reason),
+        p_slots: z
+          .array(localSlot)
+          .length(action === 'reschedule' ? 2 : 0)
+          .parse(slots),
+      });
+      if (error?.code === '40001')
+        throw new Error('Já existe um pedido em análise ou a reunião mudou.');
+      if (error?.code === '22023' || error?.code === '22007' || error?.code === '22008')
+        throw new Error('Confira o motivo e os horários disponíveis para remarcar.');
+      if (error) throw new Error('Não foi possível pedir a alteração.');
+      return z.uuid().parse(data);
+    },
+    async decideChange(
+      company: string,
+      id: string,
+      approve: boolean,
+      note: string,
+      index: number | null,
+    ) {
+      const { data, error } = await client.rpc('v2_decide_pilot_agenda_change', {
+        p_company_id: company,
+        p_change_id: id,
+        p_approve: approve,
+        p_note: z.string().trim().min(5).max(2000).parse(note),
+        p_index: index,
+      });
+      if (error?.code === '40001')
+        throw new Error('A reunião ou a disponibilidade mudou. Confira a agenda.');
+      if (error) throw new Error('Não foi possível registrar a decisão.');
+      return z.literal(id).parse(data);
     },
     async respond(
       company: string,
