@@ -18,7 +18,7 @@ revoke all on function cali_session_guard.phase4_record_mention_in_app() from pu
 create trigger zz_phase4_record_mention_in_app before insert on cali_workspace.notifications
 for each row execute function cali_session_guard.phase4_record_mention_in_app();
 
-create function cali_workspace.v2_read_pilot_record(p_company_id uuid,p_record_id uuid,p_page integer)
+create or replace function cali_workspace.v2_read_pilot_record(p_company_id uuid,p_record_id uuid,p_page integer)
 returns jsonb language plpgsql stable security definer set search_path = ''
 as $$
 declare
@@ -29,7 +29,14 @@ begin
     raise exception using errcode='22023', message='Página inválida.';
   end if;
   return (
-    select jsonb_build_object('id',r.id,'title',r.title,'status',r.workflow_status,
+    select jsonb_build_object('id',r.id,'title',r.title,'status',r.workflow_status,'visibility',r.visibility,
+      'feedback',(select jsonb_build_object('score',f.score,'comment',f.comment)
+        from cali_workspace.account_record_feedback f where f.company_id=p_company_id and f.record_id=r.id and f.user_id=actor),
+      'reopen',(select jsonb_build_object('id',q.id,'status',q.status,
+        'reason',case when admin or q.requested_by=actor then q.reason end,
+        'note',q.decision_note)
+        from cali_workspace.account_record_reopen_requests q where q.company_id=p_company_id and q.record_id=r.id
+        order by (q.status='pending') desc,q.requested_at desc,q.id desc limit 1),
       'messages',coalesce((select jsonb_agg(to_jsonb(page) order by created_at desc,id desc) from (
         select m.id,m.body,m.author_role,m.visibility,m.created_at
         from cali_workspace.account_record_messages m where m.record_id=r.id and m.company_id=p_company_id
@@ -42,7 +49,7 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_pilot_record_action(
+create or replace function cali_workspace.v2_pilot_record_action(
   p_company_id uuid,p_request_id uuid,p_record_id uuid,p_action text,
   p_title text default null,p_body text default null,p_internal boolean default false,
   p_expected_status text default null,p_next_status text default null
@@ -70,6 +77,9 @@ begin
     internal,p_expected_status,p_next_status)::text,'UTF8'));
   result_id := cali_session_guard.read_phase4_receipt(actor,p_company_id,p_request_id,signature);
   if result_id is not null then return result_id; end if;
+  if p_action='change_status' then
+    perform pg_advisory_xact_lock(hashtextextended('phase4-record-review:'||p_record_id::text,0));
+  end if;
   if p_action='open' then
     if coalesce(length(btrim(p_title)),0)<2 or coalesce(length(btrim(p_body)),0)<2 then
       raise exception using errcode='22023', message='Informe o assunto e a mensagem inicial.';
@@ -86,7 +96,7 @@ begin
   if p_action='change_status' then
     if p_next_status is null or p_next_status not in ('in_progress','waiting_client','standby','completed','cancelled')
       or record_row.workflow_status is distinct from p_expected_status or p_next_status=record_row.workflow_status
-      or record_row.workflow_status in ('completed','cancelled') then
+      or (record_row.workflow_status in ('completed','cancelled') and p_next_status<>'in_progress') then
       raise exception using errcode='40001', message='A ocorrência mudou de estado.';
     end if;
     perform cali_workspace.set_account_record_status(p_record_id,p_next_status);

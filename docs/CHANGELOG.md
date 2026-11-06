@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Avaliação e reabertura de ocorrências
+
+- Cliente avalia a ocorrência finalizada e pede reabertura. CALI decide com motivo de recusa obrigatório. Validação descartável cobre isolamento, MFA, reexecução e menções de chat sem e-mail. [Contrato](contracts/PHASE_4_READ.md#avaliação-e-reabertura-de-ocorrências).
+
 ## 06/11/2026 — Alterações da agenda ordinária
 
 - Cliente pede remarcação ou cancelamento; Admin decide com motivo. A reunião só muda após aprovação, com nova conferência de conflito e sem duplicar evento. Prova local cobre isolamento, MFA e reexecução. [Contrato](contracts/PHASE_4_READ.md#remarcação-e-cancelamento-de-reunião-ordinária).

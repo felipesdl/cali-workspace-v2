@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
-import { type RecordAction } from '../../api/modules/project-workspace/domain-operations';
+import {
+  type RecordAction,
+  type RecordReviewAction,
+} from '../../api/modules/project-workspace/domain-operations';
 import { Field } from '../../components/ds/field/Field';
 import { Button } from '../../components/ds/button/Button';
 import { formatServerInstant } from '../../lib/dates';
 import { ActionForm } from './ActionForm';
+import { RecordReviewActions } from './RecordReviewActions';
 
 const states = {
   in_progress: 'Em atendimento',
@@ -89,9 +93,16 @@ export function RecordConversation({
   });
   if (!domainOperations) return null;
   const operations = domainOperations;
-  async function submit(command: RecordAction, id: string) {
+  async function submit(command: RecordAction | RecordReviewAction, id: string) {
     try {
-      return await operations.recordAction(company, id, command);
+      switch (command.action) {
+        case 'open':
+        case 'message':
+        case 'change_status':
+          return await operations.recordAction(company, id, command);
+        default:
+          return await operations.reviewRecord(company, id, command);
+      }
     } finally {
       await Promise.all([
         cache.invalidateQueries({ queryKey: key }),
@@ -123,8 +134,12 @@ export function RecordConversation({
                   className="tw:rounded-control tw:border tw:border-border-default tw:p-3"
                 >
                   <p>
-                    {message.author_role === 'client' ? 'Cliente' : 'CALI'} ·{' '}
-                    {formatServerInstant(message.created_at)}
+                    {message.author_role === 'client'
+                      ? 'Cliente'
+                      : message.author_role === 'system'
+                        ? 'Sistema'
+                        : 'CALI'}{' '}
+                    · {formatServerInstant(message.created_at)}
                     {message.visibility === 'internal' && ' · Interna'}
                   </p>
                   <p className="tw:break-words tw:whitespace-pre-line">{message.body}</p>
@@ -165,9 +180,19 @@ export function RecordConversation({
               {(prefix) => <MessageFields prefix={prefix} admin={admin} />}
             </ActionForm>
           )}
-          {admin && open && status && (
+          {data.visibility === 'client' && (
+            <RecordReviewActions
+              admin={admin}
+              record={record}
+              status={status}
+              feedback={data.feedback}
+              reopen={data.reopen}
+              submit={submit}
+            />
+          )}
+          {admin && status && (open || data.reopen?.status !== 'pending') && (
             <ActionForm
-              label="Atualizar situação"
+              label={open ? 'Atualizar situação' : 'Reabrir pela CALI'}
               submit={(fields, id) => {
                 const next = Object.entries(states).find(
                   ([name]) => name === fields.get('next'),
@@ -184,7 +209,12 @@ export function RecordConversation({
                       Selecione
                     </option>
                     {Object.entries(states)
-                      .filter(([key]) => key !== status)
+                      .filter(
+                        ([key]) =>
+                          key !== status &&
+                          (open || key === 'in_progress') &&
+                          (data.reopen?.status !== 'pending' || key !== 'in_progress'),
+                      )
                       .map(([key, value]) => (
                         <option key={key} value={key}>
                           {value}

@@ -115,3 +115,7 @@ O retrato privado registra resumo, fontes, versão, autor e instante de aprovaç
 ## PDF executivo liberado no piloto
 
 A geração usa resumo aprovado, indicadores agregados e a identidade visual da responsável. Notas e comentários brutos não integram o PDF. A cópia e as ciências ficam no histórico privado. O Cliente acessa somente a versão liberada da própria empresa; a retirada bloqueia novos downloads. Nenhum e-mail é disparado nesse fluxo. [Contrato](contracts/PHASE_4_READ.md#pdf-executivo-publicação-e-ciência-por-revisão).
+
+## Avaliação e reabertura de ocorrências
+
+A consulta Cliente expõe sua própria nota e comentário. O motivo e a resposta integram a conversa da empresa; não são notas internas. Decisão e pedido são rastreáveis por autor e ocorrência. A reabertura não apaga a avaliação ou movimenta horas. [Contrato](contracts/PHASE_4_READ.md#avaliação-e-reabertura-de-ocorrências).

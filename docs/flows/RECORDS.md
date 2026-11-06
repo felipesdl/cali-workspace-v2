@@ -36,6 +36,8 @@ Anexos usam bucket privado e caminhos do contexto. Policies de upload/leitura de
 
 ## Continuidade, falhas e aceite
 
+A [implementação piloto da avaliação e reabertura](../contracts/PHASE_4_READ.md#avaliação-e-reabertura-de-ocorrências) valida a avaliação do próprio solicitante, reexecução e decisão Admin. O transporte legado não foi exercitado.
+
 Selecionar ocorrência mantém lista/filtros; deep link de protocolo/objeto precisa de autorização. Composer tem rascunho local; envio/erro deve preservar texto e não duplicar mensagem. Campos/regras de SLA não foram fechados como contrato universal nesta leitura.
 
 Aceite proposto: leitura A/B, nota interna ausente no Cliente, reply em cada status, exclusão antes/depois da abertura Admin, feedback inválido, reabertura com/sem avaliação, pedido já pending, decisão concorrente, mensagem de outro autor Admin, anexo sem postagem, falha de notificação. Responsividade/teclado seguem contrato comum; não validados.

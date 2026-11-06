@@ -1,5 +1,6 @@
 \ir ../../../tests/fixtures/phase4/write-context.sql
 \ir ../../../tests/fixtures/phase4/agenda-changes.sql
+\ir ../../../tests/fixtures/phase4/record-reviews.sql
 \ir read-projects.sql
 \ir read-catalogs.sql
 \ir project-operations.sql
@@ -10,6 +11,7 @@
 \ir agenda-change-operations.sql
 \ir hours-operations.sql
 \ir record-operations.sql
+\ir record-review-operations.sql
 \ir report-privacy-operations.sql
 \ir notice-operations.sql
 \ir report-draft-operations.sql
@@ -136,6 +138,7 @@ rollback;
 \echo Fase 4: operações locais de projetos, horas, ocorrências, ciência e privacidade validadas.
 \ir test-delivery-agenda.sql
 \ir test-agenda-changes.sql
+\ir test-record-reviews.sql
 \ir test-catalog-actions.sql
 \ir test-documents.sql
 grant usage on schema cali_workspace to service_role;

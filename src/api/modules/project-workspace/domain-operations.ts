@@ -2,10 +2,26 @@ import { decodePdf, pdfPayload } from './pdf-payload';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 
+const feedback = z.object({
+  score: z.number().int().min(1).max(5),
+  comment: z.string().nullable(),
+});
+const reopen = z.object({
+  id: z.uuid(),
+  status: z.enum(['pending', 'approved', 'rejected']),
+  reason: z.string().nullable(),
+  note: z.string().nullable(),
+});
+export type RecordFeedback = z.infer<typeof feedback>;
+export type RecordReopen = z.infer<typeof reopen>;
+
 const records = z.object({
   id: z.uuid(),
   title: z.string(),
   status: z.string().nullable(),
+  visibility: z.enum(['client', 'internal']).optional(),
+  feedback: feedback.nullable().optional(),
+  reopen: reopen.nullable().optional(),
   messages: z.array(
     z.object({
       id: z.uuid(),
@@ -56,8 +72,30 @@ const recordAction = z.discriminatedUnion('action', [
 ]);
 export type RecordAction = z.infer<typeof recordAction>;
 
+const reviewBase = z.object({ record: z.uuid(), note: z.string().trim().max(2000) });
+const reviewAction = z.discriminatedUnion('action', [
+  reviewBase
+    .extend({ action: z.literal('evaluate'), score: z.number().int().min(1).max(5) })
+    .refine(
+      (value) => value.score > 3 || value.note.length >= 3,
+      'Informe o motivo para notas de 1 a 3.',
+    ),
+  reviewBase.extend({
+    action: z.literal('request_reopen'),
+    note: z.string().trim().min(3).max(2000),
+  }),
+  reviewBase.extend({ action: z.literal('approve_reopen'), reopen: z.uuid() }),
+  reviewBase.extend({
+    action: z.literal('reject_reopen'),
+    reopen: z.uuid(),
+    note: z.string().trim().min(3).max(2000),
+  }),
+]);
+export type RecordReviewAction = z.infer<typeof reviewAction>;
+
 function rejected(code?: string) {
   if (code === '40001') return new Error('O registro mudou. Confira a situação atual.');
+  if (code === 'P4C01') return new Error('Avalie a ocorrência antes de pedir a reabertura.');
   if (code === 'P4R02') return new Error('Gere o PDF desta revisão antes de publicar.');
   if (code === 'P4R01') return new Error('Confira a assinatura e a foto configuradas da CALI.');
   if (code === '42501') return new Error('Operação indisponível para este perfil.');
@@ -248,6 +286,23 @@ export function createDomainOperations(client: WorkspaceClient) {
         p_internal: 'internal' in command && command.internal,
         p_expected_status: 'expected' in command ? command.expected : null,
         p_next_status: 'next' in command ? command.next : null,
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
+    async reviewRecord(company: string, id: string, input: RecordReviewAction) {
+      const parsed = reviewAction.safeParse(input);
+      if (!parsed.success)
+        throw new Error('Confira a nota e o motivo. Notas de 1 a 3 exigem comentário.');
+      const command = parsed.data;
+      const { data, error } = await client.rpc('v2_review_pilot_record', {
+        p_company_id: company,
+        p_request_id: id,
+        p_record_id: command.record,
+        p_action: command.action,
+        p_score: 'score' in command ? command.score : null,
+        p_note: command.note || null,
+        p_reopen_id: 'reopen' in command ? command.reopen : null,
       });
       if (error) throw rejected(error.code);
       return z.uuid().parse(data);

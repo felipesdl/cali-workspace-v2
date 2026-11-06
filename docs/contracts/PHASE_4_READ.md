@@ -49,7 +49,7 @@ O PostgreSQL descartável prova as guardas, reexecução, transições, isolamen
 | --- | --- | --- |
 | 4A | Pausa e retomada do projeto, encaminhamento e decisão de entregável, avaliação e nova aprovação após correção no mesmo registro | Reabertura de itens com arquivos legados, gestão completa de frentes e subtarefas, ajustes específicos na interface, conversa e dependências |
 | 4B | Solicitação ordinária coberta pelo contrato, oferta Admin e confirmação Cliente. Bloqueio por mudança de condição e conflito de horário na empresa. Estado externo lido do evento | Extras, preço aceito, participantes, saldo/capacidade na UI e integração Google/Meet |
-| 4C | Publicar aviso dirigido, arquivar/restaurar, ciência e desfazer ciência. Mural e agenda leem o mesmo aviso | Documentos e anexos versionados, reabertura/avaliação de ocorrência, comentários/reações do mural e resumo Admin |
+| 4C | Publicar aviso dirigido, arquivar/restaurar, ciência e desfazer ciência. Mural e agenda leem o mesmo aviso | Anexos de conversa, comentários/reações do mural e resumo Admin |
 | 4D | Rascunho mensal captura o retrato das fontes instaladas. Edição de resumo, revisão e aprovação interna travam a versão esperada | Curadoria completa, PDF e armazenamento privado, publicação, revisão pós-publicação e tratamento da satisfação |
 | 4E | Listar formulários existentes da empresa e abrir/encerrar os que atendem às guardas | Editor, formulário público e respostas na V2, Propostas, Mapa, frentes/ajuda, auditoria, ciclo de dados e equipe CALI |
 
@@ -102,3 +102,13 @@ Cliente pede mudança de reunião futura, confirmada e visível de sua empresa. 
 Admin com MFA explica a decisão e, para remarcar, escolhe uma das opções. A confirmação confere se a reunião mudou, se o horário ainda está no futuro e se entrou um conflito na agenda da empresa. A remarcação atualiza o mesmo evento e mantém sincronização pendente; cancelamento indica apenas a retirada no Workspace. A aplicação não chama Google/Meet neste fluxo. Extras, cobrança, preço aceito e participantes não são alterados por estas operações.
 
 Instalar `agenda-change-operations.sql` depois de `operation-receipts.sql` e `agenda-operations.sql`. O ambiente precisa das RPCs e tabela de mudanças legadas. As RPCs legadas podem enfileirar notificações com e-mail; isolar o transporte antes do QA hospedado. A prova descartável usa dependências sintéticas e valida isolamento, MFA, pendência sem mudança, recusa de duplicidade, conflito, reexecução, atualização do evento e cancelamento. `rollback-write.sql` retira as novas RPCs, preservando pedidos e decisões.
+
+## Avaliação e reabertura de ocorrências
+
+Cliente avalia ocorrência finalizada de sua empresa, com nota de 1 a 5 e comentário obrigatório nas notas 1 a 3. A leitura devolve apenas sua avaliação. Repetir a mesma resposta não duplica o aviso. Alteração da própria avaliação segue o contrato existente de uma resposta por usuário e ocorrência.
+
+Cliente pode pedir reabertura em espera, finalizada ou cancelada. Para ocorrência finalizada, a avaliação precisa ser do solicitante. Novo pedido exige motivo; se já houver um pendente, a operação devolve o mesmo identificador. O pedido preserva a situação até a decisão. Admin com MFA aprova ou recusa; a recusa exige motivo e mantém a situação. A aprovação volta a ocorrência para atendimento, sem desfazer horas ou apagar a avaliação. A CALI também pode reabrir diretamente pela mudança de situação prevista no legado.
+
+Instalar `record-operations.sql` e `record-review-operations.sql` depois de `operation-receipts.sql`. A leitura e as transições dependem das tabelas e RPCs de avaliação e reabertura instaladas. As notificações legadas da avaliação/pedido/decisão podem enfileirar e-mail; isolar transporte antes de homologar. Mensagens e menções gravadas neste fluxo não habilitam e-mail de chat. O rollback retira RPCs da V2 e preserva registros.
+
+PostgreSQL descartável verificou nota inválida, avaliação de outro acesso, isolamento A/B, MFA, pedido único, recusa, aprovação, reexecução e menção sem e-mail de chat. A prova usa dependências legadas sintéticas. Homologação no CALI MAPA e paridade visual permanecem pendentes.
