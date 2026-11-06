@@ -61,3 +61,7 @@ Aceite proposto: Cliente não lista respostas gerais Forms; slug fechado; tipos/
 ## Implementação V2 em 05/11/2026
 
 DISC possui domínio privado separado, wrappers por público, questionário, avaliador e gestão conectados no piloto. A prova hospedada e os testes descartáveis estão no [contrato DISC](../contracts/DISC_3.md). A exposição individual legada foi evitada por isolamento de tabelas/tokens, sem alterar o leitor da V1. PDF versão 4 foi publicado por autorização específica. O CALI MAPA recebeu o incremento da agenda autenticada e o worker v5. A cadência automática segue desligada. Forms/Mapa continuam na fase 4E.
+
+## Forms V2 em 06/11/2026
+
+Admin com MFA cria rascunhos de Forms e edita perguntas de texto em empresa piloto. O formulário precisa estar em rascunho e sem respostas. A validação em PostgreSQL descartável cobre escopo, conflitos de edição e preservação da lógica legada. Publicação, coleta, triagem e exportação têm critérios próprios. Veja o [contrato da fase 4](../contracts/PHASE_4_READ.md#rascunhos-de-forms).

@@ -3,6 +3,7 @@
 \ir ../../../tests/fixtures/phase4/record-reviews.sql
 \ir ../../../tests/fixtures/phase4/admin-read.sql
 \ir ../../../tests/fixtures/phase4/satisfaction.sql
+\ir ../../../tests/fixtures/phase4/forms-draft.sql
 \ir read-projects.sql
 \ir read-catalogs.sql
 \ir project-operations.sql
@@ -23,6 +24,7 @@
 \ir commercial-draft.sql
 \ir satisfaction-operations.sql
 \ir forms-operations.sql
+\ir forms-draft.sql
 
 begin;
 do $$
@@ -151,6 +153,7 @@ grant usage on schema cali_workspace to service_role;
 \ir test-report-release.sql
 \ir test-admin-read.sql
 \ir test-commercial-draft.sql
+\ir test-forms-draft.sql
 \ir test-satisfaction.sql
 \ir rollback-write.sql
 do $$

@@ -1,3 +1,4 @@
+import { FormDraftEditor, NewFormDraft } from './FormDraftEditor';
 import { PdfDownload } from './PdfDownload';
 import { formatServerInstant } from '../../lib/dates';
 import { useState } from 'react';
@@ -353,6 +354,12 @@ export function FormAdministration({ company, actor }: Scope) {
   const operations = domainOperations;
   return (
     <section aria-label="Formulários da empresa" className="tw:grid tw:gap-3">
+      <NewFormDraft
+        company={company}
+        actor={actor}
+        operations={operations}
+        saved={() => setPage(1)}
+      />
       {forms.isPending && <p role="status">Carregando formulários…</p>}
       {forms.isError && <p role="alert">Não foi possível consultar os formulários.</p>}
       {forms.data?.length === 0 && <p>Nenhum formulário nesta página.</p>}
@@ -366,6 +373,9 @@ export function FormAdministration({ company, actor }: Scope) {
             {form.slug} · {form.responses} resposta(s) ·{' '}
             {form.status === 'open' ? 'Aberto' : form.status === 'draft' ? 'Rascunho' : 'Fechado'}
           </p>
+          {form.status === 'draft' && form.responses === 0 && (
+            <FormDraftEditor company={company} actor={actor} id={form.id} operations={operations} />
+          )}
           <ActionForm
             label={form.status === 'open' ? 'Encerrar formulário' : 'Abrir formulário existente'}
             submit={async () => {

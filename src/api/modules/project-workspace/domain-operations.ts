@@ -102,6 +102,44 @@ function rejected(code?: string) {
   return new Error('Não foi possível concluir a operação.');
 }
 
+const formQuestionKind = z.enum(['short_text', 'long_text']);
+const formDraft = z.object({
+  id: z.uuid(),
+  title: z.string(),
+  description: z.string(),
+  updatedAt: z.iso.datetime({ offset: true }),
+  questions: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+      kind: z.string(),
+      required: z.boolean(),
+    }),
+  ),
+});
+export type FormDraft = z.infer<typeof formDraft>;
+export type FormQuestionKind = z.infer<typeof formQuestionKind>;
+const formDraftChange = z.discriminatedUnion('action', [
+  z.object({
+    action: z.literal('details'),
+    title: z.string().trim().min(1).max(160),
+    description: z.string().trim().max(1200),
+  }),
+  z.object({
+    action: z.literal('add_question'),
+    kind: formQuestionKind,
+    label: z.string().trim().min(1).max(400),
+    required: z.boolean(),
+  }),
+  z.object({
+    action: z.literal('edit_question'),
+    id: z.string().min(1),
+    label: z.string().trim().min(1).max(400),
+    required: z.boolean(),
+  }),
+]);
+export type FormDraftChange = z.infer<typeof formDraftChange>;
+
 export function createDomainOperations(client: WorkspaceClient) {
   return {
     async publishNotice(
@@ -254,6 +292,45 @@ export function createDomainOperations(client: WorkspaceClient) {
           }),
         )
         .parse(data);
+    },
+    async createFormDraft(company: string, id: string, title: string, slug: string) {
+      const { data, error } = await client.rpc('v2_create_pilot_form_draft', {
+        p_company_id: company,
+        p_form_id: id,
+        p_title: title,
+        p_slug: slug,
+      });
+      if (error?.code === '23505') throw new Error('Este endereço já está em uso.');
+      if (error?.code === '22023')
+        throw new Error('Confira o título e use letras minúsculas, números ou hífens no endereço.');
+      if (error) throw rejected(error.code);
+      return z.literal(id).parse(data);
+    },
+    async formDraft(company: string, id: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_form_draft', {
+          p_company_id: company,
+          p_form_id: id,
+        })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      const draft = formDraft.nullable().parse(data);
+      if (draft && draft.id !== id) throw rejected();
+      return draft;
+    },
+    async editFormDraft(company: string, draft: FormDraft, input: FormDraftChange) {
+      const { action, ...fields } = formDraftChange.parse(input);
+      const { data, error } = await client.rpc('v2_edit_pilot_form_draft', {
+        p_company_id: company,
+        p_form_id: draft.id,
+        p_expected: draft.updatedAt,
+        p_action: action,
+        p_fields: fields,
+      });
+      if (error?.code === '22023')
+        throw new Error('Confira o texto. Use texto simples, sem marcação.');
+      if (error) throw rejected(error.code);
+      return z.literal(draft.id).parse(data);
     },
     async formState(company: string, id: string, current: string, next: 'open' | 'closed') {
       const { data, error } = await client.rpc('v2_set_pilot_form_state', {
