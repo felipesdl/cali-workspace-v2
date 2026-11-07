@@ -346,7 +346,11 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 **Aceite com Patrícia:** compartilhar o acesso quando todo o escopo combinado da V2 estiver concluído, a validação interna tiver passado e o ambiente de homologação estiver pronto. Completar o [roteiro de aceite](HOMOLOGACAO_PATRICIA.md) com os fluxos entregues até lá.
 
+**Preparação 6:** [roteiro interno de regressão](HOMOLOGACAO_PATRICIA.md#roteiro-de-regressão-interna-da-fase-4) consolidado com percursos e provas existentes. A rodada integral e o aceite seguem pendentes.
+
 **7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. DEC-28 antecipa a primeira preservação e prova de restauração para antes de novas alterações hospedadas; no release, renovar a cópia e confirmar os projetos de staging/produção separados. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
+
+**Preparação 7:** [preview local](RUNBOOK.md#prova-local-do-build-e-das-urls) conferiu URLs diretas, callback como rota HTTP e ativos. O build carrega os módulos de demonstração sob demanda. Hosting de teste e callback autenticado seguem pendentes.
 
 ## Referências anteriores e tarefa para IA
 

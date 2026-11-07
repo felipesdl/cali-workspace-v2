@@ -1,7 +1,6 @@
 import { phase4CatalogFromPath } from './phase4-navigation';
 import { lazy, Suspense } from 'react';
 import { Outlet, useLocation, useNavigate, useRouteContext } from '@tanstack/react-router';
-import AdminPreview from '../AdminPreview';
 import { adminPaths, adminSectionFromPath } from './navigation';
 import { WorkspaceLayout } from './WorkspaceLayout';
 import { FeedbackState } from '../components/ds/feedback/FeedbackState';
@@ -11,6 +10,7 @@ const CompaniesPage = lazy(() =>
     default: CompaniesPage,
   })),
 );
+const AdminPreview = lazy(() => import('../AdminPreview'));
 
 export function AdminWorkspace() {
   const pathname = useLocation({ select: (location) => location.pathname });
@@ -59,17 +59,19 @@ export function AdminWorkspace() {
     );
   return (
     <>
-      <AdminPreview
-        section={adminSectionFromPath(pathname)}
-        onSectionChange={(section) => {
-          if (section === 'accounts') {
-            void navigate({ to: '/admin/clientes', search: { q: '', status: 'all' } });
-          } else {
-            void navigate({ to: adminPaths[section] });
-          }
-        }}
-        onClient={() => void navigate({ to: '/cliente' })}
-      />
+      <Suspense fallback={<FeedbackState kind="loading">Carregando demonstração…</FeedbackState>}>
+        <AdminPreview
+          section={adminSectionFromPath(pathname)}
+          onSectionChange={(section) => {
+            if (section === 'accounts') {
+              void navigate({ to: '/admin/clientes', search: { q: '', status: 'all' } });
+            } else {
+              void navigate({ to: adminPaths[section] });
+            }
+          }}
+          onClient={() => void navigate({ to: '/cliente' })}
+        />
+      </Suspense>
       <Outlet />
     </>
   );

@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Preparação da homologação e do build
+
+- O roteiro interno consolida percursos e provas disponíveis para Projetos, Horas, Agenda, Ocorrências, Avisos, Relatórios e Administração. As telas demonstrativas carregam sob demanda. O preview local serviu URLs diretas e ativos, e o navegador abriu as duas demonstrações. [Roteiro](HOMOLOGACAO_PATRICIA.md#roteiro-de-regressão-interna-da-fase-4) · [Build](RUNBOOK.md#prova-local-do-build-e-das-urls).
+
 ## Horas vinculadas a entregável e subtarefa
 
 - Admin abre Horas pelo item de Projetos. O banco valida o vínculo e o preserva em lançamento manual, timer e retomada. CALI MAPA confirmou o lançamento manual de dois minutos no entregável de teste A. [Prova](contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa).

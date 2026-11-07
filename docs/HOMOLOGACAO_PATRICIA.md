@@ -23,10 +23,24 @@ Na rodada final, usar empresas e dados de teste no CALI MAPA. Felipe prepara o a
 2. **Clientes A/B.** Entrar em sessões separadas, ler o aceite e conferir se cada conta vê somente sua empresa, seus documentos e sua equipe. Validar a revogação com um vínculo temporário se estiver previsto no roteiro.
 3. **Equipe e dados mensais.** Cadastrar ou editar um registro fictício, lançar um mês pelo Cliente, revisar e confirmar como Admin. Conferir persistência após recarga, indicadores e retirada da pendência.
 4. **DISC.** Responder um convite sintético, conferir o PDF do respondente, revisar o avaliador interno como Admin e aprovar ou retirar um relatório de gestão. Confirmar que o Cliente enxerga somente a gestão liberada para a própria empresa.
-5. **Fase 4.** Completar este roteiro com os fluxos operacionais do [roadmap](ROADMAP.md#fase-4--demais-fluxos-clienteadmin) após a validação interna de ponta a ponta e a comparação visual com a publicação 83. O [contrato das consultas](contracts/PHASE_4_READ.md) separa o que já tem prova local do que falta.
+5. **Operação.** Percorrer os fluxos da tabela abaixo com as contas de teste preparadas. Executar os itens pendentes internamente antes de incluí-los no aceite com Patrícia.
 6. **Aceite.** Para cada problema, registrar papel, tela, ação, resultado esperado e observado. Registrar em separado os ajustes de layout em relação à publicação 83.
 
 Encerrar verificando cron DISC desligado e ausente, fila conferida e provisionamento temporário desligado, caso usado. Guardar a versão testada e os resultados no PR de acompanhamento.
+
+## Roteiro de regressão interna da fase 4
+
+Cada percurso usa a empresa A como fixture e B como controle de isolamento. Registrar a revisão do código, o ambiente, o papel, o resultado e o estado final da fixture. A prova do piloto orienta a regressão e a preparação do aceite final.
+
+| Percurso | Conferir na próxima rodada completa | Prova disponível |
+| --- | --- | --- |
+| Projetos e arquivos | Compartilhar cronograma, solicitar ajuste, aprovar, concluir revisão de entregável e conferir o corte de acesso após retirada | [Projetos](contracts/PHASE_4_READ.md#lote-de-projetos-e-entregáveis-no-cali-mapa) e [biblioteca de PDFs](contracts/PHASE_4_READ.md#lote-da-biblioteca-de-pdfs-no-cali-mapa) |
+| Horas e Agenda | Lançar horas internas e visíveis em contexto, retomar timer e conferir mês fechado. Solicitar e remarcar encontro ordinário. Registrar o resultado de participantes e extras nos fluxos aplicáveis | [Horas vinculadas](contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa) e [agenda ordinária](contracts/PHASE_4_READ.md#lote-de-agenda-ordinária-no-cali-mapa) |
+| Ocorrências e avisos | Anexar PDF, revisar ocorrência, confirmar ciência e testar comentário em aviso dirigido. Conferir leitura após recarga e retirada | [Anexos de ocorrências](contracts/PHASE_4_READ.md#anexos-pdf-de-ocorrências-no-cali-mapa) e [interações de avisos](contracts/PHASE_4_READ.md#interações-de-avisos-no-cali-mapa) |
+| Relatórios | Aprovar, conferir tela e PDF, republicar com a regra de ciência escolhida e confirmar o corte de download | [Republicação com curadoria](contracts/PHASE_4_READ.md#republicação-com-curadoria-no-cali-mapa) |
+| Comercial e administração | Conferir rascunho de Forms, triagem, vínculo de frente e pedido de privacidade. Validar a escrita de Propostas com a sessão autorizada no Portal | [Forms](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa), [Frentes](contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa) e [limite de Propostas](contracts/PHASE_4_READ.md#limite-de-autorização-no-portal-comercial) |
+
+Na revisão do aceite visual, conferir navegação por teclado, foco, estados vazios, erros, leitura em tela estreita e os percursos acima na publicação de referência. O [roadmap](ROADMAP.md#pendências-para-fechar-a-fase-4) registra operações que ainda exigem implementação, prova hospedada ou autorização específica.
 
 ## Mensagem para enviar junto do link
 

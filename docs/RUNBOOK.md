@@ -253,3 +253,11 @@ Para a próxima janela aprovada no CALI MAPA, executar os passos 1 e 4 a 6. Os p
 Rollback de SQL: `rollback-scheduler.sql` já chama desligamento e restaura as funções originais, remove somente auxiliares/colunas novas e preserva campanhas, convites, respostas, revisões, eventos e jobs. Se a preimagem hospedada divergir da base versionada, reconciliar o rollback antes de aplicar o incremento. Retorno de código: publicar a preimagem preservada da versão 4 mantendo JWT obrigatório e agenda desligada. Não revogar uma chave compartilhada com outros serviços por consequência do rollback; o segredo Vault deste recorte pode ser retirado após conferir seus consumidores.
 
 Referências oficiais consultadas: [pg_net, assinatura e execução após commit](https://supabase.com/docs/guides/database/extensions/pg_net), [cron nomeado e desligamento](https://supabase.com/docs/guides/cron/quickstart). O desenho usa o JWT legado exigido pelo gateway. A prova hospedada confirmou cron, transporte e autenticação com fila vazia. A entrega de e-mail pelo cron exige uma rodada com tarefa elegível e destinatário aprovado.
+
+## Prova local do build e das URLs
+
+O build servido pelo Vite em loopback respondeu HTTP 200 com o mesmo HTML de entrada para `/`, `/admin/projetos`, `/admin/horas`, `/cliente/relatorios` e `/auth/callback`. Os ativos JavaScript e CSS referenciados pelo HTML também responderam com seus tipos de conteúdo. O callback ainda exige prova de sessão no domínio de homologação. As áreas piloto de Equipe, DISC e fase 4 continuam condicionadas à configuração de desenvolvimento.
+
+O JavaScript inicial passou de 1.061,90 para 926,16 kB antes de gzip e de 306,88 para 275,20 kB após gzip. O CSS inicial passou de 141,15 para 14,68 kB antes de gzip. O Vite continua sinalizando o tamanho do JavaScript principal. No build de demonstração separado, o navegador abriu Admin e carregou Cliente pelo botão de troca. Reverter os imports sob demanda restaura o empacotamento anterior.
+
+A preparação do ambiente de homologação ainda exige domínio de teste protegido, fallback para URLs diretas, origens e redirects conferidos, callback autenticado, observabilidade e separação operacional de staging e produção. Registrar os resultados no [roteiro de homologação](HOMOLOGACAO_PATRICIA.md).
