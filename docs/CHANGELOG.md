@@ -1,10 +1,16 @@
 # Registro de mudanças
 
+## DEC-28 revisada para o staging
+
+- Felipe confirmou o CALI MAPA como staging de testes. Backup, exportação do Storage e restauração deixam de bloquear lotes autorizados nesse ambiente. Mantidos preflight, rollback por lote e homologação sintética. Recuperação fica no preparo de produção separada. [Decisão](DECISIONS.md#dec-28--recuperação-comprovada-e-separação-stagingprodução).
+
+- Propostas recebeu quatro RPCs no staging, com escopo vazio, grants conferidos e edição sujeita à RLS do Portal. O rollback específico passou em banco descartável. Homologação autenticada pendente. [Contrato](contracts/PHASE_4_READ.md#rascunho-e-aprovação-interna-de-propostas).
+
 ## Reposição, consulta de Equipe CALI e ensaio de recuperação
 
 - Admin oferece reposição contratual e Cliente confirma. O banco recusa sessão já reservada e mantém a reunião anterior no histórico. Equipe CALI ganhou consulta paginada por empresa. Os dois fluxos passaram no PostgreSQL descartável e aguardam homologação hospedada. [Reposição](contracts/PHASE_4_READ.md#reposição-de-reunião-ordinária) · [Equipe CALI](contracts/PHASE_4_READ.md#equipe-cali-por-empresa).
 - Inventário hospedado encontrou três arquivos legados fora de A/B e confirmou que as RPCs V2 de Propostas ainda precisam ser instaladas. [Acervo e preflight](contracts/PHASE_4_READ.md#acervo-legado-de-entregáveis).
-- O ensaio DEC-28 restaurou fixtures em segundo cluster e conferiu dados, grants, função e arquivo por SHA-256. A prova com a captura do CALI MAPA continua pendente. [Recuperação](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+- O ensaio DEC-28 restaurou fixtures em segundo cluster e conferiu dados, grants, função e arquivo por SHA-256. A prova cobriu apenas fixtures. [Recuperação](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
 
 ## Complementos locais da fase 4
 

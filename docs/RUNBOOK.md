@@ -4,9 +4,9 @@ Atualização: 01/11/2026. Fase 1 iniciada na branch local `codex/fase-1-base`, 
 
 ## Backup, restauração e ambientes — DEC-28
 
-Plano aprovado por Felipe em 05/11/2026; execução ainda pendente. Não existe backup integral pré-alterações comprovado. A Management API consultada nessa data retornou lista vazia de backups, objeto vazio de metadados físicos, PITR desligado e mecanismo WAL-G habilitado. Nenhum arquivo de backup foi baixado ou restaurado nessa consulta. Um backup futuro preservará o estado da sua captura, não o estado anterior às mudanças.
+Felipe confirmou em 07/11/2026 que o CALI MAPA é o staging de testes. Lotes autorizados no staging seguem com preflight, rollback e validação sintética. Backup integral, exportação do Storage e restauração da captura hospedada ficam dispensados nesse ambiente. Não existe backup integral pré-alterações comprovado. A Management API consultada nessa data retornou lista vazia de backups, objeto vazio de metadados físicos, PITR desligado e mecanismo WAL-G habilitado. Nenhum arquivo de backup foi baixado ou restaurado nessa consulta. Um backup futuro preservará o estado da sua captura, não o estado anterior às mudanças.
 
-Antes das próximas migrations, mudanças de permissões e deploys hospedados:
+Para preparar o primeiro lançamento em produção, seguir o plano de separação e recuperação:
 
 1. Inventariar em leitura o estado efetivo: schemas, dados, funções, triggers, RLS, grants, roles, extensões, agendas, Auth, Storage, Edge Functions, destinos e configurações. Correlacionar horário e commit de código com a captura; a `main` sozinha não identifica o estado do banco. Registrar cobertura e exclusões.
 2. Preservar banco e arquivos do Storage, com manifesto, contagens e hashes dos artefatos. Registrar configuração e revisões dos serviços; tratar segredos por procedimento protegido, sem imprimi-los ou versioná-los. Dados Auth e outros conteúdos privados exigem destino com acesso restrito. O [backup de banco do Supabase](https://supabase.com/docs/guides/platform/backups) não inclui os bytes dos objetos do Storage; não chamar exportação somente do schema de backup completo.
@@ -15,11 +15,7 @@ Antes das próximas migrations, mudanças de permissões e deploys hospedados:
 5. Destinar o CALI MAPA atual a staging e preparar produção em projeto separado, após validar destino, recursos e custos. Separar URLs/chaves, Auth, usuários, Storage, funções, segredos, callbacks, agendas e canais de e-mail. Staging mantém dados sintéticos e destinatários controlados. Produção recebe somente dados/configurações iniciais explicitamente aprovados, sem fixtures ou tokens do piloto. Não substituir a configuração do app publicado durante essa preparação.
 6. Promover código e as mesmas migrations validadas de staging para produção, com conferência de destino, backup atual, rollback compatível e autorização de publicação. Registrar commit, versão de schema, worker e configurações por ambiente. Não usar cópia indiscriminada de dados de produção para teste.
 
-Exceção específica autorizada posteriormente em 05/11: a revisão do gerador de PDF DISC foi separada do plano de banco e publicada como versão 4, com JWT obrigatório, agenda desligada e sem SQL de mudança. Essa autorização não inclui novas migrations, permissões, exportação ou publicação da SPA. Felipe dispensou a condição de backup e restauração para o lote da agenda DISC. Esse lote aplicou o incremento, publicou o worker v5 e configurou o Vault. A criação de projetos, exportação protegida, restauração e mudança de destinos terão escopo e pré-condições conferidos antes da execução. Este registro não comprova que staging/produção já existem separadamente.
-
-Felipe pediu preparar o ensaio. `sh scripts/rehearse-phase4-recovery.sh` usa dois clusters PostgreSQL descartáveis, acessíveis só por sockets locais, com fixtures de Projetos/Horas e um arquivo sintético. O roteiro calcula SHA-256 dos arquivos, restaura dump e objeto e compara contagens, definição da RPC de Horas, grants e bytes. Passou em PostgreSQL 16. O encerramento remove ambos os clusters e os arquivos temporários.
-
-A prova do CALI MAPA continua pendente. O catálogo indicou PostgreSQL 17. O ensaio com a captura exige ferramentas compatíveis com essa versão, conexão SQL protegida com cobertura de Auth e exportação privada dos bytes do Storage com manifesto. A configuração local ainda não tem `CALI_BACKUP_DATABASE_URL`. A consulta por token de administração não substitui a captura. Registrar cobertura, duração e exclusões antes de liberar o lote hospedado.
+O ensaio local já executado com `sh scripts/rehearse-phase4-recovery.sh` restaurou fixtures em um segundo PostgreSQL descartável. Conferiu hashes, contagens, função, grants e bytes de um arquivo sintético. O encerramento removeu os clusters e arquivos temporários. A prova se limita às fixtures do ensaio.
 
 ## Suspensão do laboratório de acesso — 02/11
 

@@ -137,7 +137,7 @@ Em 06/11/2026, a consulta ao catálogo do CALI MAPA confirmou RLS nas quatro tab
 
 A V2 permite editar condições de pagamento, observações e validade em proposta já cadastrada como rascunho, além de aprovar internamente a versão salva. A RPC usa as permissões efetivas do usuário no Portal, exige Admin com MFA e vínculo explícito da oportunidade à empresa piloto. A edição e a aprovação conferem a data da última escrita e registram a versão na auditoria. Valor, escopo, versão e estado da oportunidade são preservados. Preço e criação de proposta continuam sob o contrato do Portal. Envio e aceite ficam em aberto.
 
-Instalar `commercial-draft.sql` depois de `commercial-read.sql`. O editor exige `VITE_CALI_PHASE4_ADMIN_READ=true` e `VITE_CALI_PHASE4_WRITE=true`. O PostgreSQL descartável verificou RLS, MFA, empresa, recusa de versão obsoleta e bloqueio de edição após aprovação. O rollback remove as RPCs e conserva versões e eventos. A inspeção hospedada ocorreu em leitura e a operação V2 aguarda homologação.
+Instalar `commercial-draft.sql` depois de `commercial-read.sql`. O editor exige `VITE_CALI_PHASE4_ADMIN_READ=true` e `VITE_CALI_PHASE4_WRITE=true`. O PostgreSQL descartável verificou RLS, MFA, empresa, recusa de versão obsoleta e bloqueio de edição após aprovação. Em 07/11/2026, as quatro RPCs foram instaladas juntas no CALI MAPA. O catálogo confirmou execução para `authenticated`, nenhuma para `anon`, RLS na tabela de escopo e escrita com as permissões do usuário do Portal. Escopo piloto vazio; nenhuma proposta foi modificada. A prova autenticada aguarda uma oportunidade sintética inscrita e uma sessão Admin com MFA autorizada também no Portal. `rollback-commercial.sql` retira só as quatro RPCs e preserva propostas, escopo e auditoria. O rollback passou no PostgreSQL descartável.
 
 ## Rascunhos de Forms
 
@@ -423,7 +423,7 @@ Em 07/11/2026, instalou-se apenas o leitor para Admin com MFA e A/B. No navegado
 
 No preflight hospedado em leitura, `notice_comments` tinha RLS ativo e duas políticas de leitura aplicáveis. A chave única de capacidade por empresa e mês e a rotina legada de resultado da Agenda estavam presentes. Não havia reunião sintética passada e confirmada em A/B.
 
-Este lote tem validação local. A DEC-28 condiciona novas migrations hospedadas à preservação e restauração isolada validadas. Para a moderação, a reversão operacional retira a RPC de escrita e mantém a leitura filtrada e a policy restritiva. Remover o filtro sem restaurar os comentários tornaria visíveis textos já ocultados. O rollback de Agenda preserva os resultados registrados. A retirada de `v2_set_pilot_capacity_pause` desativa o controle de Horas e mantém a decisão mensal gravada. As projeções de Projetos, Relatórios e Frentes são aditivas e compatíveis com as respostas anteriores.
+Este lote tem validação local. A DEC-28 revisada dispensa backup e restauração para os lotes autorizados no staging. A instalação exige preflight e rollback por recorte. Para a moderação, a reversão operacional retira a RPC de escrita e mantém a leitura filtrada e a policy restritiva. Remover o filtro sem restaurar os comentários tornaria visíveis textos já ocultados. O rollback de Agenda preserva os resultados registrados. A retirada de `v2_set_pilot_capacity_pause` desativa o controle de Horas e mantém a decisão mensal gravada. As projeções de Projetos, Relatórios e Frentes são aditivas e compatíveis com as respostas anteriores.
 
 ## Reposição de reunião ordinária
 
@@ -439,4 +439,4 @@ O PostgreSQL descartável comprovou empresa divergente, horário passado, reenvi
 
 A consulta ao CALI MAPA identificou três arquivos ligados a entregáveis, com vínculo de empresa/projeto e objeto correspondente no Storage. Um PDF está publicado para o Cliente, um PDF está arquivado e privado, e um DOCX está arquivado e privado. Todos têm até 2 MiB. Nenhum pertence a A/B. O inventário não transferiu arquivos. A migração deve preservar a situação de publicação, a versão e o histórico e ter escopo definido; a validação com A/B pode usar arquivos sintéticos próprios.
 
-O preflight também confirmou que as RPCs V2 de leitura, escopo e edição de Propostas ainda não estão no CALI MAPA. A prova de edição e aprovação fica para depois da instalação e usa uma oportunidade sintética com a mesma identidade autorizada no Portal e na V2.
+O estado da instalação e da prova autenticada de Propostas fica no [contrato do rascunho](#rascunho-e-aprovação-interna-de-propostas).

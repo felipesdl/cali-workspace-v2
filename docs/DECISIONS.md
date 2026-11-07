@@ -1,6 +1,6 @@
 # Registro de decisões e questões abertas
 
-Atualização: 05/11/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
+Atualização: 07/11/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
 
 ## Decisões de produto e escopo
 
@@ -10,11 +10,9 @@ Em 05/11/2026, Felipe aprovou incluir no plano a preservação do estado atual, 
 
 Não há backup integral anterior às mudanças comprovado. Na consulta de 05/11, a Management API não listou backups nem metadados de pontos físicos restauráveis; `pitr_enabled=false` e `walg_enabled=true`. Isso registra o resultado da consulta, sem provar inexistência absoluta de cópias no provedor. Inventários, preimagens e scripts de rollback não substituem cópia integral nem ensaio de restauração.
 
-As próximas migrations, alterações de permissões e deploys hospedados ficam condicionados à preservação atual e à restauração validada em destino isolado. Leitura, implementação e testes locais independentes podem continuar. O plano não declara backup executado, não provisiona projeto pago, não restaura sobre o CALI MAPA e não autoriza publicar a V2 ou ativar envios. A revisão do worker DISC foi posteriormente autorizada no recorte específico abaixo. Ordem, cobertura e critérios estão no [runbook](RUNBOOK.md#backup-restauração-e-ambientes--dec-28) e no [roadmap](ROADMAP.md#recuperação-e-separação-de-ambientes--prioridade-atual).
+Em 07/11/2026, Felipe reiterou que o CALI MAPA é usado para testes e continuará como staging. Backup integral, exportação do Storage e restauração hospedada deixam de ser pré-requisitos para os lotes autorizados nesse ambiente. Cada lote mantém conferência do contrato e do destino, rollback compatível e validação com atores sintéticos conforme DEC-27. O ensaio sintético já executado fica como referência. Produção segue planejada em projeto separado, com recuperação e autorização de lançamento próprias. [Procedimento](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
 
-Em seguida, Felipe esclareceu que CALI MAPA continuará destinado a staging e autorizou explicitamente somente a atualização do gerador de PDF DISC, sem mudança de schema, dados ou permissões. Esse deploy foi separado da execução do plano de backup: a versão 4 do worker foi publicada com JWT obrigatório, agenda desligada e artefatos anteriores preservados para rollback. A autorização é restrita a essa revisão de código; não dispensa os demais gates de banco/ambientes nem inicia exportação, restauração ou produção.
-
-Felipe dispensou backup e ensaio de restauração como condição deste lote da agenda DISC no CALI MAPA. O lote aplicou o incremento privado, publicou o worker v5 e configurou o Vault após conferir o rollback e preservar a versão anterior da função. Felipe autorizou ativar o cron para a prova temporária, com desligamento ao final. A agenda foi removida após HTTP 200 com fila vazia. O planejamento de produção separada continua registrado.
+A revisão do gerador DISC e o teste temporário da agenda foram exceções específicas antes dessa revisão da DEC-28. O histórico de publicação e reversão fica no [contrato DISC](contracts/DISC_3.md).
 
 ## DEC-27 — Desenvolvimento no backend hospedado e atores de teste
 

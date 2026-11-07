@@ -14,15 +14,15 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 
 ## Recuperação e separação de ambientes — prioridade atual
 
-DEC-28, aprovada em 05/11/2026, antecipa a preservação e a prova de restauração antes das próximas migrations, alterações de permissões e deploys hospedados; não deixar a primeira cópia para a fase 7. Implementação e testes locais independentes continuam. Estado anterior às mudanças não tem backup integral comprovado. [Cobertura, ordem e aceite](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+DEC-28 foi revisada em 07/11/2026. CALI MAPA é staging de testes. Os lotes autorizados seguem com preflight, rollback e prova sintética, com backup e restauração dispensados. Recuperação e separação de ambientes integram a preparação da produção. [Cobertura, ordem e aceite](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
 
-- [ ] Inventariar e preservar banco atual, arquivos do Storage, versões de serviços e configurações com cobertura/exclusões explícitas e guarda protegida fora do Git.
+- [ ] Definir a captura do ambiente de produção, incluindo banco, arquivos do Storage, versões dos serviços e configurações, com cobertura e guarda protegida.
 - [ ] Restaurar em destino isolado, bloquear comunicações externas e conferir integridade/permissões/arquivos; registrar prova de recuperação.
 - [ ] Consolidar baseline efetiva e migrations ordenadas, com criação limpa e atualização reproduzíveis.
 - [ ] Formalizar CALI MAPA como staging e preparar projeto de produção separado, sem fixtures, com configuração, Auth, Storage, funções, segredos e canais próprios; conferir recursos/custos antes de provisionar.
 - [ ] Definir promoção staging/produção por commit e migration, backups, rollback e autorização de lançamento.
 
-Plano registrado não significa backup, restauração ou novos ambientes executados. O worker PDF DISC foi atualizado posteriormente por autorização específica de Felipe, separada deste plano de banco. Felipe dispensou a condição de backup para o incremento da agenda DISC no CALI MAPA. A ativação do cron segue pendente.
+O ensaio de recuperação com fixtures passou localmente. A separação dos projetos de staging e produção segue planejada.
 
 ## Fases e dependências
 
@@ -281,9 +281,9 @@ Conduzir cada domínio por entrega completa; dependências são de dados/operaç
 | 4B — Horas e agenda | Resultado, [oferta de reposição](contracts/PHASE_4_READ.md#reposição-de-reunião-ordinária) e pausa por capacidade validados localmente. Faltam prova hospedada dessas operações, ata, gestão de participantes e transições dos extras. Homologados os timers por [subtarefa](contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa) e [ocorrência](contracts/PHASE_4_READ.md#horas-vinculadas-a-ocorrência) | Usar reunião passada confirmada em empresa sintética para o resultado e a reposição. Preservar preço aceito dos extras. Google/Meet depende de configuração e teste externo |
 | 4C — Interações | Anexos legados e formatos adicionais, prova hospedada de moderação e capa de avisos, integração de fontes e despacho do resumo Admin | Implementação e prova interna podem avançar; despacho externo do resumo é etapa separada |
 | 4D — Relatórios | Homologar as contagens das fontes no Admin e definir quais fontes adicionais chegam ao Cliente. [Republicação com curadoria](contracts/PHASE_4_READ.md#republicação-com-curadoria-no-cali-mapa) homologada | Preservar as fórmulas vigentes. Paridade visual segue no aceite final |
-| 4E — Comercial e administração | Propostas, coleta Forms, Mapa, gestão e homologação da [Equipe CALI](contracts/PHASE_4_READ.md#equipe-cali-por-empresa), ciclo de dados e homologação das demais modalidades de [Frentes](contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa) | Propostas exige instalação das RPCs e sessão autorizada no Portal e na V2. Exportação/eliminação exigem cobertura, autorização e prova de retomada após falha parcial |
+| 4E — Comercial e administração | Propostas, coleta Forms, Mapa, gestão e homologação da [Equipe CALI](contracts/PHASE_4_READ.md#equipe-cali-por-empresa), ciclo de dados e homologação das demais modalidades de [Frentes](contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa) | [Propostas](contracts/PHASE_4_READ.md#rascunho-e-aprovação-interna-de-propostas) tem RPCs instaladas e exige inscrição sintética e sessão autorizada no Portal e na V2. Exportação/eliminação exigem cobertura, autorização e prova de retomada após falha parcial |
 
-O ensaio de recuperação sintético passou. As próximas instalações no CALI MAPA aguardam captura e restauração isolada com cobertura do banco e dos arquivos. Depois da instalação das RPCs comerciais, a escrita de Propostas depende de sessão no Portal. A validação da Patrícia permanece no aceite final, após os testes internos. [Evidência e sequência](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+As instalações autorizadas no CALI MAPA seguem com preflight e rollback por lote. A homologação de Propostas depende de oportunidade sintética e sessão autorizada no Portal. A validação da Patrícia permanece no aceite final, após os testes internos. [Evidência e sequência](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
 
 Início, localizador, notificações e auditoria recebem leitores reais a cada entrega. Seu aceite global exige todas as fontes aplicáveis, sem métricas fictícias e sem apresentar período/empresa anteriores como atuais.
 
@@ -348,7 +348,7 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 **Preparação 6:** [roteiro interno de regressão](HOMOLOGACAO_PATRICIA.md#roteiro-de-regressão-interna-da-fase-4) consolidado com percursos e provas existentes. A rodada integral e o aceite seguem pendentes.
 
-**7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. DEC-28 antecipa a primeira preservação e prova de restauração para antes de novas alterações hospedadas; no release, renovar a cópia e confirmar os projetos de staging/produção separados. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
+**7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. DEC-28 mantém a recuperação no preparo de produção. No release, comprovar a restauração e confirmar os projetos separados. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
 
 **Preparação 7:** [preview local](RUNBOOK.md#prova-local-do-build-e-das-urls) conferiu URLs diretas, callback como rota HTTP e ativos. O build carrega os módulos de demonstração sob demanda. Hosting de teste e callback autenticado seguem pendentes.
 
@@ -369,4 +369,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A, a 2B e a 2C têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A fase 3 está implementada no piloto, com ativação final pendente. A separação de ambientes permanece registrada na DEC-28. Backup ficou adiado neste recorte. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A, a 2B e a 2C têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A fase 3 está implementada no piloto, com ativação final pendente. A separação de ambientes permanece registrada na DEC-28. Backup foi dispensado para os lotes autorizados no staging. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).
