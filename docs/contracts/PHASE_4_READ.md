@@ -349,6 +349,8 @@ A revisão 2 preservou sua ciência. A revisão 3 manteve ciência opcional desm
 
 A inspeção de 07/11/2026 confirmou que as policies de leitura e escrita de `cali_proposals` e `cali_submissions` usam a identidade da administradora do Portal. Um Admin do Workspace com MFA não recebe automaticamente esse papel. A RPC de escrita continua com privilégios do chamador. Homologar a edição e aprovação exige sessão com as duas autorizações ou decisão explícita sobre uma regra nova no Portal. Não houve ampliação de policies, criação de proposta hospedada, aceite ou disparo de e-mail neste lote.
 
+No navegador integrado, a sessão Admin abriu Propostas e recebeu lista vazia tanto em ativos quanto em arquivados. A conferência administrativa em leitura encontrou 12 oportunidades, nove propostas em rascunho e zero oportunidades inscritas no piloto. Abrir a rota comprovou acesso à tela, mas não acesso aos registros do Portal. A prova de edição e aprovação segue pendente de sessão com as duas autorizações e de um rascunho sintético inscrito.
+
 ## Lote de pedido de privacidade no CALI MAPA
 
 A rotina legada de abertura avisa todos os Admins ativos e a de resposta notifica o solicitante. `privacy-qa-transport.sql` suprime os dois avisos apenas para empresa e descrição sintéticas inscritas. O PostgreSQL descartável comprovou que outra solicitação ou outra empresa mantém o transporte anterior.
