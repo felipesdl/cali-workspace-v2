@@ -16,7 +16,12 @@ import {
 } from './CatalogActions';
 import { AgendaActions } from './AgendaActions';
 import { OpenRecord, RecordConversation } from './RecordActions';
-import { PrivacyActions, ReportAcknowledgment, ReportReadiness } from './ReportPrivacyActions';
+import {
+  DataLifecycleOverview,
+  PrivacyActions,
+  ReportAcknowledgment,
+  ReportReadiness,
+} from './ReportPrivacyActions';
 import { HourActions } from './HourActions';
 import { EditProject, EditPlanItem, ScheduleItemRequest } from './ProjectPlanning';
 import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
@@ -740,7 +745,10 @@ export function AdminPrivacyPage() {
         update={(change) => void navigate({ search: { ...search, ...change } })}
       />
       {companyId ? (
-        <PrivacyActions key={companyId} company={companyId} actor={actor} admin />
+        <Fragment key={companyId}>
+          <DataLifecycleOverview company={companyId} actor={actor} />
+          <PrivacyActions company={companyId} actor={actor} admin />
+        </Fragment>
       ) : (
         <p>Selecione uma empresa.</p>
       )}

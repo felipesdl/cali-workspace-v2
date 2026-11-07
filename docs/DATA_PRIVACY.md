@@ -128,3 +128,7 @@ A consulta de propostas projeta identificador, versão, situação e valores do 
 ## Acompanhamento de satisfação
 
 O Admin consulta a avaliação de 1 a 3 da empresa selecionada. Tema e anotação de acompanhamento não são devolvidos ao Cliente e não entram como texto livre na auditoria. A operação não modifica avaliação nem envia comunicações. [Contrato](contracts/PHASE_4_READ.md#acompanhamento-admin-de-satisfação).
+
+## Consulta do ciclo de dados (4E)
+
+A consulta Admin do piloto projeta situação da conta e os marcos de encerramento/eliminação, sem dados de usuários, conteúdo ou anexos. O intervalo técnico do banco não define guarda nem elimina dados por si. O [contrato da consulta](contracts/PHASE_4_READ.md#consulta-do-ciclo-de-dados-no-cali-mapa) registra o inventário da exportação e da eliminação e as lacunas para homologar as escritas.

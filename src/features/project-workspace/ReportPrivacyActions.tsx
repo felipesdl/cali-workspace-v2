@@ -3,7 +3,9 @@ import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
+import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { formatCalendarDate, formatServerInstant } from '../../lib/dates';
+import { companyStatusLabels } from '../companies/presentation';
 import { ActionForm } from './ActionForm';
 
 const kinds = {
@@ -12,6 +14,61 @@ const kinds = {
   deletion: 'Eliminação',
   other: 'Outro direito',
 } as const;
+
+export function DataLifecycleOverview({ company, actor }: { company: string; actor?: string }) {
+  const { domainOperations } = useRouteContext({ from: '__root__' });
+  const result = useQuery({
+    queryKey: ['phase4-data-lifecycle', actor, company],
+    queryFn: domainOperations
+      ? ({ signal }) => domainOperations.dataLifecycle(company, signal)
+      : skipToken,
+  });
+  if (!domainOperations) return null;
+  return (
+    <section aria-label="Ciclo de dados" className="tw:grid tw:gap-2">
+      <h2 className="tw:text-section">Ciclo de dados</h2>
+      {result.isPending && <FeedbackState kind="loading">Consultando conta…</FeedbackState>}
+      {result.isError && (
+        <FeedbackState kind="error" onRetry={() => void result.refetch()}>
+          Não foi possível consultar o ciclo de dados.
+        </FeedbackState>
+      )}
+      {result.data && (
+        <dl className="tw:grid tw:gap-2">
+          <div>
+            <dt>Situação da conta</dt>
+            <dd>{companyStatusLabels[result.data.status]}</dd>
+          </div>
+          <div>
+            <dt>Acesso cortado pela situação da conta</dt>
+            <dd>{result.data.accessClosed ? 'Sim' : 'Não'}</dd>
+          </div>
+          {result.data.closedAt && (
+            <div>
+              <dt>Encerramento registrado em</dt>
+              <dd>{formatServerInstant(result.data.closedAt)}</dd>
+            </div>
+          )}
+          {result.data.eliminatedAt ? (
+            <div>
+              <dt>Eliminação registrada em</dt>
+              <dd>{formatServerInstant(result.data.eliminatedAt)}</dd>
+            </div>
+          ) : (
+            <div>
+              <dt>Intervalo de encerramento para análise de eliminação</dt>
+              <dd>
+                {result.data.waitingPeriodMet
+                  ? 'Cumprido. Requer análise da CALI.'
+                  : 'Não cumprido.'}
+              </dd>
+            </div>
+          )}
+        </dl>
+      )}
+    </section>
+  );
+}
 
 export function PrivacyActions({
   company,

@@ -74,7 +74,7 @@ Alvo confirmado: geração, aprovação, liberação e envio de relatórios são
 
 ## FLOW-18 — Frentes, ajuda, direitos e fim de contrato
 
-O [piloto V2 de privacidade](../contracts/PHASE_4_READ.md#lote-de-pedido-de-privacidade-no-cali-mapa) homologou abertura e resposta de um pedido de acesso. Exportação, eliminação e encerramento são operações separadas.
+O [piloto V2 de privacidade](../contracts/PHASE_4_READ.md#lote-de-pedido-de-privacidade-no-cali-mapa) homologou abertura e resposta de um pedido de acesso. O [painel de ciclo de dados](../contracts/PHASE_4_READ.md#consulta-do-ciclo-de-dados-no-cali-mapa) consulta situação e intervalo técnico. Exportação, eliminação e encerramento são operações separadas.
 
 **Objetivo/atores/entrada:** Cliente entende escopo/frentes e solicita apoio/direitos; Admin configura frentes, responde pedidos, exporta e conduz encerramento/eliminação autorizados. Contexto: `/cliente/frentes`, ajuda/perfil, `/admin/clientes` e auditoria; páginas legais públicas não concedem acesso ao workspace.
 

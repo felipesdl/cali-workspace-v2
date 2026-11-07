@@ -1,6 +1,7 @@
 import { decodePdf, pdfPayload } from './pdf-payload';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
+import { companyStatus } from '../companies/schemas';
 
 const feedback = z.object({
   score: z.number().int().min(1).max(5),
@@ -48,6 +49,14 @@ const readiness = z.object({
   collected: z.number().int(),
   required: z.number().int(),
   availableOn: z.iso.date(),
+});
+const dataLifecycle = z.object({
+  companyId: z.uuid(),
+  status: z.enum(companyStatus),
+  accessClosed: z.boolean(),
+  closedAt: z.string().nullable(),
+  eliminatedAt: z.string().nullable(),
+  waitingPeriodMet: z.boolean(),
 });
 const recordAction = z.discriminatedUnion('action', [
   z.object({
@@ -468,6 +477,15 @@ export function createDomainOperations(client: WorkspaceClient) {
         .abortSignal(signal);
       if (error) throw rejected(error.code);
       return subjects.parse(data);
+    },
+    async dataLifecycle(company: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_data_lifecycle', { p_company_id: company })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      const result = dataLifecycle.parse(data);
+      if (result.companyId !== company) throw rejected();
+      return result;
     },
     async submitPrivacy(company: string, id: string, kind: string, details: string) {
       const { data, error } = await client.rpc('v2_submit_pilot_privacy_request', {

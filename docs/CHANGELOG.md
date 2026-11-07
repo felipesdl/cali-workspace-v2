@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Consulta do ciclo de dados
+
+- Admin com MFA consulta situação, corte, datas e intervalo técnico de encerramento. A/B conferidos no CALI MAPA; nenhuma exportação ou eliminação. [Contrato e reversão](contracts/PHASE_4_READ.md#consulta-do-ciclo-de-dados-no-cali-mapa).
+
 ## 07/11/2026 — Confirmação de abertura pública em Forms
 
 - Abertura por link exige confirmação explícita, MFA e formulário sem confirmação por e-mail. A operação anterior só encerra. Guarda instalada no CALI MAPA, com zero coletas abertas no piloto. [Contrato](contracts/PHASE_4_READ.md#confirmação-de-coleta-pública-em-forms).
