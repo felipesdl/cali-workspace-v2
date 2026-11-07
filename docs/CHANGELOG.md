@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Agenda ordinária homologada
+
+- Cliente solicitou e confirmou horário, Admin decidiu remarcação e cancelamento do mesmo evento no CALI MAPA. B permaneceu isolado, a franquia sintética foi restaurada e não houve cobrança nem e-mail do piloto. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-agenda-ordinária-no-cali-mapa).
+
 ## 07/11/2026 — Lançamento e timer de Horas
 
 - V2 mantém a contabilização do trecho ao pausar e retoma em novo timer no mesmo contexto. CALI MAPA confirmou 15 minutos manuais, dois trechos de 1 minuto e zero timers abertos. Cliente viu o lançamento sem a nota interna; visibilidade temporária restaurada. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-lançamento-e-timer-no-cali-mapa).

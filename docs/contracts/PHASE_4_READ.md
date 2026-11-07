@@ -48,7 +48,7 @@ O PostgreSQL descartável prova as guardas, reexecução, transições, isolamen
 | Recorte | Operação exercitada localmente | Trabalho pendente |
 | --- | --- | --- |
 | 4A | Planejamento, ajustes por item, execução, subtarefas, conversas, dependências, revisão de prazo e nova aprovação após correção | Migração dos arquivos legados, paridade visual e decisão sobre vencimento de revisão |
-| 4B | Solicitação ordinária coberta pelo contrato, oferta Admin e confirmação Cliente. Bloqueio por mudança de condição e conflito de horário na empresa. Estado externo lido do evento | Extras, preço aceito, participantes, homologação de saldo/capacidade e integração Google/Meet |
+| 4B | Lançamento, pausa e retomada sem dupla contagem; solicitação ordinária, oferta, confirmação, remarcação e cancelamento homologados | Edição/exclusão de horas, vínculos detalhados, marcos de capacidade, extras, preço aceito, participantes adicionais e Google/Meet |
 | 4C | Publicar aviso dirigido, arquivar/restaurar, ciência e desfazer ciência. Mural e agenda leem o mesmo aviso | Anexos de conversa, comentários/reações do mural e resumo Admin |
 | 4D | Rascunho mensal captura o retrato das fontes instaladas. Edição de resumo, revisão e aprovação interna travam a versão esperada | Curadoria completa, PDF e armazenamento privado, publicação, revisão pós-publicação e tratamento da satisfação |
 | 4E | Listar formulários existentes da empresa e abrir/encerrar os que atendem às guardas | Editor, formulário público e respostas na V2, Propostas, Mapa, frentes/ajuda, auditoria, ciclo de dados e equipe CALI |
@@ -238,3 +238,11 @@ A função instalada `pause_work_timer` fecha o trecho. Ela gera lançamento com
 Em 07/11/2026, preflight conferiu as funções instaladas, zero timers abertos em A e capacidade de 750 minutos sem consumo. O lote instalou duas RPCs limitadas a `authenticated`, com guarda Admin e MFA. No navegador, Admin registrou 15 minutos com justificativa interna, iniciou timer, pausou, retomou e concluiu. Banco confirmou 15 minutos manuais e dois lançamentos de 1 minuto para o timer, zero timers e pausas pendentes. Cliente A viu o lançamento permitido sem a nota interna e sem ação de escrita. A regra temporária de novembro foi retirada e o Cliente voltou a ver o mês indisponível.
 
 A prova isolada cobre reexecução de pausa/retomada, exclusão mútua e isolamento. A prova hospedada não cruzou os marcos de capacidade e não ativou agenda ou serviços externos. Edição/exclusão justificada, vínculos de execução por subtarefa e marcos de capacidade permanecem em recortes próprios. `rollback-hours.sql` retira as RPCs após resolver as pausas do piloto e mantém lançamentos, timers e recibos.
+
+## Lote de agenda ordinária no CALI MAPA
+
+O catálogo confirmou ausência de agendamento de sincronização de Google/Meet e zero encontros incluídos nas empresas sintéticas. A prova inscreveu apenas o assunto sintético de A em `agenda-qa-transport.sql`. A inscrição mantém notificações do app e retira e-mail do pedido e do evento derivado antes do despacho. `agenda-operations.sql` e `agenda-change-operations.sql` instalaram cinco RPCs, com uma vaga contratual temporária em A, sem aceite de preço ou urgência.
+
+Em 07/11/2026, Cliente A solicitou reunião online, Admin ofertou a opção e A confirmou. A tela exibiu confirmação no Workspace e integração pendente. A pediu remarcação para 17/11 ou 18/11, com o horário original preservado durante a análise. Admin aprovou 17/11 às 10h. O protocolo `CALI-EVT-2026-000006` foi preservado. A pediu cancelamento e Admin aprovou; A viu cancelamento e B não recebeu o pedido de A. Banco confirmou duas decisões, cancelamento, franquia restaurada a zero, nenhum adicional, nenhuma taxa e zero marcações ou envios de e-mail para o teste. Nenhuma sincronização externa foi chamada.
+
+A prova PostgreSQL cobre reexecução, conflito de agenda, prazo, isolamento e supressão limitada ao pedido inscrito. `rollback-agenda.sql` retira as RPCs preservando evento, decisões e inscrição. A sincronização externa, as regras de extras e participantes adicionais continuam em recortes próprios.

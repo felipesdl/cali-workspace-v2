@@ -158,6 +158,7 @@ rollback;
 \ir test-project-journal.sql
 \ir test-delivery-agenda.sql
 \ir test-agenda-changes.sql
+\ir test-agenda-qa-transport.sql
 \ir test-record-reviews.sql
 \ir test-catalog-actions.sql
 \ir test-documents.sql
