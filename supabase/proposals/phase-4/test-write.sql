@@ -5,6 +5,7 @@
 \ir ../../../tests/fixtures/phase4/satisfaction.sql
 \ir ../../../tests/fixtures/phase4/forms-draft.sql
 \ir read-projects.sql
+\ir read-hours.sql
 \ir read-catalogs.sql
 \ir pilot-role.sql
 \ir admin-audit-read.sql
@@ -170,6 +171,7 @@ grant usage on schema cali_workspace to service_role;
 \ir test-commercial-draft.sql
 \ir test-satisfaction.sql
 \ir test-data-lifecycle-read.sql
+\ir test-hour-corrections.sql
 \ir rollback-forms.sql
 do $$
 begin

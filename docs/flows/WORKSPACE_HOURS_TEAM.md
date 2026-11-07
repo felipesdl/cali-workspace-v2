@@ -58,7 +58,7 @@ O código oficial descrito nas tabelas continua inalterado e diferente desse alv
 
 **Aceite proposto:** 29s/30s/61s; dois timers concorrentes; pausa/finalização; manual inválido; edição/exclusão justificada; mês invisível; horas internas agregadas sem dados privados; capacidade sem contratado e cruzamento de vários marcos; Cliente não grava. **Dúvidas:** `REF-08` (timer/retomada), `REF-09` (capacidade x docs antigos), `REF-23` (replay/estado aplicado).
 
-A V2 prepara o painel de franquia, consumo, saldo e excedente com o cálculo do banco. O extrato mantém o recorte de lançamentos visíveis. Veja o [contrato de capacidade](../contracts/PHASE_4_READ.md#capacidade-e-saldo-de-horas-no-piloto). O [lote de lançamento e timer](../contracts/PHASE_4_READ.md#lote-de-lançamento-e-timer-no-cali-mapa) homologou o fechamento do trecho e a retomada com novo timer, preservando duração e privacidade.
+A V2 prepara o painel de franquia, consumo, saldo e excedente com o cálculo do banco. O extrato mantém o recorte de lançamentos visíveis. Veja o [contrato de capacidade](../contracts/PHASE_4_READ.md#capacidade-e-saldo-de-horas-no-piloto). O [lote de lançamento e timer](../contracts/PHASE_4_READ.md#lote-de-lançamento-e-timer-no-cali-mapa) homologou o fechamento do trecho e a retomada com novo timer, preservando duração e privacidade. O [lote de correção](../contracts/PHASE_4_READ.md#correção-auditada-de-horas) validou edição hospedada e exclusão no banco descartável.
 
 ## FLOW-08 — Equipe, movimentos, fechamento e indicadores
 

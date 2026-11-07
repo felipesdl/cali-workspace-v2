@@ -22,7 +22,7 @@ import {
   ReportAcknowledgment,
   ReportReadiness,
 } from './ReportPrivacyActions';
-import { HourActions } from './HourActions';
+import { HourActions, HourEntryCorrection } from './HourActions';
 import { EditProject, EditPlanItem, ScheduleItemRequest } from './ProjectPlanning';
 import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -500,6 +500,18 @@ function Hours({ search, update }: Props) {
                       {entry.category && ` · ${entry.category}`}
                     </p>
                     {admin && entry.internal_note && <p>Nota interna: {entry.internal_note}</p>}
+                    {admin && entry.editVersion && (
+                      <HourEntryCorrection
+                        company={companyId}
+                        actor={actor}
+                        entry={entry.id}
+                        version={entry.editVersion}
+                        day={entry.work_date}
+                        minutes={entry.minutes}
+                        description={entry.description}
+                        visible={Boolean(entry.clientVisible)}
+                      />
+                    )}
                   </li>
                 ))}
               </ul>

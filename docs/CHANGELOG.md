@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Correção auditada de horas
+
+- Admin corrige ou exclui lançamento com justificativa, versão e histórico. Edição de 15 para 16 minutos homologada no CALI MAPA; exclusão e recusas passaram no PostgreSQL descartável. [Contrato](contracts/PHASE_4_READ.md#correção-auditada-de-horas).
+
 ## 07/11/2026 — Consulta do ciclo de dados
 
 - Admin com MFA consulta situação, corte, datas e intervalo técnico de encerramento. A/B conferidos no CALI MAPA; nenhuma exportação ou eliminação. [Contrato e reversão](contracts/PHASE_4_READ.md#consulta-do-ciclo-de-dados-no-cali-mapa).

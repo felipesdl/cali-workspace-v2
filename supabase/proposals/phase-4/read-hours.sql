@@ -3,11 +3,14 @@ begin;
 set local lock_timeout = '5s';
 
 create or replace function cali_workspace.v2_read_pilot_hours(p_company_id uuid, p_month date, p_page integer)
-returns jsonb language plpgsql stable security definer set search_path = ''
+returns jsonb language plpgsql stable security definer set search_path = '' set timezone='UTC'
 as $$
 declare
   actor uuid := cali_session_guard.require_pilot_team_actor(p_company_id);
   admin boolean := exists(select 1 from cali_workspace.profiles where id=actor and role::text='admin');
+  can_correct boolean := admin and to_regprocedure(
+    'cali_workspace.v2_correct_pilot_hour(uuid,uuid,uuid,text,text,text,date,integer,text,boolean)'
+  ) is not null;
 begin
   if p_month is null or not isfinite(p_month) or extract(day from p_month)<>1
     or p_page is null or p_page not between 1 and 10000 then
@@ -19,7 +22,9 @@ begin
   return (
     with matched as (
       select h.id,h.work_date,h.minutes,h.description,h.category,
-        case when admin then h.internal_note end as internal_note
+        case when admin then h.internal_note end as internal_note,
+        case when can_correct then h.client_visible end as "clientVisible",
+        case when can_correct then encode(sha256(convert_to(to_jsonb(h)::text,'UTF8')),'hex') end as "editVersion"
       from cali_workspace.hour_entries h
       where h.company_id=p_company_id and h.work_date>=p_month
         and h.work_date<(p_month+interval '1 month')::date

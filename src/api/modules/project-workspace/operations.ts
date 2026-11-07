@@ -211,9 +211,50 @@ const hourAction = z.discriminatedUnion('kind', [
   z.object({ kind: z.enum(['pause', 'resume', 'stop']), timer: z.uuid() }),
 ]);
 export type HourAction = z.infer<typeof hourAction>;
+const correction = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('edit'),
+    date: z.iso.date(),
+    minutes: z.number().int().min(1).max(1440),
+    description: z.string().trim().min(1).max(1000),
+    visible: z.boolean(),
+    reason: z.string().trim().min(3).max(1000),
+  }),
+  z.object({ kind: z.literal('delete'), reason: z.string().trim().min(3).max(1000) }),
+]);
+export type HourCorrection = z.infer<typeof correction>;
 
 export function createHourOperations(client: WorkspaceClient) {
   return {
+    async correct(
+      company: string,
+      requestId: string,
+      entry: string,
+      version: string,
+      input: HourCorrection,
+    ) {
+      const action = correction.parse(input);
+      const { data, error } = await client.rpc('v2_correct_pilot_hour', {
+        p_company_id: company,
+        p_request_id: requestId,
+        p_entry_id: entry,
+        p_expected: version,
+        p_action: action.kind,
+        p_reason: action.reason,
+        ...(action.kind === 'edit'
+          ? {
+              p_date: action.date,
+              p_minutes: action.minutes,
+              p_description: action.description,
+              p_visible: action.visible,
+            }
+          : {}),
+      });
+      if (error?.code === '40001') throw new Error('O lançamento mudou. Atualize o extrato.');
+      if (error?.code === '22023') throw new Error('Confira os dados e a justificativa.');
+      if (error) throw new Error('Não foi possível corrigir o lançamento.');
+      return z.literal(entry).parse(data);
+    },
     async timers(company: string, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_pilot_active_timers', { p_company_id: company })

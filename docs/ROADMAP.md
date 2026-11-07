@@ -273,6 +273,18 @@ Conduzir cada domínio por entrega completa; dependências são de dados/operaç
 | 4D — Relatórios executivos e satisfação | Fatos/período, curadoria, aprovação, PDF, publicação, ciência e tratamento de avaliação | Fontes integradas, autoria/assinatura/protocolo e auditoria; tela/PDF correspondem à revisão; reabertura oculta até liberar; nova ciência só a pedido Admin; feedback original preservado |
 | 4E — Comercial, módulos adicionais e ciclo de dados | Propostas, Forms, Mapa, frentes/ajuda, auditoria, direitos, exportação/encerramento e administração equipe CALI | Contratos próprios, públicos e permissões por operação; proposta aceita não vira pré-requisito novo de cadastro; Forms/Mapa não são DISC; staff Admin não equivale a construir área Partner; cobertura e falha parcial do ciclo de dados comprovadas |
 
+### Pendências para fechar a fase 4
+
+| Recorte | Trabalho restante | Dependência específica |
+| --- | --- | --- |
+| 4A — Projetos | Arquivos legados e paridade do fluxo | Fechar política de vencimento de revisão; migrar apenas arquivos elegíveis, com prova de corte e histórico |
+| 4B — Horas e agenda | Vínculos detalhados, alertas de capacidade e agenda com participantes/extras | Conciliar marcos e preço já aceito; Google/Meet depende de configuração e teste externo |
+| 4C — Interações | Anexos de conversa, comentários/reações do mural e resumo Admin | Implementação e prova interna podem avançar; despacho externo do resumo é etapa separada |
+| 4D — Relatórios | Curadoria completa, fontes e casos de revisão publicada | Preservar fórmulas vigentes e provar paridade visual |
+| 4E — Comercial e administração | Propostas, coleta Forms, Mapa, frentes/ajuda, equipe CALI e ciclo de dados | Escrita de Propostas exige sessão autorizada no Portal e na V2. Exportação/eliminação exigem cobertura, autorização e prova de retomada após falha parcial |
+
+O Portal bloqueia a homologação da escrita comercial. As demais entregas não dependem dessa sessão. A validação da Patrícia permanece no aceite final, após os testes internos.
+
 Início, localizador, notificações e auditoria recebem leitores reais a cada entrega. Seu aceite global exige todas as fontes aplicáveis, sem métricas fictícias e sem apresentar período/empresa anteriores como atuais.
 
 ## Matriz de cobertura e aceite por fluxo

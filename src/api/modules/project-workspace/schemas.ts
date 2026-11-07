@@ -94,6 +94,11 @@ export const hours = z.discriminatedUnion('visible', [
         minutes: z.number().int(),
         category: z.string().optional(),
         internal_note: z.string().optional(),
+        clientVisible: z.boolean().optional(),
+        editVersion: z
+          .string()
+          .regex(/^[0-9a-f]{64}$/)
+          .optional(),
       }),
     ),
   }),
