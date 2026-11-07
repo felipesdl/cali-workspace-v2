@@ -37,9 +37,14 @@ begin
  exception when insufficient_privilege then null; end;
  payload := cali_workspace.v2_read_pilot_hours(a,'2026-11-01',1);
  assert payload->>'total'='1' and payload->>'minutes'='30';
+ assert payload->'capacity'='{"contractedMinutes":60,"consumedMinutes":80,"remainingMinutes":0,"overMinutes":20}'::jsonb;
  assert not (payload#>'{entries,0}' ? 'internal_note');
  payload := cali_workspace.v2_read_pilot_hours(a,'2026-10-01',1);
- assert payload->>'visible'='false' and not (payload ? 'entries');
+ assert payload->>'visible'='false' and not (payload ?| array['entries','capacity']);
+ begin
+  perform cali_workspace.v2_read_pilot_hours(b,'2026-11-01',1);
+  raise exception 'Capacidade de outra empresa autorizada';
+ exception when insufficient_privilege then null; end;
  foreach mod in array array['calendar','records','documents','notices','reports','fronts'] loop
   payload := cali_workspace.v2_read_pilot_catalog(a,mod,'2026-11-01',1);
   assert payload->>'total'=case when mod='calendar' then '2' else '1' end,mod;
@@ -73,6 +78,11 @@ begin
  assert cali_workspace.v2_list_pilot_projects(b,1)->>'total'='1';
  payload := cali_workspace.v2_read_pilot_hours(a,'2026-11-01',1);
  assert payload->>'total'='3' and payload->>'minutes'='170' and payload#>>'{entries,1,internal_note}'='Nota interna';
+ assert payload#>>'{capacity,consumedMinutes}'='80';
+ payload := cali_workspace.v2_read_pilot_hours(a,'2026-10-01',1);
+ assert payload->'capacity'='{"contractedMinutes":120,"consumedMinutes":0,"remainingMinutes":120,"overMinutes":0}'::jsonb;
+ payload := cali_workspace.v2_read_pilot_hours(b,'2026-11-01',1);
+ assert payload->'capacity'='{"contractedMinutes":null,"consumedMinutes":100,"remainingMinutes":null,"overMinutes":null}'::jsonb;
  assert cali_workspace.v2_read_pilot_catalog(a,'notices',null,1)->>'total'='2';
  begin
   perform cali_workspace.v2_read_pilot_catalog(a,'calendar','2026-11-02',1);

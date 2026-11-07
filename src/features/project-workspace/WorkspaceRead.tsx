@@ -353,6 +353,58 @@ function Minutes({ value }: { value: number }) {
   );
 }
 
+function HourCapacity({
+  contractedMinutes,
+  consumedMinutes,
+  remainingMinutes,
+  overMinutes,
+}: {
+  contractedMinutes: number | null;
+  consumedMinutes: number;
+  remainingMinutes: number | null;
+  overMinutes: number | null;
+}) {
+  return (
+    <section className={panel}>
+      <h2 className="tw:font-semibold">Capacidade do mês</h2>
+      <dl className="tw:sm:grid-cols-2 tw:mt-2 tw:grid tw:gap-2">
+        <div>
+          <dt>Franquia contratada</dt>
+          <dd>
+            {contractedMinutes === null ? (
+              'Sem franquia definida'
+            ) : (
+              <Minutes value={contractedMinutes} />
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>Consumo operacional</dt>
+          <dd>
+            <Minutes value={consumedMinutes} />
+          </dd>
+        </div>
+        {remainingMinutes !== null && (
+          <div>
+            <dt>Saldo disponível</dt>
+            <dd>
+              <Minutes value={remainingMinutes} />
+            </dd>
+          </div>
+        )}
+        {overMinutes !== null && overMinutes > 0 && (
+          <div>
+            <dt>Excedente</dt>
+            <dd>
+              <Minutes value={overMinutes} />
+            </dd>
+          </div>
+        )}
+      </dl>
+    </section>
+  );
+}
+
 function currentMonth() {
   const formatter = new Intl.DateTimeFormat('sv-SE', {
     year: 'numeric',
@@ -405,29 +457,32 @@ function Hours({ search, update }: Props) {
           Não foi possível consultar o extrato.
         </FeedbackState>
       ) : result.data.visible ? (
-        <section className={panel}>
-          <h2 className="tw:font-semibold">Extrato de atuação</h2>
-          <p>
-            Total dos lançamentos exibíveis no mês: <Minutes value={result.data.minutes} />
-          </p>
-          {result.data.entries.length ? (
-            <ul className="tw:my-4 tw:grid tw:gap-3">
-              {result.data.entries.map((entry) => (
-                <li key={entry.id}>
-                  <strong>{entry.description}</strong>
-                  <p>
-                    {formatCalendarDate(entry.work_date)} · <Minutes value={entry.minutes} />
-                    {entry.category && ` · ${entry.category}`}
-                  </p>
-                  {admin && entry.internal_note && <p>Nota interna: {entry.internal_note}</p>}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <FeedbackState kind="empty">Nenhum lançamento nesta página.</FeedbackState>
-          )}
-          <Pages total={result.data.total} search={search} update={update} />
-        </section>
+        <>
+          {result.data.capacity && <HourCapacity {...result.data.capacity} />}
+          <section className={panel}>
+            <h2 className="tw:font-semibold">Extrato de atuação</h2>
+            <p>
+              Total dos lançamentos exibíveis no mês: <Minutes value={result.data.minutes} />
+            </p>
+            {result.data.entries.length ? (
+              <ul className="tw:my-4 tw:grid tw:gap-3">
+                {result.data.entries.map((entry) => (
+                  <li key={entry.id}>
+                    <strong>{entry.description}</strong>
+                    <p>
+                      {formatCalendarDate(entry.work_date)} · <Minutes value={entry.minutes} />
+                      {entry.category && ` · ${entry.category}`}
+                    </p>
+                    {admin && entry.internal_note && <p>Nota interna: {entry.internal_note}</p>}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <FeedbackState kind="empty">Nenhum lançamento nesta página.</FeedbackState>
+            )}
+            <Pages total={result.data.total} search={search} update={update} />
+          </section>
+        </>
       ) : (
         <FeedbackState kind="empty">
           A consulta de horas está indisponível neste período.

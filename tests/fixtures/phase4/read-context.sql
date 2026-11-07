@@ -42,6 +42,15 @@ create function cali_workspace.hour_project_operational(project uuid) returns bo
  select project is null or exists(select 1 from cali_workspace.projects where id=project and status<>'cancelled'
   and (planning_status in ('approved','active','rebriefing','closed') or (planning_status is null and status='active')))
 $$;
+create function cali_workspace.capacity_month(p_company_id uuid,p_month date)
+returns table(contracted_minutes integer,used_minutes integer) language sql stable as $$
+ select case when p_company_id='9c5ab148-78b8-4410-9338-58c44222a5db' and p_month='2026-11-01'
+   then 60 when p_company_id='9c5ab148-78b8-4410-9338-58c44222a5db' then 120 else 0 end,
+   coalesce(sum(h.minutes),0)::integer
+ from cali_workspace.hour_entries h
+ where h.company_id=p_company_id and h.work_date>=p_month
+   and h.work_date<(p_month+interval '1 month')::date and cali_workspace.hour_project_operational(h.project_id)
+$$;
 create function cali_workspace.can_read_notice(notice uuid) returns boolean language sql stable as $$
  select exists(select 1 from cali_workspace.notices n where n.id=notice and n.status='published'
    and cali_workspace.current_company_id() is not null

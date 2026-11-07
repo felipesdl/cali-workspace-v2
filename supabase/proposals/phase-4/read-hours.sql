@@ -1,8 +1,8 @@
--- FLOW-07. Extrato do período com a visibilidade e a elegibilidade operacional do catálogo efetivo.
+-- FLOW-07. Extrato visível e resumo de capacidade do mesmo período.
 begin;
 set local lock_timeout = '5s';
 
-create function cali_workspace.v2_read_pilot_hours(p_company_id uuid, p_month date, p_page integer)
+create or replace function cali_workspace.v2_read_pilot_hours(p_company_id uuid, p_month date, p_page integer)
 returns jsonb language plpgsql stable security definer set search_path = ''
 as $$
 declare
@@ -29,7 +29,16 @@ begin
     )
     select jsonb_build_object('companyId',p_company_id,'month',p_month,'visible',true,
       'total',(select count(*) from matched),'minutes',(select coalesce(sum(minutes),0) from matched),
+      'capacity',jsonb_build_object(
+        'contractedMinutes',case when capacity.contracted_minutes>0 then capacity.contracted_minutes end,
+        'consumedMinutes',capacity.used_minutes,
+        'remainingMinutes',case when capacity.contracted_minutes>0
+          then greatest(0,capacity.contracted_minutes-capacity.used_minutes) end,
+        'overMinutes',case when capacity.contracted_minutes>0
+          then greatest(0,capacity.used_minutes-capacity.contracted_minutes) end
+      ),
       'entries',coalesce((select jsonb_agg(jsonb_strip_nulls(to_jsonb(page)) order by work_date desc,id) from page),'[]'::jsonb))
+    from cali_workspace.capacity_month(p_company_id,p_month) capacity
   );
 end;
 $$;

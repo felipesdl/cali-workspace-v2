@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Capacidade e saldo de horas
+
+- Horas mostra franquia, consumo operacional, saldo e excedente conforme o cálculo de capacidade do banco. O extrato continua filtrado pelo perfil. Isolamento, mês oculto e ausência de franquia validados em PostgreSQL descartável. [Contrato e homologação](contracts/PHASE_4_READ.md#capacidade-e-saldo-de-horas-no-piloto).
+
 ## 06/11/2026 — Homologação da triagem de Forms
 
 - Admin alterou etapa e responsável de uma resposta sintética no CALI MAPA. A recarga confirmou os valores e B ficou sem formulários. O banco confirmou conteúdo preservado e um evento de auditoria. [Evidência](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).

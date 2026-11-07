@@ -58,6 +58,8 @@ O código oficial descrito nas tabelas continua inalterado e diferente desse alv
 
 **Aceite proposto:** 29s/30s/61s; dois timers concorrentes; pausa/finalização; manual inválido; edição/exclusão justificada; mês invisível; horas internas agregadas sem dados privados; capacidade sem contratado e cruzamento de vários marcos; Cliente não grava. **Dúvidas:** `REF-08` (timer/retomada), `REF-09` (capacidade x docs antigos), `REF-23` (replay/estado aplicado).
 
+A V2 prepara o painel de franquia, consumo, saldo e excedente com o cálculo do banco. O extrato mantém o recorte de lançamentos visíveis. Veja o [contrato de capacidade](../contracts/PHASE_4_READ.md#capacidade-e-saldo-de-horas-no-piloto).
+
 ## FLOW-08 — Equipe, movimentos, fechamento e indicadores
 
 **Objetivo/atores/entrada:** Cliente e Admin consultam `/cliente/equipe`/`/admin/equipe`. As RPCs de manutenção autorizam perfil ativo Admin **ou Cliente principal da própria empresa**. Não estender escrita ao cliente adicional por semelhança da tela.

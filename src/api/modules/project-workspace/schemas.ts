@@ -61,6 +61,14 @@ export const hours = z.discriminatedUnion('visible', [
     visible: z.literal(true),
     total: z.number().int().nonnegative(),
     minutes: z.number().int(),
+    capacity: z
+      .object({
+        contractedMinutes: z.number().int().positive().nullable(),
+        consumedMinutes: z.number().int(),
+        remainingMinutes: z.number().int().nonnegative().nullable(),
+        overMinutes: z.number().int().nonnegative().nullable(),
+      })
+      .optional(),
     entries: z.array(
       z.object({
         id: z.uuid(),

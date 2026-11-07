@@ -7,7 +7,7 @@ Em 05/11/2026, leitura somente do catálogo do CALI MAPA conferiu colunas, polí
 | Domínio | Consulta implementada no código | Próxima entrega operacional |
 | --- | --- | --- |
 | 4A Projetos e entregáveis | Lista e detalhe, última revisão e prazo, frentes do projeto e entregáveis paginados | Rascunho estruturado, compartilhamento, aprovação/ajustes e execução; reabertura do mesmo entregável, histórico, bloqueio e nova aprovação |
-| 4B Horas e agenda | Extrato por mês (soma dos lançamentos exibidos, sem saldo contratual), agenda do mês em Brasília | Timer/manual, capacidade e saldo conciliados, solicitação/reunião com estado real da integração |
+| 4B Horas e agenda | Extrato, capacidade e saldo por mês, agenda do mês em Brasília | Homologar horas e conciliar integrações externas |
 | 4C Ocorrências, documentos e avisos | Ocorrências por visibilidade, metadados de documentos, avisos publicados para a audiência do Cliente | Conversas sem e-mail, anexos/versões/ciência e notificações, resumo diário Admin |
 | 4D Relatórios e satisfação | Lista e resumo executivo dos relatórios disponibilizados | Fontes e curadoria, revisão/PDF, publicação/ciência, reabertura do mesmo relatório e tratamento da avaliação |
 | 4E Comercial e administração | Consulta de frentes contratadas | Propostas, Forms, Mapa, ajuda, auditoria, direitos, exportação/encerramento e equipe CALI |
@@ -48,7 +48,7 @@ O PostgreSQL descartável prova as guardas, reexecução, transições, isolamen
 | Recorte | Operação exercitada localmente | Trabalho pendente |
 | --- | --- | --- |
 | 4A | Pausa e retomada do projeto, encaminhamento e decisão de entregável, avaliação e nova aprovação após correção no mesmo registro | Reabertura de itens com arquivos legados, gestão completa de frentes e subtarefas, ajustes específicos na interface, conversa e dependências |
-| 4B | Solicitação ordinária coberta pelo contrato, oferta Admin e confirmação Cliente. Bloqueio por mudança de condição e conflito de horário na empresa. Estado externo lido do evento | Extras, preço aceito, participantes, saldo/capacidade na UI e integração Google/Meet |
+| 4B | Solicitação ordinária coberta pelo contrato, oferta Admin e confirmação Cliente. Bloqueio por mudança de condição e conflito de horário na empresa. Estado externo lido do evento | Extras, preço aceito, participantes, homologação de saldo/capacidade e integração Google/Meet |
 | 4C | Publicar aviso dirigido, arquivar/restaurar, ciência e desfazer ciência. Mural e agenda leem o mesmo aviso | Anexos de conversa, comentários/reações do mural e resumo Admin |
 | 4D | Rascunho mensal captura o retrato das fontes instaladas. Edição de resumo, revisão e aprovação interna travam a versão esperada | Curadoria completa, PDF e armazenamento privado, publicação, revisão pós-publicação e tratamento da satisfação |
 | 4E | Listar formulários existentes da empresa e abrir/encerrar os que atendem às guardas | Editor, formulário público e respostas na V2, Propostas, Mapa, frentes/ajuda, auditoria, ciclo de dados e equipe CALI |
@@ -166,3 +166,11 @@ O catálogo de 06/11 confirmou a guarda de sessão do piloto já instalada. A gu
 Abertura e encerramento de coleta continuam pendentes de prova hospedada.
 
 **Reversão.** Desligar as flags locais e executar `rollback-forms.sql`. A reversão retira as RPCs de Forms, mantém as funções compartilhadas e preserva rascunhos, respostas, recibos e auditoria. O teste descartável confirma que as operações de projeto continuam disponíveis após essa reversão.
+
+## Capacidade e saldo de horas no piloto
+
+O catálogo do CALI MAPA confirmou que `capacity_month` usa a franquia do ciclo do mês ou a franquia mensal da empresa. O consumo soma lançamentos operacionais, incluindo os que entram no resumo legado sem aparecer como itens para o Cliente. A V2 chama esse mesmo cálculo depois de validar sessão, empresa e, para Cliente, visibilidade do mês. Quando a franquia é positiva, apresenta saldo e excedente. Sem franquia definida, apresenta o consumo e omite saldo e excedente.
+
+A tela separa capacidade mensal e extrato. O extrato mantém o total dos lançamentos que aquele perfil pode listar. A consulta agrega os minutos operacionais sem copiar descrições ou justificativas internas. A resposta anterior da RPC continua compatível com a tela.
+
+O PostgreSQL descartável confirmou mês oculto, fronteira A/B, consumo com horas internas agregadas, saldo, excedente e ausência de franquia. A instalação proposta consiste somente em `read-hours.sql`. O preflight confirmou as dependências e a ausência de `v2_read_pilot_hours` no CALI MAPA. Para homologar, instalar essa RPC e conferir um mês visível e um oculto com Cliente A, além da leitura Admin em A/B. A reversão deste lote remove apenas `cali_workspace.v2_read_pilot_hours(uuid,date,integer)` e recarrega o catálogo PostgREST. A prova no navegador hospedado continua pendente.
