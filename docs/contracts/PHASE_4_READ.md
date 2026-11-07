@@ -151,7 +151,7 @@ O catálogo hospedado confirmou as colunas `stage` e `owner`, a configuração `
 
 Admin com MFA abre a triagem de um formulário da empresa piloto. A lista mostra até 25 registros por página com nome, data, etapa e responsável. A etapa segue as opções do formulário. Uma etapa antiga pode ser mantida ou trocada por opção atual. A escrita confere os valores anteriores, grava apenas etapa e responsável e registra evento sem esses textos. Repetir o mesmo resultado não duplica o evento. E-mail, conteúdo, anexos e notas ficam fora da projeção. A triagem não envia comunicação.
 
-Instalar `forms-triage.sql` após `forms-operations.sql`. A tela usa as flags gerais de leitura e escrita da Fase 4. O teste isolado verificou MFA, escopo A/B, projeção mínima, etapa inválida, repetição e recusa de sobrescrita. O rollback retira as RPCs e preserva a triagem. A homologação no CALI MAPA continua pendente.
+Instalar `forms-triage.sql` após `forms-operations.sql`. A tela usa as flags gerais de leitura e escrita da Fase 4. O teste isolado verificou MFA, escopo A/B, projeção mínima, etapa inválida, repetição e recusa de sobrescrita. O rollback retira as RPCs e preserva a triagem. A triagem com resposta sintética foi homologada conforme o resultado abaixo.
 
 ## Lote de homologação de Forms no CALI MAPA
 
@@ -161,6 +161,8 @@ O catálogo de 06/11 confirmou a guarda de sessão do piloto já instalada. A gu
 
 **Prova no navegador.** A sessão Admin existente na V2 local abriu `/admin/formularios` com as flags de leitura e escrita. Criou o rascunho sintético `teste-v2-forms-fase-4-empresa-a` em A, adicionou perguntas curta e longa, editou a curta e confirmou os textos após recarregar. A lista de B ficou vazia. O banco confirmou estado `draft`, audiência `client`, confirmação por e-mail desativada, duas perguntas, zero respostas, um evento de criação e três de edição. O servidor local foi encerrado.
 
-Triagem com resposta existente, abertura e encerramento de coleta continuam pendentes de prova hospedada. O rascunho de homologação permanece identificado e com a coleta fechada.
+**Triagem no navegador.** Com autorização específica, uma resposta fictícia foi inserida no formulário fechado `teste-v2-forms-triagem-empresa-a`, separado do rascunho anterior. A sessão Admin mudou a etapa de Novo para Em análise, atribuiu responsável fictício e confirmou a persistência após recarregar. A lista de B permaneceu vazia. A verificação do registro confirmou conteúdo preservado, um evento de auditoria, ausência de e-mail do respondente e ausência de confirmação. Os registros de teste ficaram identificados. O servidor local foi encerrado.
+
+Abertura e encerramento de coleta continuam pendentes de prova hospedada.
 
 **Reversão.** Desligar as flags locais e executar `rollback-forms.sql`. A reversão retira as RPCs de Forms, mantém as funções compartilhadas e preserva rascunhos, respostas, recibos e auditoria. O teste descartável confirma que as operações de projeto continuam disponíveis após essa reversão.

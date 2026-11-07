@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Homologação da triagem de Forms
+
+- Admin alterou etapa e responsável de uma resposta sintética no CALI MAPA. A recarga confirmou os valores e B ficou sem formulários. O banco confirmou conteúdo preservado e um evento de auditoria. [Evidência](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).
+
 ## 06/11/2026 — Homologação do rascunho de Forms
 
 - Lote SQL aplicado no CALI MAPA em uma transação. Admin criou o rascunho sintético em A, salvou duas perguntas, editou uma e confirmou persistência após recarga. B ficou sem formulários. Banco confirmou coleta fechada, zero respostas e trilha de edição. [Evidência e reversão](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).
