@@ -1,4 +1,5 @@
 import { FormDraftEditor, NewFormDraft } from './FormDraftEditor';
+import { FormTriage } from './FormTriage';
 import { PdfDownload } from './PdfDownload';
 import { formatServerInstant } from '../../lib/dates';
 import { useState } from 'react';
@@ -342,6 +343,7 @@ export function ReportPublicationActions({
 export function FormAdministration({ company, actor }: Scope) {
   const { domainOperations } = useRouteContext({ from: '__root__' });
   const [page, setPage] = useState(1);
+  const [selectedForm, setSelectedForm] = useState<string | null>(null);
   const cache = useQueryClient();
   const key = ['phase4-forms', actor, company];
   const forms = useQuery({
@@ -375,6 +377,18 @@ export function FormAdministration({ company, actor }: Scope) {
           </p>
           {form.status === 'draft' && form.responses === 0 && (
             <FormDraftEditor company={company} actor={actor} id={form.id} operations={operations} />
+          )}
+          {form.responses > 0 && (
+            <Button
+              variant="secondary"
+              aria-expanded={selectedForm === form.id}
+              onClick={() => setSelectedForm(selectedForm === form.id ? null : form.id)}
+            >
+              {selectedForm === form.id ? 'Fechar triagem' : 'Acompanhar respostas'}
+            </Button>
+          )}
+          {selectedForm === form.id && (
+            <FormTriage company={company} actor={actor} form={form.id} operations={operations} />
           )}
           <ActionForm
             label={form.status === 'open' ? 'Encerrar formulário' : 'Abrir formulário existente'}

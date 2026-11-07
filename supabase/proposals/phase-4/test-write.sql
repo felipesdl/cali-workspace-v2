@@ -25,6 +25,7 @@
 \ir satisfaction-operations.sql
 \ir forms-operations.sql
 \ir forms-draft.sql
+\ir forms-triage.sql
 
 begin;
 do $$
@@ -154,6 +155,7 @@ grant usage on schema cali_workspace to service_role;
 \ir test-admin-read.sql
 \ir test-commercial-draft.sql
 \ir test-forms-draft.sql
+\ir test-forms-triage.sql
 \ir test-satisfaction.sql
 \ir rollback-write.sql
 do $$
@@ -166,6 +168,7 @@ begin
  assert to_regclass('cali_session_guard.phase4_operation_receipts') is not null;
  assert to_regprocedure('cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer)') is null;
  assert to_regprocedure('cali_workspace.v2_list_pilot_report_approvals(uuid,uuid,integer)') is null;
+ assert to_regprocedure('cali_workspace.v2_list_pilot_form_triage(uuid,uuid,integer)') is null;
  assert to_regclass('cali_session_guard.phase4_report_approvals') is not null;
  assert (select count(*) from cali_workspace.projects)=3;
 end $$;

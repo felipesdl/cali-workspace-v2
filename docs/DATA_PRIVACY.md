@@ -71,6 +71,7 @@ Os registros ainda não preenchidos são trabalho documental/validação de cont
 - Textos de uso/privacidade acessíveis antes da confirmação e depois consultáveis; finalidade e leitores compatíveis com a coleta realmente implementada.
 - Termos obrigatórios no primeiro acesso e a cada versão nova, conforme DEC-08; falha ao comprovar versão/aceite bloqueia entrada e permite tentar novamente.
 - Registro da versão apresentada, ator e data de confirmação; alterações de texto seguem versionamento. Não declarar esse registro implementado antes de existir.
+- A triagem de Forms mostra nome, data, etapa e responsável ao Admin com MFA para acompanhar respostas da empresa piloto. A projeção exclui e-mail, conteúdo, anexos e notas. O evento de auditoria registra a ação sem copiar nome, etapa ou responsável.
 - Formulários explicam campos privados e obrigatoriedade conforme contrato; a confirmação no acesso não cria privilégio de acesso nem autoriza qualquer dado futuro por consequência.
 - Ações de consulta/correção/exportação e solicitações previstas no perfil apontam para seu contrato e responsável; não confundir solicitar um direito com eliminar imediatamente uma empresa.
 

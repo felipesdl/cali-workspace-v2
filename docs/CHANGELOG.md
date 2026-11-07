@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Triagem de Forms
+
+- Admin consulta metadados da resposta e atualiza etapa e responsável. Validação isolada cobre MFA, isolamento, repetição e conflito. [Contrato](contracts/PHASE_4_READ.md#triagem-de-respostas-de-forms).
+
 ## 06/11/2026 — Rascunhos de Forms
 
 - Admin cria rascunho e edita perguntas de texto da empresa piloto. Banco descartável confirma MFA, isolamento, concorrência e preservação da lógica legada. [Contrato](contracts/PHASE_4_READ.md#rascunhos-de-forms).

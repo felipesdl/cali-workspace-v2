@@ -64,4 +64,4 @@ DISC possui domínio privado separado, wrappers por público, questionário, ava
 
 ## Forms V2 em 06/11/2026
 
-Admin com MFA cria rascunhos de Forms e edita perguntas de texto em empresa piloto. O formulário precisa estar em rascunho e sem respostas. A validação em PostgreSQL descartável cobre escopo, conflitos de edição e preservação da lógica legada. Publicação, coleta, triagem e exportação têm critérios próprios. Veja o [contrato da fase 4](../contracts/PHASE_4_READ.md#rascunhos-de-forms).
+Admin com MFA cria rascunhos de Forms e edita perguntas de texto em empresa piloto. O formulário precisa estar em rascunho e sem respostas. A validação em PostgreSQL descartável cobre escopo, conflitos de edição e preservação da lógica legada. Admin também pode acompanhar respostas existentes e gravar etapa e responsável, preservando seu conteúdo original. Publicação, coleta, leitura de conteúdo e exportação têm critérios próprios. Veja o [contrato da fase 4](../contracts/PHASE_4_READ.md#rascunhos-de-forms).

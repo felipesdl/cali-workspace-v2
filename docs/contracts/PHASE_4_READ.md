@@ -144,3 +144,11 @@ Instalar `commercial-draft.sql` depois de `commercial-read.sql`. O editor exige 
 Admin com MFA cria rascunho para a empresa piloto e edita título, descrição e perguntas de texto curto ou longo. Novos rascunhos usam audiência Cliente e confirmação por e-mail desativada. O slug permanece estável. O editor aceita até 40 perguntas na inclusão e preserva identificadores, ordem, lógica condicional e demais campos legados nas perguntas existentes. Formulário aberto, encerrado ou com resposta registrada fica fora da edição. A escrita recusa a versão obsoleta. Abrir e encerrar continuam como ações distintas.
 
 Instalar `forms-draft.sql` depois de `operation-receipts.sql` e `forms-operations.sql`. O editor exige as flags de leitura Admin e escrita da Fase 4. O teste em PostgreSQL descartável verificou MFA, isolamento por empresa, repetição, concorrência e preservação das perguntas legadas. O rollback retira as RPCs V2 e conserva rascunhos e trilha. Homologação no CALI MAPA, rota pública, respostas, anexos e exportação continuam pendentes.
+
+## Triagem de respostas de Forms
+
+O catálogo hospedado confirmou as colunas `stage` e `owner`, a configuração `forms.stages` e as policies de leitura/atualização restritas a Admin. A consulta ao catálogo não leu respostas ou dados pessoais.
+
+Admin com MFA abre a triagem de um formulário da empresa piloto. A lista mostra até 25 registros por página com nome, data, etapa e responsável. A etapa segue as opções do formulário. Uma etapa antiga pode ser mantida ou trocada por opção atual. A escrita confere os valores anteriores, grava apenas etapa e responsável e registra evento sem esses textos. Repetir o mesmo resultado não duplica o evento. E-mail, conteúdo, anexos e notas ficam fora da projeção. A triagem não envia comunicação.
+
+Instalar `forms-triage.sql` após `forms-operations.sql`. A tela usa as flags de leitura Admin e escrita da Fase 4. O teste isolado verificou MFA, escopo A/B, projeção mínima, etapa inválida, repetição e recusa de sobrescrita. O rollback retira as RPCs e preserva a triagem. A homologação no CALI MAPA continua pendente.

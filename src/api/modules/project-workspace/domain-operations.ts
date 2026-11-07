@@ -140,6 +140,15 @@ const formDraftChange = z.discriminatedUnion('action', [
 ]);
 export type FormDraftChange = z.infer<typeof formDraftChange>;
 
+const formTriageResponse = z.object({
+  id: z.uuid(),
+  respondent_name: z.string().nullable(),
+  submitted_at: z.string(),
+  stage: z.string().nullable(),
+  owner: z.string().nullable(),
+});
+export type FormTriageResponse = z.infer<typeof formTriageResponse>;
+
 export function createDomainOperations(client: WorkspaceClient) {
   return {
     async publishNotice(
@@ -331,6 +340,39 @@ export function createDomainOperations(client: WorkspaceClient) {
         throw new Error('Confira o texto. Use texto simples, sem marcação.');
       if (error) throw rejected(error.code);
       return z.literal(draft.id).parse(data);
+    },
+    async formTriage(company: string, id: string, page: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_list_pilot_form_triage', { p_company_id: company, p_form_id: id, p_page: page })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      return z
+        .object({
+          stages: z.array(z.string()),
+          responses: z.array(formTriageResponse),
+        })
+        .nullable()
+        .parse(data);
+    },
+    async saveFormTriage(
+      company: string,
+      form: string,
+      response: FormTriageResponse,
+      stage: string,
+      owner: string,
+    ) {
+      const { data, error } = await client.rpc('v2_save_pilot_form_triage', {
+        p_company_id: company,
+        p_form_id: form,
+        p_response_id: response.id,
+        p_expected_stage: response.stage,
+        p_expected_owner: response.owner,
+        p_stage: stage,
+        p_owner: owner,
+      });
+      if (error?.code === '22023') throw new Error('Confira a etapa e o responsável.');
+      if (error) throw rejected(error.code);
+      return z.literal(response.id).parse(data);
     },
     async formState(company: string, id: string, current: string, next: 'open' | 'closed') {
       const { data, error } = await client.rpc('v2_set_pilot_form_state', {
