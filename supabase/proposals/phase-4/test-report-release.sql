@@ -10,6 +10,7 @@ declare
   ticket uuid;
   previous_ticket uuid;
   version integer;
+  sections jsonb;
   artifact text := encode(convert_to(E'%PDF-1.4\nPDF sintético de teste','UTF8'),'base64');
 begin
   set local role authenticated;
@@ -33,6 +34,30 @@ begin
     select (entry->>'reportUpdatedAt')::timestamptz into stamp
     from jsonb_array_elements(cali_workspace.v2_read_pilot_report_catalog(a,1)->'entries') entry
     where entry->>'id'=qa.id::text;
+    if version>1 then
+      sections := jsonb_build_object('movements','Movimento revisão '||version,
+        'decisions','Decisão sintética','risks','Risco sintético','nextSteps','Próxima ação');
+      if version=2 then
+        perform cali_workspace.fixture_as('clientA');
+        begin
+          perform cali_workspace.v2_curate_pilot_report(a,id,stamp,sections);
+          raise exception 'Cliente editou curadoria';
+        exception when insufficient_privilege then null; end;
+        perform cali_workspace.fixture_as('admin');
+        begin
+          perform cali_workspace.v2_curate_pilot_report(a,id,stamp,sections||'{"internal":"reservado"}');
+          raise exception 'Curadoria aceitou campo desconhecido';
+        exception when invalid_parameter_value then null; end;
+      end if;
+      assert cali_workspace.v2_curate_pilot_report(a,id,stamp,sections)=id;
+      begin
+        perform cali_workspace.v2_update_pilot_report_draft(a,id,stamp,'review');
+        raise exception 'Revisão aceitou curadoria desatualizada';
+      exception when serialization_failure then null; end;
+      select (entry->>'reportUpdatedAt')::timestamptz into stamp
+      from jsonb_array_elements(cali_workspace.v2_read_pilot_report_catalog(a,1)->'entries') entry
+      where entry->>'id'=qa.id::text;
+    end if;
     perform cali_workspace.v2_update_pilot_report_draft(a,id,stamp,'review');
     select (entry->>'reportUpdatedAt')::timestamptz into stamp
     from jsonb_array_elements(cali_workspace.v2_read_pilot_report_catalog(a,1)->'entries') entry
@@ -52,6 +77,7 @@ begin
     payload := cali_workspace.v2_prepare_pilot_report_pdf(a,id,version);
     previous_ticket := (payload->>'ticket')::uuid;
     assert payload#>>'{input,summary}'='Resumo inicial';
+    assert (payload#>'{input,curation}') is not distinct from sections;
     assert payload#>>'{input,version}'=version::text;
     assert payload#>>'{input,source,hours,consumedMinutes}'='115';
     assert payload::text not like '%QA reservado%';
@@ -92,6 +118,7 @@ begin
     select entry into payload from jsonb_array_elements(cali_workspace.v2_read_pilot_report_catalog(a,1)->'entries') entry
     where entry->>'id'=qa.id::text;
     assert payload->>'status'='published';
+    assert payload->'reportCuration' is not distinct from coalesce(sections,'null'::jsonb);
     assert payload->>'protocol' like 'CALI-EXEC-%';
     assert (payload->>'acknowledgmentAvailable')::boolean=(version<>2);
     assert payload->>'reportAcknowledged'='false';
@@ -111,6 +138,8 @@ begin
     perform cali_workspace.fixture_as('admin');
   end loop;
   reset role;
+  assert (select a.snapshot#>>'{curation,movements}' from cali_session_guard.phase4_report_approvals a
+    where a.report_id=qa.id and a.version=2)='Movimento revisão 2';
   assert (select count(*) from cali_session_guard.phase4_report_releases x
     where x.report_id=qa.id and x.withdrawn_at is not null)=2;
   assert (select count(*) from cali_session_guard.phase4_report_releases x

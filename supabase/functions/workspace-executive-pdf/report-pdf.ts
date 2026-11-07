@@ -4,6 +4,10 @@ import interBold from '@fontsource/inter/files/inter-latin-700-normal.woff?inlin
 import interItalic from '@fontsource/inter/files/inter-latin-400-italic.woff?inline';
 import { PDFDocument, PageSizes, rgb, type PDFFont, type PDFImage, type PDFPage } from 'pdf-lib';
 import { z } from 'zod';
+import {
+  reportCurationSchema,
+  reportCurationSections,
+} from '../../../src/api/modules/project-workspace/report-curation';
 
 const count = z.number().int().nonnegative();
 export const reportInputSchema = z.object({
@@ -15,6 +19,7 @@ export const reportInputSchema = z.object({
   periodStart: z.iso.date(),
   periodEnd: z.iso.date(),
   summary: z.string().min(1).max(8000),
+  curation: reportCurationSchema.optional(),
   source: z.object({
     workflow_mode: z.literal('official').optional(),
     hours: z.object({ contractedHours: z.number().nonnegative(), consumedMinutes: count }),
@@ -141,6 +146,13 @@ export async function renderExecutivePdf(
   reserve(44);
   lines('Resumo executivo', bold, 15);
   lines(input.summary);
+  for (const { key, label } of reportCurationSections) {
+    const section = input.curation?.[key];
+    if (!section) continue;
+    reserve(44);
+    lines(label, bold, 15);
+    lines(section);
+  }
   reserve(44);
   lines('Indicadores do período', bold, 15);
   const { hours, deliverables, feedback } = input.source;

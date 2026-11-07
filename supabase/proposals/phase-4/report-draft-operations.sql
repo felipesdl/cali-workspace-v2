@@ -14,6 +14,13 @@ create table if not exists cali_session_guard.phase4_report_approvals (
 alter table cali_session_guard.phase4_report_approvals enable row level security;
 revoke all on cali_session_guard.phase4_report_approvals from public,anon,authenticated,service_role;
 
+create table if not exists cali_session_guard.phase4_report_curation (
+  report_id uuid primary key references cali_workspace.reports(id),
+  sections jsonb not null check (jsonb_typeof(sections)='object')
+);
+alter table cali_session_guard.phase4_report_curation enable row level security;
+revoke all on cali_session_guard.phase4_report_curation from public,anon,authenticated,service_role;
+
 create sequence if not exists cali_session_guard.phase4_executive_protocol maxvalue 999999;
 alter table cali_session_guard.phase4_report_approvals
   add column if not exists render_protocol text unique,
@@ -146,7 +153,9 @@ begin
           'summary',report_row.executive_summary,'source',report_row.source_snapshot,
           'signer',jsonb_build_object('full_name',signer->>'full_name','job_title',signer->>'job_title',
             'avatar_url',signer->>'avatar_url','signature_mode',signer->>'signature_mode',
-            'signature_url',signer->>'signature_url','signature_style',signer->>'signature_style')));
+            'signature_url',signer->>'signature_url','signature_style',signer->>'signature_style'))
+        || coalesce((select jsonb_build_object('curation',c.sections)
+          from cali_session_guard.phase4_report_curation c where c.report_id=p_report_id),'{}'::jsonb));
     when 'reopen' then
       update cali_session_guard.phase4_report_releases set withdrawn_at=clock_timestamp()
       where report_id=p_report_id and version=report_row.version and withdrawn_at is null;
@@ -158,6 +167,44 @@ begin
     case when p_action='reopen' then jsonb_build_object('previousVersion',report_row.version,
       'version',report_row.version+1,'reason',btrim(p_summary))
     else jsonb_build_object('version',report_row.version) end);
+  return p_report_id;
+end;
+$$;
+
+create or replace function cali_workspace.v2_curate_pilot_report(
+  p_company_id uuid,p_report_id uuid,p_expected timestamptz,p_sections jsonb
+)
+returns uuid language plpgsql security definer set search_path = ''
+as $$
+declare
+  actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
+  report_row cali_workspace.reports%rowtype;
+  sections jsonb;
+begin
+  if jsonb_typeof(p_sections) is distinct from 'object'
+    or not (p_sections ?& array['movements','decisions','risks','nextSteps'])
+    or exists(select 1 from jsonb_each(p_sections) s
+      where s.key not in ('movements','decisions','risks','nextSteps')
+        or jsonb_typeof(s.value)<>'string' or char_length(s.value#>>'{}')>2000) then
+    raise exception using errcode='22023',message='Confira as quatro seções do relatório.';
+  end if;
+  select * into report_row from cali_workspace.reports r
+  where r.id=p_report_id and r.company_id=p_company_id for update;
+  if not found or not exists(
+    select 1 from cali_workspace.activity_log l where l.entity_id=p_report_id and l.company_id=p_company_id
+      and l.entity_type='report' and l.event_type='report_draft_created'
+  ) then raise exception using errcode='42501',message='Relatório indisponível.'; end if;
+  if report_row.updated_at is distinct from p_expected or report_row.status not in ('draft','review')
+    or report_row.published_at is not null or report_row.sent_at is not null then
+    raise exception using errcode='40001',message='O relatório mudou de versão ou estado.';
+  end if;
+  select jsonb_object_agg(s.key,btrim(s.value)) into sections from jsonb_each_text(p_sections) s;
+  insert into cali_session_guard.phase4_report_curation(report_id,sections)
+  values(p_report_id,sections)
+  on conflict(report_id) do update set sections=excluded.sections;
+  update cali_workspace.reports set updated_at=clock_timestamp() where id=p_report_id;
+  insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
+  values(p_company_id,actor,'report_curated','report',p_report_id,jsonb_build_object('version',report_row.version));
   return p_report_id;
 end;
 $$;
@@ -185,9 +232,11 @@ $$;
 
 revoke all on function cali_workspace.v2_create_pilot_report_draft(uuid,uuid,date,text,text),
   cali_workspace.v2_update_pilot_report_draft(uuid,uuid,timestamptz,text,text),
+  cali_workspace.v2_curate_pilot_report(uuid,uuid,timestamptz,jsonb),
   cali_workspace.v2_list_pilot_report_approvals(uuid,uuid,integer) from public,anon,authenticated,service_role;
 grant execute on function cali_workspace.v2_create_pilot_report_draft(uuid,uuid,date,text,text),
   cali_workspace.v2_update_pilot_report_draft(uuid,uuid,timestamptz,text,text),
+  cali_workspace.v2_curate_pilot_report(uuid,uuid,timestamptz,jsonb),
   cali_workspace.v2_list_pilot_report_approvals(uuid,uuid,integer) to authenticated;
 notify pgrst, 'reload schema';
 commit;

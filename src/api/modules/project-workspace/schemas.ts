@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { reportCurationSchema } from './report-curation';
 
 const sectionSchema = z.enum(['deliverables', 'workstreams']);
 const monthSchema = z.iso.date().refine((date) => date.endsWith('-01'));
@@ -132,6 +133,7 @@ export const catalog = z.object({
       noticeEditable: z.boolean().optional(),
       reportUpdatedAt: z.string().nullable().optional(),
       reportVersion: z.number().int().positive().nullable().optional(),
+      reportCuration: reportCurationSchema.nullable().optional(),
       reportPdfReady: z.boolean().optional(),
       reportPreviouslyReleased: z.boolean().optional(),
       reportAcknowledged: z.boolean().optional(),

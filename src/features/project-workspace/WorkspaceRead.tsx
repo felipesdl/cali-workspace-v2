@@ -6,6 +6,7 @@ import { CommercialDraftEditor } from './CommercialDraftEditor';
 import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { AdminDailyPreview } from './AdminDailyPreview';
+import { ReportCurationSections } from './ReportCuration';
 import { DeliveryPdf, DocumentLibrary } from './DocumentLibrary';
 import {
   CreateReportDraft,
@@ -693,6 +694,7 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                       status={item.status}
                       expected={item.reportUpdatedAt}
                       summary={item.summary}
+                      curation={item.reportCuration}
                       released={item.status === 'published' && Boolean(item.reportVersion)}
                     />
                   )}
@@ -712,6 +714,9 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                   )}
                   {item.summary && (
                     <p className="tw:mt-2 tw:break-words tw:whitespace-pre-line">{item.summary}</p>
+                  )}
+                  {item.reportCuration && item.reportVersion && (
+                    <ReportCurationSections sections={item.reportCuration} />
                   )}
                   {module === 'notices' && item.status === 'published' && (
                     <NoticeInteractions company={companyId} actor={actor} notice={item.id} />

@@ -2,6 +2,7 @@ import { decodePdf, encodePdf, pdfPayload } from './pdf-payload';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 import { companyStatus } from '../companies/schemas';
+import { reportCurationSchema, type ReportCuration } from './report-curation';
 
 const feedback = z.object({
   score: z.number().int().min(1).max(5),
@@ -277,6 +278,16 @@ export function createDomainOperations(client: WorkspaceClient) {
       });
       if (error) throw rejected(error.code);
       return z.uuid().parse(data);
+    },
+    async curateReport(company: string, id: string, expected: string, sections: ReportCuration) {
+      const { data, error } = await client.rpc('v2_curate_pilot_report', {
+        p_company_id: company,
+        p_report_id: id,
+        p_expected: expected,
+        p_sections: reportCurationSchema.parse(sections),
+      });
+      if (error) throw rejected(error.code);
+      return z.literal(id).parse(data);
     },
     async reportApprovals(company: string, report: string, signal: AbortSignal) {
       const { data, error } = await client

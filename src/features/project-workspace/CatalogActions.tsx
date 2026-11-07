@@ -10,6 +10,8 @@ import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { Field } from '../../components/ds/field/Field';
 import { ActionForm } from './ActionForm';
+import { ReportCurationEditor } from './ReportCuration';
+import { type ReportCuration } from '../../api/modules/project-workspace/report-curation';
 
 type Scope = { company: string; actor?: string };
 const read = (fields: FormData, name: string) => String(fields.get(name) ?? '');
@@ -167,12 +169,14 @@ export function ReportDraftActions({
   status,
   expected,
   summary,
+  curation,
   released,
 }: Scope & {
   id: string;
   status: string | null;
   expected: string;
   summary: string | null;
+  curation?: ReportCuration | null;
   released: boolean;
 }) {
   const { operations, refresh } = useCatalogActions({ company, actor }, 'reports');
@@ -205,6 +209,15 @@ export function ReportDraftActions({
           >
             {(prefix) => <ReportSummary prefix={prefix} summary={summary ?? ''} />}
           </ActionForm>
+          {curation && (
+            <ReportCurationEditor
+              key={expected}
+              sections={curation}
+              save={async (sections) =>
+                refresh(await reportOperations.curateReport(company, id, expected, sections))
+              }
+            />
+          )}
           <ActionForm
             label={status === 'draft' ? 'Iniciar revisão interna' : 'Aprovar versão interna'}
             submit={() => update(status === 'draft' ? 'review' : 'approve')}

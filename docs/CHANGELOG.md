@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Curadoria dos relatórios executivos
+
+- Admin editou movimentos, decisões, riscos e próximos passos e aprovou a revisão 3 do relatório sintético. O CALI MAPA confirmou o conteúdo congelado, o histórico preservado e a revisão interna oculta para A e B. [Prova e reversão](contracts/PHASE_4_READ.md#curadoria-de-relatórios-no-cali-mapa).
+
 ## 07/11/2026 — Prévia do resumo diário Admin
 
 - Auditoria mostra totais, horas e blocos por empresa no dia de Brasília. Validada com Admin no CALI MAPA, sem cron e sem e-mail. Cliente não abre a Auditoria. [Prova e reversão](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).

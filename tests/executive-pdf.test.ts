@@ -25,6 +25,12 @@ const input = {
   periodStart: '2026-10-01',
   periodEnd: '2026-10-31',
   summary: 'Conclusão aprovada: implantação em revisão.\n'.repeat(120),
+  curation: {
+    movements: 'Cronograma atualizado.',
+    decisions: 'Priorizar revisão de outubro.',
+    risks: 'Dependência de validação.',
+    nextSteps: 'Apresentar o plano na próxima reunião.',
+  },
   source: {
     hours: { contractedHours: 12, consumedMinutes: 115 },
     deliverables: { approvedCount: 4, createdCount: 5 },

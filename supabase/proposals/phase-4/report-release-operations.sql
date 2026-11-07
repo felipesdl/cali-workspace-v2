@@ -183,6 +183,13 @@ begin
         case when x.report_id is not null then 'published' else r.status end as status,
         coalesce(x.released_at,r.published_at) as instant,r.period_start as day,
         coalesce(a.snapshot->>'summary',r.executive_summary) as summary,
+        case
+          when a.report_id is not null then a.snapshot->'curation'
+          when admin and r.status in ('draft','review') and r.published_at is null and r.sent_at is null
+            and exists(select 1 from cali_workspace.activity_log l where l.entity_id=r.id
+              and l.company_id=r.company_id and l.entity_type='report' and l.event_type='report_draft_created')
+          then coalesce(c.sections,'{"movements":"","decisions":"","risks":"","nextSteps":""}'::jsonb)
+        end as "reportCuration",
         case when x.report_id is not null then x.requires_ack and x.acknowledged_at is null
           else r.status in ('sent','published') and r.revision_parent_id is null
             and coalesce(r.version,1)=1 and r.acknowledged_at is null end as "acknowledgmentAvailable",
@@ -193,6 +200,7 @@ begin
         exists(select 1 from cali_session_guard.phase4_report_releases prev where prev.report_id=r.id and prev.version<>r.version)
           as "reportPreviouslyReleased"
       from cali_workspace.reports r
+      left join cali_session_guard.phase4_report_curation c on c.report_id=r.id
       left join cali_session_guard.phase4_report_approvals a on a.report_id=r.id and a.version=r.version
         and a.company_id=r.company_id and r.status='approved' and r.published_at is null and r.sent_at is null
       left join cali_session_guard.phase4_report_pdfs p on p.report_id=a.report_id and p.version=a.version
