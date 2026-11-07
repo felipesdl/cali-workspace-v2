@@ -4,6 +4,8 @@ Fichas FLOW-13/15/16/18. Estado: observado em fontes, não validado no ambiente.
 
 ## FLOW-13 — Publicar aviso, comentar, reagir e registrar ciência
 
+No piloto, [comentários e reações](../contracts/PHASE_4_READ.md#interações-de-avisos-no-cali-mapa) foram homologados em aviso dirigido. O aviso geral mantém as interações separadas por empresa.
+
 **Objetivo/atores/entrada:** Admin comunica a todas ou a empresas selecionadas; Cliente lê seu público, comenta, reage e confirma ciência. Rotas `/admin/avisos` e `/cliente/avisos`; deep link usa `aviso` no search param.
 
 **Fontes:** [UI](SOURCES.md#notice-ui), [RLS/estado](SOURCES.md#notice), [reações](SOURCES.md#notice-reaction), [notificação](SOURCES.md#notice-mail).

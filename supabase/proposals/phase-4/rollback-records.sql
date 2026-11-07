@@ -1,5 +1,9 @@
 -- Retira as operações deste lote. Preserva dados, recibos e a inscrição de QA.
 begin;
+drop function if exists cali_workspace.v2_read_pilot_notice_interactions(uuid,uuid,integer);
+drop function if exists cali_workspace.v2_comment_pilot_notice(uuid,uuid,uuid,text);
+drop function if exists cali_workspace.v2_react_pilot_notice(uuid,uuid,text,text);
+drop function if exists cali_session_guard.phase4_notice_interaction_actor(uuid,uuid);
 drop function if exists cali_workspace.v2_post_pilot_record_pdf(uuid,uuid,uuid,text,boolean,text,text);
 drop function if exists cali_workspace.v2_read_pilot_record_pdf(uuid,uuid,uuid);
 drop function if exists cali_workspace.v2_withdraw_pilot_record_pdf(uuid,uuid,uuid,text);

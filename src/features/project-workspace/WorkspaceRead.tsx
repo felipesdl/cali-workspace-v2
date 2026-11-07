@@ -15,6 +15,7 @@ import {
   ReportPublicationActions,
 } from './CatalogActions';
 import { AgendaActions } from './AgendaActions';
+import { NoticeInteractions } from './NoticeInteractions';
 import { OpenRecord, RecordConversation } from './RecordActions';
 import {
   DataLifecycleOverview,
@@ -710,6 +711,9 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                   )}
                   {item.summary && (
                     <p className="tw:mt-2 tw:break-words tw:whitespace-pre-line">{item.summary}</p>
+                  )}
+                  {module === 'notices' && item.status === 'published' && (
+                    <NoticeInteractions company={companyId} actor={actor} notice={item.id} />
                   )}
                 </li>
               ))}

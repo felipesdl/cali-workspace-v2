@@ -165,6 +165,7 @@ rollback;
 \ir test-record-attachments.sql
 \ir test-privacy-qa-transport.sql
 \ir test-catalog-actions.sql
+\ir test-notice-interactions.sql
 \ir test-documents.sql
 grant usage on schema cali_workspace to service_role;
 \ir test-report-release.sql

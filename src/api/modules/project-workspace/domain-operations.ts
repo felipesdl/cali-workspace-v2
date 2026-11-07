@@ -15,6 +15,20 @@ const reopen = z.object({
 });
 export type RecordFeedback = z.infer<typeof feedback>;
 export type RecordReopen = z.infer<typeof reopen>;
+const noticeReaction = z.enum(['like', 'love', 'clap']);
+export type NoticeReaction = z.infer<typeof noticeReaction>;
+const noticeInteractions = z.object({
+  comments: z.array(
+    z.object({
+      id: z.uuid(),
+      body: z.string(),
+      authorRole: z.enum(['admin', 'client']),
+      createdAt: z.string(),
+    }),
+  ),
+  ownReaction: noticeReaction.nullable(),
+  totals: z.record(noticeReaction, z.number().int().nonnegative()),
+});
 
 const records = z.object({
   id: z.uuid(),
@@ -204,6 +218,37 @@ export function createDomainOperations(client: WorkspaceClient) {
       });
       if (error) throw rejected(error.code);
       return z.uuid().parse(data);
+    },
+    async noticeInteractions(company: string, id: string, page: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_notice_interactions', {
+          p_company_id: company,
+          p_notice_id: id,
+          p_page: page,
+        })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      return noticeInteractions.parse(data);
+    },
+    async commentNotice(company: string, id: string, request: string, body: string) {
+      const { data, error } = await client.rpc('v2_comment_pilot_notice', {
+        p_company_id: company,
+        p_request_id: request,
+        p_notice_id: id,
+        p_body: z.string().trim().min(1).max(2000).parse(body),
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
+    async reactNotice(company: string, id: string, expected: NoticeReaction | null, next: string) {
+      const { data, error } = await client.rpc('v2_react_pilot_notice', {
+        p_company_id: company,
+        p_notice_id: id,
+        p_expected: expected,
+        p_reaction: next === '' ? null : noticeReaction.parse(next),
+      });
+      if (error) throw rejected(error.code);
+      return z.literal(id).parse(data);
     },
     async createReport(company: string, id: string, month: string, title: string, summary: string) {
       const { data, error } = await client.rpc('v2_create_pilot_report_draft', {
