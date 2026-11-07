@@ -1,5 +1,5 @@
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouteContext } from '@tanstack/react-router';
+import { Link, useRouteContext } from '@tanstack/react-router';
 import {
   type HourAction,
   type HourCorrection,
@@ -10,6 +10,7 @@ import { Field } from '../../components/ds/field/Field';
 import { formatServerInstant } from '../../lib/dates';
 import { useState } from 'react';
 import { ActionForm } from './ActionForm';
+import { workspaceSearch } from '../../api/modules/project-workspace/schemas';
 
 export function HourEntryCorrection({
   company,
@@ -119,7 +120,17 @@ export function HourEntryCorrection({
   );
 }
 
-export function HourActions({ company, actor }: { company: string; actor?: string }) {
+export function HourActions({
+  company,
+  actor,
+  delivery,
+  task,
+}: {
+  company: string;
+  actor?: string;
+  delivery?: string;
+  task?: string;
+}) {
   const { hourOperations, projectWorkspace } = useRouteContext({ from: '__root__' });
   const cache = useQueryClient();
   const [page, setPage] = useState(1);
@@ -131,8 +142,15 @@ export function HourActions({ company, actor }: { company: string; actor?: strin
   const projects = useQuery({
     queryKey: ['projects', actor, company, page],
     queryFn:
-      hourOperations && projectWorkspace
+      !delivery && hourOperations && projectWorkspace
         ? ({ signal }) => projectWorkspace.list(company, page, signal)
+        : skipToken,
+  });
+  const context = useQuery({
+    queryKey: ['phase4-hour-link', actor, company, delivery, task],
+    queryFn:
+      delivery && hourOperations
+        ? ({ signal }) => hourOperations.link(company, delivery, task ?? null, signal)
         : skipToken,
   });
   if (!hourOperations) return null;
@@ -144,29 +162,32 @@ export function HourActions({ company, actor }: { company: string; actor?: strin
       await Promise.all([
         cache.invalidateQueries({ queryKey: timerKey }),
         cache.invalidateQueries({ queryKey: ['hours', actor, company] }),
+        cache.invalidateQueries({ queryKey: ['phase4-hour-link', actor, company] }),
       ]);
     }
   }
   function fields(prefix: string) {
     return (
       <>
-        <Field id={prefix + 'project'} label="Projeto">
-          <select id={prefix + 'project'} name="project">
-            <option value="">Sem projeto</option>
-            {projects.data?.projects
-              .filter(
-                (project) =>
-                  ['active', 'approved', 'rebriefing', 'closed'].includes(
-                    project.planning_status,
-                  ) && project.execution_status !== 'cancelled',
-              )
-              .map((project) => (
-                <option key={project.id} value={project.id}>
-                  {project.name}
-                </option>
-              ))}
-          </select>
-        </Field>
+        {!delivery && (
+          <Field id={prefix + 'project'} label="Projeto">
+            <select id={prefix + 'project'} name="project">
+              <option value="">Sem projeto</option>
+              {projects.data?.projects
+                .filter(
+                  (project) =>
+                    ['active', 'approved', 'rebriefing', 'closed'].includes(
+                      project.planning_status,
+                    ) && project.execution_status !== 'cancelled',
+                )
+                .map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+            </select>
+          </Field>
+        )}
         <Field id={prefix + 'description'} label="Descrição da atividade">
           <input id={prefix + 'description'} name="description" required maxLength={1000} />
         </Field>
@@ -178,13 +199,41 @@ export function HourActions({ company, actor }: { company: string; actor?: strin
   }
   function read(values: FormData) {
     return {
-      project: String(values.get('project') ?? '') || null,
+      project: context.data?.project ?? (String(values.get('project') ?? '') || null),
+      link: context.data ? { delivery: context.data.delivery, task: context.data.task } : undefined,
       description: String(values.get('description') ?? ''),
       visible: values.has('visible'),
     };
   }
   return (
     <section className="tw:grid tw:gap-3" aria-label="Operações de horas">
+      {delivery && (
+        <div>
+          {context.data && (
+            <p>
+              Vínculo:{' '}
+              {[context.data.projectName, context.data.deliveryName, context.data.taskName]
+                .filter(Boolean)
+                .join(' · ')}
+            </p>
+          )}
+          {context.isPending && <p role="status">Carregando vínculo…</p>}
+          {(context.isError || context.data === null) && (
+            <p role="alert">Vínculo indisponível para horas.</p>
+          )}
+          {context.data && !context.data.canStart && (
+            <p>Retome a execução para iniciar um timer neste vínculo.</p>
+          )}
+          <Link
+            to="/admin/horas"
+            search={(previous) =>
+              workspaceSearch.parse({ ...previous, delivery: undefined, task: undefined })
+            }
+          >
+            Voltar a lançar horas sem este vínculo
+          </Link>
+        </div>
+      )}
       {projects.isError && <p role="alert">Não foi possível listar os projetos para vínculo.</p>}
       {(projects.data?.total ?? 0) > 25 && (
         <div className="tw:flex tw:gap-2">
@@ -200,46 +249,50 @@ export function HourActions({ company, actor }: { company: string; actor?: strin
           </Button>
         </div>
       )}
-      <ActionForm
-        label="Registrar horas manuais"
-        submit={(values, id) =>
-          submit(
-            {
-              kind: 'manual',
-              ...read(values),
-              date: String(values.get('date') ?? ''),
-              minutes: Number(values.get('minutes')),
-              note: String(values.get('note') ?? ''),
-            },
-            id,
-          )
-        }
-      >
-        {(prefix) => (
-          <>
-            {fields(prefix)}
-            <Field id={prefix + 'date'} label="Data do trabalho">
-              <input id={prefix + 'date'} name="date" type="date" required />
-            </Field>
-            <Field id={prefix + 'minutes'} label="Duração em minutos">
-              <input
-                id={prefix + 'minutes'}
-                name="minutes"
-                type="number"
-                min={1}
-                max={1440}
-                required
-              />
-            </Field>
-            <Field id={prefix + 'note'} label="Justificativa interna">
-              <textarea id={prefix + 'note'} name="note" required maxLength={1000} />
-            </Field>
-          </>
-        )}
-      </ActionForm>
-      {timers.isError && <p role="alert">Não foi possível carregar os timers.</p>}
-      {timers.isSuccess && timers.data.length === 0 && (
+      {(!delivery || context.data) && (
         <ActionForm
+          key={`manual:${delivery ?? ''}:${task ?? ''}`}
+          label="Registrar horas manuais"
+          submit={(values, id) =>
+            submit(
+              {
+                kind: 'manual',
+                ...read(values),
+                date: String(values.get('date') ?? ''),
+                minutes: Number(values.get('minutes')),
+                note: String(values.get('note') ?? ''),
+              },
+              id,
+            )
+          }
+        >
+          {(prefix) => (
+            <>
+              {fields(prefix)}
+              <Field id={prefix + 'date'} label="Data do trabalho">
+                <input id={prefix + 'date'} name="date" type="date" required />
+              </Field>
+              <Field id={prefix + 'minutes'} label="Duração em minutos">
+                <input
+                  id={prefix + 'minutes'}
+                  name="minutes"
+                  type="number"
+                  min={1}
+                  max={1440}
+                  required
+                />
+              </Field>
+              <Field id={prefix + 'note'} label="Justificativa interna">
+                <textarea id={prefix + 'note'} name="note" required maxLength={1000} />
+              </Field>
+            </>
+          )}
+        </ActionForm>
+      )}
+      {timers.isError && <p role="alert">Não foi possível carregar os timers.</p>}
+      {timers.isSuccess && timers.data.length === 0 && (!delivery || context.data?.canStart) && (
+        <ActionForm
+          key={`timer:${delivery ?? ''}:${task ?? ''}`}
           label="Iniciar timer"
           submit={(values, id) => submit({ kind: 'start', ...read(values) }, id)}
         >

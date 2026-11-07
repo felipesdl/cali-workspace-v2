@@ -62,6 +62,8 @@ A V2 prepara o painel de franquia, consumo, saldo e excedente com o cálculo do 
 
 A tela também consulta marcos de capacidade e pausa já registrados. O mês fechado oculta os marcos para Cliente. A revisão administrativa e o limite de tolerância ficam no Admin. [Contrato e prova](../contracts/PHASE_4_READ.md#marcos-de-capacidade-em-horas).
 
+Projetos oferece atalhos de Horas por entregável e subtarefa. O lançamento ou timer mantém o vínculo após reenvio e retomada. O CALI MAPA confirmou o lançamento manual vinculado ao entregável de teste. [Contrato e prova](../contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa).
+
 ## FLOW-08 — Equipe, movimentos, fechamento e indicadores
 
 **Objetivo/atores/entrada:** Cliente e Admin consultam `/cliente/equipe`/`/admin/equipe`. As RPCs de manutenção autorizam perfil ativo Admin **ou Cliente principal da própria empresa**. Não estender escrita ao cliente adicional por semelhança da tela.

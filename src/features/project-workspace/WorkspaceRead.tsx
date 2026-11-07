@@ -32,6 +32,7 @@ import {
 } from './ReportPrivacyActions';
 import { HourActions, HourEntryCorrection } from './HourActions';
 import { CapacityMilestones } from './CapacityMilestones';
+import { HourLink } from './HourLink';
 import { EditProject, EditPlanItem, ScheduleItemRequest } from './ProjectPlanning';
 import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -297,6 +298,12 @@ function Projects({ search, update }: Props) {
                           }
                         />
                       )}
+                      {admin &&
+                        section === 'deliverables' &&
+                        !['approved', 'cancelled'].includes(row.status) &&
+                        ['active', 'approved', 'rebriefing', 'closed'].includes(
+                          projectData.project.planning_status,
+                        ) && <HourLink company={companyId} delivery={row.id} />}
                       {section === 'deliverables' &&
                         documentOperations &&
                         (admin || row.status === 'client_review' || row.status === 'approved') && (
@@ -481,7 +488,15 @@ function Hours({ search, update }: Props) {
     <div className="tw:grid tw:gap-4">
       {admin && <CompanySelect search={search} update={update} />}
       <MonthSelect month={month} update={update} />
-      {admin && companyId && <HourActions key={companyId} company={companyId} actor={actor} />}
+      {admin && companyId && (
+        <HourActions
+          key={companyId}
+          company={companyId}
+          actor={actor}
+          delivery={search.delivery}
+          task={search.task}
+        />
+      )}
       {!companyId ? (
         <FeedbackState kind="empty">
           {admin ? 'Selecione uma empresa.' : 'Horas indisponíveis para esta empresa.'}

@@ -3,12 +3,13 @@
 \ir project-collaboration.sql
 begin;
 do $$
+<<qa>>
 declare
  a constant uuid:='9c5ab148-78b8-4410-9338-58c44222a5db';
  b constant uuid:='6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76';
  project uuid:=gen_random_uuid(); delivery uuid:=gen_random_uuid(); task_id uuid:=gen_random_uuid();
  internal_task uuid:=gen_random_uuid(); dependency uuid:=gen_random_uuid(); request_id uuid:=gen_random_uuid();
- review uuid; expected text; args jsonb;
+ review uuid; expected text; args jsonb; linked_timer uuid; hour_id uuid; hour_request uuid:=gen_random_uuid();
 begin
  set local role authenticated;
  perform cali_workspace.fixture_as('admin');
@@ -27,6 +28,28 @@ begin
  assert cali_workspace.v2_pilot_delivery_collaboration(a,project,delivery,task_id,'task-save',args)=task_id;
  assert cali_workspace.v2_pilot_delivery_collaboration(a,project,delivery,task_id,'task-save',args)=task_id;
  perform cali_workspace.v2_pilot_delivery_collaboration(a,project,delivery,internal_task,'task-save','{"title":"Subtarefa interna","visible":false}');
+ assert cali_workspace.v2_pilot_hour_link(a,delivery,task_id)->>'taskName'='Subtarefa visível';
+ assert cali_workspace.v2_pilot_hour_link(b,delivery,task_id) is null;
+ hour_id:=cali_workspace.v2_pilot_linked_hour_action(a,hour_request,'manual',project,delivery,task_id,'2026-11-09',15,'Horas vinculadas','Teste',false);
+ assert cali_workspace.v2_pilot_linked_hour_action(a,hour_request,'manual',project,delivery,task_id,'2026-11-09',15,'Horas vinculadas','Teste',false)=hour_id;
+ begin
+  perform cali_workspace.v2_pilot_linked_hour_action(a,hour_request,'manual',project,delivery,internal_task,'2026-11-09',15,'Horas vinculadas','Teste',false);
+  raise exception 'Recibo aceitou outra subtarefa';
+ exception when serialization_failure then null; end;
+ linked_timer:=cali_workspace.v2_pilot_linked_hour_action(a,gen_random_uuid(),'start',project,delivery,task_id,null,null,'Timer vinculado',null,false);
+ perform cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'pause',p_timer_id=>linked_timer);
+ linked_timer:=cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'resume',p_timer_id=>linked_timer);
+ perform cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'stop',p_timer_id=>linked_timer);
+ reset role;
+ assert exists(select 1 from cali_workspace.hour_entries h where h.id=hour_id and h.deliverable_id=delivery and h.task_id=qa.task_id);
+ assert exists(select 1 from cali_workspace.work_timers t where t.id=linked_timer and t.deliverable_id=delivery and t.task_id=qa.task_id);
+ set local role authenticated;
+ perform cali_workspace.fixture_as('clientA');
+ begin
+  perform cali_workspace.v2_pilot_hour_link(a,delivery,task_id);
+  raise exception 'Cliente abriu contexto de lançamento';
+ exception when insufficient_privilege then null; end;
+ perform cali_workspace.fixture_as('admin');
  perform cali_workspace.v2_pilot_delivery_collaboration(a,project,delivery,gen_random_uuid(),'message','{"note":"Nota da CALI","internal":true}');
  perform cali_workspace.v2_pilot_delivery_collaboration(a,project,delivery,request_id,'message','{"note":"Mensagem compartilhada","internal":false}');
  assert cali_workspace.v2_pilot_delivery_collaboration(a,project,delivery,request_id,'message','{"note":"Mensagem compartilhada","internal":false}')=request_id;

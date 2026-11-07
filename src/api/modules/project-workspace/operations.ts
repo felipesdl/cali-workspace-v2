@@ -198,6 +198,7 @@ const timer = z.object({
 const hourFields = z.object({
   description: z.string().trim().min(1).max(1000),
   project: z.uuid().nullable(),
+  link: z.object({ delivery: z.uuid(), task: z.uuid().nullable() }).optional(),
   visible: z.boolean(),
 });
 const hourAction = z.discriminatedUnion('kind', [
@@ -211,6 +212,15 @@ const hourAction = z.discriminatedUnion('kind', [
   z.object({ kind: z.enum(['pause', 'resume', 'stop']), timer: z.uuid() }),
 ]);
 export type HourAction = z.infer<typeof hourAction>;
+const hourLink = z.object({
+  project: z.uuid(),
+  projectName: z.string(),
+  delivery: z.uuid(),
+  deliveryName: z.string(),
+  task: z.uuid().nullable(),
+  taskName: z.string().nullable(),
+  canStart: z.boolean(),
+});
 const correction = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('edit'),
@@ -226,6 +236,17 @@ export type HourCorrection = z.infer<typeof correction>;
 
 export function createHourOperations(client: WorkspaceClient) {
   return {
+    async link(company: string, delivery: string, task: string | null, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_pilot_hour_link', {
+          p_company_id: company,
+          p_deliverable_id: delivery,
+          p_task_id: task,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar o vínculo de horas.');
+      return hourLink.nullable().parse(data);
+    },
     async correct(
       company: string,
       requestId: string,
@@ -269,20 +290,30 @@ export function createHourOperations(client: WorkspaceClient) {
         p_request_id: requestId,
         p_action: command.kind,
       };
-      const { data, error } = await client.rpc(
-        'v2_pilot_hour_action',
+      const request =
         'timer' in command
-          ? { ...params, p_timer_id: command.timer }
-          : {
-              ...params,
-              p_project_id: command.project,
-              p_description: command.description,
-              p_client_visible: command.visible,
-              p_date: command.kind === 'manual' ? command.date : null,
-              p_minutes: command.kind === 'manual' ? command.minutes : null,
-              p_note: command.kind === 'manual' ? command.note : null,
-            },
-      );
+          ? client.rpc('v2_pilot_hour_action', { ...params, p_timer_id: command.timer })
+          : (() => {
+              const fields = {
+                ...params,
+                p_project_id: command.project,
+                p_description: command.description,
+                p_client_visible: command.visible,
+                p_date: command.kind === 'manual' ? command.date : null,
+                p_minutes: command.kind === 'manual' ? command.minutes : null,
+                p_note: command.kind === 'manual' ? command.note : null,
+              };
+              return command.link
+                ? client.rpc('v2_pilot_linked_hour_action', {
+                    ...fields,
+                    p_deliverable_id: command.link.delivery,
+                    p_task_id: command.link.task,
+                  })
+                : client.rpc('v2_pilot_hour_action', fields);
+            })();
+      const { data, error } = await request;
+      if (error?.code === '42501')
+        throw new Error('Confira se o vínculo ainda está disponível para horas.');
       if (error?.code === '40001') throw new Error('Confira o estado atual do timer.');
       if (error?.code === '22023') throw new Error('Revise os dados de horas.');
       if (error) throw new Error('Não foi possível registrar a operação de horas.');

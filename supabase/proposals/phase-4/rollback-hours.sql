@@ -7,6 +7,9 @@ do $$ begin
  end if;
 end $$;
 drop function if exists cali_workspace.v2_pilot_hour_action(uuid,uuid,text,uuid,uuid,date,integer,text,text,boolean);
+drop function if exists cali_workspace.v2_pilot_linked_hour_action(uuid,uuid,text,uuid,uuid,uuid,date,integer,text,text,boolean);
+drop function if exists cali_workspace.v2_pilot_hour_link(uuid,uuid,uuid);
+drop function if exists cali_session_guard.pilot_hour_action(uuid,uuid,text,uuid,uuid,date,integer,text,text,boolean,uuid,uuid);
 drop function if exists cali_workspace.v2_pilot_active_timers(uuid);
 notify pgrst,'reload schema';
 commit;

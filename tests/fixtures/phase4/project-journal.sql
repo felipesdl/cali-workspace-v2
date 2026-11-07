@@ -3,8 +3,8 @@ alter table cali_workspace.project_review_requests add column resolution_note te
 alter table cali_workspace.deliverables add column original_due_at timestamptz;
 alter table cali_workspace.notifications add column user_id uuid,add column title text,add column body text,
  add column action_url text,add column relevance text;
-alter table cali_workspace.deliverable_tasks add column id uuid primary key,add column company_id uuid,
- add column title text,add column description text,add column due_at timestamptz,add column client_visible boolean default false,
+alter table cali_workspace.deliverable_tasks
+ add column description text,add column due_at timestamptz,add column client_visible boolean default false,
  add column sort_order integer default 0,add column created_by uuid,add column estimated_minutes integer default 0,
  add column complexity text,add column assigned_user_id uuid,add column started_at timestamptz,
  add column work_closed_by uuid,add column adjustment_count integer default 0,

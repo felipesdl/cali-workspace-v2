@@ -8,6 +8,8 @@ export const workspaceSearch = z.object({
   companyId: z.uuid().optional().catch(undefined),
   project: z.uuid().optional().catch(undefined),
   record: z.uuid().optional().catch(undefined),
+  delivery: z.uuid().optional().catch(undefined),
+  task: z.uuid().optional().catch(undefined),
   section: sectionSchema.default('deliverables').catch('deliverables'),
   page: z.coerce.number().int().min(1).max(10000).default(1).catch(1),
   month: monthSchema.optional().catch(undefined),

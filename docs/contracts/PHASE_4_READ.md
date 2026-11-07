@@ -269,6 +269,14 @@ O formulário duplicava ao alternar a empresa porque o editor e a consulta de pr
 
 A geração, liberação e ciência foram validadas no [lote hospedado seguinte](#lote-de-pdf-executivo-no-cali-mapa). O bundle local passou no build. O preflight da revisão 2 confirmou os tipos de horas, entregáveis e feedback exigidos, a identidade configurada com foto em origem permitida e assinatura virtual, a permissão de uso do schema já existente para o serviço e a ausência de liberações ativas. Para homologar, conferir a disponibilidade da imagem, instalar `report-release-operations.sql` e ativar temporariamente apenas a Edge `workspace-executive-pdf` com JWT. Usar só A, conferir recusa em B e retirar a liberação sintética. Desligar a flag e desativar a função temporária ao fim. `rollback-report-release.sql` remove somente as RPCs de geração/liberação, recusa reversão enquanto houver publicação ativa e conserva PDFs, ciências e histórico. Esse passo exige ativação hospedada explícita. `rollback-report-drafts.sql` retira apenas o acesso às três RPCs de rascunho e preserva relatórios e aprovações.
 
+## Horas vinculadas a entregável e subtarefa
+
+Admin abre Horas pelo entregável ou pela subtarefa. A consulta resolve os nomes e a relação entre empresa, projeto e item, exige MFA e permite registrar horas manuais em contexto operacional. O timer exige execução normal do projeto e entregável. A operação revalida os vínculos antes de gravar e inclui os identificadores no recibo de reenvio. A retomada preserva projeto, entregável e subtarefa e recusa item encerrado. Lançamentos sem vínculo e seus recibos continuam compatíveis.
+
+No CALI MAPA, Admin abriu o entregável sintético de A pelo atalho e lançou dois minutos internos. O banco confirmou o projeto e o entregável persistidos, visibilidade Cliente desmarcada e zero marcos de capacidade. O PostgreSQL descartável confirmou lançamento e retomada com subtarefa, recusa de mudança de vínculo no recibo e bloqueio de Cliente. Timer vinculado ainda precisa de prova hospedada. Ocorrências exigem conciliar o contrato de vínculo próprio.
+
+Para reverter só o lote, restaurar `v2_pilot_hour_action` de `fe4f122`, remover `v2_pilot_linked_hour_action`, `v2_pilot_hour_link` e a implementação privada, e recarregar o schema da Data API. Concluir timers do recorte antes de reverter. Preservar lançamentos, recibos e histórico.
+
 ## Marcos de capacidade em Horas
 
 A RPC V2 de Horas projeta a pausa vigente e os marcos persistidos para a empresa e o mês consultados. No mês liberado, Cliente vê atenção ao consumo, capacidade integral e excedente. Admin também vê tolerância e revisão da capacidade. A resposta inclui percentual gravado, instante e número de ocorrência quando houver. Nota de pausa, destinatários e metadados de envio ficam fora. A consulta não avalia gatilhos, pausa atividades nem dispara mensagens.

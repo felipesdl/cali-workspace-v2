@@ -3,22 +3,23 @@ begin;
 set local lock_timeout = '5s';
 
 -- A pausa legada fecha o trecho. A retomada usa outra sessão com o mesmo contexto.
-create table cali_session_guard.phase4_hour_holds (
+create table if not exists cali_session_guard.phase4_hour_holds (
   timer_id uuid primary key references cali_workspace.work_timers(id) on delete cascade,
   company_id uuid not null,
   actor_id uuid not null,
   paused_at timestamptz not null default clock_timestamp(),
   resolved_at timestamptz
 );
-create unique index phase4_one_pending_hour_hold on cali_session_guard.phase4_hour_holds(company_id,actor_id)
+create unique index if not exists phase4_one_pending_hour_hold on cali_session_guard.phase4_hour_holds(company_id,actor_id)
 where resolved_at is null;
 alter table cali_session_guard.phase4_hour_holds enable row level security;
 revoke all on cali_session_guard.phase4_hour_holds from public,anon,authenticated,service_role;
 
-create function cali_workspace.v2_pilot_hour_action(
+create or replace function cali_session_guard.pilot_hour_action(
   p_company_id uuid, p_request_id uuid, p_action text, p_project_id uuid default null,
   p_timer_id uuid default null, p_date date default null, p_minutes integer default null,
-  p_description text default null, p_note text default null, p_client_visible boolean default false
+  p_description text default null, p_note text default null, p_client_visible boolean default false,
+  p_deliverable_id uuid default null, p_task_id uuid default null
 )
 returns uuid language plpgsql security definer set search_path = ''
 as $$
@@ -34,8 +35,10 @@ begin
     or length(p_description)>1000 or length(p_note)>1000 then
     raise exception using errcode='22023', message='Revise os dados de horas.';
   end if;
-  signature := sha256(convert_to(jsonb_build_array('hours',p_action,p_project_id,p_timer_id,p_date,
-    p_minutes,p_description,p_note,p_client_visible)::text,'UTF8'));
+  signature := sha256(convert_to((jsonb_build_array('hours',p_action,p_project_id,p_timer_id,p_date,
+    p_minutes,p_description,p_note,p_client_visible)
+    || case when p_deliverable_id is not null or p_task_id is not null
+      then jsonb_build_array(p_deliverable_id,p_task_id) else '[]'::jsonb end)::text,'UTF8'));
   perform pg_advisory_xact_lock(hashtextextended('phase4-hours:'||p_company_id::text||':'||actor::text,0));
   result_id := cali_session_guard.read_phase4_receipt(actor,p_company_id,p_request_id,signature);
   if result_id is not null then return result_id; end if;
@@ -45,13 +48,32 @@ begin
     raise exception using errcode='42501', message='Projeto indisponível para horas.';
   end if;
 
+  if p_deliverable_id is not null or p_task_id is not null then
+    if p_project_id is null or p_deliverable_id is null or p_action not in ('manual','start') then
+      raise exception using errcode='22023', message='Confira o projeto e o entregável.';
+    end if;
+    perform 1 from cali_workspace.projects p where p.id=p_project_id and p.company_id=p_company_id
+      and cali_workspace.hour_project_operational(p.id)
+      and (p_action='manual' or p.execution_status='normal') for share;
+    if not found then raise exception using errcode='42501',message='Projeto indisponível para horas.'; end if;
+    perform 1 from cali_workspace.deliverables d where d.id=p_deliverable_id and d.company_id=p_company_id
+      and d.project_id=p_project_id and d.status not in ('approved','cancelled') and d.work_closed_at is null
+      and (p_action='manual' or d.execution_status='normal') for update;
+    if not found then raise exception using errcode='42501',message='Entregável indisponível para horas.'; end if;
+    if p_task_id is not null then
+      perform 1 from cali_workspace.deliverable_tasks t where t.id=p_task_id and t.company_id=p_company_id
+        and t.deliverable_id=p_deliverable_id and t.status not in ('done','cancelled') and t.work_closed_at is null for update;
+      if not found then raise exception using errcode='42501',message='Subtarefa indisponível para horas.'; end if;
+    end if;
+  end if;
+
   if p_action='manual' then
     if p_date is null or not isfinite(p_date) or coalesce(p_minutes,0) not between 1 and 1440
       or nullif(btrim(p_description),'') is null or nullif(btrim(p_note),'') is null then
       raise exception using errcode='22023', message='Informe data, minutos, descrição e justificativa.';
     end if;
     result_id := cali_workspace.add_manual_hour_entry(
-      p_company_id,p_project_id,null,null,p_date,p_minutes,btrim(p_description),'Execução',btrim(p_note),
+      p_company_id,p_project_id,p_deliverable_id,p_task_id,p_date,p_minutes,btrim(p_description),'Execução',btrim(p_note),
       coalesce(p_client_visible,false),null,null
     );
   elsif p_action='start' then
@@ -69,7 +91,7 @@ begin
       raise exception using errcode='22023', message='Informe a descrição da atividade.';
     end if;
     result_id := cali_workspace.start_work_timer_v2(
-      p_company_id,p_project_id,null,null,'Execução',btrim(p_description),coalesce(p_client_visible,false)
+      p_company_id,p_project_id,p_deliverable_id,p_task_id,'Execução',btrim(p_description),coalesce(p_client_visible,false)
     );
   else
     select t.project_id into timer_project from cali_workspace.work_timers t
@@ -98,8 +120,14 @@ begin
         end if;
       when 'resume' then
         if timer.deliverable_id is not null and not exists(select 1 from cali_workspace.deliverables d
-          where d.id=timer.deliverable_id and d.company_id=p_company_id and d.execution_status='normal') then
+          where d.id=timer.deliverable_id and d.company_id=p_company_id and d.execution_status='normal'
+            and d.status not in ('approved','cancelled') and d.work_closed_at is null) then
           raise exception using errcode='42501',message='Retome a execução do entregável antes do timer.';
+        end if;
+        if timer.task_id is not null and not exists(select 1 from cali_workspace.deliverable_tasks t
+          where t.id=timer.task_id and t.deliverable_id=timer.deliverable_id and t.company_id=p_company_id
+            and t.status not in ('done','cancelled') and t.work_closed_at is null) then
+          raise exception using errcode='42501',message='A subtarefa já foi encerrada.';
         end if;
         if exists(select 1 from cali_workspace.work_timers t where t.user_id=actor and t.company_id=p_company_id
           and t.status in ('active','paused') and t.id<>timer.id) then
@@ -129,7 +157,56 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_pilot_active_timers(p_company_id uuid)
+revoke all on function cali_session_guard.pilot_hour_action(uuid,uuid,text,uuid,uuid,date,integer,text,text,boolean,uuid,uuid)
+  from public,anon,authenticated,service_role;
+
+create or replace function cali_workspace.v2_pilot_hour_action(
+  p_company_id uuid,p_request_id uuid,p_action text,p_project_id uuid default null,
+  p_timer_id uuid default null,p_date date default null,p_minutes integer default null,
+  p_description text default null,p_note text default null,p_client_visible boolean default false
+)
+returns uuid language sql security definer set search_path=''
+as $$
+  select cali_session_guard.pilot_hour_action(p_company_id,p_request_id,p_action,p_project_id,
+    p_timer_id,p_date,p_minutes,p_description,p_note,p_client_visible);
+$$;
+
+create or replace function cali_workspace.v2_pilot_linked_hour_action(
+  p_company_id uuid,p_request_id uuid,p_action text,p_project_id uuid,p_deliverable_id uuid,p_task_id uuid,
+  p_date date,p_minutes integer,p_description text,p_note text,p_client_visible boolean
+)
+returns uuid language sql security definer set search_path=''
+as $$
+  select cali_session_guard.pilot_hour_action(p_company_id,p_request_id,p_action,p_project_id,
+    null,p_date,p_minutes,p_description,p_note,p_client_visible,p_deliverable_id,p_task_id);
+$$;
+
+create or replace function cali_workspace.v2_pilot_hour_link(p_company_id uuid,p_deliverable_id uuid,p_task_id uuid)
+returns jsonb language plpgsql stable security definer set search_path=''
+as $$
+declare
+  actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
+begin
+  return (
+    select jsonb_build_object('project',p.id,'projectName',p.name,'delivery',d.id,'deliveryName',d.title,
+      'task',t.id,'taskName',t.title,'canStart',p.execution_status='normal' and d.execution_status='normal')
+    from cali_workspace.deliverables d
+    join cali_workspace.projects p on p.id=d.project_id and p.company_id=d.company_id
+    left join cali_workspace.deliverable_tasks t on t.id=p_task_id and t.deliverable_id=d.id
+      and t.company_id=d.company_id and t.status not in ('done','cancelled') and t.work_closed_at is null
+    where d.id=p_deliverable_id and d.company_id=p_company_id and d.status not in ('approved','cancelled')
+      and d.work_closed_at is null and cali_workspace.hour_project_operational(p.id)
+      and (p_task_id is null or t.id is not null)
+  );
+end;
+$$;
+
+revoke all on function cali_workspace.v2_pilot_linked_hour_action(uuid,uuid,text,uuid,uuid,uuid,date,integer,text,text,boolean),
+  cali_workspace.v2_pilot_hour_link(uuid,uuid,uuid) from public,anon,authenticated,service_role;
+grant execute on function cali_workspace.v2_pilot_linked_hour_action(uuid,uuid,text,uuid,uuid,uuid,date,integer,text,text,boolean),
+  cali_workspace.v2_pilot_hour_link(uuid,uuid,uuid) to authenticated;
+
+create or replace function cali_workspace.v2_pilot_active_timers(p_company_id uuid)
 returns jsonb language plpgsql stable security definer set search_path = ''
 as $$
 declare

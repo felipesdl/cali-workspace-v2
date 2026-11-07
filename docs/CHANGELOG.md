@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Horas vinculadas a entregável e subtarefa
+
+- Admin abre Horas pelo item de Projetos. O banco valida o vínculo e o preserva em lançamento manual, timer e retomada. CALI MAPA confirmou o lançamento manual de dois minutos no entregável de teste A. [Prova](contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa).
+
 ## Marcos de capacidade no extrato de Horas
 
 - Horas mostra marcos e pausa registrados no mês. Admin vê também tolerância e revisão. O CALI MAPA confirmou estado vazio em A/B e mês fechado para Cliente. [Prova](contracts/PHASE_4_READ.md#marcos-de-capacidade-em-horas).

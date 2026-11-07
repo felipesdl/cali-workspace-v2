@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { HourLink } from './HourLink';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import {
@@ -138,6 +139,9 @@ function JournalRows({
                 </p>
               )}
               <TaskActions task={row} admin={admin} submit={submit} assignees={entry.assignees} />
+              {admin && submit && delivery && !isTaskClosed(row) && (
+                <HourLink company={scope.company} delivery={delivery.id} task={row.id} />
+              )}
               <TaskDiscussion
                 scope={scope}
                 admin={admin}

@@ -33,7 +33,7 @@ create trigger fixture_record_mention after insert on cali_workspace.account_rec
 for each row execute function cali_workspace.fixture_record_mention();
 create table cali_workspace.work_timers(
  id uuid primary key default gen_random_uuid(),company_id uuid,project_id uuid,user_id uuid,description text,
- client_visible boolean,status text,started_at timestamptz default clock_timestamp(),category text,task_id uuid
+ client_visible boolean,status text,started_at timestamptz default clock_timestamp(),category text,task_id uuid,deliverable_id uuid
 );
 create table cali_workspace.data_subject_requests(
  id uuid primary key default gen_random_uuid(),company_id uuid,user_id uuid,kind text,details text,
@@ -80,14 +80,15 @@ returns void language sql as $$
  update cali_workspace.projects set planning_status='client_review'
  where id=(select project_id from cali_workspace.project_review_requests where id=p_review);
 $$;
+alter table cali_workspace.hour_entries add column deliverable_id uuid,add column task_id uuid;
 create function cali_workspace.add_manual_hour_entry(uuid,uuid,uuid,uuid,date,integer,text,text,text,boolean,timestamptz,timestamptz)
 returns uuid language sql as $$
- insert into cali_workspace.hour_entries values(gen_random_uuid(),$1,$2,$5,$6,$7,$8,$9,$10) returning id;
+ insert into cali_workspace.hour_entries values(gen_random_uuid(),$1,$2,$5,$6,$7,$8,$9,$10,$3,$4) returning id;
 $$;
 create function cali_workspace.start_work_timer_v2(uuid,uuid,uuid,uuid,text,text,boolean)
 returns uuid language sql as $$
- insert into cali_workspace.work_timers(company_id,project_id,user_id,description,client_visible,status)
- values($1,$2,auth.uid(),$6,$7,'active') returning id;
+ insert into cali_workspace.work_timers(company_id,project_id,user_id,description,client_visible,status,deliverable_id,task_id)
+ values($1,$2,auth.uid(),$6,$7,'active',$3,$4) returning id;
 $$;
 create function cali_workspace.pause_work_timer(uuid) returns void language sql as $$
  -- O trecho menor que 30s é descartado pelo legado.
@@ -133,11 +134,11 @@ alter table cali_workspace.deliverables add column is_document boolean default f
  add column approved_at timestamptz, add column approval_requested_at timestamptz, add column client_response_at timestamptz,
  add column locked_at timestamptz, add column work_closed_at timestamptz, add column work_close_reason text,
  add column work_closed_by uuid;
-alter table cali_workspace.work_timers add column deliverable_id uuid;
 create unique index fixture_one_open_timer on cali_workspace.work_timers(user_id,company_id)
 where status in ('active','paused');
 create table cali_workspace.deliverable_tasks(
- deliverable_id uuid,status text,completed_at timestamptz,work_closed_at timestamptz,work_close_reason text
+ id uuid primary key,company_id uuid,title text,deliverable_id uuid,status text,completed_at timestamptz,
+ work_closed_at timestamptz,work_close_reason text
 );
 create function cali_workspace.close_timer_session_at(uuid,timestamptz,text,uuid) returns void language sql as $$
  update cali_workspace.work_timers set status='stopped' where id=$1;
