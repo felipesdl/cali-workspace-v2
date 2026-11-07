@@ -28,7 +28,10 @@ export const projectList = z.object({
 });
 export const projectDetail = z.object({
   companyId: z.uuid(),
-  project: project.extend({ description: z.string().nullable() }),
+  project: project.extend({
+    description: z.string().nullable(),
+    updated_at: z.string().optional(),
+  }),
   review: z
     .object({
       id: z.uuid().optional(),
@@ -36,6 +39,16 @@ export const projectDetail = z.object({
       number: z.number().int(),
       dueAt: z.string().nullable(),
       note: z.string().nullable().optional(),
+      changes: z
+        .object({
+          targetType: z.enum(['project', 'workstream', 'deliverable']).optional(),
+          targetId: z.uuid().optional(),
+          targetLabel: z.string().optional(),
+          actionLabel: z.string().optional(),
+          requestedDate: z.iso.date().optional(),
+          swapTargetLabel: z.string().optional(),
+        })
+        .optional(),
     })
     .nullable(),
   items: z.object({
@@ -49,6 +62,10 @@ export const projectDetail = z.object({
         execution_status: z.string(),
         due_at: z.string().nullable(),
         updated_at: z.string().nullable().optional(),
+        description: z.string().nullable().optional(),
+        workstream_id: z.uuid().nullable().optional(),
+        complexity: z.enum(['MC1', 'MC2', 'MC3']).nullable().optional(),
+        sort_order: z.number().int().optional(),
       }),
     ),
   }),
@@ -115,3 +132,5 @@ export const catalog = z.object({
     }),
   ),
 });
+
+export type ProjectDetail = z.infer<typeof projectDetail>;

@@ -14,6 +14,7 @@ import { AgendaActions } from './AgendaActions';
 import { OpenRecord, RecordConversation } from './RecordActions';
 import { PrivacyActions, ReportAcknowledgment, ReportReadiness } from './ReportPrivacyActions';
 import { HourActions } from './HourActions';
+import { EditProject, EditPlanItem, ScheduleItemRequest } from './ProjectPlanning';
 import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -175,6 +176,7 @@ function Projects({ search, update }: Props) {
         ? ({ signal }) => service.detail(companyId, project, section, page, signal)
         : skipToken,
   });
+  const projectData = detail.data;
   if (!service) return connected && !admin ? <ClientModulePending /> : null;
   const result = project ? detail : list;
   return (
@@ -197,43 +199,50 @@ function Projects({ search, update }: Props) {
               Voltar aos projetos
             </Button>
           </div>
-          {detail.data ? (
+          {projectData ? (
             <section className={panel}>
-              <h2 className="tw:font-semibold">{detail.data.project.name}</h2>
-              <p>{detail.data.project.description}</p>
+              <h2 className="tw:font-semibold">{projectData.project.name}</h2>
+              <p>{projectData.project.description}</p>
               <p>
-                {label(detail.data.project.planning_status)} ·{' '}
-                {label(detail.data.project.execution_status)}
+                {label(projectData.project.planning_status)} ·{' '}
+                {label(projectData.project.execution_status)}
               </p>
-              {(detail.data.project.roadmap_start_date || detail.data.project.roadmap_end_date) && (
+              {(projectData.project.roadmap_start_date || projectData.project.roadmap_end_date) && (
                 <p>
-                  Início {formatCalendarDate(detail.data.project.roadmap_start_date ?? '')} · Fim{' '}
-                  {formatCalendarDate(detail.data.project.roadmap_end_date ?? '')}
+                  Início {formatCalendarDate(projectData.project.roadmap_start_date ?? '')} · Fim{' '}
+                  {formatCalendarDate(projectData.project.roadmap_end_date ?? '')}
                 </p>
               )}
-              {detail.data.review && (
+              {projectData.review && (
                 <p>
-                  Revisão {detail.data.review.number} · {label(detail.data.review.status)}
-                  {detail.data.review.dueAt && (
-                    <> · Prazo {formatServerInstant(detail.data.review.dueAt)} (Brasília)</>
+                  Revisão {projectData.review.number} · {label(projectData.review.status)}
+                  {projectData.review.dueAt && (
+                    <> · Prazo {formatServerInstant(projectData.review.dueAt)} (Brasília)</>
                   )}
                 </p>
               )}
+              {admin &&
+                ['draft', 'adjustment_requested'].includes(projectData.project.planning_status) && (
+                  <EditProject
+                    scope={{ company: companyId, actor, project }}
+                    plan={projectData.project}
+                  />
+                )}
               <ProjectActions
                 key={project}
                 company={companyId}
                 actor={actor}
                 project={project}
-                planning={detail.data.project.planning_status}
-                review={detail.data.review}
+                planning={projectData.project.planning_status}
+                review={projectData.review}
                 admin={admin}
               />
-              {admin && ['active', 'rebriefing'].includes(detail.data.project.planning_status) && (
+              {admin && ['active', 'rebriefing'].includes(projectData.project.planning_status) && (
                 <LifecycleActions
                   company={companyId}
                   actor={actor}
                   project={project}
-                  execution={detail.data.project.execution_status}
+                  execution={projectData.project.execution_status}
                 />
               )}
               <div className="tw:my-4 tw:flex tw:gap-2">
@@ -252,15 +261,38 @@ function Projects({ search, update }: Props) {
                   Frentes do projeto
                 </Button>
               </div>
-              {detail.data.items.rows.length ? (
+              {projectData.items.rows.length ? (
                 <ul className="tw:grid tw:gap-3">
-                  {detail.data.items.rows.map((row) => (
+                  {projectData.items.rows.map((row) => (
                     <li key={row.id}>
                       <strong>{row.name}</strong>
                       <p>
                         {label(row.status)} · {label(row.execution_status)}
                         {row.due_at ? ` · Prazo ${formatServerInstant(row.due_at)}` : ''}
                       </p>
+                      {admin &&
+                        ['draft', 'adjustment_requested'].includes(
+                          projectData.project.planning_status,
+                        ) && (
+                          <EditPlanItem
+                            scope={{ company: companyId, actor, project }}
+                            item={row}
+                            section={section}
+                            draft={projectData.project.planning_status === 'draft'}
+                          />
+                        )}
+                      {!admin &&
+                        projectData.project.planning_status === 'client_review' &&
+                        projectData.review?.id &&
+                        projectData.review.status === 'pending' &&
+                        projectData.review.number <= 2 && (
+                          <ScheduleItemRequest
+                            scope={{ company: companyId, actor, project }}
+                            item={row}
+                            section={section}
+                            review={projectData.review.id}
+                          />
+                        )}
                       {section === 'deliverables' &&
                         documentOperations &&
                         (admin || row.status === 'client_review' || row.status === 'approved') && (
@@ -274,16 +306,16 @@ function Projects({ search, update }: Props) {
                             admin={admin}
                             canEdit={
                               row.execution_status === 'normal' &&
-                              detail.data?.project.execution_status === 'normal' &&
-                              ['active', 'rebriefing'].includes(detail.data.project.planning_status)
+                              projectData?.project.execution_status === 'normal' &&
+                              ['active', 'rebriefing'].includes(projectData.project.planning_status)
                             }
                           />
                         )}
                       {section === 'deliverables' &&
                         row.updated_at &&
                         row.execution_status === 'normal' &&
-                        detail.data?.project.execution_status === 'normal' &&
-                        ['active', 'rebriefing'].includes(detail.data.project.planning_status) && (
+                        projectData?.project.execution_status === 'normal' &&
+                        ['active', 'rebriefing'].includes(projectData.project.planning_status) && (
                           <DeliveryActions
                             company={companyId}
                             actor={actor}
@@ -300,7 +332,7 @@ function Projects({ search, update }: Props) {
               ) : (
                 <FeedbackState kind="empty">Nenhum item nesta página.</FeedbackState>
               )}
-              <Pages total={detail.data.items.total} search={search} update={update} />
+              <Pages total={projectData.items.total} search={search} update={update} />
             </section>
           ) : (
             <FeedbackState kind="empty">Projeto indisponível.</FeedbackState>

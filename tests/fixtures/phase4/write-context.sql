@@ -7,7 +7,7 @@ alter table cali_workspace.projects alter column execution_status set default 'n
 alter table cali_workspace.project_workstreams add primary key (id);
 alter table cali_workspace.project_workstreams alter column execution_status set default 'normal';
 alter table cali_workspace.deliverables add primary key (id);
-alter table cali_workspace.deliverables add column workstream_id uuid, add column workstream text;
+alter table cali_workspace.deliverables add column workstream text;
 alter table cali_workspace.deliverables alter column execution_status set default 'normal';
 alter table cali_workspace.account_records add primary key(id);
 alter table cali_workspace.account_records add column record_type text, add column source_actor text,
@@ -52,7 +52,7 @@ begin
       select 1 from cali_workspace.deliverables d where d.project_id=new.id and d.workstream_id=w.id)) then
    raise exception using errcode='22023',message='Cronograma incompleto';
   end if;
-  insert into cali_workspace.project_review_requests values(gen_random_uuid(),new.company_id,new.id,'pending',1,
+  insert into cali_workspace.project_review_requests(id,company_id,project_id,status,request_number,response_due_at,created_at,response_note) values(gen_random_uuid(),new.company_id,new.id,'pending',1,
     now()+interval '72 hours',now(),null);
  end if;
  return new;
@@ -74,7 +74,7 @@ create function cali_workspace.admin_resolve_project_schedule_adjustment(p_revie
 returns void language sql as $$
  update cali_workspace.project_review_requests set status=case when p_accept then 'accepted' else 'rejected' end
  where id=p_review;
- insert into cali_workspace.project_review_requests
+ insert into cali_workspace.project_review_requests(id,company_id,project_id,status,request_number,response_due_at,created_at,response_note)
  select gen_random_uuid(),company_id,project_id,'pending',request_number+1,now()+interval '72 hours',now(),null
  from cali_workspace.project_review_requests where id=p_review;
  update cali_workspace.projects set planning_status='client_review'

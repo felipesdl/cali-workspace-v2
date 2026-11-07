@@ -15,6 +15,7 @@
 \ir test-forms-draft.sql
 \ir test-forms-triage.sql
 \ir project-operations.sql
+\ir project-planning.sql
 \ir document-operations.sql
 \ir delivery-operations.sql
 \ir agenda-operations.sql
@@ -148,6 +149,7 @@ begin
 end $$;
 rollback;
 \echo Fase 4: operações locais de projetos, horas, ocorrências, ciência e privacidade validadas.
+\ir ../phase-4/test-planning.sql
 \ir test-delivery-agenda.sql
 \ir test-agenda-changes.sql
 \ir test-record-reviews.sql

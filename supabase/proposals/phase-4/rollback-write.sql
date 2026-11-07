@@ -9,6 +9,7 @@ drop function if exists cali_workspace.v2_save_pilot_commercial_draft(uuid,uuid,
 drop function if exists cali_workspace.v2_read_pilot_commercial_draft(uuid,uuid);
 drop function if exists cali_workspace.v2_require_pilot_commercial_scope(uuid,uuid);
 drop function if exists cali_workspace.v2_read_pilot_commercial(uuid,integer);
+drop function if exists cali_workspace.v2_edit_pilot_plan(uuid,uuid,uuid,text,timestamptz,text,text,text,date,timestamp without time zone,uuid,text,integer);
 drop function if exists cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date);
 drop function if exists cali_workspace.v2_add_pilot_project_item(uuid,uuid,uuid,text,text,uuid,timestamp without time zone);
 drop function if exists cali_workspace.v2_share_pilot_schedule(uuid,uuid);

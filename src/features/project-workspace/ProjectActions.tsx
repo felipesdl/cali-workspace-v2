@@ -1,29 +1,14 @@
 import { ActionForm } from './ActionForm';
 import { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
+import { type ProjectDetail } from '../../api/modules/project-workspace/schemas';
 import { type ProjectAction } from '../../api/modules/project-workspace/operations';
 import { Button } from '../../components/ds/button/Button';
+import { useProjectAction } from './useProjectAction';
 import { Field } from '../../components/ds/field/Field';
 
 const value = (fields: FormData, key: string) => String(fields.get(key) ?? '');
-
-function useProjectAction(company: string, actor: string | undefined, project?: string) {
-  const { projectOperations } = useRouteContext({ from: '__root__' });
-  const cache = useQueryClient();
-  if (!projectOperations) return null;
-  return async (command: ProjectAction) => {
-    try {
-      return await projectOperations(company, command);
-    } finally {
-      await Promise.all([
-        cache.invalidateQueries({ queryKey: ['projects', actor, company] }),
-        cache.invalidateQueries({ queryKey: ['project', actor, company, project] }),
-        cache.invalidateQueries({ queryKey: ['phase4-delivery-pdf', actor, company, project] }),
-      ]);
-    }
-  };
-}
 
 export function CreateProject({
   company,
@@ -187,7 +172,7 @@ function DraftActions({
   );
 }
 
-type Review = { id?: string; status: string; number: number; note?: string | null };
+type Review = NonNullable<ProjectDetail['review']>;
 
 export function ProjectActions({
   company,
@@ -250,6 +235,21 @@ export function ProjectActions({
         {(prefix) => (
           <>
             <p>{review.note}</p>
+            {review.changes && (
+              <p>
+                {review.changes.targetLabel} · {review.changes.actionLabel}
+                {review.changes.requestedDate && (
+                  <> · Data desejada {review.changes.requestedDate}</>
+                )}
+                {review.changes.swapTargetLabel && (
+                  <> · Troca com {review.changes.swapTargetLabel}</>
+                )}
+              </p>
+            )}
+            <p>
+              Confira e salve as mudanças no planejamento antes de acolher o pedido. A decisão abre
+              uma nova revisão para o Cliente.
+            </p>
             <Field id={prefix + 'decision'} label="Decisão">
               <select id={prefix + 'decision'} name="decision" required defaultValue="">
                 <option value="" disabled>

@@ -47,7 +47,7 @@ O PostgreSQL descartável prova as guardas, reexecução, transições, isolamen
 
 | Recorte | Operação exercitada localmente | Trabalho pendente |
 | --- | --- | --- |
-| 4A | Pausa e retomada do projeto, encaminhamento e decisão de entregável, avaliação e nova aprovação após correção no mesmo registro | Reabertura de itens com arquivos legados, gestão completa de frentes e subtarefas, ajustes específicos na interface, conversa e dependências |
+| 4A | Pausa e retomada do projeto, edição de planejamento, ajustes por item, encaminhamento e decisão de entregável, avaliação e nova aprovação após correção no mesmo registro | Subtarefas, conversa, histórico de operação, dependências e tratamento de arquivos legados |
 | 4B | Solicitação ordinária coberta pelo contrato, oferta Admin e confirmação Cliente. Bloqueio por mudança de condição e conflito de horário na empresa. Estado externo lido do evento | Extras, preço aceito, participantes, homologação de saldo/capacidade e integração Google/Meet |
 | 4C | Publicar aviso dirigido, arquivar/restaurar, ciência e desfazer ciência. Mural e agenda leem o mesmo aviso | Anexos de conversa, comentários/reações do mural e resumo Admin |
 | 4D | Rascunho mensal captura o retrato das fontes instaladas. Edição de resumo, revisão e aprovação interna travam a versão esperada | Curadoria completa, PDF e armazenamento privado, publicação, revisão pós-publicação e tratamento da satisfação |
@@ -194,3 +194,27 @@ A auditoria lê o protocolo do PDF executivo no evento de geração da revisão 
 O preflight confirmou a guarda de papel, as 13 colunas de dependência e cinco eventos de Forms em A. Em 06/11/2026 foi aplicado somente `admin-audit-read.sql`. O catálogo confirmou execução por `authenticated`, guarda de papel Admin e ausência de grant para `anon`, `service_role` e `PUBLIC`.
 
 Na V2 local, Admin viu um evento de criação, três edições e uma triagem em A. Ao selecionar B, a lista ficou vazia. A sessão Cliente A redirecionou de `/admin/auditoria` para `/cliente`. A negação na RPC a Cliente e a exigência de MFA foram testadas no PostgreSQL descartável. Os servidores locais foram encerrados. A reversão remove somente `cali_workspace.v2_read_pilot_audit(uuid,date,integer)` e recarrega o catálogo.
+
+## Lote de Projetos e entregáveis no CALI MAPA
+
+Em 07/11/2026, a leitura do catálogo confirmou as colunas, complexidades MC1/MC2/MC3, exclusão de frente, revisões, tarefas, dependências e gatilhos de notificações. A resolução do ajuste abre outra revisão, mas não aplica a mudança pedida. A edição V2 permite ao Admin salvar a alteração antes da decisão. Não muda as RPCs legadas.
+
+Ordem do lote: `project-qa-transport.sql`, `project-operations.sql`, `project-planning.sql`, `document-operations.sql`, `delivery-operations.sql` e projeção estendida `read-projects.sql`. `pilot-role.sql` já está instalado. A aplicação exige preflight de ausência das novas funções/tabelas e uma transação. A projeção adiciona campos opcionais, preservando assinatura e consumidores anteriores. A edição usa preimagem por `updated_at`, bloqueio do projeto e histórico. Remoção de frente usa o contrato legado com transferência obrigatória.
+
+`project-qa-transport.sql` cria uma inscrição privada de projetos sintéticos. O último gatilho BEFORE de notificações força `email_required=false` somente para esses projetos e seus entregáveis, inclusive atualizações posteriores da fila. As notificações do app são preservadas; projetos não inscritos não mudam. Inscrever o projeto sintético antes de compartilhar ou executar. Nenhum worker ou envio externo é ativado. O gatilho não comprova entrega de e-mail. A inscrição permanece enquanto houver histórico ou lembrete sintético, evitando disparos posteriores.
+
+O lote foi aplicado em uma transação em 07/11/2026. O catálogo confirmou `EXECUTE` para `authenticated` nas sete operações de projeto e nas duas RPCs específicas de PDF; `anon`, `service_role` e `PUBLIC` ficaram sem esse grant. O gatilho foi instalado com lista privada vazia; apenas o rascunho sintético criado pela interface foi inscrito antes do compartilhamento.
+
+| Prova no navegador integrado | Resultado |
+| --- | --- |
+| Admin / Cliente A | Criação de projeto, frente e entregável; rascunho oculto para A; edição de complexidade MC2, publicação e prazo de 72 horas. |
+| Revisão | A solicitou 13/11; Admin salvou o prazo de 16h em Brasília e acolheu; A aprovou a revisão 2 e ativou o projeto. |
+| Entrega e correção | Admin publicou PDF 1, A baixou e aprovou. Reabertura manteve o mesmo item, removeu-o da listagem Cliente e recusou baixar pelo botão antigo. Reenvio sem revisão nova recusado. Admin publicou PDF 2 e A aprovou novamente. |
+| Cliente B | A mesma URL de projeto retornou projeto indisponível. |
+| Persistência | `CALI-PRJ-2026-000004` / `CALI-DEL-2026-000006` mantiveram frente e prazo. A avaliação original, a correção e as duas versões foram preservadas; só a versão 2 ficou publicada. Zero marcações de e-mail ou envio para as notificações do piloto. |
+
+A homologação encontrou perda de vínculo quando a opção provisória do seletor era substituída pela lista de frentes. Seleção passou a manter o valor durante a carga, com teste de regressão. O vínculo do registro sintético foi corrigido pela interface e conferido no banco. Nenhum dado fora do piloto foi alterado.
+
+A bateria suspensa de Auth/Edge/Docker não foi retomada. O PostgreSQL descartável usa apenas socket local e encerra ao terminar. Paridade com a publicação 83, subtarefas, conversa e dependências ainda precisam do fechamento específico. Arquivos legados permanecem protegidos pela recusa de reabertura; nenhum conteúdo legado foi migrado implicitamente.
+
+Rollback operacional: desligar `VITE_CALI_PHASE4_WRITE`, retirar somente as RPCs novas de Projetos/PDF por `rollback-projects.sql` e manter registros, PDFs, aprovações e inscrições sintéticas. A projeção estendida é compatível com o leitor anterior. A supressão de e-mails do piloto permanece para impedir lembretes futuros dos testes. O rollback geral de escrita não deve ser usado para retirar apenas este lote, pois alcança Forms e outros recortes já homologados.

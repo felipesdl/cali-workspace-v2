@@ -1,0 +1,20 @@
+-- Retira apenas as escritas de Projetos/PDF. Não apaga registros ou inscrições sintéticas.
+begin;
+set local lock_timeout = '5s';
+drop function if exists cali_workspace.v2_edit_pilot_plan(uuid,uuid,uuid,text,timestamptz,text,text,text,date,timestamp without time zone,uuid,text,integer);
+drop function if exists cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date);
+drop function if exists cali_workspace.v2_add_pilot_project_item(uuid,uuid,uuid,text,text,uuid,timestamp without time zone);
+drop function if exists cali_workspace.v2_share_pilot_schedule(uuid,uuid);
+drop function if exists cali_workspace.v2_respond_pilot_schedule(uuid,uuid,uuid,text,text,text,uuid,text,date,uuid);
+drop function if exists cali_workspace.v2_pilot_delivery_action(uuid,uuid,uuid,timestamptz,text,text,text,integer);
+drop function if exists cali_workspace.v2_pilot_project_lifecycle(uuid,uuid,text,text,text,date);
+drop function if exists cali_workspace.v2_add_pilot_document_revision(uuid,uuid,uuid,uuid,text,text,text);
+drop function if exists cali_workspace.v2_set_pilot_document_publication(uuid,uuid,uuid,uuid);
+drop function if exists cali_workspace.v2_list_pilot_documents(uuid,integer);
+drop function if exists cali_workspace.v2_list_pilot_document_history(uuid,uuid,integer);
+drop function if exists cali_workspace.v2_read_pilot_document_pdf(uuid,uuid,uuid);
+drop function if exists cali_workspace.v2_ack_pilot_document(uuid,uuid,uuid);
+drop function if exists cali_workspace.v2_add_pilot_delivery_pdf(uuid,uuid,uuid,uuid,uuid,text,text);
+drop function if exists cali_workspace.v2_read_pilot_delivery_pdf_info(uuid,uuid);
+notify pgrst,'reload schema';
+commit;

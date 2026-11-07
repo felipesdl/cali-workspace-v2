@@ -2,7 +2,7 @@
 begin;
 set local lock_timeout = '5s';
 
-create function cali_workspace.v2_list_pilot_projects(p_company_id uuid, p_page integer)
+create or replace function cali_workspace.v2_list_pilot_projects(p_company_id uuid, p_page integer)
 returns jsonb language plpgsql stable security definer set search_path = ''
 as $$
 declare
@@ -29,7 +29,7 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_read_pilot_project(
+create or replace function cali_workspace.v2_read_pilot_project(
   p_company_id uuid, p_project_id uuid, p_section text, p_page integer
 )
 returns jsonb language plpgsql stable security definer set search_path = ''
@@ -46,20 +46,22 @@ begin
     select jsonb_build_object(
       'companyId',p_company_id,
       'project',jsonb_build_object('id',p.id,'name',p.name,'protocol',p.protocol,
-        'description',p.description,'planning_status',p.planning_status,'execution_status',p.execution_status,
+        'description',p.description,'updated_at',p.updated_at,'planning_status',p.planning_status,'execution_status',p.execution_status,
         'roadmap_start_date',p.roadmap_start_date,'roadmap_end_date',p.roadmap_end_date),
-      'review',(select jsonb_build_object('id',r.id,'status',r.status,'number',r.request_number,'dueAt',r.response_due_at,'note',r.response_note)
+      'review',(select jsonb_build_object('id',r.id,'status',r.status,'number',r.request_number,'dueAt',r.response_due_at,'note',r.response_note,'changes',r.requested_changes)
         from cali_workspace.project_review_requests r
         where r.company_id=p_company_id and r.project_id=p.id
         order by r.request_number desc,r.created_at desc,r.id desc limit 1),
       'items',(
         with matched as (
-          select d.id,d.title as name,d.protocol,d.status,d.execution_status,d.due_at,d.sort_order,d.updated_at
+          select d.id,d.title as name,d.protocol,d.status,d.execution_status,d.due_at,d.sort_order,d.updated_at,
+            d.description,d.workstream_id,d.complexity
           from cali_workspace.deliverables d
           where p_section='deliverables' and d.company_id=p_company_id and d.project_id=p.id
             and (admin or cali_workspace.client_can_view_deliverable(d.id))
           union all
-          select w.id,w.name,w.protocol,w.status,w.execution_status,null::timestamptz,w.sort_order,null::timestamptz
+          select w.id,w.name,w.protocol,w.status,w.execution_status,null::timestamptz,w.sort_order,w.updated_at,
+            w.objective,null::uuid,null::text
           from cali_workspace.project_workstreams w
           where p_section='workstreams' and w.company_id=p_company_id and w.project_id=p.id
         ), page as (

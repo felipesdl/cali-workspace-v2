@@ -3,6 +3,21 @@ import { type WorkspaceClient } from '../../supabase';
 
 const action = z.discriminatedUnion('kind', [
   z.object({
+    kind: z.literal('edit-plan'),
+    project: z.uuid(),
+    item: z.uuid(),
+    itemKind: z.enum(['project', 'workstream', 'deliverable']),
+    expected: z.string().min(1),
+    decision: z.enum(['save', 'remove']),
+    name: z.string().trim().max(180),
+    description: z.string().trim().max(8000),
+    start: z.iso.date().nullable(),
+    due: z.iso.datetime({ local: true }).nullable(),
+    workstream: z.uuid().nullable(),
+    complexity: z.enum(['MC1', 'MC2', 'MC3']).nullable(),
+    position: z.number().int().min(1).max(100000).nullable(),
+  }),
+  z.object({
     kind: z.literal('create-project'),
     id: z.uuid(),
     name: z.string().trim().min(1).max(180),
@@ -73,6 +88,22 @@ export function createProjectOperations(client: WorkspaceClient) {
     const scope = { p_company_id: company };
     function invoke() {
       switch (command.kind) {
+        case 'edit-plan':
+          return client.rpc('v2_edit_pilot_plan', {
+            ...scope,
+            p_project_id: command.project,
+            p_item_id: command.item,
+            p_kind: command.itemKind,
+            p_expected: command.expected,
+            p_action: command.decision,
+            p_name: command.name,
+            p_description: command.description,
+            p_start: command.start,
+            p_due: command.due,
+            p_workstream_id: command.workstream,
+            p_complexity: command.complexity,
+            p_position: command.position,
+          });
         case 'create-project':
           return client.rpc('v2_create_pilot_project', {
             ...scope,

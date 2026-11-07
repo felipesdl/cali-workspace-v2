@@ -110,3 +110,10 @@ begin
   (gen_random_uuid(),a,'Frente ativa','F1','active','2026-11-01'),
   (gen_random_uuid(),a,'Frente encerrada','F2','ended','2026-11-01');
 end $$;
+
+-- Campos efetivos usados pelo editor de planejamento e pela projeção estendida.
+alter table cali_workspace.projects add column updated_at timestamptz default clock_timestamp();
+alter table cali_workspace.project_workstreams add column updated_at timestamptz default clock_timestamp(), add column objective text;
+alter table cali_workspace.deliverables add column description text,add column complexity text,
+  add column workstream_id uuid,add column cancelled_at timestamptz,add column cancellation_reason text;
+alter table cali_workspace.project_review_requests add column requested_changes jsonb not null default '{}'::jsonb;

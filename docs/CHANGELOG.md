@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Planejamento e revisão de PDF homologados
+
+- Admin edita planejamento com preimagem e histórico. Cliente solicita ajuste por frente ou entregável, com troca limitada a complexidade equivalente. Prova SQL descartável e testes de formulário cobrem conflito, vínculo e horário. No CALI MAPA, Admin e Cliente A percorreram o cronograma, ajuste por data, aprovação, PDF, reabertura e nova aprovação; B não abriu o projeto. O lote preservou o histórico e registrou zero avisos com e-mail. Corrigida perda de frente no seletor assíncrono. [Contrato, estado e limites](contracts/PHASE_4_READ.md#lote-de-projetos-e-entregáveis-no-cali-mapa).
+
 ## 06/11/2026 — Homologação da Auditoria no CALI MAPA
 
 - Consulta instalada. Admin viu os cinco eventos de Forms em A e a lista vazia em B. Cliente A foi redirecionado ao tentar abrir a Auditoria. [Evidência e reversão](contracts/PHASE_4_READ.md#lote-de-auditoria-de-formulários).
