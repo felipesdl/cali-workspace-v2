@@ -1,7 +1,6 @@
 -- Colunas usadas pela colaboração; os auxiliares de Cliente preservam o contrato conferido no CALI MAPA.
 alter table cali_workspace.project_review_requests add column resolution_note text;
 alter table cali_workspace.deliverables add column original_due_at timestamptz;
-alter table cali_workspace.work_timers add column task_id uuid;
 alter table cali_workspace.notifications add column user_id uuid,add column title text,add column body text,
  add column action_url text,add column relevance text;
 alter table cali_workspace.deliverable_tasks add column id uuid primary key,add column company_id uuid,

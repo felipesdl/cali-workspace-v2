@@ -140,10 +140,21 @@ export function HourActions({ company, actor }: { company: string; actor?: strin
             {timer.description ?? 'Atividade'} · {formatServerInstant(timer.startedAt)}
           </p>
           {timer.status === 'paused' ? (
-            <ActionForm
-              label="Retomar timer"
-              submit={(_, id) => submit({ kind: 'resume', timer: timer.id }, id)}
-            />
+            <>
+              {timer.closedSegment && (
+                <p>Trecho anterior fechado. A retomada começa outro trecho.</p>
+              )}
+              <ActionForm
+                label="Retomar timer"
+                submit={(_, id) => submit({ kind: 'resume', timer: timer.id }, id)}
+              />
+              {timer.closedSegment && (
+                <ActionForm
+                  label="Encerrar pausa"
+                  submit={(_, id) => submit({ kind: 'stop', timer: timer.id }, id)}
+                />
+              )}
+            </>
           ) : (
             <>
               <ActionForm

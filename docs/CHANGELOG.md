@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Lançamento e timer de Horas
+
+- V2 mantém a contabilização do trecho ao pausar e retoma em novo timer no mesmo contexto. CALI MAPA confirmou 15 minutos manuais, dois trechos de 1 minuto e zero timers abertos. Cliente viu o lançamento sem a nota interna; visibilidade temporária restaurada. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-lançamento-e-timer-no-cali-mapa).
+
 ## 07/11/2026 — Colaboração e execução de entregáveis
 
 - Homologados subtarefa com ajuste e aprovação parcial, conversa com nota interna isolada, dependência recebida, revisão de prazo e histórico de execução. Corrigida leitura do forecast na função de ciclo; pausa e retomada por entregável verificadas no CALI MAPA. [Prova e reversão](contracts/PHASE_4_READ.md#colaboração-histórico-e-execução-de-item).

@@ -192,6 +192,7 @@ const timer = z.object({
   id: z.uuid(),
   description: z.string().nullable(),
   status: z.enum(['active', 'paused']),
+  closedSegment: z.boolean().optional(),
   startedAt: z.string(),
 });
 const hourFields = z.object({

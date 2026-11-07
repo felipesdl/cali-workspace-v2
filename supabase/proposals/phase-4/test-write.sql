@@ -43,6 +43,7 @@ declare
  review uuid;
  next_review uuid;
  timer uuid;
+ resumed_timer uuid;
  ticket uuid := gen_random_uuid();
  request uuid := gen_random_uuid();
  message_id uuid;
@@ -104,10 +105,13 @@ begin
   perform cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'start',project,p_description=>'Segundo timer');
   raise exception 'Segundo timer aceito com pausa ativa';
  exception when serialization_failure then null; end;
- perform cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'resume',p_timer_id=>timer);
  request := gen_random_uuid();
- perform cali_workspace.v2_pilot_hour_action(a,request,'stop',p_timer_id=>timer);
- perform cali_workspace.v2_pilot_hour_action(a,request,'stop',p_timer_id=>timer);
+ resumed_timer := cali_workspace.v2_pilot_hour_action(a,request,'resume',p_timer_id=>timer);
+ assert resumed_timer<>timer;
+ assert cali_workspace.v2_pilot_hour_action(a,request,'resume',p_timer_id=>timer)=resumed_timer;
+ request := gen_random_uuid();
+ perform cali_workspace.v2_pilot_hour_action(a,request,'stop',p_timer_id=>resumed_timer);
+ perform cali_workspace.v2_pilot_hour_action(a,request,'stop',p_timer_id=>resumed_timer);
  assert cali_workspace.v2_pilot_active_timers(a)='[]'::jsonb;
 
  perform cali_workspace.fixture_as('clientA');

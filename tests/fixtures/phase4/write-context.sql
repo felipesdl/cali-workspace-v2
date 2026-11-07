@@ -33,7 +33,7 @@ create trigger fixture_record_mention after insert on cali_workspace.account_rec
 for each row execute function cali_workspace.fixture_record_mention();
 create table cali_workspace.work_timers(
  id uuid primary key default gen_random_uuid(),company_id uuid,project_id uuid,user_id uuid,description text,
- client_visible boolean,status text,started_at timestamptz default clock_timestamp()
+ client_visible boolean,status text,started_at timestamptz default clock_timestamp(),category text,task_id uuid
 );
 create table cali_workspace.data_subject_requests(
  id uuid primary key default gen_random_uuid(),company_id uuid,user_id uuid,kind text,details text,
@@ -90,7 +90,8 @@ returns uuid language sql as $$
  values($1,$2,auth.uid(),$6,$7,'active') returning id;
 $$;
 create function cali_workspace.pause_work_timer(uuid) returns void language sql as $$
- update cali_workspace.work_timers set status='paused' where id=$1;
+ -- O trecho menor que 30s é descartado pelo legado.
+ update cali_workspace.work_timers set status='discarded' where id=$1;
 $$;
 create function cali_workspace.resume_work_timer(uuid) returns void language sql as $$
  update cali_workspace.work_timers set status='active' where id=$1;
