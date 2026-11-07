@@ -38,9 +38,13 @@ begin
  payload := cali_workspace.v2_read_pilot_hours(a,'2026-11-01',1);
  assert payload->>'total'='1' and payload->>'minutes'='30';
  assert payload->'capacity'='{"contractedMinutes":60,"consumedMinutes":80,"remainingMinutes":0,"overMinutes":20}'::jsonb;
+ assert payload#>>'{capacityHistory,paused}'='true';
+ assert jsonb_array_length(payload#>'{capacityHistory,milestones}')=1;
+ assert payload#>>'{capacityHistory,milestones,0,kind}'='m75';
+ assert payload::text not like '%Motivo reservado%';
  assert not (payload#>'{entries,0}' ? 'internal_note');
  payload := cali_workspace.v2_read_pilot_hours(a,'2026-10-01',1);
- assert payload->>'visible'='false' and not (payload ?| array['entries','capacity']);
+ assert payload->>'visible'='false' and not (payload ?| array['entries','capacity','capacityHistory']);
  begin
   perform cali_workspace.v2_read_pilot_hours(b,'2026-11-01',1);
   raise exception 'Capacidade de outra empresa autorizada';
@@ -83,6 +87,7 @@ begin
  payload := cali_workspace.v2_read_pilot_hours(a,'2026-11-01',1);
  assert payload->>'total'='3' and payload->>'minutes'='170' and payload#>>'{entries,1,internal_note}'='Nota interna';
  assert payload#>>'{capacity,consumedMinutes}'='80';
+ assert payload#>>'{capacityHistory,milestones,1,kind}'='review';
  payload := cali_workspace.v2_read_pilot_hours(a,'2026-10-01',1);
  assert payload->'capacity'='{"contractedMinutes":120,"consumedMinutes":0,"remainingMinutes":120,"overMinutes":0}'::jsonb;
  payload := cali_workspace.v2_read_pilot_hours(b,'2026-11-01',1);

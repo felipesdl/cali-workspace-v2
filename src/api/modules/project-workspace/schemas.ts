@@ -72,6 +72,19 @@ export const projectDetail = z.object({
     ),
   }),
 });
+const hourCapacityHistory = z.object({
+  paused: z.boolean(),
+  milestones: z.array(
+    z.object({
+      kind: z.enum(['m75', 'm100', 'excess', 'tolerance', 'review']),
+      percent: z.number(),
+      at: z.iso.datetime({ offset: true }),
+      occurrence: z.number().int().positive().nullable(),
+    }),
+  ),
+});
+export type HourCapacityHistory = z.infer<typeof hourCapacityHistory>;
+
 export const hours = z.discriminatedUnion('visible', [
   z.object({ companyId: z.uuid(), month: monthSchema, visible: z.literal(false) }),
   z.object({
@@ -80,6 +93,7 @@ export const hours = z.discriminatedUnion('visible', [
     visible: z.literal(true),
     total: z.number().int().nonnegative(),
     minutes: z.number().int(),
+    capacityHistory: hourCapacityHistory.optional(),
     capacity: z
       .object({
         contractedMinutes: z.number().int().positive().nullable(),

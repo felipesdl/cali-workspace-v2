@@ -60,6 +60,8 @@ O código oficial descrito nas tabelas continua inalterado e diferente desse alv
 
 A V2 prepara o painel de franquia, consumo, saldo e excedente com o cálculo do banco. O extrato mantém o recorte de lançamentos visíveis. Veja o [contrato de capacidade](../contracts/PHASE_4_READ.md#capacidade-e-saldo-de-horas-no-piloto). O [lote de lançamento e timer](../contracts/PHASE_4_READ.md#lote-de-lançamento-e-timer-no-cali-mapa) homologou o fechamento do trecho e a retomada com novo timer, preservando duração e privacidade. O [lote de correção](../contracts/PHASE_4_READ.md#correção-auditada-de-horas) validou edição hospedada e exclusão no banco descartável.
 
+A tela também consulta marcos de capacidade e pausa já registrados. O mês fechado oculta os marcos para Cliente. A revisão administrativa e o limite de tolerância ficam no Admin. [Contrato e prova](../contracts/PHASE_4_READ.md#marcos-de-capacidade-em-horas).
+
 ## FLOW-08 — Equipe, movimentos, fechamento e indicadores
 
 **Objetivo/atores/entrada:** Cliente e Admin consultam `/cliente/equipe`/`/admin/equipe`. As RPCs de manutenção autorizam perfil ativo Admin **ou Cliente principal da própria empresa**. Não estender escrita ao cliente adicional por semelhança da tela.

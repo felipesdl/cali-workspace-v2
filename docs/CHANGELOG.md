@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Marcos de capacidade no extrato de Horas
+
+- Horas mostra marcos e pausa registrados no mês. Admin vê também tolerância e revisão. O CALI MAPA confirmou estado vazio em A/B e mês fechado para Cliente. [Prova](contracts/PHASE_4_READ.md#marcos-de-capacidade-em-horas).
+
 ## Republicação da revisão 3 do relatório executivo
 
 - Admin republicou o relatório sintético com curadoria no CALI MAPA. A baixou o PDF da revisão 3 e B ficou isolado. A ciência da revisão 2 foi preservada e a revisão 3 seguiu sem nova ciência. O teste terminou com a liberação retirada e o gerador desligado. [Prova](contracts/PHASE_4_READ.md#republicação-com-curadoria-no-cali-mapa).

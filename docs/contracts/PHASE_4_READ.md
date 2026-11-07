@@ -269,6 +269,14 @@ O formulário duplicava ao alternar a empresa porque o editor e a consulta de pr
 
 A geração, liberação e ciência foram validadas no [lote hospedado seguinte](#lote-de-pdf-executivo-no-cali-mapa). O bundle local passou no build. O preflight da revisão 2 confirmou os tipos de horas, entregáveis e feedback exigidos, a identidade configurada com foto em origem permitida e assinatura virtual, a permissão de uso do schema já existente para o serviço e a ausência de liberações ativas. Para homologar, conferir a disponibilidade da imagem, instalar `report-release-operations.sql` e ativar temporariamente apenas a Edge `workspace-executive-pdf` com JWT. Usar só A, conferir recusa em B e retirar a liberação sintética. Desligar a flag e desativar a função temporária ao fim. `rollback-report-release.sql` remove somente as RPCs de geração/liberação, recusa reversão enquanto houver publicação ativa e conserva PDFs, ciências e histórico. Esse passo exige ativação hospedada explícita. `rollback-report-drafts.sql` retira apenas o acesso às três RPCs de rascunho e preserva relatórios e aprovações.
 
+## Marcos de capacidade em Horas
+
+A RPC V2 de Horas projeta a pausa vigente e os marcos persistidos para a empresa e o mês consultados. No mês liberado, Cliente vê atenção ao consumo, capacidade integral e excedente. Admin também vê tolerância e revisão da capacidade. A resposta inclui percentual gravado, instante e número de ocorrência quando houver. Nota de pausa, destinatários e metadados de envio ficam fora. A consulta não avalia gatilhos, pausa atividades nem dispara mensagens.
+
+No CALI MAPA, Admin conferiu novembro em A e B sem marcos registrados. Cliente A continuou com novembro fechado. No PostgreSQL descartável, a prova com dados confirmou pausa, isolamento por empresa e mês, o marco público de 75% e a exclusão do marco de revisão e da nota interna na resposta Cliente. O piloto segue sem prova hospedada de cruzamento de faixa e despacho.
+
+Para reverter apenas este lote, restaurar `v2_read_pilot_hours(uuid,date,integer)` de `11060fe` e recarregar o schema da Data API. A operação preserva os marcos, pausas e lançamentos existentes.
+
 ## Participantes e encontros adicionais no CALI MAPA
 
 A agenda ordinária projeta nome, papel e resposta dos participantes da reunião, preservando empresa, visibilidade e corte por cancelamento. Admin com MFA pode consultar participantes no histórico. A consulta de extras é paginada e separada dos pedidos ordinários. Ela usa os centavos e instantes de aceite registrados, sem expor nome da pessoa que aceitou, notas ou dados de contato. A decisão ordinária recusa pedidos extras online mesmo quando os indicadores de cobrança e urgência estão desligados.

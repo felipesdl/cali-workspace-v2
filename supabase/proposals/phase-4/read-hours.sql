@@ -42,6 +42,17 @@ begin
         'overMinutes',case when capacity.contracted_minutes>0
           then greatest(0,capacity.used_minutes-capacity.contracted_minutes) end
       ),
+      'capacityHistory',jsonb_build_object(
+        'paused',exists(select 1 from cali_workspace.capacity_pauses p
+          where p.company_id=p_company_id and p.month=p_month and p.resumed_at is null),
+        'milestones',coalesce((select jsonb_agg(jsonb_build_object(
+          'kind',e.kind,'percent',e.percent,'at',e.created_at,'occurrence',e.occurrence_number)
+          order by e.created_at,e.id)
+          from cali_workspace.capacity_events e where e.company_id=p_company_id and e.month=p_month
+            and (e.kind in ('m75','m100','excess') or (admin and e.kind in ('tolerance','review')))
+          ),
+          '[]'::jsonb)
+      ),
       'entries',coalesce((select jsonb_agg(jsonb_strip_nulls(to_jsonb(page)) order by work_date desc,id) from page),'[]'::jsonb))
     from cali_workspace.capacity_month(p_company_id,p_month) capacity
   );

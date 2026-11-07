@@ -24,6 +24,15 @@ create table cali_workspace.reports(id uuid,company_id uuid,title text,protocol 
  published_at timestamptz,period_start date,executive_summary text, revision_parent_id uuid,version integer default 1, acknowledged_at timestamptz,updated_at timestamptz default clock_timestamp());
 create table cali_workspace.front_catalog(code text primary key,title text,description text);
 create table cali_workspace.company_fronts(id uuid,company_id uuid,scope_label text,front_code text,status text,started_at date,mode text,ends_at date);
+create table cali_workspace.capacity_events(id uuid default gen_random_uuid(),company_id uuid,month date,kind text,
+ percent numeric,occurrence_number integer,created_at timestamptz);
+create table cali_workspace.capacity_pauses(company_id uuid,month date,resumed_at timestamptz,note text);
+insert into cali_workspace.capacity_events(company_id,month,kind,percent,occurrence_number,created_at) values
+ ('9c5ab148-78b8-4410-9338-58c44222a5db','2026-11-01','m75',75,null,'2026-11-02Z'),
+ ('9c5ab148-78b8-4410-9338-58c44222a5db','2026-11-01','review',120,3,'2026-11-03Z'),
+ ('6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76','2026-11-01','excess',101,1,'2026-11-04Z');
+insert into cali_workspace.capacity_pauses values
+ ('9c5ab148-78b8-4410-9338-58c44222a5db','2026-11-01',null,'Motivo reservado');
 
 create function cali_workspace.current_company_id() returns uuid language sql stable as $$
  select company_id from cali_workspace.profiles where id=auth.uid() and active

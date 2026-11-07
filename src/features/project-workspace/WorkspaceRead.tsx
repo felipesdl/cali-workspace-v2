@@ -31,6 +31,7 @@ import {
   ReportReadiness,
 } from './ReportPrivacyActions';
 import { HourActions, HourEntryCorrection } from './HourActions';
+import { CapacityMilestones } from './CapacityMilestones';
 import { EditProject, EditPlanItem, ScheduleItemRequest } from './ProjectPlanning';
 import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -494,6 +495,9 @@ function Hours({ search, update }: Props) {
       ) : result.data.visible ? (
         <>
           {result.data.capacity && <HourCapacity {...result.data.capacity} />}
+          {result.data.capacityHistory && (
+            <CapacityMilestones history={result.data.capacityHistory} />
+          )}
           <section className={panel}>
             <h2 className="tw:font-semibold">Extrato de atuação</h2>
             <p>
