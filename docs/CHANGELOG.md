@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Ocorrências, avisos e satisfação no piloto
+
+- Admin e Cliente A homologaram ocorrência, resposta, avaliação, reabertura e aviso dirigido com ciência. B ficou isolado; nota interna protegida. Acompanhamento Admin persistiu sem alterar a nota. Zero e-mails marcados no piloto. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-ocorrências-avisos-e-satisfação-no-cali-mapa).
+
 ## 07/11/2026 — Agenda ordinária homologada
 
 - Cliente solicitou e confirmou horário, Admin decidiu remarcação e cancelamento do mesmo evento no CALI MAPA. B permaneceu isolado, a franquia sintética foi restaurada e não houve cobrança nem e-mail do piloto. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-agenda-ordinária-no-cali-mapa).

@@ -246,3 +246,13 @@ O catálogo confirmou ausência de agendamento de sincronização de Google/Meet
 Em 07/11/2026, Cliente A solicitou reunião online, Admin ofertou a opção e A confirmou. A tela exibiu confirmação no Workspace e integração pendente. A pediu remarcação para 17/11 ou 18/11, com o horário original preservado durante a análise. Admin aprovou 17/11 às 10h. O protocolo `CALI-EVT-2026-000006` foi preservado. A pediu cancelamento e Admin aprovou; A viu cancelamento e B não recebeu o pedido de A. Banco confirmou duas decisões, cancelamento, franquia restaurada a zero, nenhum adicional, nenhuma taxa e zero marcações ou envios de e-mail para o teste. Nenhuma sincronização externa foi chamada.
 
 A prova PostgreSQL cobre reexecução, conflito de agenda, prazo, isolamento e supressão limitada ao pedido inscrito. `rollback-agenda.sql` retira as RPCs preservando evento, decisões e inscrição. A sincronização externa, as regras de extras e participantes adicionais continuam em recortes próprios.
+
+## Lote de ocorrências, avisos e satisfação no CALI MAPA
+
+Em 07/11/2026, oito RPCs foram instaladas em uma transação para o piloto. O catálogo confirmou execução para `authenticated` e recusa para `anon`. `record-qa-transport.sql` suprime e-mail somente para ocorrência com assunto e empresa inscritos, preservando notificações no app. O teste isolado confirmou que uma ocorrência fora da inscrição mantém o transporte anterior.
+
+- `CALI-REG-2026-000005`: A abriu ocorrência; Admin registrou nota interna e resposta pública, depois finalizou. A viu apenas a resposta pública, avaliou com nota 3/5 e solicitou reabertura. Admin aprovou; A viu a decisão e B recebeu ocorrência indisponível ao abrir a mesma URL. Banco confirmou retorno a atendimento, decisão aprovada, nota original e zero marcações de e-mail.
+- `AV-2026-0003`: Admin publicou aviso dirigido a A. A registrou ciência no mural e viu o mesmo título na agenda. B não recebeu o aviso. Após arquivamento, o aviso saiu da agenda de A e ficou disponível para restauração no Admin. Banco confirmou zero marcações de e-mail.
+- Satisfação: Admin salvou acompanhamento do tema Atendimento. A nota 3/5 e o comentário original permaneceram iguais depois de recarregar.
+
+`rollback-records.sql` retira as oito operações e o gatilho de menção V2; mantém os registros, recibos e a inscrição que protege a ocorrência sintética de disparos posteriores. Anexos de conversa, comentários e reações do mural e resumo diário Admin ainda exigem homologação própria. Nenhum serviço externo foi ativado.

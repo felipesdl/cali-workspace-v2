@@ -160,6 +160,7 @@ rollback;
 \ir test-agenda-changes.sql
 \ir test-agenda-qa-transport.sql
 \ir test-record-reviews.sql
+\ir test-record-qa-transport.sql
 \ir test-catalog-actions.sql
 \ir test-documents.sql
 grant usage on schema cali_workspace to service_role;
