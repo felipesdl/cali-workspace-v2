@@ -17,7 +17,7 @@ Ficha de paridade de Mapa, Forms e perfil comportamental. **DISC é linha oficia
 
 ## Objetivo, fontes e composição
 
-- **Mapa de People:** Admin acompanha jornadas, revisa registros e abre relatório. Fontes: [UI](SOURCES.md#mapa-ui), [bridge de schema](SOURCES.md#mapa), [grants posteriores](SOURCES.md#response-hours). Corpos das quatro RPCs `workspace_mapa_people_*`/`workspace_update_mapa_people_record` não foram localizados; comentário afirma guarda Admin, sem corpo para comprová-la.
+- **Mapa de People:** Admin acompanha jornadas, revisa registros e abre relatório. Fontes: [UI](SOURCES.md#mapa-ui), [bridge de schema](SOURCES.md#mapa), [grants posteriores](SOURCES.md#response-hours). Os corpos das quatro RPCs públicas foram confirmados no catálogo hospedado em 06/11. Veja a seção de Mapa abaixo.
 - **Forms:** Admin cria/abre/encerra formulário, acompanha/edita respostas e exporta. Público responde por slug em `/f/:slug`. Fontes: [tabelas/RLS](SOURCES.md#forms), [validação/upload](SOURCES.md#forms-submit), [projeção pública](SOURCES.md#forms-public), [pipeline](SOURCES.md#forms-pipeline), [Admin UI](SOURCES.md#forms-ui).
 - **Perfil comportamental:** Admin gerencia links/convites/resultados e relatório de gestão; respondente usa slug/token; Cliente acessa o que foi liberado à empresa. Fontes: [tabelas/RLS/submissão](SOURCES.md#profile), [convites](SOURCES.md#profile-invites), [gestão/entrega](SOURCES.md#profile-gestao), [campanha UI](SOURCES.md#profile-campaign), [avaliador individual](SOURCES.md#profile-evaluator).
 
@@ -27,7 +27,7 @@ Anatomia: listas Admin, editor de perguntas/configurações, respostas/triagem, 
 
 | Objeto/anterior | Ação/ator | Guarda/camada | Seguinte/efeito |
 | --- | --- | --- | --- |
-| Jornada Mapa | Consultar/atualizar Admin UI | Sessão e grant authenticated nas RPCs; corpo ausente | Status e efeitos de atualização não comprováveis neste repo |
+| Jornada Mapa | Consultar/atualizar Admin UI | Sessão e grant authenticated nas RPCs; catálogo hospedado confirma identidade administrativa específica | Escrita direta de situação e observações no legado; estados válidos e transições V2 a reconciliar |
 | Form draft/closed | Abrir Admin | Policy forms_admin_all | Open, disponível por slug |
 | Form open | Encerrar Admin | Mesma policy | Closed; projeção pública devolve sem perguntas |
 | Form open | Responder público ou Cliente como destinatário | RPC pública valida JSON/tamanho, tipos/obrigatórias e campos conhecidos; limite 30 respostas/minuto por form | Cria resposta; pode solicitar confirmação por e-mail |
@@ -56,7 +56,7 @@ Retorno Admin por link/campanha/resposta; resposta pública deve distinguir fech
 
 Aceite proposto: Cliente não lista respostas gerais Forms; slug fechado; tipos/campos/arquivo fora do path; edição Admin preserva evidência; token inválido/convite expirado/recusado; três lembretes/janela/fuso; gestão com 4/5/14/15 respostas, sem resultado/parecer, não liberada e outra empresa; sem nomes; assinatura/foto/protocolo e revisão coerentes; avaliador negado ao Cliente/respondente inclusive por API/arquivo/token; agradecimento e PDF por e-mail sem metodologia/cálculos; falha/repetição de envio e retorno a rascunho após alteração. Não validar cientificamente o método nesta tarefa documental.
 
-**Pendências técnicas:** `REF-19` (edição/histórico Forms), `REF-20` (efetivar públicos/token de DEC-13), `REF-21` (Mapa sem corpo SQL), `REF-16` (envio), `REF-22` (retenção/exportação). DISC já é produto oficial, sem nova decisão de inclusão. Forms/Mapa continuam rastreados separadamente; não eliminar módulos por omissão.
+**Pendências técnicas:** `REF-19` (edição/histórico Forms), `REF-20` (efetivar públicos/token de DEC-13), `REF-21` (vínculo e projeção do Mapa), `REF-16` (envio), `REF-22` (retenção/exportação). DISC já é produto oficial, sem nova decisão de inclusão. Forms/Mapa continuam rastreados separadamente; não eliminar módulos por omissão.
 
 ## Implementação V2 em 05/11/2026
 
@@ -65,3 +65,9 @@ DISC possui domínio privado separado, wrappers por público, questionário, ava
 ## Forms V2 em 06/11/2026
 
 Admin com MFA cria rascunhos de Forms e edita perguntas de texto em empresa piloto. O formulário precisa estar em rascunho e sem respostas. A validação em PostgreSQL descartável cobre escopo, conflitos de edição e preservação da lógica legada. Admin também pode acompanhar respostas existentes e gravar etapa e responsável, preservando seu conteúdo original. Publicação, coleta, leitura de conteúdo e exportação têm critérios próprios. Veja o [contrato da fase 4](../contracts/PHASE_4_READ.md#rascunhos-de-forms).
+
+## Mapa de People no catálogo hospedado em 06/11/2026
+
+As quatro RPCs públicas checam uma identidade administrativa específica. As consultas retornam linhas completas, sem escopo de empresa. A atualização grava situação e observações pelo identificador. As funções internas de listagem usam `is_admin()` e também retornam linhas completas. A coluna de empresa na resposta é texto, sem identificador V2, e não serve como vínculo de autorização. Nenhuma resposta ou jornada foi consultada.
+
+O piloto V2 precisa de associação explícita por identificador, projeção por operação e revisão de quem pode acessar. A consulta existente do legado permanece separada. Estados permitidos e guarda de acesso a relatórios ainda precisam de reconciliação.

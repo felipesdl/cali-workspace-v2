@@ -6,10 +6,16 @@
 \ir ../../../tests/fixtures/phase4/forms-draft.sql
 \ir read-projects.sql
 \ir read-catalogs.sql
+\ir pilot-role.sql
+\ir operation-receipts.sql
+\ir forms-operations.sql
+\ir forms-draft.sql
+\ir forms-triage.sql
+\ir test-forms-draft.sql
+\ir test-forms-triage.sql
 \ir project-operations.sql
 \ir document-operations.sql
 \ir delivery-operations.sql
-\ir operation-receipts.sql
 \ir agenda-operations.sql
 \ir agenda-change-operations.sql
 \ir hours-operations.sql
@@ -23,9 +29,6 @@
 \ir commercial-read.sql
 \ir commercial-draft.sql
 \ir satisfaction-operations.sql
-\ir forms-operations.sql
-\ir forms-draft.sql
-\ir forms-triage.sql
 
 begin;
 do $$
@@ -154,9 +157,16 @@ grant usage on schema cali_workspace to service_role;
 \ir test-report-release.sql
 \ir test-admin-read.sql
 \ir test-commercial-draft.sql
-\ir test-forms-draft.sql
-\ir test-forms-triage.sql
 \ir test-satisfaction.sql
+\ir rollback-forms.sql
+do $$
+begin
+ assert to_regprocedure('cali_workspace.v2_list_pilot_forms(uuid,integer)') is null;
+ assert to_regprocedure('cali_workspace.v2_save_pilot_form_triage(uuid,uuid,uuid,text,text,text,text)') is null;
+ assert to_regprocedure('cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date)') is not null;
+ assert to_regprocedure('cali_session_guard.require_phase4_role(uuid,text)') is not null;
+ assert to_regclass('cali_session_guard.phase4_operation_receipts') is not null;
+end $$;
 \ir rollback-write.sql
 do $$
 begin

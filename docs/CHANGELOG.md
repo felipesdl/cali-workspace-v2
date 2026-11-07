@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Preparação da homologação de Forms
+
+- Guarda compartilhada separada das operações de projeto. Lote Forms com ordem, escopo A/B e rollback próprio documentados. O CALI MAPA foi consultado em leitura, incluindo corpos e permissões das RPCs de Mapa de People. [Lote Forms](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa) · [Mapa](flows/FORMS_PEOPLE_PROFILE.md#mapa-de-people-no-catálogo-hospedado-em-06112026).
+
 ## 06/11/2026 — Triagem de Forms
 
 - Admin consulta metadados da resposta e atualiza etapa e responsável. Validação isolada cobre MFA, isolamento, repetição e conflito. [Contrato](contracts/PHASE_4_READ.md#triagem-de-respostas-de-forms).

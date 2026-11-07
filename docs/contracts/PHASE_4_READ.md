@@ -39,7 +39,7 @@ O frontend exige modo desenvolvimento, composição do piloto A/B e `VITE_CALI_P
 
 A escrita usa MFA para Admin, sessão com aceite vigente, fronteira da empresa e checagem da transição no banco. Aprovação e ajuste de cronograma travam o projeto e verificam o ID da revisão atual. Horas reutilizam ciclo, capacidade e fechamento do timer legados. Recibos privados de reexecução guardam identificadores e a impressão digital da operação. Notas internas ficam restritas ao Admin. Mensagens de ocorrência geram aviso no app. A menção legada marcava e-mail antes do despacho. Um gatilho adicional trata só a menção da ocorrência que a RPC V2 insere na transação correspondente.
 
-Para o QA, aplicar as propostas de leitura e depois, na ordem, `project-operations.sql`, `operation-receipts.sql`, `hours-operations.sql`, `record-operations.sql` e `report-privacy-operations.sql`. As operações de cronograma, status de ocorrência e privacidade podem alcançar a fila de comunicações legada. Instalar e exercitar somente após isolar o transporte no ambiente de teste. A interface requer também `VITE_CALI_PHASE4_WRITE=true`. Para reverter, desligar a flag e executar `rollback-write.sql`. O rollback retira as RPCs e o gatilho novo, preservando registros, recibos e histórico de correções.
+Para o QA, aplicar as propostas de leitura e depois, na ordem, `pilot-role.sql`, `project-operations.sql`, `operation-receipts.sql`, `hours-operations.sql`, `record-operations.sql` e `report-privacy-operations.sql`. As operações de cronograma, status de ocorrência e privacidade podem alcançar a fila de comunicações legada. Instalar e exercitar somente após isolar o transporte no ambiente de teste. A interface requer também `VITE_CALI_PHASE4_WRITE=true`. Para reverter, desligar a flag e executar `rollback-write.sql`. O rollback retira as RPCs e o gatilho novo, preservando registros, recibos e histórico de correções.
 
 O PostgreSQL descartável prova as guardas, reexecução, transições, isolamento A/B, menções sem e-mail, ciência e privacidade usando dependências legadas simuladas. Aplicação hospedada e validação autenticada das escritas continuam pendentes.
 
@@ -143,7 +143,7 @@ Instalar `commercial-draft.sql` depois de `commercial-read.sql`. O editor exige 
 
 Admin com MFA cria rascunho para a empresa piloto e edita título, descrição e perguntas de texto curto ou longo. Novos rascunhos usam audiência Cliente e confirmação por e-mail desativada. O slug permanece estável. O editor aceita até 40 perguntas na inclusão e preserva identificadores, ordem, lógica condicional e demais campos legados nas perguntas existentes. Formulário aberto, encerrado ou com resposta registrada fica fora da edição. A escrita recusa a versão obsoleta. Abrir e encerrar continuam como ações distintas.
 
-Instalar `forms-draft.sql` depois de `operation-receipts.sql` e `forms-operations.sql`. O editor exige as flags de leitura Admin e escrita da Fase 4. O teste em PostgreSQL descartável verificou MFA, isolamento por empresa, repetição, concorrência e preservação das perguntas legadas. O rollback retira as RPCs V2 e conserva rascunhos e trilha. Homologação no CALI MAPA, rota pública, respostas, anexos e exportação continuam pendentes.
+Instalar `forms-draft.sql` depois de `operation-receipts.sql` e `forms-operations.sql`. O editor usa as flags gerais de leitura e escrita da Fase 4. O teste em PostgreSQL descartável verificou MFA, isolamento por empresa, repetição, concorrência e preservação das perguntas legadas. O rollback retira as RPCs V2 e conserva rascunhos e trilha. Homologação no CALI MAPA, rota pública, respostas, anexos e exportação continuam pendentes.
 
 ## Triagem de respostas de Forms
 
@@ -151,4 +151,14 @@ O catálogo hospedado confirmou as colunas `stage` e `owner`, a configuração `
 
 Admin com MFA abre a triagem de um formulário da empresa piloto. A lista mostra até 25 registros por página com nome, data, etapa e responsável. A etapa segue as opções do formulário. Uma etapa antiga pode ser mantida ou trocada por opção atual. A escrita confere os valores anteriores, grava apenas etapa e responsável e registra evento sem esses textos. Repetir o mesmo resultado não duplica o evento. E-mail, conteúdo, anexos e notas ficam fora da projeção. A triagem não envia comunicação.
 
-Instalar `forms-triage.sql` após `forms-operations.sql`. A tela usa as flags de leitura Admin e escrita da Fase 4. O teste isolado verificou MFA, escopo A/B, projeção mínima, etapa inválida, repetição e recusa de sobrescrita. O rollback retira as RPCs e preserva a triagem. A homologação no CALI MAPA continua pendente.
+Instalar `forms-triage.sql` após `forms-operations.sql`. A tela usa as flags gerais de leitura e escrita da Fase 4. O teste isolado verificou MFA, escopo A/B, projeção mínima, etapa inválida, repetição e recusa de sobrescrita. O rollback retira as RPCs e preserva a triagem. A homologação no CALI MAPA continua pendente.
+
+## Lote de homologação de Forms no CALI MAPA
+
+O catálogo de 06/11 confirmou a guarda de sessão do piloto já instalada. A guarda operacional da Fase 4, a tabela de recibos e a RPC de listagem V2 de Forms estavam ausentes. As tabelas efetivas de Forms e auditoria foram conferidas. Os gatilhos encontrados em Forms e respostas atuam em exclusão, fora dos casos deste lote.
+
+**Aplicação proposta.** Depois de autorização específica, instalar somente `pilot-role.sql`, `operation-receipts.sql`, `forms-operations.sql`, `forms-draft.sql` e `forms-triage.sql`, nesta ordem. Revalidar objetos e executar o conjunto em uma transação, retirando os delimitadores individuais dos arquivos. Conferir os GRANTs do catálogo antes do primeiro uso. A guarda compartilhada e os recibos são privados. As RPCs novas ficam acessíveis a `authenticated` e verificam papel, MFA, sessão, aceite e empresa piloto.
+
+**Prova no navegador.** Usar a V2 local, com `VITE_CALI_PHASE4_READ` e `VITE_CALI_PHASE4_WRITE`, e somente a rota `/admin/formularios`. Criar rascunho sintético em A, editar duas perguntas, recarregar e confirmar ausência em B. A triagem usa resposta sintética vinculada ao piloto, se já preparada. O exercício mantém o formulário em rascunho. Abrir a coleta exige uma prova separada porque o leitor legado usa o estado aberto e o slug. Nenhuma comunicação externa faz parte deste lote.
+
+**Reversão.** Desligar as flags locais e executar `rollback-forms.sql`. A reversão retira as RPCs de Forms, mantém as funções compartilhadas e preserva rascunhos, respostas, recibos e auditoria. O teste descartável confirma que as operações de projeto continuam disponíveis após essa reversão.

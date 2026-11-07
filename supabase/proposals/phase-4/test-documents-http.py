@@ -84,7 +84,7 @@ def main():
         wait('PostgreSQL', lambda: docker('exec', DB, 'pg_isready', '-U', 'postgres', check=False).returncode == 0)
         sql = '\n'.join(expand(ROOT / name) for name in (
             '../../../tests/fixtures/phase4/write-context.sql',
-            'project-operations.sql', 'document-operations.sql',
+            'pilot-role.sql', 'project-operations.sql', 'document-operations.sql',
         ))
         sql += """
 create or replace function auth.jwt() returns jsonb language sql stable as $$
