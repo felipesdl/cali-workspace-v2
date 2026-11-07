@@ -126,8 +126,38 @@ begin
  perform cali_workspace.v2_pilot_record_action(a,gen_random_uuid(),ticket,'message',p_body=>'Nota reservada',p_internal=>true);
  perform cali_workspace.v2_pilot_record_action(a,gen_random_uuid(),ticket,'message',p_body=>'Resposta pública');
  assert jsonb_array_length(cali_workspace.v2_read_pilot_record(a,ticket,1)->'messages')=3;
+ begin
+   perform cali_workspace.v2_start_pilot_record_timer(b,gen_random_uuid(),ticket);
+   raise exception 'Timer cruzado aceito';
+ exception when insufficient_privilege then null; end;
+ request := gen_random_uuid();
+ timer := cali_workspace.v2_start_pilot_record_timer(a,request,ticket);
+ assert cali_workspace.v2_start_pilot_record_timer(a,request,ticket)=timer;
+ perform cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'pause',p_timer_id=>timer);
+ begin
+   perform cali_workspace.v2_start_pilot_record_timer(a,gen_random_uuid(),ticket);
+   raise exception 'Segundo timer de ocorrência aceito com pausa ativa';
+ exception when serialization_failure then null; end;
+ resumed_timer := cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'resume',p_timer_id=>timer);
+ assert resumed_timer<>timer;
+ perform cali_workspace.v2_pilot_hour_action(a,gen_random_uuid(),'stop',p_timer_id=>resumed_timer);
+ assert cali_workspace.v2_pilot_active_timers(a)='[]'::jsonb;
+ reset role;
+ update cali_workspace.account_records set workflow_status='completed' where id=ticket;
+ set local role authenticated;
+ begin
+   perform cali_workspace.v2_start_pilot_record_timer(a,gen_random_uuid(),ticket);
+   raise exception 'Timer aceito para ocorrência encerrada';
+ exception when insufficient_privilege then null; end;
+ reset role;
+ update cali_workspace.account_records set workflow_status='in_progress' where id=ticket;
+ set local role authenticated;
  assert cali_workspace.v2_pilot_report_readiness(a,'2026-11-01')->>'mode'='preview';
  perform cali_workspace.fixture_as('clientA');
+ begin
+   perform cali_workspace.v2_start_pilot_record_timer(a,gen_random_uuid(),ticket);
+   raise exception 'Cliente iniciou timer';
+ exception when insufficient_privilege then null; end;
  payload := cali_workspace.v2_read_pilot_record(a,ticket,1);
  assert jsonb_array_length(payload->'messages')=2 and payload::text not like '%Nota reservada%';
  begin
@@ -152,6 +182,8 @@ begin
  reset role;
  assert (select count(*) from cali_workspace.hour_entries where description='Timer QA')=1;
  assert (select count(*) from cali_workspace.hour_entries where description='Atividade')=1;
+ assert (select count(*) from cali_workspace.work_timers where id in (timer,resumed_timer) and account_record_id=ticket and not client_visible)=2;
+ assert (select count(*) from cali_workspace.hour_entries where account_record_id=ticket and not client_visible)=1;
  assert (select count(*) from cali_workspace.notifications where entity_id=ticket)=3;
  assert not exists(select 1 from cali_workspace.notifications where entity_id=ticket and email_required);
  assert (select count(*) from cali_workspace.activity_log where entity_id=project and event_type='project_draft_created')=1;
@@ -204,6 +236,7 @@ do $$
 begin
  assert to_regprocedure('cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date)') is null;
  assert to_regprocedure('cali_workspace.v2_pilot_active_timers(uuid)') is null;
+ assert to_regprocedure('cali_workspace.v2_start_pilot_record_timer(uuid,uuid,uuid)') is null;
  assert to_regprocedure('cali_workspace.v2_read_pilot_record(uuid,uuid,integer)') is null;
  assert to_regprocedure('cali_workspace.v2_acknowledge_pilot_report(uuid,uuid)') is null;
  assert to_regprocedure('cali_workspace.v2_list_pilot_privacy_requests(uuid,integer)') is null;

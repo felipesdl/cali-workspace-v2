@@ -11,7 +11,8 @@ alter table cali_workspace.deliverables add column workstream text;
 alter table cali_workspace.deliverables alter column execution_status set default 'normal';
 alter table cali_workspace.account_records add primary key(id);
 alter table cali_workspace.account_records add column record_type text, add column source_actor text,
- add column requires_action boolean, add column created_by uuid, add column last_activity_at timestamptz, add column assigned_to uuid;
+ add column requires_action boolean, add column created_by uuid, add column last_activity_at timestamptz, add column assigned_to uuid,
+ add column project_id uuid;
 create table cali_workspace.account_record_messages(
  id uuid primary key default gen_random_uuid(),record_id uuid,company_id uuid,author_id uuid,author_role text,
  body text,visibility text,created_at timestamptz not null default clock_timestamp(),deleted_at timestamptz
@@ -33,7 +34,8 @@ create trigger fixture_record_mention after insert on cali_workspace.account_rec
 for each row execute function cali_workspace.fixture_record_mention();
 create table cali_workspace.work_timers(
  id uuid primary key default gen_random_uuid(),company_id uuid,project_id uuid,user_id uuid,description text,
- client_visible boolean,status text,started_at timestamptz default clock_timestamp(),category text,task_id uuid,deliverable_id uuid
+ client_visible boolean,status text,started_at timestamptz default clock_timestamp(),category text,task_id uuid,deliverable_id uuid,
+ account_record_id uuid
 );
 create table cali_workspace.data_subject_requests(
  id uuid primary key default gen_random_uuid(),company_id uuid,user_id uuid,kind text,details text,
@@ -80,7 +82,7 @@ returns void language sql as $$
  update cali_workspace.projects set planning_status='client_review'
  where id=(select project_id from cali_workspace.project_review_requests where id=p_review);
 $$;
-alter table cali_workspace.hour_entries add column deliverable_id uuid,add column task_id uuid;
+alter table cali_workspace.hour_entries add column deliverable_id uuid,add column task_id uuid,add column account_record_id uuid;
 create function cali_workspace.add_manual_hour_entry(uuid,uuid,uuid,uuid,date,integer,text,text,text,boolean,timestamptz,timestamptz)
 returns uuid language sql as $$
  insert into cali_workspace.hour_entries values(gen_random_uuid(),$1,$2,$5,$6,$7,$8,$9,$10,$3,$4) returning id;
@@ -89,6 +91,11 @@ create function cali_workspace.start_work_timer_v2(uuid,uuid,uuid,uuid,text,text
 returns uuid language sql as $$
  insert into cali_workspace.work_timers(company_id,project_id,user_id,description,client_visible,status,deliverable_id,task_id)
  values($1,$2,auth.uid(),$6,$7,'active',$3,$4) returning id;
+$$;
+create function cali_workspace.start_account_record_timer(uuid) returns uuid language sql as $$
+ insert into cali_workspace.work_timers(company_id,project_id,user_id,description,client_visible,status,category,account_record_id)
+ select company_id,project_id,auth.uid(),title,false,'active','Ocorrências e solicitações',id
+ from cali_workspace.account_records where id=$1 returning id;
 $$;
 create function cali_workspace.pause_work_timer(uuid) returns void language sql as $$
  -- O trecho menor que 30s é descartado pelo legado.
@@ -100,7 +107,8 @@ $$;
 create function cali_workspace.stop_work_timer(uuid,text) returns integer language sql as $$
  update cali_workspace.work_timers set status='stopped' where id=$1;
  insert into cali_workspace.hour_entries
- select gen_random_uuid(),company_id,project_id,'2026-11-09',15,description,'Execução',null,client_visible
+   (id,company_id,project_id,work_date,minutes,description,category,internal_note,client_visible,account_record_id)
+ select gen_random_uuid(),company_id,project_id,'2026-11-09',15,description,coalesce(category,'Execução'),null,client_visible,account_record_id
  from cali_workspace.work_timers where id=$1 returning minutes;
 $$;
 create function cali_workspace.set_account_record_status(uuid,text) returns void language sql as $$

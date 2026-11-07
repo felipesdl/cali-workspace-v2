@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouteContext } from '@tanstack/react-router';
+import { Link, useRouteContext } from '@tanstack/react-router';
 import {
   type RecordAction,
   type RecordReviewAction,
@@ -12,6 +12,7 @@ import { formatServerInstant } from '../../lib/dates';
 import { ActionForm } from './ActionForm';
 import { RecordReviewActions } from './RecordReviewActions';
 import { PdfDownload } from './PdfDownload';
+import { workspaceSearch } from '../../api/modules/project-workspace/schemas';
 
 const states = {
   in_progress: 'Em atendimento',
@@ -92,7 +93,7 @@ export function RecordConversation({
   record,
   back,
 }: Scope & { record: string; back: () => void }) {
-  const { domainOperations } = useRouteContext({ from: '__root__' });
+  const { domainOperations, hourOperations } = useRouteContext({ from: '__root__' });
   const cache = useQueryClient();
   const [page, setPage] = useState(1);
   const key = ['phase4-record', actor, company, record];
@@ -137,6 +138,23 @@ export function RecordConversation({
       {data && (
         <>
           <h2 className="tw:text-section">{data.title}</h2>
+          {admin && hourOperations && (
+            <section aria-label="Horas da ocorrência" className="tw:grid tw:gap-2">
+              {open && (
+                <ActionForm
+                  label="Iniciar timer da ocorrência"
+                  submit={async (_, request) => {
+                    const timer = await hourOperations.startRecordTimer(company, request, record);
+                    await cache.invalidateQueries({ queryKey: ['phase4-timers', actor, company] });
+                    return timer;
+                  }}
+                />
+              )}
+              <Link to="/admin/horas" search={workspaceSearch.parse({ companyId: company })}>
+                Acompanhar timer e extrato em Horas
+              </Link>
+            </section>
+          )}
           {data.messages.length ? (
             <ol className="tw:grid tw:gap-3">
               {data.messages.map((message) => (

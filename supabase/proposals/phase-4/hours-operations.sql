@@ -29,6 +29,7 @@ declare
   result_id uuid;
   timer cali_workspace.work_timers%rowtype;
   timer_project uuid;
+  timer_record uuid;
   open_hold boolean;
 begin
   if p_request_id is null or p_action is null or p_action not in ('manual','start','pause','resume','stop')
@@ -94,7 +95,7 @@ begin
       p_company_id,p_project_id,p_deliverable_id,p_task_id,'Execução',btrim(p_description),coalesce(p_client_visible,false)
     );
   else
-    select t.project_id into timer_project from cali_workspace.work_timers t
+    select t.project_id,t.account_record_id into timer_project,timer_record from cali_workspace.work_timers t
     where t.id=p_timer_id and t.company_id=p_company_id and t.user_id=actor;
     if not found then raise exception using errcode='42501', message='Timer indisponível.'; end if;
     -- Respeita a ordem projeto → timer usada por ciclo e aprovação de entregável.
@@ -103,9 +104,16 @@ begin
         and (p_action<>'resume' or p.execution_status='normal') for share;
       if not found then raise exception using errcode='42501',message='Retome a execução do projeto antes do timer.'; end if;
     end if;
+    if p_action='resume' and timer_record is not null then
+      perform 1 from cali_workspace.account_records r where r.id=timer_record and r.company_id=p_company_id
+        and r.project_id is not distinct from timer_project
+        and r.workflow_status not in ('completed','cancelled') for update;
+      if not found then raise exception using errcode='42501',message='A ocorrência não aceita novas horas.'; end if;
+    end if;
     select * into timer from cali_workspace.work_timers t where t.id=p_timer_id
       and t.company_id=p_company_id and t.user_id=actor for update;
-    if not found or timer.project_id is distinct from timer_project then
+    if not found or timer.project_id is distinct from timer_project
+      or timer.account_record_id is distinct from timer_record then
       raise exception using errcode='40001',message='O timer mudou de contexto.';
     end if;
     open_hold := exists(select 1 from cali_session_guard.phase4_hour_holds h where h.timer_id=timer.id
@@ -134,8 +142,12 @@ begin
           raise exception using errcode='40001',message='Conclua o outro timer antes de retomar.';
         end if;
         if open_hold and timer.status in ('stopped','discarded') then
-          result_id := cali_workspace.start_work_timer_v2(p_company_id,timer.project_id,timer.deliverable_id,
-            timer.task_id,timer.category,timer.description,timer.client_visible);
+          if timer_record is not null then
+            result_id := cali_workspace.start_account_record_timer(timer_record);
+          else
+            result_id := cali_workspace.start_work_timer_v2(p_company_id,timer.project_id,timer.deliverable_id,
+              timer.task_id,timer.category,timer.description,timer.client_visible);
+          end if;
           update cali_session_guard.phase4_hour_holds set resolved_at=clock_timestamp() where timer_id=timer.id;
         elsif timer.status='paused' then
           perform cali_workspace.resume_work_timer(timer.id);
@@ -156,6 +168,51 @@ begin
   return result_id;
 end;
 $$;
+
+create or replace function cali_workspace.v2_start_pilot_record_timer(
+  p_company_id uuid,p_request_id uuid,p_record_id uuid
+)
+returns uuid language plpgsql security definer set search_path=''
+as $$
+declare
+  actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
+  signature bytea;
+  result_id uuid;
+  record_project uuid;
+begin
+  if p_request_id is null or p_record_id is null then
+    raise exception using errcode='22023',message='Informe a ocorrência.';
+  end if;
+  signature := sha256(convert_to(jsonb_build_array('record-timer',p_record_id)::text,'UTF8'));
+  perform pg_advisory_xact_lock(hashtextextended('phase4-hours:'||p_company_id::text||':'||actor::text,0));
+  result_id := cali_session_guard.read_phase4_receipt(actor,p_company_id,p_request_id,signature);
+  if result_id is not null then return result_id; end if;
+
+  select r.project_id into record_project from cali_workspace.account_records r
+  where r.id=p_record_id and r.company_id=p_company_id;
+  if record_project is not null then
+    perform 1 from cali_workspace.projects p where p.id=record_project and p.company_id=p_company_id
+      and p.execution_status='normal' and cali_workspace.hour_project_operational(p.id) for share;
+    if not found then raise exception using errcode='42501',message='Projeto indisponível para horas.'; end if;
+  end if;
+  perform 1 from cali_workspace.account_records r where r.id=p_record_id and r.company_id=p_company_id
+    and r.project_id is not distinct from record_project
+    and r.workflow_status not in ('completed','cancelled') for update;
+  if not found then raise exception using errcode='42501',message='A ocorrência não aceita novas horas.'; end if;
+  if exists(select 1 from cali_workspace.work_timers t where t.user_id=actor and t.company_id=p_company_id
+    and t.status in ('active','paused')) or exists(select 1 from cali_session_guard.phase4_hour_holds h
+    where h.actor_id=actor and h.company_id=p_company_id and h.resolved_at is null) then
+    raise exception using errcode='40001',message='Conclua o timer aberto antes de iniciar outro.';
+  end if;
+  result_id := cali_workspace.start_account_record_timer(p_record_id);
+  insert into cali_session_guard.phase4_operation_receipts values(actor,p_company_id,p_request_id,signature,result_id);
+  return result_id;
+end;
+$$;
+
+revoke all on function cali_workspace.v2_start_pilot_record_timer(uuid,uuid,uuid)
+  from public,anon,authenticated,service_role;
+grant execute on function cali_workspace.v2_start_pilot_record_timer(uuid,uuid,uuid) to authenticated;
 
 revoke all on function cali_session_guard.pilot_hour_action(uuid,uuid,text,uuid,uuid,date,integer,text,text,boolean,uuid,uuid)
   from public,anon,authenticated,service_role;

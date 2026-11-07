@@ -48,7 +48,7 @@ O PostgreSQL descartável prova as guardas, reexecução, transições, isolamen
 | Recorte | Operação exercitada localmente | Trabalho pendente |
 | --- | --- | --- |
 | 4A | Planejamento, ajustes por item, execução, subtarefas, conversas, dependências, revisão de prazo e nova aprovação após correção | Migração dos arquivos legados, paridade visual e decisão sobre vencimento de revisão |
-| 4B | Lançamento, pausa e retomada sem dupla contagem; solicitação ordinária, oferta, confirmação, remarcação e cancelamento homologados | Homologação hospedada da exclusão, vínculos detalhados, marcos de capacidade, extras, preço aceito, participantes adicionais e Google/Meet |
+| 4B | Lançamento, pausa e retomada sem dupla contagem; solicitação ordinária, oferta, confirmação, remarcação e cancelamento homologados | Homologação hospedada da exclusão e das transições de capacidade, extras, preço aceito, participantes adicionais e Google/Meet |
 | 4C | Publicar aviso dirigido, arquivar/restaurar, ciência e desfazer ciência. Mural e agenda leem o mesmo aviso | Anexos de conversa, comentários/reações do mural e resumo Admin |
 | 4D | Rascunho mensal captura o retrato das fontes instaladas. Curadoria aprovada, PDF, republicação e retirada homologados | Fontes restantes e paridade visual |
 | 4E | Listar formulários existentes da empresa e abrir/encerrar os que atendem às guardas | Editor, formulário público e respostas na V2, Propostas, Mapa, frentes/ajuda, auditoria, ciclo de dados e equipe CALI |
@@ -273,9 +273,17 @@ A geração, liberação e ciência foram validadas no [lote hospedado seguinte]
 
 Admin abre Horas pelo entregável ou pela subtarefa. A consulta resolve os nomes e a relação entre empresa, projeto e item, exige MFA e permite registrar horas manuais em contexto operacional. O timer exige execução normal do projeto e entregável. A operação revalida os vínculos antes de gravar e inclui os identificadores no recibo de reenvio. A retomada preserva projeto, entregável e subtarefa e recusa item encerrado. Lançamentos sem vínculo e seus recibos continuam compatíveis.
 
-No CALI MAPA, Admin abriu o entregável sintético de A pelo atalho e lançou dois minutos internos. O banco confirmou o projeto e o entregável persistidos, visibilidade Cliente desmarcada e zero marcos de capacidade. O PostgreSQL descartável confirmou lançamento e retomada com subtarefa, recusa de mudança de vínculo no recibo e bloqueio de Cliente. Timer vinculado ainda precisa de prova hospedada. Ocorrências exigem conciliar o contrato de vínculo próprio.
+No CALI MAPA, Admin abriu o entregável sintético de A pelo atalho e lançou dois minutos internos. Depois abriu Horas pelo atalho de uma subtarefa interna, iniciou, pausou, retomou e concluiu o timer. O banco confirmou dois trechos privados, de dois e um minuto, com o mesmo projeto, entregável e subtarefa. A conclusão marcou a subtarefa como concluída e encerrou sua execução. Nenhuma pausa do teste ficou pendente. O PostgreSQL descartável verificou também a recusa de mudança de vínculo no recibo e o bloqueio de Cliente.
 
 Para reverter só o lote, restaurar `v2_pilot_hour_action` de `fe4f122`, remover `v2_pilot_linked_hour_action`, `v2_pilot_hour_link` e a implementação privada, e recarregar o schema da Data API. Concluir timers do recorte antes de reverter. Preservar lançamentos, recibos e histórico.
+
+## Horas vinculadas a ocorrência
+
+Admin com MFA inicia o timer no detalhe de uma ocorrência aberta e acompanha os trechos em Horas. O servidor confere a empresa, o estado da ocorrência e o projeto operacional quando houver. O início é idempotente e compartilha a exclusão mútua com os demais timers e pausas. Retomar um trecho fechado chama a operação legada de ocorrência, preservando o vínculo. O fechamento usa o cálculo e a capacidade existentes, com visibilidade Cliente desmarcada na origem. A conclusão do timer não altera a situação da ocorrência.
+
+No CALI MAPA, Admin iniciou, pausou, retomou e concluiu o timer da ocorrência sintética de A. O extrato apresentou dois trechos de dois minutos com o mesmo protocolo. O PostgreSQL descartável confirmou repetição, pausa pendente, recusa em outra empresa, ocorrência encerrada e tentativa de Cliente. O formulário de horas manuais permanece no fluxo existente.
+
+A instalação atualiza `hours-operations.sql`. Para reverter apenas este incremento, conclua timers e pausas de ocorrência do piloto, reaplique a definição privada de `pilot_hour_action` de `5301d8d` e retire `v2_start_pilot_record_timer(uuid,uuid,uuid)`. Recarregue o schema da Data API e reverta a ação do detalhe da ocorrência. Lançamentos, timers, recibos e histórico são preservados.
 
 ## Marcos de capacidade em Horas
 

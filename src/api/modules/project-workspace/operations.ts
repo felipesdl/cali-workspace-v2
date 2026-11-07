@@ -236,6 +236,18 @@ export type HourCorrection = z.infer<typeof correction>;
 
 export function createHourOperations(client: WorkspaceClient) {
   return {
+    async startRecordTimer(company: string, requestId: string, record: string) {
+      const { data, error } = await client.rpc('v2_start_pilot_record_timer', {
+        p_company_id: company,
+        p_request_id: requestId,
+        p_record_id: record,
+      });
+      if (error?.code === '42501') throw new Error('A ocorrência não aceita novas horas.');
+      if (error?.code === '40001' || error?.code === '23505')
+        throw new Error('Conclua o timer aberto em Horas antes de iniciar outro.');
+      if (error) throw new Error('Não foi possível iniciar o timer da ocorrência.');
+      return z.uuid().parse(data);
+    },
     async link(company: string, delivery: string, task: string | null, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_pilot_hour_link', {

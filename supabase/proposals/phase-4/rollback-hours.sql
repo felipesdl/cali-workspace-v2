@@ -6,6 +6,7 @@ do $$ begin
    raise exception 'Encerre as pausas do piloto antes de retirar as operações de horas.';
  end if;
 end $$;
+drop function if exists cali_workspace.v2_start_pilot_record_timer(uuid,uuid,uuid);
 drop function if exists cali_workspace.v2_pilot_hour_action(uuid,uuid,text,uuid,uuid,date,integer,text,text,boolean);
 drop function if exists cali_workspace.v2_pilot_linked_hour_action(uuid,uuid,text,uuid,uuid,uuid,date,integer,text,text,boolean);
 drop function if exists cali_workspace.v2_pilot_hour_link(uuid,uuid,uuid);

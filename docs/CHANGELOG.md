@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Timer de subtarefa e horas de ocorrências
+
+- Admin concluiu o timer de uma subtarefa interna no CALI MAPA. Dois trechos privados somaram três minutos e mantiveram o vínculo. No mesmo piloto, Admin iniciou o timer no detalhe de uma ocorrência e concluiu em Horas, com quatro minutos vinculados e privados. O PostgreSQL descartável confirmou as guardas e a reversão. [Prova da subtarefa](contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa) · [Prova e reversão da ocorrência](contracts/PHASE_4_READ.md#horas-vinculadas-a-ocorrência).
+
 ## Preparação da homologação e do build
 
 - O roteiro interno consolida percursos e provas disponíveis para Projetos, Horas, Agenda, Ocorrências, Avisos, Relatórios e Administração. As telas demonstrativas carregam sob demanda. O preview local serviu URLs diretas e ativos, e o navegador abriu as duas demonstrações. [Roteiro](HOMOLOGACAO_PATRICIA.md#roteiro-de-regressão-interna-da-fase-4) · [Build](RUNBOOK.md#prova-local-do-build-e-das-urls).
