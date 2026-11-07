@@ -80,6 +80,8 @@ O [piloto V2 de privacidade](../contracts/PHASE_4_READ.md#lote-de-pedido-de-priv
 
 O Cliente já pode consultar a modalidade e a vigência das frentes contratadas e seguir para a Agenda quando precisar conversar sobre o escopo. [Prova de Frentes e Ajuda](../contracts/PHASE_4_READ.md#frentes-contratadas-e-ajuda-no-cali-mapa).
 
+Admin já ativa e encerra vínculos de Frentes pelo catálogo do plano com histórico. O piloto B confirmou a guarda de uma frente ativa do CALI Build Essencial. [Prova de gestão de Frentes](../contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa).
+
 **Objetivo/atores/entrada:** Cliente entende escopo/frentes e solicita apoio/direitos; Admin configura frentes, responde pedidos, exporta e conduz encerramento/eliminação autorizados. Contexto: `/cliente/frentes`, ajuda/perfil, `/admin/clientes` e auditoria; páginas legais públicas não concedem acesso ao workspace.
 
 **Fontes:** [frentes](SOURCES.md#fronts), [perfil/direitos](SOURCES.md#profile-ui), [privacidade SQL](SOURCES.md#privacy), [exportação](SOURCES.md#export), [encerramento](SOURCES.md#access-close), [eliminação](SOURCES.md#elimination), [sequência UI](SOURCES.md#elimination-ui), [versão legal](SOURCES.md#legal).

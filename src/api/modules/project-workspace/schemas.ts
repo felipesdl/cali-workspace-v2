@@ -114,12 +114,25 @@ const catalogModuleSchema = z.enum([
   'fronts',
 ]);
 export type CatalogModule = z.infer<typeof catalogModuleSchema>;
+const frontMode = z.enum(['slot_included', 'slot_paid', 'addon', 'build_assisted']);
 const frontTerms = z.object({
   scope: z.string().nullable(),
-  mode: z.enum(['slot_included', 'slot_paid', 'addon', 'build_assisted']),
+  mode: frontMode,
   endsOn: z.iso.date().nullable(),
 });
 export type FrontTerms = z.infer<typeof frontTerms>;
+export const frontOption = z.object({
+  code: z.string().min(1).max(100),
+  title: z.string(),
+  mode: frontMode,
+});
+export const frontOptions = z.object({ hasPlan: z.boolean(), options: z.array(frontOption) });
+export const frontActivation = frontOption.omit({ title: true }).extend({
+  scope: z.string().trim().max(240),
+  startsOn: z.iso.date(),
+  endsOn: z.iso.date().nullable(),
+});
+export type FrontActivation = z.infer<typeof frontActivation>;
 
 export const catalog = z.object({
   companyId: z.uuid(),

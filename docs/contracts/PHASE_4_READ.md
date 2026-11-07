@@ -273,9 +273,17 @@ A geração, liberação e ciência foram validadas no [lote hospedado seguinte]
 
 A RPC de catálogos projeta o título e a descrição da frente, seu escopo contratado, modalidade e vigência. Cliente consulta frentes ativas da própria empresa. Admin também consulta as encerradas. A tela de Frentes leva à solicitação ordinária na Agenda, que mantém as guardas e o formulário existentes. Abrir o formulário não cria pedido.
 
-O CALI MAPA recebeu a projeção após conferência da definição anterior. As empresas A/B estavam sem vínculos. No navegador, B abriu Frentes, viu o estado vazio e chegou ao formulário de encontro do contrato. PostgreSQL descartável comprovou a projeção de uma frente ativa e ocultou a encerrada do Cliente. A escrita administrativa ainda precisa de prova de ativação e encerramento com as guardas de plano instaladas.
+O CALI MAPA recebeu a projeção após conferência da definição anterior. As empresas A/B estavam sem vínculos. No navegador, B abriu Frentes, viu o estado vazio e chegou ao formulário de encontro do contrato. PostgreSQL descartável comprovou a projeção de uma frente ativa e ocultou a encerrada do Cliente. O lote seguinte validou a [gestão administrativa](#gestão-administrativa-de-frentes-no-cali-mapa).
 
 Reversão deste lote: reaplicar a definição de `v2_read_pilot_catalog` de `2ff8b33` como `create or replace function`, recarregar o schema da Data API e reverter o front deste recorte. Nenhuma associação contratual foi criada pela instalação.
+
+## Gestão administrativa de Frentes no CALI MAPA
+
+Admin com MFA consulta as combinações de frente e modalidade do plano, ativa um vínculo com escopo e vigência e encerra com confirmação. `validate_company_front` continua responsável pelas regras de catálogo, elegibilidade e vagas. A ativação bloqueia a linha da empresa antes da escrita e usa recibo por solicitação. O encerramento preserva o vínculo e sua autoria, e a repetição devolve o mesmo resultado. Cliente segue com leitura da própria empresa. O vínculo não executa cobrança, alteração de plano ou sincronização.
+
+No CALI MAPA, B já tinha CALI Build Essencial. Admin ativou **Indicadores essenciais** com escopo sintético, e a tentativa de ativar **Liderança** em paralelo à frente existente foi recusada. B viu a frente com modalidade e vigência; A ficou vazia. Admin encerrou o vínculo e manteve o registro no histórico. Após recarregar, B voltou ao estado vazio. Partner, Full e Build Completo ainda precisam de prova específica de suas vagas. PostgreSQL descartável também passou em repetição, recusa sem plano e isolamento.
+
+Instalar `front-operations.sql` após `pilot-role.sql`, `operation-receipts.sql` e o catálogo atualizado. `rollback-front-operations.sql` retira só as três RPCs e preserva os registros, recibos e auditoria.
 
 ## Curadoria de relatórios no CALI MAPA
 

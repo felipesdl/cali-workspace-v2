@@ -7,7 +7,11 @@ import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { AdminDailyPreview } from './AdminDailyPreview';
 import { ReportCurationSections } from './ReportCuration';
-import { ContractedFrontTerms } from './ContractedFrontTerms';
+import {
+  ActivateContractedFront,
+  ContractedFrontTerms,
+  EndContractedFront,
+} from './ContractedFrontTerms';
 import { DeliveryPdf, DocumentLibrary } from './DocumentLibrary';
 import {
   CreateReportDraft,
@@ -622,6 +626,9 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
           </Link>
         </section>
       )}
+      {module === 'fronts' && admin && companyId && (
+        <ActivateContractedFront key={companyId} company={companyId} actor={actor} />
+      )}
 
       {module === 'notices' && admin && companyId && (
         <PublishNotice key={companyId} company={companyId} actor={actor} />
@@ -735,6 +742,9 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                     <ReportCurationSections sections={item.reportCuration} />
                   )}
                   {item.frontTerms && <ContractedFrontTerms terms={item.frontTerms} />}
+                  {item.frontTerms && admin && item.status === 'active' && (
+                    <EndContractedFront company={companyId} actor={actor} id={item.id} />
+                  )}
                   {module === 'notices' && item.status === 'published' && (
                     <NoticeInteractions company={companyId} actor={actor} notice={item.id} />
                   )}

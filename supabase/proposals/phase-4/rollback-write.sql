@@ -1,5 +1,8 @@
 -- Desativa o incremento operacional. Dados produzidos e recibos de reexecução ficam preservados.
 begin;
+drop function if exists cali_workspace.v2_list_pilot_front_options(uuid);
+drop function if exists cali_workspace.v2_activate_pilot_front(uuid,uuid,text,text,text,date,date);
+drop function if exists cali_workspace.v2_end_pilot_front(uuid,uuid);
 drop function if exists cali_workspace.v2_read_pilot_admin_daily_preview();
 drop function if exists cali_session_guard.phase4_build_admin_daily_preview(timestamptz);
 drop function if exists cali_workspace.v2_read_pilot_notice_interactions(uuid,uuid,integer);

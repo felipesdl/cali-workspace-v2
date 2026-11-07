@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 import { companyStatus } from '../companies/schemas';
 import { reportCurationSchema, type ReportCuration } from './report-curation';
+import { frontActivation, frontOptions, type FrontActivation } from './schemas';
 
 const feedback = z.object({
   score: z.number().int().min(1).max(5),
@@ -177,6 +178,38 @@ export type FormTriageResponse = z.infer<typeof formTriageResponse>;
 
 export function createDomainOperations(client: WorkspaceClient) {
   return {
+    async frontOptions(company: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_list_pilot_front_options', { p_company_id: company })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      return frontOptions.parse(data);
+    },
+    async activateFront(company: string, request: string, input: FrontActivation) {
+      const front = frontActivation.parse(input);
+      const { data, error } = await client.rpc('v2_activate_pilot_front', {
+        p_company_id: company,
+        p_request_id: request,
+        p_code: front.code,
+        p_mode: front.mode,
+        p_scope: front.scope,
+        p_start: front.startsOn,
+        p_end: front.endsOn,
+      });
+      if (error?.code === 'P4F01') throw new Error('Defina um plano ativo para esta empresa.');
+      if (error?.code === 'P0001')
+        throw new Error('O plano, a vigência ou as vagas disponíveis impedem a ativação.');
+      if (error) throw rejected(error.code);
+      return z.literal(request).parse(data);
+    },
+    async endFront(company: string, id: string) {
+      const { data, error } = await client.rpc('v2_end_pilot_front', {
+        p_company_id: company,
+        p_front_id: id,
+      });
+      if (error) throw rejected(error.code);
+      return z.literal(id).parse(data);
+    },
     async publishNotice(
       company: string,
       id: string,

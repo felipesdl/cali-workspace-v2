@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Gestão de Frentes contratadas
+
+- Admin ativou e encerrou uma frente sintética em B. O plano Build Essencial recusou a segunda frente. B viu a ativação e o corte, e A ficou isolada. [Contrato e prova](contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa).
+
 ## 07/11/2026 — Frentes contratadas e Ajuda
 
 - A consulta de Frentes mostra o título de catálogo, o escopo contratado, a modalidade e a vigência. No piloto, o Cliente B abriu o formulário da Agenda a partir de Frentes. [Contrato e prova](contracts/PHASE_4_READ.md#frentes-contratadas-e-ajuda-no-cali-mapa).
