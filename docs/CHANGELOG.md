@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Homologação da Auditoria no CALI MAPA
+
+- Consulta instalada. Admin viu os cinco eventos de Forms em A e a lista vazia em B. Cliente A foi redirecionado ao tentar abrir a Auditoria. [Evidência e reversão](contracts/PHASE_4_READ.md#lote-de-auditoria-de-formulários).
+
 ## 06/11/2026 — Eventos de Forms na Auditoria
 
 - Auditoria Admin inclui rascunho, abertura, encerramento e triagem de Forms. A consulta obtém o protocolo executivo pelo evento da mesma revisão e pode ser homologada separadamente. [Contrato e prova](contracts/PHASE_4_READ.md#lote-de-auditoria-de-formulários).
