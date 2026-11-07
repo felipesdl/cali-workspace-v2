@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Confirmação de abertura pública em Forms
+
+- Abertura por link exige confirmação explícita, MFA e formulário sem confirmação por e-mail. A operação anterior só encerra. Guarda instalada no CALI MAPA, com zero coletas abertas no piloto. [Contrato](contracts/PHASE_4_READ.md#confirmação-de-coleta-pública-em-forms).
+
 ## 07/11/2026 — PDF executivo homologado no CALI MAPA
 
 - PDF da versão 2 gerado e liberado para A; os downloads Admin e Cliente coincidiram com o hash do banco. A registrou ciência, B ficou isolado e o download antigo foi recusado após retirada. Edge temporária removida; nenhuma liberação ficou ativa. Tela passa a mostrar ciência persistida. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-pdf-executivo-no-cali-mapa).

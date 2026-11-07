@@ -13,7 +13,31 @@ begin
  perform cali_workspace.fixture_as('admin');
  perform cali_workspace.v2_publish_pilot_notice(a,notice_id,'comunicado','Aviso QA','Texto do piloto','2026-11-09');
  perform cali_workspace.v2_publish_pilot_notice(a,notice_id,'comunicado','Aviso QA','Texto do piloto','2026-11-09');
- perform cali_workspace.v2_set_pilot_form_state(a,form_id,'draft','open');
+ begin
+  perform cali_workspace.v2_set_pilot_form_state(a,form_id,'draft','open');
+  raise exception 'Rota anterior abriu coleta pública';
+ exception when invalid_parameter_value then null; end;
+ begin
+  perform cali_workspace.v2_open_pilot_public_form(a,form_id,'draft',false);
+  raise exception 'Coleta pública abriu sem confirmação';
+ exception when invalid_parameter_value then null; end;
+ assert cali_workspace.v2_list_pilot_forms(a,1)#>>'{0,status}'='draft';
+ begin
+  perform cali_workspace.v2_open_pilot_public_form(b,form_id,'draft',true);
+  raise exception 'Coleta pública abriu para empresa errada';
+ exception when serialization_failure then null; end;
+ begin
+  perform cali_workspace.v2_open_pilot_public_form(a,form_id,'draft',true);
+  raise exception 'Coleta com confirmação por e-mail foi aberta';
+ exception when serialization_failure then null; end;
+ reset role;
+ update cali_workspace.forms set confirm_email=false where id=form_id;
+ set local role authenticated;
+ perform cali_workspace.v2_open_pilot_public_form(a,form_id,'draft',true);
+ begin
+  perform cali_workspace.v2_open_pilot_public_form(a,form_id,'draft',true);
+  raise exception 'Coleta reaberta por estado obsoleto';
+ exception when serialization_failure then null; end;
  assert cali_workspace.v2_list_pilot_forms(a,1)#>>'{0,status}'='open';
  assert cali_workspace.v2_list_pilot_forms(b,1)='[]'::jsonb;
  perform cali_workspace.v2_set_pilot_form_state(a,form_id,'open','closed');
@@ -89,6 +113,8 @@ begin
  perform cali_workspace.fixture_as('clientA');
  assert cali_workspace.v2_read_pilot_catalog(a,'calendar','2026-11-01',1)::text not like '%Aviso QA%';
  reset role;
+ assert exists(select 1 from cali_workspace.activity_log where entity_id=form_id and event_type='form_open'
+   and metadata->>'collection'='public_link');
  assert (select count(*) from cali_workspace.notifications where entity_id=notice_id)=1;
  assert (select source_snapshot->>'company' from cali_workspace.reports where id=report_id)=a::text;
  assert (select snapshot->>'summary' from cali_session_guard.phase4_report_approvals

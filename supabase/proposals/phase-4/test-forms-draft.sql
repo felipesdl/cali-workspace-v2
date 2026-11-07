@@ -36,7 +36,7 @@ begin
     perform cali_workspace.v2_edit_pilot_form_draft(a,form_id,stamp,'details','{"title":"Obsoleto"}');
     raise exception 'Atualização obsoleta aceita';
   exception when serialization_failure then null; end;
-  assert cali_workspace.v2_set_pilot_form_state(a,form_id,'draft','open')=form_id;
+  assert cali_workspace.v2_open_pilot_public_form(a,form_id,'draft',true)=form_id;
   assert cali_workspace.v2_read_pilot_form_draft(a,form_id) is null;
   data := cali_workspace.v2_read_pilot_form_draft(a,existing_id);
   assert data#>>'{questions,0,required}'='false';

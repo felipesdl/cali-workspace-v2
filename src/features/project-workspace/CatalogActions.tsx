@@ -394,18 +394,30 @@ export function FormAdministration({ company, actor }: Scope) {
             <FormTriage company={company} actor={actor} form={form.id} operations={operations} />
           )}
           <ActionForm
-            label={form.status === 'open' ? 'Encerrar formulário' : 'Abrir formulário existente'}
-            submit={async () => {
-              const id = await operations.formState(
-                company,
-                form.id,
-                form.status,
-                form.status === 'open' ? 'closed' : 'open',
-              );
+            key={form.status}
+            label={form.status === 'open' ? 'Encerrar formulário' : 'Abrir coleta por link público'}
+            submit={async (fields) => {
+              const id =
+                form.status === 'open'
+                  ? await operations.closeForm(company, form.id)
+                  : await operations.openPublicForm(
+                      company,
+                      form.id,
+                      form.status,
+                      fields.get('publicLinkConfirmed') === 'on',
+                    );
               await cache.invalidateQueries({ queryKey: key });
               return id;
             }}
-          />
+          >
+            {form.status !== 'open'
+              ? (prefix) => (
+                  <Checkbox id={prefix + 'public'} name="publicLinkConfirmed" required>
+                    Entendo que qualquer pessoa com o link poderá responder sem entrar no Workspace.
+                  </Checkbox>
+                )
+              : undefined}
+          </ActionForm>
         </article>
       ))}
       {forms.isSuccess && (page > 1 || forms.data.length === 25) && (

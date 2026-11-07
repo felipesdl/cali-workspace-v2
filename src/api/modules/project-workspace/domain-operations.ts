@@ -374,15 +374,33 @@ export function createDomainOperations(client: WorkspaceClient) {
       if (error) throw rejected(error.code);
       return z.literal(response.id).parse(data);
     },
-    async formState(company: string, id: string, current: string, next: 'open' | 'closed') {
+    async closeForm(company: string, id: string) {
       const { data, error } = await client.rpc('v2_set_pilot_form_state', {
         p_company_id: company,
         p_form_id: id,
-        p_expected: current,
-        p_next: next,
+        p_expected: 'open',
+        p_next: 'closed',
       });
       if (error) throw rejected(error.code);
-      return z.uuid().parse(data);
+      return z.literal(id).parse(data);
+    },
+    async openPublicForm(
+      company: string,
+      id: string,
+      current: 'draft' | 'closed',
+      confirmed: boolean,
+    ) {
+      if (!confirmed) throw new Error('Confirme que o formulário ficará público por link.');
+      const { data, error } = await client.rpc('v2_open_pilot_public_form', {
+        p_company_id: company,
+        p_form_id: id,
+        p_expected: current,
+        p_confirm_public: confirmed,
+      });
+      if (error?.code === '40001')
+        throw new Error('O formulário mudou, está sem perguntas ou tem confirmação por e-mail.');
+      if (error) throw rejected(error.code);
+      return z.literal(id).parse(data);
     },
     async readRecord(company: string, record: string, page: number, signal: AbortSignal) {
       const { data, error } = await client

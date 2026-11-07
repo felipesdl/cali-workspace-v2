@@ -8,5 +8,6 @@ drop function if exists cali_workspace.v2_read_pilot_form_draft(uuid,uuid);
 drop function if exists cali_workspace.v2_create_pilot_form_draft(uuid,uuid,text,text);
 drop function if exists cali_workspace.v2_list_pilot_forms(uuid,integer);
 drop function if exists cali_workspace.v2_set_pilot_form_state(uuid,uuid,text,text);
+drop function if exists cali_workspace.v2_open_pilot_public_form(uuid,uuid,text,boolean);
 notify pgrst, 'reload schema';
 commit;

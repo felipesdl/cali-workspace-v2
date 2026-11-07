@@ -173,6 +173,7 @@ grant usage on schema cali_workspace to service_role;
 do $$
 begin
  assert to_regprocedure('cali_workspace.v2_list_pilot_forms(uuid,integer)') is null;
+ assert to_regprocedure('cali_workspace.v2_open_pilot_public_form(uuid,uuid,text,boolean)') is null;
  assert to_regprocedure('cali_workspace.v2_save_pilot_form_triage(uuid,uuid,uuid,text,text,text,text)') is null;
  assert to_regprocedure('cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date)') is not null;
  assert to_regprocedure('cali_session_guard.require_phase4_role(uuid,text)') is not null;
