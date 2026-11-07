@@ -75,7 +75,7 @@ O Admin anexa PDF no entregável em execução ou revisão interna. O arquivo us
 
 Reabrir uma entrega aprovada ou pedir ajuste retira a revisão publicada. Para reenviar o mesmo item, o Admin precisa anexar outra revisão. O histórico e a aprovação anterior permanecem. Cliente pode baixar apenas a revisão publicada de um entregável visível de sua empresa. A retirada impede novas respostas da API; não apaga cópias já baixadas. Itens com arquivos ou links legados continuam fora da correção com PDF.
 
-Instalar `document-operations.sql` antes de `delivery-operations.sql`. As flags continuam sendo as do piloto. A prova PostgreSQL descartável verificou rascunho oculto, envio com versão obsoleta rejeitado, acesso A/B, retirada, exigência de nova revisão, preservação do histórico e nova aprovação. A prova usa auxiliares legados sintéticos. Aplicação hospedada e navegador autenticado seguem pendentes.
+Instalar `document-operations.sql` antes de `delivery-operations.sql`. As flags continuam sendo as do piloto. A prova PostgreSQL descartável verificou rascunho oculto, envio com versão obsoleta rejeitado, acesso A/B, retirada, exigência de nova revisão, preservação do histórico e nova aprovação. A prova usa auxiliares legados sintéticos. A [prova no navegador autenticado](#lote-de-projetos-e-entregáveis-no-cali-mapa) cobriu duas revisões no CALI MAPA.
 
 ## Revisões de aprovação interna do relatório
 
@@ -93,7 +93,7 @@ O protocolo V2 `CALI-EXEC-AAAA-NNNNNN` é reservado na primeira tentativa e mant
 
 Instalar `report-draft-operations.sql` antes de `report-release-operations.sql`. Gerar o bundle com `npm run executive:functions:build`. A Edge do piloto deve manter JWT obrigatório no gateway e usa apenas as credenciais do ambiente servidor. O bundle e as propostas não ativam runtime. Depois de instalar em homologação autorizada, usar as flags de leitura/escrita e `VITE_CALI_PHASE4_REPORT_RELEASE=true`. Para reverter, desligar a flag e usar `rollback-write.sql` para retirar as RPCs, preservando PDFs, publicações e ciências.
 
-Validação local cobre PDF paginado, Inter incorporada, protocolo e assinatura, rejeição de entrada incompleta, três revisões, isolamento A/B, MFA, corte da versão retirada e ciência idempotente. Pendente: comparar a projeção de horas/entregáveis com a forma efetiva das fontes no CALI MAPA, conferir a identidade real configurada e homologar Admin/Cliente no navegador. Curadoria completa, paridade visual com a publicação 83, comunicação externa, dúvidas e tratamento de satisfação seguem em aberto. Nenhuma alteração hospedada nesta entrega.
+Validação local cobre PDF paginado, Inter incorporada, protocolo e assinatura, rejeição de entrada incompleta, três revisões, isolamento A/B, MFA, corte da versão retirada e ciência idempotente. Pendente: comparar a projeção de horas/entregáveis com a forma efetiva das fontes no CALI MAPA, conferir a identidade real configurada e homologar Admin/Cliente no navegador. Curadoria completa, paridade visual com a publicação 83 e comunicação externa seguem em aberto. O [lote de rascunho](#lote-de-aprovação-interna-de-relatório-no-cali-mapa) instalou apenas as operações internas; geração e publicação ainda não foram instaladas.
 
 ## Remarcação e cancelamento de reunião ordinária
 
@@ -111,7 +111,7 @@ Cliente pode pedir reabertura em espera, finalizada ou cancelada. Para ocorrênc
 
 Instalar `record-operations.sql` e `record-review-operations.sql` depois de `operation-receipts.sql`. A leitura e as transições dependem das tabelas e RPCs de avaliação e reabertura instaladas. As notificações legadas da avaliação/pedido/decisão podem enfileirar e-mail; isolar transporte antes de homologar. Mensagens e menções gravadas neste fluxo não habilitam e-mail de chat. O rollback retira RPCs da V2 e preserva registros.
 
-PostgreSQL descartável verificou nota inválida, avaliação de outro acesso, isolamento A/B, MFA, pedido único, recusa, aprovação, reexecução e menção sem e-mail de chat. A prova usa dependências legadas sintéticas. Homologação no CALI MAPA e paridade visual permanecem pendentes.
+PostgreSQL descartável verificou nota inválida, avaliação de outro acesso, isolamento A/B, MFA, pedido único, recusa, aprovação, reexecução e menção sem e-mail de chat. A prova usa dependências legadas sintéticas. A [homologação no CALI MAPA](#lote-de-ocorrências-avisos-e-satisfação-no-cali-mapa) cobriu avaliação e reabertura aprovada; paridade visual permanece pendente.
 
 ## Propostas e auditoria no piloto Admin
 
@@ -129,7 +129,7 @@ Admin com MFA vê as avaliações de 1 a 3 da empresa piloto: ocorrência, entre
 
 Tema e anotação ficam em `satisfaction_followups`, separados da avaliação. Salvar ou atualizar não muda nota, comentário nem autoria do Cliente e não gera comunicação. O banco confere empresa, origem, data da avaliação e a versão do acompanhamento; uma alteração obsoleta não sobrescreve a mais recente. Repetir o mesmo conteúdo não duplica evento. Auditoria registra o acompanhamento sem projetar sua anotação interna.
 
-Instalar `satisfaction-operations.sql` depois das operações de entregáveis e ocorrências, com as tabelas legadas `nps_responses` e `satisfaction_followups` conferidas. A consulta usa `VITE_CALI_PHASE4_ADMIN_READ=true`; o formulário requer também `VITE_CALI_PHASE4_WRITE=true`. O rollback retira RPCs, mantendo avaliações e acompanhamentos. PostgreSQL descartável validou escopo, MFA, reexecução, conflito, separação da revisão e preservação do feedback. Painel agregado, trilhas adicionais e homologação no CALI MAPA ficam em aberto.
+Instalar `satisfaction-operations.sql` depois das operações de entregáveis e ocorrências, com as tabelas legadas `nps_responses` e `satisfaction_followups` conferidas. A consulta usa `VITE_CALI_PHASE4_ADMIN_READ=true`; o formulário requer também `VITE_CALI_PHASE4_WRITE=true`. O rollback retira RPCs, mantendo avaliações e acompanhamentos. PostgreSQL descartável validou escopo, MFA, reexecução, conflito, separação da revisão e preservação do feedback. O [lote hospedado](#lote-de-ocorrências-avisos-e-satisfação-no-cali-mapa) confirmou o acompanhamento de ocorrência. Painel agregado e outras fontes de avaliação exigem provas próprias.
 
 ## Rascunho e aprovação interna de propostas
 
@@ -256,3 +256,19 @@ Em 07/11/2026, oito RPCs foram instaladas em uma transação para o piloto. O ca
 - Satisfação: Admin salvou acompanhamento do tema Atendimento. A nota 3/5 e o comentário original permaneceram iguais depois de recarregar.
 
 `rollback-records.sql` retira as oito operações e o gatilho de menção V2; mantém os registros, recibos e a inscrição que protege a ocorrência sintética de disparos posteriores. Anexos de conversa, comentários e reações do mural e resumo diário Admin ainda exigem homologação própria. Nenhum serviço externo foi ativado.
+
+## Lote da biblioteca de PDFs no CALI MAPA
+
+No navegador, Admin salvou a revisão 1 privada, publicou para A, e A baixou o PDF sintético e registrou ciência. B ficou sem acesso. Admin adicionou a revisão 2 privada e publicou; o botão antigo de A teve o download recusado pelo servidor. Após recarregar, A viu a revisão 2 e registrou ciência própria. Admin retirou a publicação, A perdeu a listagem e as duas revisões ficaram no histórico administrativo. Foram usadas as RPCs do lote de Projetos já instaladas. Nenhum arquivo legado foi movido; Drive e anexos de ocorrência permanecem fora dessa prova.
+
+## Lote de aprovação interna de relatório no CALI MAPA
+
+`report-draft-operations.sql` foi instalado em 07/11/2026. O catálogo confirmou os auxiliares de prontidão, coleta e identidade e a estrutura da tabela de relatórios. Admin criou o rascunho de outubro para A, editou o resumo, enviou para revisão e aprovou. A não viu o relatório interno. Admin reabriu com motivo e aprovou novamente; a interface exibiu as duas versões no mesmo protocolo `CALI-RPT-2026-000012`. Banco confirmou versão 2 aprovada, duas aprovações preservadas, sem publicação ou envio e zero marcações de e-mail.
+
+O formulário duplicava ao alternar a empresa porque o editor e a consulta de prontidão usavam a mesma chave entre irmãos. A tela agrupa os dois sob a chave da empresa e mantém um único formulário na alternância A/B. A situação de revisão é exibida em português.
+
+O PDF executivo, liberação e ciência no CALI MAPA continuam pendentes. O bundle local passou no build. Para homologar, conferir fontes e referências da identidade da revisão aprovada; instalar `report-release-operations.sql` e ativar temporariamente apenas a Edge `workspace-executive-pdf` com JWT. Usar só A, conferir recusa em B e retirar a liberação sintética. Desligar a flag e desativar a função temporária ao fim. Esse passo exige ativação hospedada explícita. `rollback-report-drafts.sql` retira apenas o acesso às três RPCs de rascunho e preserva relatórios e aprovações.
+
+## Limite de autorização no Portal Comercial
+
+A inspeção de 07/11/2026 confirmou que as policies de leitura e escrita de `cali_proposals` e `cali_submissions` usam a identidade da administradora do Portal. Um Admin do Workspace com MFA não recebe automaticamente esse papel. A RPC de escrita continua com privilégios do chamador. Homologar a edição e aprovação exige sessão com as duas autorizações ou decisão explícita sobre uma regra nova no Portal. Não houve ampliação de policies, criação de proposta hospedada, aceite ou disparo de e-mail neste lote.

@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { ProjectJournalPanel } from './ProjectJournalPanel';
 import { workspaceLabel as label } from './workspace-labels';
 import { WorkspacePagination } from './WorkspacePagination';
@@ -590,10 +591,10 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
         <PublishNotice key={companyId} company={companyId} actor={actor} />
       )}
       {module === 'reports' && admin && companyId && (
-        <CreateReportDraft key={companyId} company={companyId} actor={actor} />
-      )}
-      {module === 'reports' && admin && companyId && (
-        <ReportReadiness key={companyId} company={companyId} actor={actor} />
+        <Fragment key={companyId}>
+          <CreateReportDraft company={companyId} actor={actor} />
+          <ReportReadiness company={companyId} actor={actor} />
+        </Fragment>
       )}
       {module === 'records' && companyId && !record && (
         <OpenRecord

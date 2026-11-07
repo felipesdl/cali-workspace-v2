@@ -8,6 +8,7 @@ const labels: Readonly<Record<string, string>> = {
   cancel: 'Cancelamento',
   resume: 'Retomada',
   draft: 'Rascunho',
+  review: 'Em revisão interna',
   planned: 'Planejado',
   client_review: 'Em revisão do Cliente',
   adjustment_requested: 'Ajuste solicitado',

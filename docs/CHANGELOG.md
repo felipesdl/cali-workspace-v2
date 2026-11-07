@@ -1,5 +1,13 @@
 # Registro de mudanças
 
+## 07/11/2026 — Aprovação interna de relatório homologada
+
+- Admin aprovou duas versões do mesmo relatório de outubro. Histórico preservado, relatório oculto ao Cliente e nenhum e-mail marcado. Corrigida duplicação do formulário na troca de empresa. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-aprovação-interna-de-relatório-no-cali-mapa).
+
+## 07/11/2026 — Biblioteca de PDFs homologada
+
+- Duas revisões privadas, publicação dirigida, download, ciência por revisão e retirada confirmados no piloto A/B. O servidor recusou baixar a revisão substituída. [Evidência](contracts/PHASE_4_READ.md#lote-da-biblioteca-de-pdfs-no-cali-mapa).
+
 ## 07/11/2026 — Ocorrências, avisos e satisfação no piloto
 
 - Admin e Cliente A homologaram ocorrência, resposta, avaliação, reabertura e aviso dirigido com ciência. B ficou isolado; nota interna protegida. Acompanhamento Admin persistiu sem alterar a nota. Zero e-mails marcados no piloto. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-ocorrências-avisos-e-satisfação-no-cali-mapa).
