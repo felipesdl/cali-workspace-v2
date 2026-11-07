@@ -8,6 +8,15 @@ export const reportMetricsSchema = z.object({
 });
 export type ReportMetrics = z.infer<typeof reportMetricsSchema>;
 
+export const reportSourceCountsSchema = z.object({
+  projects: count.optional(),
+  tasksCreated: count.optional(),
+  tasksCompleted: count.optional(),
+  events: count.optional(),
+  documentsPublished: count.optional(),
+  comments: count.optional(),
+});
+
 const brNumber = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
 
 export function executiveMetricRows({ hours, deliverables, feedback }: ReportMetrics) {

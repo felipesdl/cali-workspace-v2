@@ -29,7 +29,25 @@ declare
   front_id uuid := gen_random_uuid();
 begin
   update cali_workspace.companies set service_plan='build_essential' where id=b;
-  update cali_workspace.front_catalog set build_allowed=true where code='F1';
+  update cali_workspace.front_catalog set build_allowed=true,partner_slot=true,full_slot=true where code='F1';
+  update cali_workspace.companies set service_plan='partner' where id=a;
+  set local role authenticated;
+  perform cali_workspace.fixture_as('admin');
+  assert (select jsonb_agg(distinct x->>'mode') from jsonb_array_elements(cali_workspace.v2_list_pilot_front_options(a)->'options') x)
+    @> '["slot_paid","addon"]'::jsonb;
+  assert not exists(select 1 from jsonb_array_elements(cali_workspace.v2_list_pilot_front_options(a)->'options') x where x->>'mode'='slot_included');
+  reset role;
+  update cali_workspace.companies set service_plan='full' where id=a;
+  set local role authenticated;
+  assert (select jsonb_agg(distinct x->>'mode') from jsonb_array_elements(cali_workspace.v2_list_pilot_front_options(a)->'options') x)
+    @> '["slot_paid","slot_included","addon"]'::jsonb;
+  reset role;
+  update cali_workspace.companies set service_plan='build_complete' where id=a;
+  set local role authenticated;
+  assert cali_workspace.v2_list_pilot_front_options(a)#>>'{options,0,mode}'='build_assisted';
+  assert cali_workspace.v2_list_pilot_front_options(a)->'occupiedModes'='[]'::jsonb;
+  reset role;
+  update cali_workspace.companies set service_plan=null where id=a;
   set local role authenticated;
   perform cali_workspace.fixture_as('admin');
   assert cali_workspace.v2_list_pilot_front_options(a)->>'hasPlan'='false';
@@ -39,6 +57,7 @@ begin
     raise exception 'Ativação sem plano';
   exception when sqlstate 'P4F01' then null; end;
   assert cali_workspace.v2_activate_pilot_front(b,front_id,'F1','build_assisted','Escopo B',current_date,null)=front_id;
+  assert cali_workspace.v2_list_pilot_front_options(b)->'occupiedModes'='["build_assisted"]'::jsonb;
   assert cali_workspace.v2_activate_pilot_front(b,front_id,'F1','build_assisted','Escopo B',current_date,null)=front_id;
   begin
     perform cali_workspace.v2_activate_pilot_front(b,gen_random_uuid(),'F1','build_assisted','Escopo B',current_date,null);
@@ -58,6 +77,7 @@ begin
   exception when insufficient_privilege then null; end;
   perform cali_workspace.fixture_as('admin');
   assert cali_workspace.v2_end_pilot_front(b,front_id)=front_id;
+  assert cali_workspace.v2_list_pilot_front_options(b)->'occupiedModes'='[]'::jsonb;
   assert cali_workspace.v2_end_pilot_front(b,front_id)=front_id;
   assert cali_workspace.v2_read_pilot_catalog(b,'fronts',null,1)#>>'{entries,0,status}'='ended';
   perform cali_workspace.fixture_as('clientB');

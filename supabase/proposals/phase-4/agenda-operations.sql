@@ -24,13 +24,11 @@ begin
             and (admin or (e.visibility='client' and e.cancelled_at is null))),'[]'::jsonb) as participants,
         coalesce(r.status='confirmed' and e.visibility='client' and e.event_type='meeting'
           and e.starts_at>now() and e.cancelled_at is null,false) as "canRequestChange",
-        coalesce(admin and r.status='confirmed' and e.visibility='client' and e.event_type='meeting'
-          and e.schedule_class='contractual'
-          and e.source_type='scheduling_request' and e.source_entity_id=r.id
-          and e.ends_at<=now() and e.cancelled_at is null
-          and c.status is distinct from 'pending'
-          and not exists(select 1 from cali_workspace.event_outcomes o where o.event_id=e.id)
+        coalesce(eligibility.allowed
           and to_regprocedure('cali_workspace.v2_complete_pilot_appointment(uuid,uuid)') is not null,false) as "canComplete",
+        case when eligibility.allowed and to_regprocedure(
+          'cali_workspace.v2_mark_pilot_appointment_absent(uuid,uuid,uuid,text,boolean,text)'
+        ) is not null then e.id end as "absenceEventId",
         case when c.id is not null then jsonb_build_object('id',c.id,'action',c.action,'status',c.status,
           'reason',c.reason,'slots',c.slots,'note',c.decision_note) end as "latestChange" from cali_workspace.scheduling_requests r
       left join cali_workspace.events e on e.id=r.confirmed_event_id and e.company_id=r.company_id
@@ -38,6 +36,12 @@ begin
         select * from cali_workspace.agenda_change_requests x where x.event_id=e.id and x.company_id=e.company_id
         order by (x.status='pending') desc,x.created_at desc,x.id limit 1
       ) c on true
+      cross join lateral (select admin and r.status='confirmed' and e.visibility='client' and e.event_type='meeting'
+          and e.schedule_class='contractual'
+          and e.source_type='scheduling_request' and e.source_entity_id=r.id
+          and e.ends_at<=now() and e.cancelled_at is null
+          and c.status is distinct from 'pending'
+          and not exists(select 1 from cali_workspace.event_outcomes o where o.event_id=e.id) as allowed) eligibility
       where r.company_id=p_company_id and not r.extra_visit and not r.billable_extra and not r.urgency_fee_applies
         and not r.online_extra_requested
       order by r.created_at desc,r.id limit 25 offset (p_page-1)*25

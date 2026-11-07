@@ -20,12 +20,15 @@ export type RecordReopen = z.infer<typeof reopen>;
 const noticeReaction = z.enum(['like', 'love', 'clap']);
 export type NoticeReaction = z.infer<typeof noticeReaction>;
 const noticeInteractions = z.object({
+  canModerate: z.boolean().optional(),
   comments: z.array(
     z.object({
       id: z.uuid(),
       body: z.string(),
       authorRole: z.enum(['admin', 'client']),
       createdAt: z.string(),
+      hidden: z.boolean().optional(),
+      moderationVersion: z.uuid().nullish(),
     }),
   ),
   ownReaction: noticeReaction.nullable(),
@@ -273,6 +276,26 @@ export function createDomainOperations(client: WorkspaceClient) {
       });
       if (error) throw rejected(error.code);
       return z.uuid().parse(data);
+    },
+    async moderateNoticeComment(
+      company: string,
+      notice: string,
+      request: string,
+      comment: z.infer<typeof noticeInteractions>['comments'][number],
+      reason: string,
+    ) {
+      const { data, error } = await client.rpc('v2_moderate_pilot_notice_comment', {
+        p_company_id: company,
+        p_notice_id: notice,
+        p_comment_id: comment.id,
+        p_request_id: request,
+        p_expected: comment.moderationVersion ?? null,
+        p_hidden: !comment.hidden,
+        p_reason: z.string().trim().min(5).max(1000).parse(reason),
+      });
+      if (error?.code === '40001') throw new Error('O comentário mudou. Confira o estado atual.');
+      if (error) throw new Error('Não foi possível moderar o comentário.');
+      return z.literal(comment.id).parse(data);
     },
     async reactNotice(company: string, id: string, expected: NoticeReaction | null, next: string) {
       const { data, error } = await client.rpc('v2_react_pilot_notice', {

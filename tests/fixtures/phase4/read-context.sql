@@ -33,6 +33,8 @@ insert into cali_workspace.capacity_events(company_id,month,kind,percent,occurre
  ('6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76','2026-11-01','excess',101,1,'2026-11-04Z');
 insert into cali_workspace.capacity_pauses values
  ('9c5ab148-78b8-4410-9338-58c44222a5db','2026-11-01',null,'Motivo reservado');
+alter table cali_workspace.capacity_pauses add column paused_at timestamptz not null default '2026-11-01Z',
+  add column paused_by uuid,add column resumed_by uuid,add unique(company_id,month);
 
 create function cali_workspace.current_company_id() returns uuid language sql stable as $$
  select company_id from cali_workspace.profiles where id=auth.uid() and active

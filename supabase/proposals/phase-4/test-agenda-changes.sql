@@ -11,6 +11,8 @@ declare
   conflict uuid := gen_random_uuid();
   past_meeting uuid := gen_random_uuid();
   past_appointment uuid := gen_random_uuid();
+  absent_meeting uuid := gen_random_uuid();
+  absent_appointment uuid := gen_random_uuid();
   current_at timestamptz := (current_date+8+time '10:00') at time zone 'America/Sao_Paulo';
   choice_day date := (select min(current_date+n) from generate_series(12,20) n where extract(isodow from current_date+n)<6);
   choices jsonb := jsonb_build_array(
@@ -127,6 +129,34 @@ begin
   assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,status}'='completed';
   reset role;
   assert (select count(*) from cali_workspace.event_outcomes where event_id=past_meeting and outcome='occurred')=1;
+  insert into cali_workspace.events(id,company_id,title,event_type,starts_at,ends_at,visibility,source_type,source_entity_id)
+    values(absent_meeting,a,'Falta no encontro','meeting',now()-interval '2 hours',now()-interval '1 hour',
+      'client','scheduling_request',absent_appointment);
+  insert into cali_workspace.scheduling_requests(id,company_id,title,request_mode,status,requested_slots,confirmed_event_id)
+    values(absent_appointment,a,'Falta no encontro','remote','confirmed','[]',absent_meeting);
+  set local role authenticated;
+  perform cali_workspace.fixture_as('clientA');
+  begin
+    perform cali_workspace.v2_mark_pilot_appointment_absent(a,absent_appointment,absent_meeting,'cali',true,'Motivo reservado');
+    raise exception 'Cliente registrou não realização';
+  exception when insufficient_privilege then null; end;
+  perform cali_workspace.fixture_as('admin');
+  begin
+    perform cali_workspace.v2_mark_pilot_appointment_absent(a,absent_appointment,past_meeting,'cali',true,'Motivo reservado');
+    raise exception 'Resultado em evento diferente';
+  exception when insufficient_privilege then null; end;
+  assert cali_workspace.v2_mark_pilot_appointment_absent(a,absent_appointment,absent_meeting,'cali',true,'Motivo reservado')=absent_appointment;
+  assert cali_workspace.v2_mark_pilot_appointment_absent(a,absent_appointment,absent_meeting,'cali',true,'Motivo reservado')=absent_appointment;
+  begin
+    perform cali_workspace.v2_mark_pilot_appointment_absent(a,absent_appointment,absent_meeting,'cali',false,'Motivo reservado');
+    raise exception 'Resultado anterior alterado';
+  exception when serialization_failure then null; end;
+  perform cali_workspace.fixture_as('clientA');
+  assert exists(select 1 from jsonb_array_elements(cali_workspace.v2_list_pilot_appointments(a,1)) item
+    where item->>'id'=absent_appointment::text and item->>'status'='reschedule_review');
+  assert cali_workspace.v2_list_pilot_appointments(a,1)::text not like '%Motivo reservado%';
+  reset role;
+  assert (select count(*) from cali_workspace.event_outcomes where event_id=absent_meeting and outcome='not_occurred')=1;
 end $$;
 rollback;
 \echo Fase 4: pedido, remarcação, cancelamento e realização de reunião ordinária validados no piloto isolado.

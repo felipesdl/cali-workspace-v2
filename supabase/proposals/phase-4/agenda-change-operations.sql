@@ -124,14 +124,23 @@ begin
 end;
 $$;
 
-create or replace function cali_workspace.v2_complete_pilot_appointment(p_company_id uuid,p_appointment_id uuid)
+create or replace function cali_session_guard.phase4_record_appointment_outcome(
+  p_company_id uuid,p_appointment_id uuid,p_event_id uuid,p_category text,p_justified boolean,p_note text
+)
 returns uuid language plpgsql security definer set search_path=''
 as $$
 declare
   actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
   meeting_id uuid;
   appointment_status text;
+  next_outcome text := case when p_event_id is null then 'occurred' else 'not_occurred' end;
 begin
+  if p_event_id is not null and (
+    p_category is null or p_category not in ('client','cali','external','health','travel_vacation','other')
+    or p_justified is null or coalesce(length(btrim(p_note)),0) not between 3 and 1000
+  ) then
+    raise exception using errcode='22023',message='Confira o motivo e a justificativa.';
+  end if;
   perform pg_advisory_xact_lock(hashtextextended('phase4-agenda:'||p_company_id::text,0));
   select e.id into meeting_id from cali_workspace.scheduling_requests r
   join cali_workspace.events e on e.id=r.confirmed_event_id and e.company_id=r.company_id
@@ -139,6 +148,7 @@ begin
     and e.visibility='client' and e.event_type='meeting' and e.schedule_class='contractual'
     and e.cancelled_at is null and e.ends_at<=now()
     and e.source_type='scheduling_request' and e.source_entity_id=r.id
+    and (p_event_id is null or e.id=p_event_id)
   for update of e;
   if not found then raise exception using errcode='42501',message='Reunião indisponível para registro.'; end if;
   select r.status into appointment_status from cali_workspace.scheduling_requests r
@@ -146,8 +156,11 @@ begin
     and not (r.extra_visit or r.billable_extra or r.urgency_fee_applies or r.online_extra_requested)
   for update;
   if not found then raise exception using errcode='42501',message='Reunião indisponível para registro.'; end if;
-  if appointment_status='completed' and exists(select 1 from cali_workspace.event_outcomes o
-    where o.event_id=meeting_id and o.company_id=p_company_id and o.outcome='occurred') then
+  if exists(select 1 from cali_workspace.event_outcomes o
+    where o.event_id=meeting_id and o.company_id=p_company_id and o.outcome=next_outcome
+      and ((p_event_id is null and appointment_status='completed') or
+        (p_event_id is not null and appointment_status in ('reschedule_review','not_occurred')
+          and o.reason_category=p_category and o.justified=p_justified and o.note=btrim(p_note)))) then
     return p_appointment_id;
   end if;
   if appointment_status is distinct from 'confirmed' or exists(select 1 from cali_workspace.agenda_change_requests c
@@ -155,10 +168,35 @@ begin
     where o.event_id=meeting_id) then
     raise exception using errcode='40001',message='O estado da reunião mudou.';
   end if;
-  perform cali_workspace.admin_mark_scheduling_event_outcome_v1(meeting_id,'occurred',null,false,null,false);
+  perform cali_workspace.admin_mark_scheduling_event_outcome_v1(meeting_id,next_outcome,p_category,p_justified,btrim(p_note),false);
   return p_appointment_id;
 end;
 $$;
+
+revoke all on function cali_session_guard.phase4_record_appointment_outcome(uuid,uuid,uuid,text,boolean,text)
+  from public,anon,authenticated,service_role;
+
+create or replace function cali_workspace.v2_complete_pilot_appointment(p_company_id uuid,p_appointment_id uuid)
+returns uuid language sql security definer set search_path=''
+as $$
+  select cali_session_guard.phase4_record_appointment_outcome(p_company_id,p_appointment_id,null,null,false,null);
+$$;
+
+create or replace function cali_workspace.v2_mark_pilot_appointment_absent(
+  p_company_id uuid,p_appointment_id uuid,p_event_id uuid,p_category text,p_justified boolean,p_note text
+)
+returns uuid language plpgsql security definer set search_path=''
+as $$
+begin
+  if p_event_id is null then raise exception using errcode='22023',message='Informe a reunião.'; end if;
+  return cali_session_guard.phase4_record_appointment_outcome(p_company_id,p_appointment_id,p_event_id,p_category,p_justified,p_note);
+end;
+$$;
+
+revoke all on function cali_workspace.v2_mark_pilot_appointment_absent(uuid,uuid,uuid,text,boolean,text)
+  from public,anon,authenticated,service_role;
+grant execute on function cali_workspace.v2_mark_pilot_appointment_absent(uuid,uuid,uuid,text,boolean,text)
+  to authenticated;
 
 revoke all on function cali_workspace.v2_request_pilot_agenda_change(uuid,uuid,uuid,text,text,jsonb),
   cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer),

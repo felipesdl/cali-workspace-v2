@@ -6,7 +6,7 @@ import { CommercialDraftEditor } from './CommercialDraftEditor';
 import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { AdminDailyPreview } from './AdminDailyPreview';
-import { ReportCurationSections, ReportIndicators } from './ReportCuration';
+import { ReportCurationSections, ReportIndicators, ReportSources } from './ReportCuration';
 import {
   ActivateContractedFront,
   ContractedFrontTerms,
@@ -30,7 +30,7 @@ import {
   ReportAcknowledgment,
   ReportReadiness,
 } from './ReportPrivacyActions';
-import { HourActions, HourEntryCorrection } from './HourActions';
+import { HourActions, HourCapacityAction, HourEntryCorrection } from './HourActions';
 import { CapacityMilestones } from './CapacityMilestones';
 import { HourLink } from './HourLink';
 import { EditProject, EditPlanItem, ScheduleItemRequest } from './ProjectPlanning';
@@ -191,6 +191,7 @@ function Projects({ search, update }: Props) {
                   {projectData.review.dueAt && (
                     <> · Prazo {formatServerInstant(projectData.review.dueAt)} (Brasília)</>
                   )}
+                  {projectData.review.pastDue && <> · Prazo de resposta vencido</>}
                 </p>
               )}
               {admin &&
@@ -513,6 +514,19 @@ function Hours({ search, update }: Props) {
           {result.data.capacityHistory && (
             <CapacityMilestones history={result.data.capacityHistory} />
           )}
+          {admin &&
+            result.data.capacityHistory &&
+            result.data.capacityControl &&
+            (result.data.capacityHistory.paused || result.data.capacityControl.canPause) && (
+              <HourCapacityAction
+                key={result.data.capacityControl.version ?? month}
+                company={companyId}
+                actor={actor}
+                month={month}
+                version={result.data.capacityControl.version}
+                paused={result.data.capacityHistory.paused}
+              />
+            )}
           <section className={panel}>
             <h2 className="tw:font-semibold">Extrato de atuação</h2>
             <p>
@@ -762,6 +776,9 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                   )}
                   {item.reportMetrics && item.reportVersion && (
                     <ReportIndicators metrics={item.reportMetrics} />
+                  )}
+                  {admin && item.reportSourceCounts && (
+                    <ReportSources counts={item.reportSourceCounts} />
                   )}
                   {item.frontTerms && <ContractedFrontTerms terms={item.frontTerms} />}
                   {item.frontTerms && admin && item.status === 'active' && (

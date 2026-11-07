@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { reportCurationSchema } from './report-curation';
-import { reportMetricsSchema } from './report-metrics';
+import { reportMetricsSchema, reportSourceCountsSchema } from './report-metrics';
 
 const sectionSchema = z.enum(['deliverables', 'workstreams']);
 const monthSchema = z.iso.date().refine((date) => date.endsWith('-01'));
@@ -42,6 +42,7 @@ export const projectDetail = z.object({
       status: z.string(),
       number: z.number().int(),
       dueAt: z.string().nullable(),
+      pastDue: z.boolean().optional(),
       note: z.string().nullable().optional(),
       changes: z
         .object({
@@ -96,6 +97,7 @@ export const hours = z.discriminatedUnion('visible', [
     total: z.number().int().nonnegative(),
     minutes: z.number().int(),
     capacityHistory: hourCapacityHistory.optional(),
+    capacityControl: z.object({ version: z.string().nullable(), canPause: z.boolean() }).nullish(),
     capacity: z
       .object({
         contractedMinutes: z.number().int().positive().nullable(),
@@ -143,7 +145,11 @@ export const frontOption = z.object({
   title: z.string(),
   mode: frontMode,
 });
-export const frontOptions = z.object({ hasPlan: z.boolean(), options: z.array(frontOption) });
+export const frontOptions = z.object({
+  hasPlan: z.boolean(),
+  options: z.array(frontOption),
+  occupiedModes: z.array(frontMode).optional(),
+});
 export const frontActivation = frontOption.omit({ title: true }).extend({
   scope: z.string().trim().max(240),
   startsOn: z.iso.date(),
@@ -172,6 +178,7 @@ export const catalog = z.object({
       reportVersion: z.number().int().positive().nullable().optional(),
       reportCuration: reportCurationSchema.nullable().optional(),
       reportMetrics: reportMetricsSchema.nullable().catch(null).optional(),
+      reportSourceCounts: reportSourceCountsSchema.nullable().catch(null).optional(),
       reportPdfReady: z.boolean().optional(),
       reportPreviouslyReleased: z.boolean().optional(),
       reportAcknowledged: z.boolean().optional(),

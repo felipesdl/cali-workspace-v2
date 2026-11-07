@@ -202,6 +202,15 @@ begin
         end as "reportCuration",
         case when a.report_id is not null then cali_session_guard.phase4_report_metrics(a.snapshot->'source')
         end as "reportMetrics",
+        case when admin then jsonb_strip_nulls(jsonb_build_object(
+          'projects',case when jsonb_typeof(source.snapshot->'projects')='array'
+            then jsonb_array_length(source.snapshot->'projects') end,
+          'tasksCreated',source.snapshot#>'{tasks,createdCount}',
+          'tasksCompleted',source.snapshot#>'{tasks,completedCount}',
+          'events',source.snapshot#>'{events,count}',
+          'documentsPublished',source.snapshot#>'{documents,publishedCount}',
+          'comments',source.snapshot#>'{conversations,commentCount}'
+        )) end as "reportSourceCounts",
         case when x.report_id is not null then x.requires_ack and x.acknowledged_at is null
           else r.status in ('sent','published') and r.revision_parent_id is null
             and coalesce(r.version,1)=1 and r.acknowledged_at is null end as "acknowledgmentAvailable",
@@ -218,6 +227,7 @@ begin
       left join cali_session_guard.phase4_report_pdfs p on p.report_id=a.report_id and p.version=a.version
       left join cali_session_guard.phase4_report_releases x on x.report_id=p.report_id and x.version=p.version
         and x.withdrawn_at is null
+      cross join lateral (select coalesce(a.snapshot->'source',r.source_snapshot) as snapshot) source
       where r.company_id=p_company_id and (admin or r.status in ('sent','published') or x.report_id is not null)
     ), page as (
       select * from matched order by instant desc nulls last,day desc nulls last,id limit 25 offset (p_page-1)*25

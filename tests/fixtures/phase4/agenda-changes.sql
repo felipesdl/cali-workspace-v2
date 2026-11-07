@@ -1,12 +1,15 @@
 -- Dependências sintéticas do contrato legado. Nenhuma comunicação externa.
 alter table cali_workspace.events add column source_type text,add column source_entity_id uuid,
   add column schedule_class text not null default 'contractual';
-create table cali_workspace.event_outcomes(event_id uuid primary key,company_id uuid,outcome text);
+create table cali_workspace.event_outcomes(
+  event_id uuid primary key,company_id uuid,outcome text,reason_category text,justified boolean,note text
+);
 create function cali_workspace.admin_mark_scheduling_event_outcome_v1(uuid,text,text,boolean,text,boolean)
 returns jsonb language sql as $$
- insert into cali_workspace.event_outcomes(event_id,company_id,outcome)
- select e.id,e.company_id,$2 from cali_workspace.events e where e.id=$1;
- update cali_workspace.scheduling_requests r set status='completed'
+ insert into cali_workspace.event_outcomes(event_id,company_id,outcome,reason_category,justified,note)
+ select e.id,e.company_id,$2,$3,$4,$5 from cali_workspace.events e where e.id=$1;
+ update cali_workspace.scheduling_requests r set status=case
+   when $2='occurred' then 'completed' when $4 then 'reschedule_review' else 'not_occurred' end
  from cali_workspace.events e where e.id=$1 and r.id=e.source_entity_id
  returning jsonb_build_object('status',r.status);
 $$;

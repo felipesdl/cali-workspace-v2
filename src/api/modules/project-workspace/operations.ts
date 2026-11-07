@@ -236,6 +236,25 @@ export type HourCorrection = z.infer<typeof correction>;
 
 export function createHourOperations(client: WorkspaceClient) {
   return {
+    async setCapacityPause(
+      company: string,
+      month: string,
+      request: string,
+      expected: string | null,
+      paused: boolean,
+    ) {
+      const { data, error } = await client.rpc('v2_set_pilot_capacity_pause', {
+        p_company_id: company,
+        p_month: month,
+        p_request_id: request,
+        p_expected: expected,
+        p_paused: paused,
+      });
+      if (error?.code === '40001') throw new Error('A situação da pausa mudou. Confira o mês.');
+      if (error?.code === '22023') throw new Error('A pausa exige capacidade excedida no mês.');
+      if (error) throw new Error('Não foi possível registrar a decisão de capacidade.');
+      return z.literal(company).parse(data);
+    },
     async startRecordTimer(company: string, requestId: string, record: string) {
       const { data, error } = await client.rpc('v2_start_pilot_record_timer', {
         p_company_id: company,

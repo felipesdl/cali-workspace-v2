@@ -12,6 +12,42 @@ import { useState } from 'react';
 import { ActionForm } from './ActionForm';
 import { workspaceSearch } from '../../api/modules/project-workspace/schemas';
 
+export function HourCapacityAction({
+  company,
+  actor,
+  month,
+  version,
+  paused,
+}: {
+  company: string;
+  actor?: string;
+  month: string;
+  version: string | null;
+  paused: boolean;
+}) {
+  const { hourOperations } = useRouteContext({ from: '__root__' });
+  const cache = useQueryClient();
+  if (!hourOperations) return null;
+  return (
+    <ActionForm
+      label={paused ? 'Registrar retomada' : 'Registrar pausa por capacidade'}
+      submit={async (_, request) => {
+        try {
+          return await hourOperations.setCapacityPause(company, month, request, version, !paused);
+        } finally {
+          await cache.invalidateQueries({ queryKey: ['hours', actor, company, month] });
+        }
+      }}
+    >
+      {() => (
+        <Checkbox required>
+          {paused ? 'Confirmo a retomada neste mês.' : 'Confirmo a pausa para o mês selecionado.'}
+        </Checkbox>
+      )}
+    </ActionForm>
+  );
+}
+
 export function HourEntryCorrection({
   company,
   actor,

@@ -224,6 +224,10 @@ create function cali_workspace.build_report_source_snapshot(uuid,date,date) retu
  select jsonb_build_object('company',$1,'start',$2,'end',$3,
   'hours',jsonb_build_object('contractedHours',12,'consumedMinutes',115,'internalNote','QA reservado'),
   'deliverables',jsonb_build_object('approvedCount',4,'createdCount',5),
+  'projects','[{"name":"Projeto QA reservado"}]'::jsonb,
+  'tasks','{"createdCount":3,"completedCount":1}'::jsonb,
+  'events','{"count":0}'::jsonb,
+  'conversations','{"commentCount":2}'::jsonb,
   'feedback',jsonb_build_object('count',1,'average',5));
 $$;
 create function cali_workspace.profile_signer_snapshot() returns jsonb language sql stable as $$

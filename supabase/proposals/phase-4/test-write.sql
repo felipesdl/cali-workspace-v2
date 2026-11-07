@@ -10,6 +10,8 @@
 \ir pilot-role.sql
 \ir admin-audit-read.sql
 \ir operation-receipts.sql
+\ir capacity-operations.sql
+\ir test-capacity-operations.sql
 \ir test-front-operations.sql
 \ir forms-operations.sql
 \ir forms-draft.sql

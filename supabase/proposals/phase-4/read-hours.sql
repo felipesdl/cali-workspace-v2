@@ -42,6 +42,13 @@ begin
         'overMinutes',case when capacity.contracted_minutes>0
           then greatest(0,capacity.used_minutes-capacity.contracted_minutes) end
       ),
+      'capacityControl',case when admin and to_regprocedure(
+        'cali_workspace.v2_set_pilot_capacity_pause(uuid,date,uuid,timestamptz,boolean)'
+      ) is not null then jsonb_build_object(
+        'version',(select coalesce(p.resumed_at,p.paused_at) from cali_workspace.capacity_pauses p
+          where p.company_id=p_company_id and p.month=p_month),
+        'canPause',coalesce(capacity.contracted_minutes>0 and capacity.used_minutes>capacity.contracted_minutes,false)
+      ) end,
       'capacityHistory',jsonb_build_object(
         'paused',exists(select 1 from cali_workspace.capacity_pauses p
           where p.company_id=p_company_id and p.month=p_month and p.resumed_at is null),

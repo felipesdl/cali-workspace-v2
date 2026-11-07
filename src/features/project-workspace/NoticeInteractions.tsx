@@ -96,6 +96,40 @@ export function NoticeInteractions({
                         {formatServerInstant(comment.createdAt)}
                       </p>
                       <p className="tw:break-words tw:whitespace-pre-line">{comment.body}</p>
+                      {comment.hidden && <p>Oculto para o Cliente</p>}
+                      {data.canModerate && (
+                        <details key={comment.moderationVersion ?? 'unmoderated'}>
+                          <summary className="tw:cursor-pointer">Moderar comentário</summary>
+                          <ActionForm
+                            label={comment.hidden ? 'Restaurar comentário' : 'Ocultar comentário'}
+                            submit={async (fields, request) => {
+                              try {
+                                return await operations.moderateNoticeComment(
+                                  company,
+                                  notice,
+                                  request,
+                                  comment,
+                                  String(fields.get('reason') ?? ''),
+                                );
+                              } finally {
+                                await cache.invalidateQueries({ queryKey: key });
+                              }
+                            }}
+                          >
+                            {(prefix) => (
+                              <Field id={prefix + 'reason'} label="Motivo da moderação">
+                                <textarea
+                                  id={prefix + 'reason'}
+                                  name="reason"
+                                  required
+                                  minLength={5}
+                                  maxLength={1000}
+                                />
+                              </Field>
+                            )}
+                          </ActionForm>
+                        </details>
+                      )}
                     </li>
                   ))}
                 </ol>

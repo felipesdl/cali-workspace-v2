@@ -12,6 +12,12 @@ begin
   select c.service_plan into plan from cali_workspace.companies c where c.id=p_company_id;
   return (
     select jsonb_build_object('hasPlan',coalesce(plan in ('partner','full','build_essential','build_complete'),false),
+      'occupiedModes',coalesce((select jsonb_agg(distinct active.mode)
+        from cali_workspace.company_fronts active where active.company_id=p_company_id
+          and active.status='active' and (active.ends_at is null or active.ends_at>=current_date)
+          and ((plan='full' and active.mode in ('slot_included','slot_paid'))
+            or (plan='partner' and active.mode='slot_paid')
+            or (plan='build_essential' and active.mode='build_assisted'))),'[]'::jsonb),
       'options',coalesce(jsonb_agg(jsonb_build_object('code',f.code,'title',f.title,'mode',m.mode)
         order by f.display_order,f.code,m.mode),'[]'::jsonb))
     from cali_workspace.front_catalog f

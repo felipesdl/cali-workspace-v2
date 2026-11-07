@@ -60,7 +60,7 @@ O código oficial descrito nas tabelas continua inalterado e diferente desse alv
 
 A V2 prepara o painel de franquia, consumo, saldo e excedente com o cálculo do banco. O extrato mantém o recorte de lançamentos visíveis. Veja o [contrato de capacidade](../contracts/PHASE_4_READ.md#capacidade-e-saldo-de-horas-no-piloto). O [lote de lançamento e timer](../contracts/PHASE_4_READ.md#lote-de-lançamento-e-timer-no-cali-mapa) homologou o fechamento do trecho e a retomada com novo timer, preservando duração e privacidade. O [lote de correção](../contracts/PHASE_4_READ.md#correção-auditada-de-horas) validou edição hospedada e exclusão no banco descartável.
 
-A tela também consulta marcos de capacidade e pausa já registrados. O mês fechado oculta os marcos para Cliente. A revisão administrativa e o limite de tolerância ficam no Admin. [Contrato e prova](../contracts/PHASE_4_READ.md#marcos-de-capacidade-em-horas).
+A tela também consulta marcos de capacidade e pausa já registrados. No lote local, Admin registra pausa para o mês com consumo acima da franquia e pode retomar antes do fim do mês. A decisão fica registrada no mesmo estado do painel legado e não interrompe timers. O mês fechado oculta os marcos para Cliente. A revisão administrativa e o limite de tolerância ficam no Admin. [Contrato e prova](../contracts/PHASE_4_READ.md#marcos-de-capacidade-em-horas).
 
 Projetos oferece atalhos de Horas por entregável e subtarefa. O lançamento ou timer mantém o vínculo após reenvio e retomada. O CALI MAPA confirmou o lançamento manual por entregável e o ciclo completo do timer por subtarefa. [Contrato e prova](../contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa).
 

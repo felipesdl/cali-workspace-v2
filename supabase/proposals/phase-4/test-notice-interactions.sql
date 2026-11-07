@@ -6,6 +6,10 @@ create table cali_workspace.notice_reactions(
  notice_id uuid not null,user_id uuid not null,company_id uuid,reaction text not null,
  created_at timestamptz not null default now(),primary key(notice_id,user_id)
 );
+alter table cali_workspace.notice_comments enable row level security;
+grant select on cali_workspace.notice_comments to authenticated;
+create policy fixture_notice_comments_read on cali_workspace.notice_comments
+  for select to authenticated using (true);
 \ir notice-interactions.sql
 begin;
 do $$
@@ -15,7 +19,9 @@ declare
   directed uuid:=gen_random_uuid();
   general uuid:=gen_random_uuid();
   request uuid:=gen_random_uuid();
-  comment_id uuid;
+  target_comment uuid;
+  moderation_request uuid:=gen_random_uuid();
+  hidden_version uuid;
   payload jsonb;
 begin
   insert into cali_workspace.notices(id,title,audience,status) values(general,'Aviso geral','all','published');
@@ -23,8 +29,8 @@ begin
   perform cali_workspace.fixture_as('admin');
   perform cali_workspace.v2_publish_pilot_notice(a,directed,'comunicado','Aviso dirigido','Texto','2026-11-07');
   perform cali_workspace.fixture_as('clientA');
-  comment_id:=cali_workspace.v2_comment_pilot_notice(a,request,directed,'Comentário sintético');
-  assert cali_workspace.v2_comment_pilot_notice(a,request,directed,'Comentário sintético')=comment_id;
+  target_comment:=cali_workspace.v2_comment_pilot_notice(a,request,directed,'Comentário sintético');
+  assert cali_workspace.v2_comment_pilot_notice(a,request,directed,'Comentário sintético')=target_comment;
   begin
     perform cali_workspace.v2_comment_pilot_notice(a,request,directed,'Outro texto');
     raise exception 'Reexecução com texto diferente aceita';
@@ -58,6 +64,32 @@ begin
   perform cali_workspace.fixture_as('admin');
   perform cali_workspace.v2_comment_pilot_notice(a,gen_random_uuid(),directed,'Resposta Admin');
   assert jsonb_array_length(cali_workspace.v2_read_pilot_notice_interactions(a,directed,1)->'comments')=2;
+  assert cali_workspace.v2_moderate_pilot_notice_comment(a,directed,target_comment,moderation_request,null,true,'Ocultar conteúdo')=target_comment;
+  assert cali_workspace.v2_moderate_pilot_notice_comment(a,directed,target_comment,moderation_request,null,true,'Ocultar conteúdo')=target_comment;
+  select (entry->>'moderationVersion')::uuid into hidden_version
+    from jsonb_array_elements(cali_workspace.v2_read_pilot_notice_interactions(a,directed,1)->'comments') entry
+    where entry->>'id'=target_comment::text and (entry->>'hidden')::boolean;
+  assert hidden_version is not null;
+  begin
+    perform cali_workspace.v2_moderate_pilot_notice_comment(b,general,target_comment,gen_random_uuid(),hidden_version,false,'Outra empresa');
+    raise exception 'Moderação cruzada';
+  exception when insufficient_privilege then null; end;
+  begin
+    perform cali_workspace.v2_moderate_pilot_notice_comment(a,directed,target_comment,gen_random_uuid(),null,false,'Versão anterior');
+    raise exception 'Moderação desatualizada';
+  exception when serialization_failure then null; end;
+  perform cali_workspace.fixture_as('clientA');
+  assert cali_workspace.v2_read_pilot_notice_interactions(a,directed,1)::text not like '%Comentário sintético%';
+  assert not exists(select 1 from cali_workspace.notice_comments c where c.id=target_comment);
+  begin
+    perform cali_workspace.v2_moderate_pilot_notice_comment(a,directed,target_comment,gen_random_uuid(),hidden_version,false,'Cliente alterando');
+    raise exception 'Cliente moderou comentário';
+  exception when insufficient_privilege then null; end;
+  perform cali_workspace.fixture_as('admin');
+  assert cali_workspace.v2_moderate_pilot_notice_comment(a,directed,target_comment,gen_random_uuid(),hidden_version,false,'Restaurar conteúdo')=target_comment;
+  perform cali_workspace.fixture_as('clientA');
+  assert exists(select 1 from cali_workspace.notice_comments c where c.id=target_comment);
+  perform cali_workspace.fixture_as('admin');
   perform cali_workspace.v2_react_pilot_notice(a,general,null,'clap');
   begin
     perform cali_workspace.v2_react_pilot_notice(b,general,null,'love');
@@ -69,6 +101,7 @@ begin
     raise exception 'Reação em aviso arquivado aceita';
   exception when insufficient_privilege then null; end;
   reset role;
+  assert (select count(*) from cali_workspace.activity_log where entity_id=target_comment and event_type like 'notice_comment_%')=2;
   assert (select count(*) from cali_workspace.notifications where entity_id=directed)=1;
   assert not exists(select 1 from cali_workspace.notifications where entity_id=directed and email_required);
   assert not has_function_privilege('anon','cali_workspace.v2_read_pilot_notice_interactions(uuid,uuid,integer)','execute');

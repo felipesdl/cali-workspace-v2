@@ -47,6 +47,11 @@ begin
  assert not exists(select 1 from cali_workspace.project_workstreams where id=front);
  set local role authenticated;
  review := cali_workspace.v2_share_pilot_schedule(a,project);
+ assert cali_workspace.v2_read_pilot_project(a,project,'deliverables',1)#>>'{review,pastDue}'='false';
+ reset role;
+ update cali_workspace.project_review_requests set response_due_at=now()-interval '1 minute' where id=review;
+ set local role authenticated;
+ assert cali_workspace.v2_read_pilot_project(a,project,'deliverables',1)#>>'{review,pastDue}'='true';
  expected := (cali_workspace.v2_read_pilot_project(a,project,'deliverables',1)#>>'{items,rows,0,updated_at}')::timestamptz;
  begin
   perform cali_workspace.v2_edit_pilot_plan(a,project,delivery,'deliverable',expected,'save','Troca indevida','',null,'2026-11-12 16:00',destination,'MC2',2);

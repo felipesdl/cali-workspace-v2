@@ -8,10 +8,12 @@ drop function if exists cali_session_guard.phase4_build_admin_daily_preview(time
 drop function if exists cali_workspace.v2_read_pilot_notice_interactions(uuid,uuid,integer);
 drop function if exists cali_workspace.v2_comment_pilot_notice(uuid,uuid,uuid,text);
 drop function if exists cali_workspace.v2_react_pilot_notice(uuid,uuid,text,text);
+drop function if exists cali_workspace.v2_moderate_pilot_notice_comment(uuid,uuid,uuid,uuid,uuid,boolean,text);
 drop function if exists cali_session_guard.phase4_notice_interaction_actor(uuid,uuid);
 drop function if exists cali_workspace.v2_post_pilot_record_pdf(uuid,uuid,uuid,text,boolean,text,text);
 drop function if exists cali_workspace.v2_read_pilot_record_pdf(uuid,uuid,uuid);
 drop function if exists cali_workspace.v2_withdraw_pilot_record_pdf(uuid,uuid,uuid,text);
+drop function if exists cali_workspace.v2_set_pilot_capacity_pause(uuid,date,uuid,timestamptz,boolean);
 drop function if exists cali_workspace.v2_correct_pilot_hour(uuid,uuid,uuid,text,text,text,date,integer,text,boolean);
 set local lock_timeout = '5s';
 drop function if exists cali_workspace.v2_read_pilot_satisfaction(uuid,integer);
@@ -39,6 +41,8 @@ drop function if exists cali_workspace.v2_respond_pilot_appointment(uuid,uuid,te
 drop function if exists cali_workspace.v2_request_pilot_agenda_change(uuid,uuid,uuid,text,text,jsonb);
 drop function if exists cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer);
 drop function if exists cali_workspace.v2_complete_pilot_appointment(uuid,uuid);
+drop function if exists cali_workspace.v2_mark_pilot_appointment_absent(uuid,uuid,uuid,text,boolean,text);
+drop function if exists cali_session_guard.phase4_record_appointment_outcome(uuid,uuid,uuid,text,boolean,text);
 drop function if exists cali_workspace.v2_publish_pilot_notice(uuid,uuid,text,text,text,date);
 drop function if exists cali_workspace.v2_set_pilot_notice_state(uuid,uuid,text,text);
 drop function if exists cali_workspace.v2_ack_pilot_notice(uuid,uuid,boolean);

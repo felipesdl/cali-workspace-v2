@@ -2,6 +2,14 @@ import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 
 const slot = z.object({ startsAt: z.string(), endsAt: z.string() });
+export const absenceCategory = z.enum([
+  'client',
+  'cali',
+  'external',
+  'health',
+  'travel_vacation',
+  'other',
+]);
 const changeKind = z.enum(['cancel', 'reschedule']);
 const change = z.object({
   id: z.uuid(),
@@ -40,6 +48,7 @@ const appointments = z.array(
       .optional(),
     canRequestChange: z.boolean().optional(),
     canComplete: z.boolean().optional(),
+    absenceEventId: z.uuid().nullish(),
     latestChange: change.nullable().optional(),
   }),
 );
@@ -160,6 +169,27 @@ export function createAgendaOperations(client: WorkspaceClient) {
       if (error?.code === '40001' || error?.code === '42501')
         throw new Error('Confira o horário e a situação atual da reunião.');
       if (error) throw new Error('Não foi possível registrar a realização.');
+      return z.literal(id).parse(data);
+    },
+    async markAbsent(
+      company: string,
+      id: string,
+      event: string,
+      category: string,
+      justified: boolean,
+      note: string,
+    ) {
+      const { data, error } = await client.rpc('v2_mark_pilot_appointment_absent', {
+        p_company_id: company,
+        p_appointment_id: id,
+        p_event_id: event,
+        p_category: absenceCategory.parse(category),
+        p_justified: justified,
+        p_note: z.string().trim().min(3).max(1000).parse(note),
+      });
+      if (error?.code === '40001' || error?.code === '42501')
+        throw new Error('Confira o horário e a situação atual da reunião.');
+      if (error) throw new Error('Não foi possível registrar a reunião não realizada.');
       return z.literal(id).parse(data);
     },
     async respond(

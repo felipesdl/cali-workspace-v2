@@ -9,8 +9,18 @@ import { AgendaChangeActions } from './AgendaChangeActions';
 import { AgendaExtras } from './AgendaExtras';
 import { AgendaParticipants } from './AgendaParticipants';
 import { appointmentStatusLabel } from './workspace-labels';
+import { absenceCategory } from '../../api/modules/project-workspace/agenda';
+import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 
 const read = (fields: FormData, name: string) => String(fields.get(name) ?? '');
+const absenceLabels = {
+  client: 'Cliente',
+  cali: 'CALI',
+  external: 'Fator externo',
+  health: 'Saúde',
+  travel_vacation: 'Viagem ou férias',
+  other: 'Outro',
+} as const satisfies Record<(typeof absenceCategory.options)[number], string>;
 
 export function AgendaActions({
   company,
@@ -111,6 +121,7 @@ export function AgendaActions({
       {result.data?.map((item) => {
         const offer = admin && item.status === 'submitted';
         const confirm = !admin && item.status === 'client_review';
+        const absenceEventId = admin ? item.absenceEventId : null;
         const options = offer ? item.requested_slots : item.admin_proposed_slots;
         return (
           <article
@@ -137,6 +148,57 @@ export function AgendaActions({
                   }
                 }}
               />
+            )}
+            {absenceEventId && (
+              <details>
+                <summary className="tw:cursor-pointer">Registrar reunião não realizada</summary>
+                <ActionForm
+                  label="Salvar não realização"
+                  submit={async (fields) =>
+                    refresh(
+                      await agenda.markAbsent(
+                        company,
+                        item.id,
+                        absenceEventId,
+                        read(fields, 'category'),
+                        fields.has('justified'),
+                        read(fields, 'note'),
+                      ),
+                    )
+                  }
+                >
+                  {(prefix) => (
+                    <>
+                      <Field id={prefix + 'category'} label="Motivo">
+                        <select id={prefix + 'category'} name="category" required defaultValue="">
+                          <option value="" disabled>
+                            Selecione
+                          </option>
+                          {absenceCategory.options.map((category) => (
+                            <option key={category} value={category}>
+                              {absenceLabels[category]}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                      <Field id={prefix + 'note'} label="Justificativa interna">
+                        <textarea
+                          id={prefix + 'note'}
+                          name="note"
+                          required
+                          minLength={3}
+                          maxLength={1000}
+                        />
+                      </Field>
+                      <Checkbox name="justified">Falta justificada</Checkbox>
+                      <p>
+                        O Cliente recebe o resultado. Quando o contrato permite reposição, a reunião
+                        volta para análise.
+                      </p>
+                    </>
+                  )}
+                </ActionForm>
+              </details>
             )}
             <AgendaChangeActions
               company={company}

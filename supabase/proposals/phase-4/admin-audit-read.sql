@@ -30,7 +30,9 @@ begin
           'document_revision_added','document_published','document_withdrawn',
           'deliverable_reopened','deliverable_client_approved',
           'record_open','account_record_feedback','record_reopen_requested','record_reopen_decided',
-          'agenda_change_requested','agenda_change_decided','satisfaction_followup_saved',
+          'agenda_change_requested','agenda_change_decided','scheduling_event_not_occurred',
+          'notice_comment_hidden','notice_comment_restored','capacity_pause_recorded','capacity_pause_resumed',
+          'satisfaction_followup_saved',
           'commercial_proposal_edited','commercial_proposal_approved',
           'form_draft_created','form_draft_edited','form_open','form_closed','form_response_triaged'
         )

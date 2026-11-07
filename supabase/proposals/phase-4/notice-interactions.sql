@@ -2,7 +2,28 @@
 begin;
 set local lock_timeout='5s';
 
-create function cali_session_guard.phase4_notice_interaction_actor(p_company_id uuid,p_notice_id uuid)
+create table if not exists cali_session_guard.phase4_notice_comment_moderation (
+  comment_id uuid primary key references cali_workspace.notice_comments(id) on delete cascade,
+  hidden boolean not null,
+  version uuid not null default gen_random_uuid()
+);
+alter table cali_session_guard.phase4_notice_comment_moderation enable row level security;
+revoke all on cali_session_guard.phase4_notice_comment_moderation from public,anon,authenticated,service_role;
+
+create or replace function cali_session_guard.phase4_notice_comment_visible(p_comment_id uuid)
+returns boolean language sql stable security definer set search_path=''
+as $$
+  select not exists(select 1 from cali_session_guard.phase4_notice_comment_moderation m
+    where m.comment_id=p_comment_id and m.hidden) or coalesce(cali_workspace.is_admin(),false);
+$$;
+revoke all on function cali_session_guard.phase4_notice_comment_visible(uuid) from public,anon,authenticated,service_role;
+grant execute on function cali_session_guard.phase4_notice_comment_visible(uuid) to anon,authenticated;
+drop policy if exists phase4_notice_comment_visibility on cali_workspace.notice_comments;
+create policy phase4_notice_comment_visibility on cali_workspace.notice_comments
+  as restrictive for select to anon,authenticated
+  using (cali_session_guard.phase4_notice_comment_visible(id));
+
+create or replace function cali_session_guard.phase4_notice_interaction_actor(p_company_id uuid,p_notice_id uuid)
 returns uuid language plpgsql security definer set search_path=''
 as $$
 declare
@@ -21,19 +42,24 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_read_pilot_notice_interactions(p_company_id uuid,p_notice_id uuid,p_page integer)
+create or replace function cali_workspace.v2_read_pilot_notice_interactions(p_company_id uuid,p_notice_id uuid,p_page integer)
 returns jsonb language plpgsql security definer set search_path=''
 as $$
 declare
   actor uuid := cali_session_guard.phase4_notice_interaction_actor(p_company_id,p_notice_id);
+  is_admin boolean := exists(select 1 from cali_workspace.profiles where id=actor and role::text='admin');
 begin
   if p_page is null or p_page not between 1 and 10000 then
     raise exception using errcode='22023',message='Página inválida.';
   end if;
   return jsonb_build_object(
+    'canModerate',is_admin and to_regprocedure('cali_workspace.v2_moderate_pilot_notice_comment(uuid,uuid,uuid,uuid,uuid,boolean,text)') is not null,
     'comments',coalesce((select jsonb_agg(to_jsonb(page) order by "createdAt" desc,id desc) from (
-      select c.id,c.body,c.author_role as "authorRole",c.created_at as "createdAt"
-      from cali_workspace.notice_comments c where c.company_id=p_company_id and c.notice_id=p_notice_id
+      select c.id,c.body,c.author_role as "authorRole",c.created_at as "createdAt",
+        coalesce(m.hidden,false) as hidden,case when is_admin then m.version end as "moderationVersion"
+      from cali_workspace.notice_comments c
+      left join cali_session_guard.phase4_notice_comment_moderation m on m.comment_id=c.id
+      where c.company_id=p_company_id and c.notice_id=p_notice_id and (is_admin or not coalesce(m.hidden,false))
       order by c.created_at desc,c.id desc limit 25 offset (p_page-1)*25
     ) page),'[]'::jsonb),
     'ownReaction',(select r.reaction from cali_workspace.notice_reactions r
@@ -45,7 +71,7 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_comment_pilot_notice(p_company_id uuid,p_request_id uuid,p_notice_id uuid,p_body text)
+create or replace function cali_workspace.v2_comment_pilot_notice(p_company_id uuid,p_request_id uuid,p_notice_id uuid,p_body text)
 returns uuid language plpgsql security definer set search_path=''
 as $$
 declare
@@ -68,7 +94,7 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_react_pilot_notice(p_company_id uuid,p_notice_id uuid,p_expected text,p_reaction text)
+create or replace function cali_workspace.v2_react_pilot_notice(p_company_id uuid,p_notice_id uuid,p_expected text,p_reaction text)
 returns uuid language plpgsql security definer set search_path=''
 as $$
 declare
@@ -102,6 +128,48 @@ begin
 end;
 $$;
 
+create or replace function cali_workspace.v2_moderate_pilot_notice_comment(
+  p_company_id uuid,p_notice_id uuid,p_comment_id uuid,p_request_id uuid,p_expected uuid,p_hidden boolean,p_reason text
+)
+returns uuid language plpgsql security definer set search_path=''
+as $$
+declare
+  actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
+  previous cali_session_guard.phase4_notice_comment_moderation%rowtype;
+  reason text := btrim(p_reason);
+  signature bytea;
+  saved uuid;
+begin
+  perform cali_session_guard.phase4_notice_interaction_actor(p_company_id,p_notice_id);
+  if p_request_id is null or p_comment_id is null or p_hidden is null
+    or coalesce(length(reason),0) not between 5 and 1000 then
+    raise exception using errcode='22023',message='Informe o motivo da moderação.';
+  end if;
+  perform 1 from cali_workspace.notice_comments c
+    where c.id=p_comment_id and c.company_id=p_company_id and c.notice_id=p_notice_id for update;
+  if not found then raise exception using errcode='42501',message='Comentário indisponível.'; end if;
+  signature:=sha256(convert_to(jsonb_build_array('notice-moderation',p_notice_id,p_comment_id,p_expected,p_hidden,reason)::text,'UTF8'));
+  saved:=cali_session_guard.read_phase4_receipt(actor,p_company_id,p_request_id,signature);
+  if saved is not null then return saved; end if;
+  select * into previous from cali_session_guard.phase4_notice_comment_moderation where comment_id=p_comment_id;
+  if previous.version is distinct from p_expected or coalesce(previous.hidden,false)=p_hidden then
+    raise exception using errcode='40001',message='A moderação do comentário mudou.';
+  end if;
+  insert into cali_session_guard.phase4_notice_comment_moderation(comment_id,hidden)
+    values(p_comment_id,p_hidden)
+    on conflict(comment_id) do update set hidden=excluded.hidden,version=gen_random_uuid();
+  insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
+    values(p_company_id,actor,case when p_hidden then 'notice_comment_hidden' else 'notice_comment_restored' end,
+      'notice_comment',p_comment_id,jsonb_build_object('noticeId',p_notice_id,'reason',reason));
+  insert into cali_session_guard.phase4_operation_receipts values(actor,p_company_id,p_request_id,signature,p_comment_id);
+  return p_comment_id;
+end;
+$$;
+
+revoke all on function cali_workspace.v2_moderate_pilot_notice_comment(uuid,uuid,uuid,uuid,uuid,boolean,text)
+  from public,anon,authenticated,service_role;
+grant execute on function cali_workspace.v2_moderate_pilot_notice_comment(uuid,uuid,uuid,uuid,uuid,boolean,text)
+  to authenticated;
 revoke all on function cali_session_guard.phase4_notice_interaction_actor(uuid,uuid) from public,anon,authenticated,service_role;
 revoke all on function cali_workspace.v2_read_pilot_notice_interactions(uuid,uuid,integer),
   cali_workspace.v2_comment_pilot_notice(uuid,uuid,uuid,text),

@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Complementos locais da fase 4
+
+- Projetos indica revisão vencida e mantém a resposta aberta. Horas registra pausa por capacidade e retomada no mês. Agenda registra não realização e encaminha reposição conforme a regra legada. Avisos permite ocultar e restaurar comentários com auditoria. Relatórios mostra contagens das fontes para Admin. Frentes indica modalidades com vaga em uso. [Contratos, testes e pendências](contracts/PHASE_4_READ.md#complementos-locais-da-fase-4).
+
 ## Realização de reunião ordinária
 
 - Admin registra a realização de uma reunião contratual confirmada após o horário de fim. A guarda recusa alterações pendentes, reuniões futuras ou canceladas, Cliente e empresa divergente. O PostgreSQL descartável confirmou registro único e situação Realizado para o Cliente. [Contrato, limites e reversão](contracts/PHASE_4_READ.md#registro-de-realização-de-reunião-ordinária).

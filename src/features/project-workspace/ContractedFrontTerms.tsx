@@ -45,7 +45,10 @@ function useFrontManagement({ company, actor }: Scope) {
   return {
     operations,
     async refresh(result: string) {
-      await cache.invalidateQueries({ queryKey: ['phase4-catalog', actor, company, 'fronts'] });
+      await Promise.all([
+        cache.invalidateQueries({ queryKey: ['phase4-catalog', actor, company, 'fronts'] }),
+        cache.invalidateQueries({ queryKey: ['phase4-front-options', actor, company] }),
+      ]);
       return result;
     },
   };
@@ -69,7 +72,7 @@ export function ActivateContractedFront({ company, actor }: Scope) {
         Não foi possível consultar as opções de frente.
       </FeedbackState>
     );
-  const { options, hasPlan } = available.data;
+  const { options, hasPlan, occupiedModes = [] } = available.data;
   if (!hasPlan)
     return (
       <FeedbackState kind="empty">Defina um plano para ativar frentes nesta empresa.</FeedbackState>
@@ -100,6 +103,12 @@ export function ActivateContractedFront({ company, actor }: Scope) {
     >
       {(prefix) => (
         <>
+          {occupiedModes.length > 0 && (
+            <p>
+              Modalidades com vaga em uso ·{' '}
+              {occupiedModes.map((mode) => modeLabels[mode]).join(' · ')}
+            </p>
+          )}
           <Field id={prefix + 'front'} label="Frente e modalidade">
             <select id={prefix + 'front'} name="front" required>
               <option value="">Selecione</option>

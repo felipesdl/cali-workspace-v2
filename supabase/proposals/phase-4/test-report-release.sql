@@ -17,6 +17,10 @@ begin
   set local role authenticated;
   perform cali_workspace.fixture_as('admin');
   perform cali_workspace.v2_create_pilot_report_draft(a,id,'2026-10-01','Fechamento de teste','Resumo inicial');
+  select entry into payload from jsonb_array_elements(cali_workspace.v2_read_pilot_report_catalog(a,1)->'entries') entry
+    where entry->>'id'=qa.id::text;
+  assert payload->'reportSourceCounts'='{"projects":1,"tasksCreated":3,"tasksCompleted":1,"events":0,"comments":2}'::jsonb;
+  assert payload::text not like '%Projeto QA reservado%';
   for version in 1..3 loop
     if version>1 then
       select (entry->>'reportUpdatedAt')::timestamptz into stamp
@@ -123,6 +127,7 @@ begin
     assert payload->>'status'='published';
     assert payload->'reportCuration' is not distinct from coalesce(sections,'null'::jsonb);
     assert payload->'reportMetrics'=display_metrics;
+    assert payload->'reportSourceCounts'='null'::jsonb;
     assert payload->>'protocol' like 'CALI-EXEC-%';
     assert (payload->>'acknowledgmentAvailable')::boolean=(version<>2);
     assert payload->>'reportAcknowledged'='false';
