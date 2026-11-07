@@ -7,6 +7,7 @@ import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { AdminDailyPreview } from './AdminDailyPreview';
 import { ReportCurationSections } from './ReportCuration';
+import { ContractedFrontTerms } from './ContractedFrontTerms';
 import { DeliveryPdf, DocumentLibrary } from './DocumentLibrary';
 import {
   CreateReportDraft,
@@ -31,6 +32,7 @@ import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getRouteApi,
+  Link,
   useLocation,
   useNavigate,
   useRouteContext,
@@ -606,6 +608,20 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
       {module === 'calendar' && companyId && (
         <AgendaActions key={companyId} company={companyId} actor={actor} admin={admin} />
       )}
+      {module === 'fronts' && !admin && companyId && domainOperations && (
+        <section className={panel} aria-label="Ajuda com o escopo">
+          <p>
+            Para conversar com a CALI sobre o escopo contratado, solicite uma reunião na Agenda.
+          </p>
+          <Link
+            className="tw:text-brand tw:underline tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+            to="/cliente/cronograma"
+            search={workspaceSearch.parse({})}
+          >
+            Solicitar conversa com a CALI
+          </Link>
+        </section>
+      )}
 
       {module === 'notices' && admin && companyId && (
         <PublishNotice key={companyId} company={companyId} actor={actor} />
@@ -718,6 +734,7 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                   {item.reportCuration && item.reportVersion && (
                     <ReportCurationSections sections={item.reportCuration} />
                   )}
+                  {item.frontTerms && <ContractedFrontTerms terms={item.frontTerms} />}
                   {module === 'notices' && item.status === 'published' && (
                     <NoticeInteractions company={companyId} actor={actor} notice={item.id} />
                   )}
@@ -725,7 +742,11 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
               ))}
             </ul>
           ) : (
-            <FeedbackState kind="empty">Nenhum registro nesta página.</FeedbackState>
+            <FeedbackState kind="empty">
+              {module === 'fronts'
+                ? 'Nenhuma frente contratada nesta página.'
+                : 'Nenhum registro nesta página.'}
+            </FeedbackState>
           )}
           <Pages total={result.data.total} search={search} update={update} />
         </>

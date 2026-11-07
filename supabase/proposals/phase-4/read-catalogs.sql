@@ -2,7 +2,7 @@
 begin;
 set local lock_timeout = '5s';
 
-create function cali_workspace.v2_read_pilot_catalog(
+create or replace function cali_workspace.v2_read_pilot_catalog(
   p_company_id uuid, p_module text, p_month date, p_page integer
 )
 returns jsonb language plpgsql stable security definer set search_path = ''
@@ -20,7 +20,7 @@ begin
     with matched as (
       select e.id,e.title,e.protocol,
         case when e.cancelled_at is null then e.event_type else 'cancelled' end as status,
-        e.starts_at as instant,null::date as day,null::text as summary,false as "acknowledgmentAvailable",null::boolean as "noticeAcknowledged",false as "noticeEditable",null::timestamptz as "reportUpdatedAt"
+        e.starts_at as instant,null::date as day,null::text as summary,false as "acknowledgmentAvailable",null::boolean as "noticeAcknowledged",false as "noticeEditable",null::timestamptz as "reportUpdatedAt",null::jsonb as "frontTerms"
       from cali_workspace.events e
       where p_module='calendar' and e.company_id=p_company_id
         and e.starts_at < ((p_month+interval '1 month') at time zone 'America/Sao_Paulo')
@@ -28,11 +28,11 @@ begin
           or e.ends_at > (p_month::timestamp at time zone 'America/Sao_Paulo'))
         and (admin or (e.visibility='client' and e.cancelled_at is null))
       union all
-      select r.id,r.title,r.protocol,r.workflow_status,r.occurred_at,null::date,null::text,false,null::boolean,false,null::timestamptz
+      select r.id,r.title,r.protocol,r.workflow_status,r.occurred_at,null::date,null::text,false,null::boolean,false,null::timestamptz,null::jsonb
       from cali_workspace.account_records r
       where p_module='records' and r.company_id=p_company_id and (admin or r.visibility='client')
       union all
-      select f.id,f.title,f.protocol,f.status,f.published_at,null::date,null::text,false,null::boolean,false,null::timestamptz
+      select f.id,f.title,f.protocol,f.status,f.published_at,null::date,null::text,false,null::boolean,false,null::timestamptz,null::jsonb
       from cali_workspace.files f
       where p_module='documents' and f.company_id=p_company_id
         and (admin or (f.status='published' and f.client_visible
@@ -44,7 +44,7 @@ begin
         case when p_module='notices' and not admin then exists(select 1 from cali_workspace.notice_acknowledgements a
           where a.notice_id=n.id and a.company_id=p_company_id and a.user_id=actor) end,
         (p_module='notices' and admin and n.audience='selected' and not exists(
-          select 1 from cali_workspace.notice_targets other where other.notice_id=n.id and other.company_id<>p_company_id)),null::timestamptz
+          select 1 from cali_workspace.notice_targets other where other.notice_id=n.id and other.company_id<>p_company_id)),null::timestamptz,null::jsonb
       from cali_workspace.notices n
       where (p_module='notices' or (p_module='calendar' and n.status='published'
         and n.notice_date>=p_month and n.notice_date<(p_month+interval '1 month')::date))
@@ -53,13 +53,15 @@ begin
         )) and (admin or cali_workspace.can_read_notice(n.id))
       union all
       select r.id,r.title,r.protocol,r.status,r.published_at,r.period_start,r.executive_summary,
-        (r.revision_parent_id is null and coalesce(r.version,1)=1 and r.acknowledged_at is null),null::boolean,false,case when admin then r.updated_at end
+        (r.revision_parent_id is null and coalesce(r.version,1)=1 and r.acknowledged_at is null),null::boolean,false,case when admin then r.updated_at end,null::jsonb
       from cali_workspace.reports r
       where p_module='reports' and r.company_id=p_company_id and (admin or r.status in ('sent','published'))
       union all
-      select f.id,coalesce(nullif(f.scope_label,''),f.front_code),null::text,f.status,null::timestamptz,
-        f.started_at,null::text,false,null::boolean,false,null::timestamptz
+      select f.id,coalesce(c.title,f.front_code),null::text,f.status,null::timestamptz,
+        f.started_at,c.description,false,null::boolean,false,null::timestamptz,
+        jsonb_build_object('scope',nullif(btrim(f.scope_label),''),'mode',f.mode,'endsOn',f.ends_at)
       from cali_workspace.company_fronts f
+      left join cali_workspace.front_catalog c on c.code=f.front_code
       where p_module='fronts' and f.company_id=p_company_id and (admin or f.status='active')
     ), page as (
       select * from matched order by instant desc nulls last,day desc nulls last,id limit 25 offset (p_page-1)*25

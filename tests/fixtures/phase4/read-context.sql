@@ -22,7 +22,8 @@ create table cali_workspace.notice_targets(notice_id uuid,company_id uuid);
 create table cali_workspace.notice_acknowledgements(notice_id uuid,user_id uuid,company_id uuid,primary key(notice_id,user_id));
 create table cali_workspace.reports(id uuid,company_id uuid,title text,protocol text,status text,
  published_at timestamptz,period_start date,executive_summary text, revision_parent_id uuid,version integer default 1, acknowledged_at timestamptz,updated_at timestamptz default clock_timestamp());
-create table cali_workspace.company_fronts(id uuid,company_id uuid,scope_label text,front_code text,status text,started_at date);
+create table cali_workspace.front_catalog(code text primary key,title text,description text);
+create table cali_workspace.company_fronts(id uuid,company_id uuid,scope_label text,front_code text,status text,started_at date,mode text,ends_at date);
 
 create function cali_workspace.current_company_id() returns uuid language sql stable as $$
  select company_id from cali_workspace.profiles where id=auth.uid() and active
@@ -106,9 +107,12 @@ begin
  insert into cali_workspace.reports values
   (gen_random_uuid(),a,'Publicado','R1','published','2026-11-01Z','2026-11-01','Resumo',null,1,null,default),
   (gen_random_uuid(),a,'Rascunho','R2','draft',null,'2026-11-01','Resumo interno',null,1,null,default);
+ insert into cali_workspace.front_catalog values
+  ('F1','Frente ativa','Descrição de catálogo'),
+  ('F2','Frente encerrada','Descrição anterior');
  insert into cali_workspace.company_fronts values
-  (gen_random_uuid(),a,'Frente ativa','F1','active','2026-11-01'),
-  (gen_random_uuid(),a,'Frente encerrada','F2','ended','2026-11-01');
+  (gen_random_uuid(),a,'Escopo ativo','F1','active','2026-11-01','slot_included','2026-11-30'),
+  (gen_random_uuid(),a,'Escopo encerrado','F2','ended','2026-11-01','addon','2026-11-12');
 end $$;
 
 -- Campos efetivos usados pelo editor de planejamento e pela projeção estendida.

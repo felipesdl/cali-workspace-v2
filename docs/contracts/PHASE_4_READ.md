@@ -269,6 +269,14 @@ O formulário duplicava ao alternar a empresa porque o editor e a consulta de pr
 
 A geração, liberação e ciência foram validadas no [lote hospedado seguinte](#lote-de-pdf-executivo-no-cali-mapa). O bundle local passou no build. O preflight da revisão 2 confirmou os tipos de horas, entregáveis e feedback exigidos, a identidade configurada com foto em origem permitida e assinatura virtual, a permissão de uso do schema já existente para o serviço e a ausência de liberações ativas. Para homologar, conferir a disponibilidade da imagem, instalar `report-release-operations.sql` e ativar temporariamente apenas a Edge `workspace-executive-pdf` com JWT. Usar só A, conferir recusa em B e retirar a liberação sintética. Desligar a flag e desativar a função temporária ao fim. `rollback-report-release.sql` remove somente as RPCs de geração/liberação, recusa reversão enquanto houver publicação ativa e conserva PDFs, ciências e histórico. Esse passo exige ativação hospedada explícita. `rollback-report-drafts.sql` retira apenas o acesso às três RPCs de rascunho e preserva relatórios e aprovações.
 
+## Frentes contratadas e Ajuda no CALI MAPA
+
+A RPC de catálogos projeta o título e a descrição da frente, seu escopo contratado, modalidade e vigência. Cliente consulta frentes ativas da própria empresa. Admin também consulta as encerradas. A tela de Frentes leva à solicitação ordinária na Agenda, que mantém as guardas e o formulário existentes. Abrir o formulário não cria pedido.
+
+O CALI MAPA recebeu a projeção após conferência da definição anterior. As empresas A/B estavam sem vínculos. No navegador, B abriu Frentes, viu o estado vazio e chegou ao formulário de encontro do contrato. PostgreSQL descartável comprovou a projeção de uma frente ativa e ocultou a encerrada do Cliente. A escrita administrativa ainda precisa de prova de ativação e encerramento com as guardas de plano instaladas.
+
+Reversão deste lote: reaplicar a definição de `v2_read_pilot_catalog` de `2ff8b33` como `create or replace function`, recarregar o schema da Data API e reverter o front deste recorte. Nenhuma associação contratual foi criada pela instalação.
+
 ## Curadoria de relatórios no CALI MAPA
 
 Admin com MFA edita quatro textos opcionais de até 2.000 caracteres por seção em relatórios V2 em rascunho ou revisão interna. A operação trava a linha, confere o instante visto na tela e grava uma trilha com autoria e versão. As seções ficam na tabela privada `cali_session_guard.phase4_report_curation`; as quatro colunas legadas permanecem reservadas ao contrato anterior. A aprovação congela a curadoria junto das fontes e do resumo. O catálogo Cliente lê as seções da revisão liberada e o gerador usa o mesmo retrato. Aprovações antigas continuam legíveis.

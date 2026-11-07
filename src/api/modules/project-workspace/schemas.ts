@@ -114,6 +114,13 @@ const catalogModuleSchema = z.enum([
   'fronts',
 ]);
 export type CatalogModule = z.infer<typeof catalogModuleSchema>;
+const frontTerms = z.object({
+  scope: z.string().nullable(),
+  mode: z.enum(['slot_included', 'slot_paid', 'addon', 'build_assisted']),
+  endsOn: z.iso.date().nullable(),
+});
+export type FrontTerms = z.infer<typeof frontTerms>;
+
 export const catalog = z.object({
   companyId: z.uuid(),
   module: catalogModuleSchema,
@@ -137,6 +144,7 @@ export const catalog = z.object({
       reportPdfReady: z.boolean().optional(),
       reportPreviouslyReleased: z.boolean().optional(),
       reportAcknowledged: z.boolean().optional(),
+      frontTerms: frontTerms.nullable().optional(),
     }),
   ),
 });

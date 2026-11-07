@@ -78,6 +78,8 @@ Alvo confirmado: geração, aprovação, liberação e envio de relatórios são
 
 O [piloto V2 de privacidade](../contracts/PHASE_4_READ.md#lote-de-pedido-de-privacidade-no-cali-mapa) homologou abertura e resposta de um pedido de acesso. O [painel de ciclo de dados](../contracts/PHASE_4_READ.md#consulta-do-ciclo-de-dados-no-cali-mapa) consulta situação e intervalo técnico. Exportação, eliminação e encerramento são operações separadas.
 
+O Cliente já pode consultar a modalidade e a vigência das frentes contratadas e seguir para a Agenda quando precisar conversar sobre o escopo. [Prova de Frentes e Ajuda](../contracts/PHASE_4_READ.md#frentes-contratadas-e-ajuda-no-cali-mapa).
+
 **Objetivo/atores/entrada:** Cliente entende escopo/frentes e solicita apoio/direitos; Admin configura frentes, responde pedidos, exporta e conduz encerramento/eliminação autorizados. Contexto: `/cliente/frentes`, ajuda/perfil, `/admin/clientes` e auditoria; páginas legais públicas não concedem acesso ao workspace.
 
 **Fontes:** [frentes](SOURCES.md#fronts), [perfil/direitos](SOURCES.md#profile-ui), [privacidade SQL](SOURCES.md#privacy), [exportação](SOURCES.md#export), [encerramento](SOURCES.md#access-close), [eliminação](SOURCES.md#elimination), [sequência UI](SOURCES.md#elimination-ui), [versão legal](SOURCES.md#legal).

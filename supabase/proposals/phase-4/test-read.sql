@@ -55,6 +55,10 @@ begin
   if mod='calendar' then
    assert payload#>>'{entries,1,title}'='Cruza início do mês';
   end if;
+  if mod='fronts' then
+   assert payload#>>'{entries,0,summary}'='Descrição de catálogo';
+   assert payload#>'{entries,0,frontTerms}'='{"scope":"Escopo ativo","mode":"slot_included","endsOn":"2026-11-30"}';
+  end if;
  end loop;
  perform set_config('test.terms','false',true);
  begin

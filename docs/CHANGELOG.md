@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Frentes contratadas e Ajuda
+
+- A consulta de Frentes mostra o título de catálogo, o escopo contratado, a modalidade e a vigência. No piloto, o Cliente B abriu o formulário da Agenda a partir de Frentes. [Contrato e prova](contracts/PHASE_4_READ.md#frentes-contratadas-e-ajuda-no-cali-mapa).
+
 ## 07/11/2026 — Curadoria dos relatórios executivos
 
 - Admin editou movimentos, decisões, riscos e próximos passos e aprovou a revisão 3 do relatório sintético. O CALI MAPA confirmou o conteúdo congelado, o histórico preservado e a revisão interna oculta para A e B. [Prova e reversão](contracts/PHASE_4_READ.md#curadoria-de-relatórios-no-cali-mapa).
