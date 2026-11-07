@@ -161,6 +161,7 @@ rollback;
 \ir test-agenda-qa-transport.sql
 \ir test-record-reviews.sql
 \ir test-record-qa-transport.sql
+\ir test-privacy-qa-transport.sql
 \ir test-catalog-actions.sql
 \ir test-documents.sql
 grant usage on schema cali_workspace to service_role;
@@ -176,6 +177,16 @@ begin
  assert to_regprocedure('cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date)') is not null;
  assert to_regprocedure('cali_session_guard.require_phase4_role(uuid,text)') is not null;
  assert to_regclass('cali_session_guard.phase4_operation_receipts') is not null;
+end $$;
+\ir rollback-report-release.sql
+\ir rollback-privacy.sql
+do $$
+begin
+ assert to_regprocedure('cali_workspace.v2_read_pilot_report_catalog(uuid,integer)') is null;
+ assert to_regprocedure('cali_workspace.v2_list_pilot_report_approvals(uuid,uuid,integer)') is not null;
+ assert to_regprocedure('cali_workspace.v2_list_pilot_privacy_requests(uuid,integer)') is null;
+ assert to_regclass('cali_session_guard.phase4_privacy_qa') is not null;
+ assert to_regclass('cali_session_guard.phase4_report_releases') is not null;
 end $$;
 \ir rollback-write.sql
 \ir rollback-project-forecast.sql

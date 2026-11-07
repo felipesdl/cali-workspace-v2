@@ -71,3 +71,5 @@ Admin com MFA cria rascunhos de Forms e edita perguntas de texto em empresa pilo
 As quatro RPCs públicas checam uma identidade administrativa específica. As consultas retornam linhas completas, sem escopo de empresa. A atualização grava situação e observações pelo identificador. As funções internas de listagem usam `is_admin()` e também retornam linhas completas. A coluna de empresa na resposta é texto, sem identificador V2, e não serve como vínculo de autorização. Nenhuma resposta ou jornada foi consultada.
 
 O piloto V2 precisa de associação explícita por identificador, projeção por operação e revisão de quem pode acessar. A consulta existente do legado permanece separada. Estados permitidos e guarda de acesso a relatórios ainda precisam de reconciliação.
+
+Em 07/11, o catálogo hospedado confirmou que o leitor público por slug não exige vínculo mesmo com audiência Cliente. A coleta da fixture ficou fechada. [Evidência](../contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).

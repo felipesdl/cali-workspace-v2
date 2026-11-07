@@ -74,6 +74,8 @@ Alvo confirmado: geração, aprovação, liberação e envio de relatórios são
 
 ## FLOW-18 — Frentes, ajuda, direitos e fim de contrato
 
+O [piloto V2 de privacidade](../contracts/PHASE_4_READ.md#lote-de-pedido-de-privacidade-no-cali-mapa) homologou abertura e resposta de um pedido de acesso. Exportação, eliminação e encerramento são operações separadas.
+
 **Objetivo/atores/entrada:** Cliente entende escopo/frentes e solicita apoio/direitos; Admin configura frentes, responde pedidos, exporta e conduz encerramento/eliminação autorizados. Contexto: `/cliente/frentes`, ajuda/perfil, `/admin/clientes` e auditoria; páginas legais públicas não concedem acesso ao workspace.
 
 **Fontes:** [frentes](SOURCES.md#fronts), [perfil/direitos](SOURCES.md#profile-ui), [privacidade SQL](SOURCES.md#privacy), [exportação](SOURCES.md#export), [encerramento](SOURCES.md#access-close), [eliminação](SOURCES.md#elimination), [sequência UI](SOURCES.md#elimination-ui), [versão legal](SOURCES.md#legal).

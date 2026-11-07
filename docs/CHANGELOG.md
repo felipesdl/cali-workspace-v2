@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Pedido de privacidade homologado
+
+- Cliente A registrou pedido de acesso, Admin respondeu e B ficou isolado. Banco confirmou dois eventos de auditoria e zero notificações. Forms continua em rascunho: a audiência Cliente ainda pode ser lida pelo slug público quando aberta. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-pedido-de-privacidade-no-cali-mapa).
+
 ## 07/11/2026 — Aprovação interna de relatório homologada
 
 - Admin aprovou duas versões do mesmo relatório de outubro. Histórico preservado, relatório oculto ao Cliente e nenhum e-mail marcado. Corrigida duplicação do formulário na troca de empresa. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-aprovação-interna-de-relatório-no-cali-mapa).

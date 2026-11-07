@@ -163,7 +163,7 @@ O catálogo de 06/11 confirmou a guarda de sessão do piloto já instalada. A gu
 
 **Triagem no navegador.** Com autorização específica, uma resposta fictícia foi inserida no formulário fechado `teste-v2-forms-triagem-empresa-a`, separado do rascunho anterior. A sessão Admin mudou a etapa de Novo para Em análise, atribuiu responsável fictício e confirmou a persistência após recarregar. A lista de B permaneceu vazia. A verificação do registro confirmou conteúdo preservado, um evento de auditoria, ausência de e-mail do respondente e ausência de confirmação. Os registros de teste ficaram identificados. O servidor local foi encerrado.
 
-Abertura e encerramento de coleta continuam pendentes de prova hospedada.
+Abertura e encerramento de coleta continuam pendentes de prova hospedada. Em 07/11, o catálogo confirmou que as funções públicas de leitura e resposta usam slug e situação e não exigem autenticação ou vínculo para audiência `client`. Abrir a fixture hospedada teria efeito público; ela ficou em rascunho. A jornada deve distinguir coleta por link público de coleta restrita à empresa antes de ativar esse fluxo.
 
 **Reversão.** Desligar as flags locais e executar `rollback-forms.sql`. A reversão retira as RPCs de Forms, mantém as funções compartilhadas e preserva rascunhos, respostas, recibos e auditoria. O teste descartável confirma que as operações de projeto continuam disponíveis após essa reversão.
 
@@ -267,8 +267,16 @@ No navegador, Admin salvou a revisão 1 privada, publicou para A, e A baixou o P
 
 O formulário duplicava ao alternar a empresa porque o editor e a consulta de prontidão usavam a mesma chave entre irmãos. A tela agrupa os dois sob a chave da empresa e mantém um único formulário na alternância A/B. A situação de revisão é exibida em português.
 
-O PDF executivo, liberação e ciência no CALI MAPA continuam pendentes. O bundle local passou no build. Para homologar, conferir fontes e referências da identidade da revisão aprovada; instalar `report-release-operations.sql` e ativar temporariamente apenas a Edge `workspace-executive-pdf` com JWT. Usar só A, conferir recusa em B e retirar a liberação sintética. Desligar a flag e desativar a função temporária ao fim. Esse passo exige ativação hospedada explícita. `rollback-report-drafts.sql` retira apenas o acesso às três RPCs de rascunho e preserva relatórios e aprovações.
+O PDF executivo, liberação e ciência no CALI MAPA continuam pendentes. O bundle local passou no build. O preflight da revisão 2 confirmou os tipos de horas, entregáveis e feedback exigidos, a identidade configurada com foto em origem permitida e assinatura virtual, a permissão de uso do schema já existente para o serviço e a ausência de liberações ativas. Para homologar, conferir a disponibilidade da imagem, instalar `report-release-operations.sql` e ativar temporariamente apenas a Edge `workspace-executive-pdf` com JWT. Usar só A, conferir recusa em B e retirar a liberação sintética. Desligar a flag e desativar a função temporária ao fim. `rollback-report-release.sql` remove somente as RPCs de geração/liberação, recusa reversão enquanto houver publicação ativa e conserva PDFs, ciências e histórico. Esse passo exige ativação hospedada explícita. `rollback-report-drafts.sql` retira apenas o acesso às três RPCs de rascunho e preserva relatórios e aprovações.
 
 ## Limite de autorização no Portal Comercial
 
 A inspeção de 07/11/2026 confirmou que as policies de leitura e escrita de `cali_proposals` e `cali_submissions` usam a identidade da administradora do Portal. Um Admin do Workspace com MFA não recebe automaticamente esse papel. A RPC de escrita continua com privilégios do chamador. Homologar a edição e aprovação exige sessão com as duas autorizações ou decisão explícita sobre uma regra nova no Portal. Não houve ampliação de policies, criação de proposta hospedada, aceite ou disparo de e-mail neste lote.
+
+## Lote de pedido de privacidade no CALI MAPA
+
+A rotina legada de abertura avisa todos os Admins ativos e a de resposta notifica o solicitante. `privacy-qa-transport.sql` suprime os dois avisos apenas para empresa e descrição sintéticas inscritas. O PostgreSQL descartável comprovou que outra solicitação ou outra empresa mantém o transporte anterior.
+
+`report-privacy-operations.sql` foi instalado junto à proteção em 07/11/2026, com a consulta de prontidão e a ciência inicial legada. No navegador, A registrou pedido de acesso, Admin respondeu e A confirmou a resposta após recarregar. B ficou sem o pedido. Banco confirmou estado respondido, dois eventos de auditoria e zero notificações no app ou fila de e-mail. Nenhum dado pessoal foi exportado ou excluído. A ciência do relatório publicado e o ciclo de dados ainda exigem seus recortes próprios.
+
+`rollback-privacy.sql` retira as operações V2 do lote e preserva pedidos, recibos e eventos. A inscrição e o gatilho de supressão permanecem para proteger a fixture em eventuais chamadas legadas.
