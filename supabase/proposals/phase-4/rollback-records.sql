@@ -1,5 +1,8 @@
 -- Retira as operações deste lote. Preserva dados, recibos e a inscrição de QA.
 begin;
+drop function if exists cali_workspace.v2_post_pilot_record_pdf(uuid,uuid,uuid,text,boolean,text,text);
+drop function if exists cali_workspace.v2_read_pilot_record_pdf(uuid,uuid,uuid);
+drop function if exists cali_workspace.v2_withdraw_pilot_record_pdf(uuid,uuid,uuid,text);
 set local lock_timeout='5s';
 drop function if exists cali_workspace.v2_review_pilot_record(uuid,uuid,uuid,text,integer,text,uuid);
 drop function if exists cali_workspace.v2_pilot_record_action(uuid,uuid,uuid,text,text,text,boolean,text,text);

@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Anexos PDF de ocorrências
+
+- Mensagem e PDF gravados juntos. A baixou o arquivo público, a nota interna ficou restrita e B não abriu a ocorrência. Retirada preservou a mensagem e recusou o download antigo. [Prova e reversão](contracts/PHASE_4_READ.md#anexos-pdf-de-ocorrências-no-cali-mapa).
+
 ## 07/11/2026 — Correção auditada de horas
 
 - Admin corrige ou exclui lançamento com justificativa, versão e histórico. Edição de 15 para 16 minutos homologada no CALI MAPA; exclusão e recusas passaram no PostgreSQL descartável. [Contrato](contracts/PHASE_4_READ.md#correção-auditada-de-horas).

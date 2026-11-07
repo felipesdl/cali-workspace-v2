@@ -32,7 +32,7 @@ Cliente não pode mandar mensagem em standby, completed ou cancelled. Admin tamb
 
 RPCs de edição/exclusão exigem Admin e mensagem de author_role admin; mensagens Cliente permanecem originais. Exclusão é lógica por `deleted_at`. Não há guarda localizada exigindo que seja o mesmo usuário Admin autor; não converter “mensagem Admin” em “somente minha mensagem”. Reações têm RPC e acesso próprios.
 
-Anexos usam bucket privado e caminhos do contexto. Policies de upload/leitura devem ser lidas junto do vínculo da mensagem; upload bem-sucedido não equivale a mensagem postada. Notas internas não entram no DTO de conversa cliente.
+Anexos legados usam bucket privado e caminhos do contexto. Policies de upload/leitura devem ser lidas junto do vínculo da mensagem; upload bem-sucedido não equivale a mensagem postada. Notas internas não entram no DTO de conversa cliente. No piloto, [PDFs de conversa](../contracts/PHASE_4_READ.md#anexos-pdf-de-ocorrências-no-cali-mapa) são gravados com a mensagem e baixados após conferir a visibilidade vigente.
 
 ## Continuidade, falhas e aceite
 

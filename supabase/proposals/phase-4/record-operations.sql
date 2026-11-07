@@ -2,6 +2,17 @@
 begin;
 set local lock_timeout = '5s';
 
+create table if not exists cali_session_guard.phase4_record_attachments (
+  message_id uuid primary key references cali_workspace.account_record_messages(id) on delete cascade,
+  file_name text not null,
+  content bytea not null check (octet_length(content) between 8 and 2097152),
+  withdrawn_at timestamptz,
+  withdrawn_by uuid
+);
+alter table cali_session_guard.phase4_record_attachments enable row level security;
+revoke all on cali_session_guard.phase4_record_attachments from public,anon,authenticated,service_role;
+
+
 -- O gatilho de menções legado marca e-mail antes do despacho AFTER INSERT.
 create function cali_session_guard.phase4_record_mention_in_app()
 returns trigger language plpgsql set search_path = ''
@@ -24,12 +35,16 @@ as $$
 declare
   actor uuid := cali_session_guard.require_pilot_team_actor(p_company_id);
   admin boolean := exists(select 1 from cali_workspace.profiles where id=actor and role::text='admin');
+  attachments_enabled boolean := to_regprocedure(
+    'cali_workspace.v2_post_pilot_record_pdf(uuid,uuid,uuid,text,boolean,text,text)'
+  ) is not null;
 begin
   if p_page is null or p_page not between 1 and 10000 then
     raise exception using errcode='22023', message='Página inválida.';
   end if;
   return (
     select jsonb_build_object('id',r.id,'title',r.title,'status',r.workflow_status,'visibility',r.visibility,
+      'attachmentsEnabled',attachments_enabled,
       'feedback',(select jsonb_build_object('score',f.score,'comment',f.comment)
         from cali_workspace.account_record_feedback f where f.company_id=p_company_id and f.record_id=r.id and f.user_id=actor),
       'reopen',(select jsonb_build_object('id',q.id,'status',q.status,
@@ -38,8 +53,12 @@ begin
         from cali_workspace.account_record_reopen_requests q where q.company_id=p_company_id and q.record_id=r.id
         order by (q.status='pending') desc,q.requested_at desc,q.id desc limit 1),
       'messages',coalesce((select jsonb_agg(to_jsonb(page) order by created_at desc,id desc) from (
-        select m.id,m.body,m.author_role,m.visibility,m.created_at
-        from cali_workspace.account_record_messages m where m.record_id=r.id and m.company_id=p_company_id
+        select m.id,m.body,m.author_role,m.visibility,m.created_at,
+          case when attachments_enabled and a.message_id is not null then
+            jsonb_build_object('fileName',a.file_name,'canWithdraw',admin and m.author_role='admin') end as attachment
+        from cali_workspace.account_record_messages m
+        left join cali_session_guard.phase4_record_attachments a on a.message_id=m.id and a.withdrawn_at is null
+        where m.record_id=r.id and m.company_id=p_company_id
           and m.deleted_at is null and (admin or m.visibility='client')
         order by m.created_at desc,m.id desc limit 25 offset (p_page-1)*25
       ) page),'[]'::jsonb))

@@ -255,7 +255,7 @@ Em 07/11/2026, oito RPCs foram instaladas em uma transação para o piloto. O ca
 - `AV-2026-0003`: Admin publicou aviso dirigido a A. A registrou ciência no mural e viu o mesmo título na agenda. B não recebeu o aviso. Após arquivamento, o aviso saiu da agenda de A e ficou disponível para restauração no Admin. Banco confirmou zero marcações de e-mail.
 - Satisfação: Admin salvou acompanhamento do tema Atendimento. A nota 3/5 e o comentário original permaneceram iguais depois de recarregar.
 
-`rollback-records.sql` retira as oito operações e o gatilho de menção V2; mantém os registros, recibos e a inscrição que protege a ocorrência sintética de disparos posteriores. Anexos de conversa, comentários e reações do mural e resumo diário Admin ainda exigem homologação própria. Nenhum serviço externo foi ativado.
+`rollback-records.sql` retira as oito operações e o gatilho de menção V2; mantém os registros, recibos e a inscrição que protege a ocorrência sintética de disparos posteriores. PDFs de conversa têm [prova própria](#anexos-pdf-de-ocorrências-no-cali-mapa). Comentários, reações e resumo diário Admin continuam em recortes separados. Nenhum serviço externo foi ativado.
 
 ## Lote da biblioteca de PDFs no CALI MAPA
 
@@ -308,3 +308,11 @@ O inventário confirmou que a exportação legada retorna JSON amplo, separa dad
 A V2 reaproveita as rotinas legadas de edição e exclusão auditada. `hour-corrections.sql` exige Admin com MFA, empresa piloto, justificativa e a versão do lançamento, com bloqueio da linha durante a operação. O mesmo pedido reexecutado devolve o resultado original; outra operação sobre versão antiga é recusada. A edição mantém vínculo, categoria e nota interna e permite ajustar data, descrição, duração e visibilidade. A exclusão retira o lançamento e preserva a trilha. A projeção Admin inclui a versão somente com a RPC de correção instalada. Cliente não recebe a versão nem a nota interna.
 
 Em 07/11/2026, leitura e correção foram instaladas no CALI MAPA sem alterar as rotinas legadas. No navegador, Admin corrigiu a duração do lançamento sintético de A de 15 para 16 minutos, abaixo dos marcos de capacidade. Extrato e capacidade passaram de 17 para 18 minutos; a nota foi preservada. Exclusão foi exercitada somente no PostgreSQL descartável, com autoria/justificativa, reexecução, versão obsoleta, MFA e fronteira de empresa. `rollback-hour-corrections.sql` retira a operação e faz desaparecer os controles no próximo carregamento; preserva os lançamentos e os eventos.
+
+## Anexos PDF de ocorrências no CALI MAPA
+
+Na conversa existente, Admin ou Cliente anexa um PDF de até 2 MiB por mensagem. Texto e bytes confirmam na mesma transação; erro ou reenvio do mesmo pedido não deixa anexo avulso nem duplica mensagem. Os bytes ficam em tabela privada e a leitura da conversa projeta só o nome e a permissão de retirada. O download confere sessão, empresa, ocorrência, visibilidade da mensagem e retirada; usa `private, no-store` e verifica o digest. A retirada exige motivo e Admin com MFA, somente para anexo de mensagem Admin; preserva a mensagem e a trilha. Mensagens Cliente continuam originais. Arquivos já baixados continuam no dispositivo.
+
+Em 07/11/2026, o lote instalou a tabela privada, três RPCs e a extensão do leitor. Admin enviou um PDF público para A e um PDF interno na mesma ocorrência sintética. A baixou o arquivo público com o mesmo SHA-256 da origem e não viu a nota interna nem seu arquivo. B recebeu ocorrência indisponível. A retirada do PDF público recusou o download no botão antigo; recarga manteve a mensagem sem o botão. Banco confirmou dois PDFs preservados, um retirado, um interno e zero marcações de e-mail.
+
+O PostgreSQL descartável também provou arquivo inválido sem postagem, PDF Cliente, alteração de pedido já usado, negação de download interno/cruzado e retirada idempotente. A reversão `rollback-record-attachments.sql` retira as três RPCs, oculta a capacidade de anexo e preserva bytes e histórico. O acervo de anexos do bucket legado, outros formatos e anexos na abertura da ocorrência ficam fora deste recorte.

@@ -162,6 +162,7 @@ rollback;
 \ir test-agenda-qa-transport.sql
 \ir test-record-reviews.sql
 \ir test-record-qa-transport.sql
+\ir test-record-attachments.sql
 \ir test-privacy-qa-transport.sql
 \ir test-catalog-actions.sql
 \ir test-documents.sql

@@ -1,4 +1,4 @@
-import { decodePdf, pdfPayload } from './pdf-payload';
+import { decodePdf, encodePdf, pdfPayload } from './pdf-payload';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 import { companyStatus } from '../companies/schemas';
@@ -23,6 +23,7 @@ const records = z.object({
   visibility: z.enum(['client', 'internal']).optional(),
   feedback: feedback.nullable().optional(),
   reopen: reopen.nullable().optional(),
+  attachmentsEnabled: z.boolean().optional(),
   messages: z.array(
     z.object({
       id: z.uuid(),
@@ -30,6 +31,7 @@ const records = z.object({
       author_role: z.string(),
       visibility: z.string(),
       created_at: z.string(),
+      attachment: z.object({ fileName: z.string(), canWithdraw: z.boolean() }).nullish(),
     }),
   ),
 });
@@ -420,8 +422,23 @@ export function createDomainOperations(client: WorkspaceClient) {
       if (result && result.id !== record) throw rejected();
       return result;
     },
-    async recordAction(company: string, id: string, input: RecordAction) {
+    async recordAction(company: string, id: string, input: RecordAction, file?: File) {
       const command = recordAction.parse(input);
+      if (file) {
+        if (command.action !== 'message') throw new Error('Anexe o PDF na conversa.');
+        const { data, error } = await client.rpc('v2_post_pilot_record_pdf', {
+          p_company_id: company,
+          p_request_id: id,
+          p_record_id: command.record,
+          p_body: command.body,
+          p_internal: command.internal,
+          p_file_name: file.name,
+          p_pdf_base64: await encodePdf(file),
+        });
+        if (error?.code === '22023') throw new Error('Confira a mensagem e o PDF de até 2 MiB.');
+        if (error) throw rejected(error.code);
+        return z.uuid().parse(data);
+      }
       const { data, error } = await client.rpc('v2_pilot_record_action', {
         p_company_id: company,
         p_request_id: id,
@@ -435,6 +452,30 @@ export function createDomainOperations(client: WorkspaceClient) {
       });
       if (error) throw rejected(error.code);
       return z.uuid().parse(data);
+    },
+    async recordPdf(company: string, record: string, message: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_record_pdf', {
+          p_company_id: company,
+          p_record_id: record,
+          p_message_id: message,
+        })
+        .abortSignal(signal);
+      if (error?.code === '42501') throw new Error('Anexo indisponível para este acesso.');
+      if (error) throw rejected(error.code);
+      const result = pdfPayload.parse(data);
+      if (result.id !== message) throw rejected();
+      return decodePdf(result);
+    },
+    async withdrawRecordPdf(company: string, record: string, message: string, reason: string) {
+      const { data, error } = await client.rpc('v2_withdraw_pilot_record_pdf', {
+        p_company_id: company,
+        p_record_id: record,
+        p_message_id: message,
+        p_reason: z.string().trim().min(3).max(1000).parse(reason),
+      });
+      if (error) throw rejected(error.code);
+      return z.literal(message).parse(data);
     },
     async reviewRecord(company: string, id: string, input: RecordReviewAction) {
       const parsed = reviewAction.safeParse(input);

@@ -7,9 +7,11 @@ import {
 } from '../../api/modules/project-workspace/domain-operations';
 import { Field } from '../../components/ds/field/Field';
 import { Button } from '../../components/ds/button/Button';
+import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { formatServerInstant } from '../../lib/dates';
 import { ActionForm } from './ActionForm';
 import { RecordReviewActions } from './RecordReviewActions';
+import { PdfDownload } from './PdfDownload';
 
 const states = {
   in_progress: 'Em atendimento',
@@ -59,16 +61,25 @@ export function OpenRecord({
   );
 }
 
-function MessageFields({ prefix, admin }: { prefix: string; admin: boolean }) {
+function MessageFields({
+  prefix,
+  admin,
+  attachmentsEnabled,
+}: {
+  prefix: string;
+  admin: boolean;
+  attachmentsEnabled?: boolean;
+}) {
   return (
     <>
       <Field id={prefix + 'message'} label="Mensagem">
         <textarea id={prefix + 'message'} name="message" required maxLength={6000} />
       </Field>
-      {admin && (
-        <label className="tw:flex tw:items-center tw:gap-2">
-          <input type="checkbox" name="internal" /> Somente para a CALI
-        </label>
+      {admin && <Checkbox name="internal">Somente para a CALI</Checkbox>}
+      {attachmentsEnabled && (
+        <Field id={prefix + 'pdf'} label="Anexo PDF de até 2 MiB (opcional)">
+          <input id={prefix + 'pdf'} name="pdf" type="file" accept="application/pdf,.pdf" />
+        </Field>
       )}
     </>
   );
@@ -93,13 +104,13 @@ export function RecordConversation({
   });
   if (!domainOperations) return null;
   const operations = domainOperations;
-  async function submit(command: RecordAction | RecordReviewAction, id: string) {
+  async function submit(command: RecordAction | RecordReviewAction, id: string, file?: File) {
     try {
       switch (command.action) {
         case 'open':
         case 'message':
         case 'change_status':
-          return await operations.recordAction(company, id, command);
+          return await operations.recordAction(company, id, command, file);
         default:
           return await operations.reviewRecord(company, id, command);
       }
@@ -143,6 +154,46 @@ export function RecordConversation({
                     {message.visibility === 'internal' && ' · Interna'}
                   </p>
                   <p className="tw:break-words tw:whitespace-pre-line">{message.body}</p>
+                  {message.attachment && (
+                    <div className="tw:grid tw:gap-2">
+                      <p className="tw:break-words">{message.attachment.fileName}</p>
+                      <PdfDownload
+                        download={(signal) =>
+                          operations.recordPdf(company, record, message.id, signal)
+                        }
+                      />
+                      {message.attachment.canWithdraw && (
+                        <details>
+                          <summary className="tw:cursor-pointer">Retirar anexo</summary>
+                          <ActionForm
+                            label="Confirmar retirada do anexo"
+                            submit={async (fields) => {
+                              const result = await operations.withdrawRecordPdf(
+                                company,
+                                record,
+                                message.id,
+                                String(fields.get('reason') ?? ''),
+                              );
+                              await cache.invalidateQueries({ queryKey: key });
+                              return result;
+                            }}
+                          >
+                            {(prefix) => (
+                              <Field id={prefix + 'reason'} label="Motivo da retirada">
+                                <textarea
+                                  id={prefix + 'reason'}
+                                  name="reason"
+                                  required
+                                  minLength={3}
+                                  maxLength={1000}
+                                />
+                              </Field>
+                            )}
+                          </ActionForm>
+                        </details>
+                      )}
+                    </div>
+                  )}
                 </li>
               ))}
             </ol>
@@ -164,8 +215,9 @@ export function RecordConversation({
           {open && (admin || status !== 'standby') && (
             <ActionForm
               label="Registrar mensagem"
-              submit={(fields, id) =>
-                submit(
+              submit={(fields, id) => {
+                const attachment = fields.get('pdf');
+                return submit(
                   {
                     action: 'message',
                     record,
@@ -173,11 +225,18 @@ export function RecordConversation({
                     internal: admin && fields.has('internal'),
                   },
                   id,
-                )
-              }
+                  attachment instanceof File && attachment.name ? attachment : undefined,
+                );
+              }}
               saved={() => setPage(1)}
             >
-              {(prefix) => <MessageFields prefix={prefix} admin={admin} />}
+              {(prefix) => (
+                <MessageFields
+                  prefix={prefix}
+                  admin={admin}
+                  attachmentsEnabled={data.attachmentsEnabled}
+                />
+              )}
             </ActionForm>
           )}
           {data.visibility === 'client' && (
