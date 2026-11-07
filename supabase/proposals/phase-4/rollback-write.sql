@@ -33,6 +33,7 @@ drop function if exists cali_workspace.v2_respond_pilot_schedule(uuid,uuid,uuid,
 drop function if exists cali_workspace.v2_pilot_delivery_action(uuid,uuid,uuid,timestamptz,text,text,text,integer);
 drop function if exists cali_workspace.v2_pilot_project_lifecycle(uuid,uuid,text,text,text,date);
 drop function if exists cali_workspace.v2_list_pilot_appointments(uuid,integer);
+drop function if exists cali_workspace.v2_list_pilot_agenda_extras(uuid,integer);
 drop function if exists cali_workspace.v2_request_pilot_appointment(uuid,uuid,text,text,text,text,jsonb);
 drop function if exists cali_workspace.v2_respond_pilot_appointment(uuid,uuid,text,text,integer);
 drop function if exists cali_workspace.v2_request_pilot_agenda_change(uuid,uuid,uuid,text,text,jsonb);

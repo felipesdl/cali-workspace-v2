@@ -28,10 +28,23 @@ const appointments = z.array(
     admin_proposed_slots: z.array(slot),
     sync_status: z.string().nullable(),
     meetingAt: z.string().nullable().optional(),
+    participants: z
+      .array(
+        z.object({
+          id: z.uuid(),
+          name: z.string().nullable(),
+          role: z.enum(['admin', 'client', 'external']),
+          status: z.enum(['pending', 'accepted', 'declined', 'tentative']),
+        }),
+      )
+      .optional(),
     canRequestChange: z.boolean().optional(),
     latestChange: change.nullable().optional(),
   }),
 );
+export type AppointmentParticipant = NonNullable<
+  z.infer<typeof appointments>[number]['participants']
+>[number];
 const request = z.object({
   mode: z.enum(['remote', 'in_person']),
   title: z.string().trim().min(2).max(160),
@@ -41,8 +54,32 @@ const request = z.object({
 });
 export type AppointmentRequest = z.infer<typeof request>;
 
+const cents = z.number().int().nonnegative().nullable();
+const extras = z.object({
+  total: z.number().int().nonnegative(),
+  entries: z.array(
+    z.object({
+      id: z.uuid(),
+      title: z.string(),
+      status: z.string(),
+      requestedAt: z.string(),
+      mode: z.enum(['remote', 'in_person']),
+      amountCents: cents,
+      acceptedAt: z.string().nullable(),
+      cancellationCents: cents,
+    }),
+  ),
+});
+
 export function createAgendaOperations(client: WorkspaceClient) {
   return {
+    async listExtras(company: string, page: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_list_pilot_agenda_extras', { p_company_id: company, p_page: page })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar os encontros adicionais.');
+      return extras.parse(data);
+    },
     async list(company: string, page: number, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_list_pilot_appointments', {

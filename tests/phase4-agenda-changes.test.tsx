@@ -37,6 +37,7 @@ it('envia a opção de remarcação escolhida pelo Admin e mantém o pedido pend
           decideChange,
           requestChange: unexpected,
           list: unexpected,
+          listExtras: unexpected,
           request: unexpected,
           respond: unexpected,
         }}

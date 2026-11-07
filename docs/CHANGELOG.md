@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Participantes e encontros adicionais na Agenda
+
+- Agenda consulta participantes com a visibilidade do evento e mostra os valores e aceites já registrados dos extras. Decisões de encontros ordinários recusam extras online. [Contrato e prova](contracts/PHASE_4_READ.md#participantes-e-encontros-adicionais-no-cali-mapa).
+
 ## 07/11/2026 — Gestão de Frentes contratadas
 
 - Admin ativou e encerrou uma frente sintética em B. O plano Build Essencial recusou a segunda frente. B viu a ativação e o corte, e A ficou isolada. [Contrato e prova](contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa).

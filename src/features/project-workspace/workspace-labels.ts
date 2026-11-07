@@ -34,3 +34,15 @@ const labels: Readonly<Record<string, string>> = {
   ended: 'Encerrada',
 };
 export const workspaceLabel = (status: string) => labels[status] ?? status;
+
+const appointmentStatus: Readonly<Record<string, string>> = {
+  submitted: 'Aguardando análise da CALI',
+  client_review: 'Aguardando Cliente',
+  confirmed: 'Confirmado na agenda',
+  completed: 'Realizado',
+  declined: 'Recusado',
+  cancelled: 'Cancelado no Workspace',
+  not_occurred: 'Não realizado',
+  reschedule_review: 'Remarcação em análise',
+};
+export const appointmentStatusLabel = (status: string) => appointmentStatus[status] ?? status;

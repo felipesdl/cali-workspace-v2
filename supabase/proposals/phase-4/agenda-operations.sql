@@ -7,6 +7,7 @@ returns jsonb language plpgsql stable security definer set search_path = ''
 as $$
 declare
   actor uuid := cali_session_guard.require_pilot_team_actor(p_company_id);
+  admin boolean := exists(select 1 from cali_workspace.profiles where id=actor and role::text='admin');
 begin
   if p_page is null or p_page not between 1 and 10000 then
     raise exception using errcode='22023', message='Página inválida.';
@@ -17,6 +18,10 @@ begin
         r.request_mode,r.created_at,r.admin_note,r.requested_slots,r.admin_proposed_slots,
         case when e.cancelled_at is null then e.sync_status end as sync_status,
         e.starts_at as "meetingAt",
+        coalesce((select jsonb_agg(jsonb_build_object('id',a.id,'name',a.name,
+            'role',a.attendee_type,'status',a.status) order by a.created_at,a.id)
+          from cali_workspace.event_attendees a where a.event_id=e.id and a.company_id=r.company_id
+            and (admin or (e.visibility='client' and e.cancelled_at is null))),'[]'::jsonb) as participants,
         coalesce(r.status='confirmed' and e.visibility='client' and e.event_type='meeting'
           and e.starts_at>now() and e.cancelled_at is null,false) as "canRequestChange",
         case when c.id is not null then jsonb_build_object('id',c.id,'action',c.action,'status',c.status,
@@ -85,7 +90,7 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_respond_pilot_appointment(
+create or replace function cali_workspace.v2_respond_pilot_appointment(
   p_company_id uuid,p_appointment_id uuid,p_action text,p_note text default null,p_index integer default null
 )
 returns uuid language plpgsql security definer set search_path = ''
@@ -105,7 +110,8 @@ begin
   perform pg_advisory_xact_lock(hashtextextended('phase4-agenda:'||p_company_id::text,0));
   select * into appointment from cali_workspace.scheduling_requests r
   where r.id=p_appointment_id and r.company_id=p_company_id
-    and not r.extra_visit and not r.billable_extra and not r.urgency_fee_applies for update;
+    and not r.extra_visit and not r.billable_extra and not r.urgency_fee_applies
+    and not r.online_extra_requested for update;
   if not found then raise exception using errcode='42501', message='Solicitação indisponível.'; end if;
 
   if (p_action='confirm' and appointment.status<>'client_review')

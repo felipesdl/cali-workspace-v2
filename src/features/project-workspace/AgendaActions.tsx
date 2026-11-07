@@ -6,17 +6,9 @@ import { Field } from '../../components/ds/field/Field';
 import { formatServerInstant } from '../../lib/dates';
 import { ActionForm } from './ActionForm';
 import { AgendaChangeActions } from './AgendaChangeActions';
-
-const statusLabels: Record<string, string> = {
-  submitted: 'Aguardando análise da CALI',
-  client_review: 'Aguardando Cliente',
-  confirmed: 'Confirmado na agenda',
-  completed: 'Realizado',
-  declined: 'Recusado',
-  cancelled: 'Cancelado no Workspace',
-  not_occurred: 'Não realizado',
-  reschedule_review: 'Remarcação em análise',
-};
+import { AgendaExtras } from './AgendaExtras';
+import { AgendaParticipants } from './AgendaParticipants';
+import { appointmentStatusLabel } from './workspace-labels';
 
 const read = (fields: FormData, name: string) => String(fields.get(name) ?? '');
 
@@ -127,12 +119,13 @@ export function AgendaActions({
           >
             <h3>{item.title}</h3>
             <p>
-              {statusLabels[item.status] ?? item.status} ·{' '}
+              {appointmentStatusLabel(item.status)} ·{' '}
               {item.request_mode === 'remote' ? 'Online' : 'Presencial'}
             </p>
             {item.meetingAt && item.status !== 'cancelled' && (
               <p>{formatServerInstant(item.meetingAt)} (Brasília)</p>
             )}
+            <AgendaParticipants people={item.participants} />
             <AgendaChangeActions
               company={company}
               appointment={item.id}
@@ -214,6 +207,7 @@ export function AgendaActions({
           </Button>
         </div>
       )}
+      <AgendaExtras company={company} actor={actor} agenda={agenda} />
     </section>
   );
 }

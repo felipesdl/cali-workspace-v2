@@ -22,6 +22,8 @@
 \ir delivery-operations.sql
 \ir repair-project-forecast.sql
 \ir agenda-operations.sql
+\ir agenda-extras-read.sql
+\ir test-agenda-extras-read.sql
 \ir agenda-change-operations.sql
 \ir hours-operations.sql
 \ir record-operations.sql

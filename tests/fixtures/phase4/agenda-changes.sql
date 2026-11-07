@@ -1,5 +1,12 @@
 -- Dependências sintéticas do contrato legado. Nenhuma comunicação externa.
-alter table cali_workspace.scheduling_requests add column online_extra_requested boolean not null default false;
+alter table cali_workspace.scheduling_requests add column online_extra_requested boolean not null default false,
+  add column extra_visit_fee_cents integer,add column online_extra_quote_cents integer,
+  add column billing_acknowledged_at timestamptz,add column online_extra_quote_accepted_at timestamptz,
+  add column extra_visit_cancellation_fee_cents integer;
+create table cali_workspace.event_attendees(
+  id uuid primary key default gen_random_uuid(),event_id uuid,company_id uuid,name text,email text,
+  attendee_type text,status text,created_at timestamptz not null default clock_timestamp()
+);
 create table cali_workspace.agenda_change_requests (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null,event_id uuid not null,requested_by uuid not null,

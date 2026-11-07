@@ -48,3 +48,5 @@ Testar empresa diferente, evento passado/cancelado, opção duplicada, conflito 
 `REF-12`: corpos ausentes de scheduling v1/v2/política/outcome e diferenças entre caminhos; `REF-16`: efeitos externos/idempotência; `REF-05`: operações compostas; `REF-24`: continuidade UX. Valores acima são regra encontrada no código da revisão, não aprovação de tabela comercial para futuras contratações.
 
 A agenda ordinária V2 foi homologada no CALI MAPA: solicitação, oferta, confirmação, remarcação no mesmo evento e cancelamento. O teste preservou a condição sem cobrança e não chamou Google/Meet. [Contrato e evidência](../contracts/PHASE_4_READ.md#lote-de-agenda-ordinária-no-cali-mapa).
+
+O piloto consulta os participantes da reunião ordinária com a visibilidade do evento e mostra os pedidos extras em uma lista separada, com valores e aceites registrados. Alteração de convidados e transições comerciais de extras continuam em recortes próprios. [Contrato e evidência das consultas](../contracts/PHASE_4_READ.md#participantes-e-encontros-adicionais-no-cali-mapa).

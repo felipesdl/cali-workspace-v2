@@ -278,7 +278,7 @@ Conduzir cada domínio por entrega completa; dependências são de dados/operaç
 | Recorte | Trabalho restante | Dependência específica |
 | --- | --- | --- |
 | 4A — Projetos | Arquivos legados e paridade do fluxo | Fechar política de vencimento de revisão; migrar apenas arquivos elegíveis, com prova de corte e histórico |
-| 4B — Horas e agenda | Vínculos detalhados, alertas de capacidade e agenda com participantes/extras | Conciliar marcos e preço já aceito; Google/Meet depende de configuração e teste externo |
+| 4B — Horas e agenda | Vínculos detalhados, alertas de capacidade, gestão de participantes e transições dos extras. [Consultas de participantes e extras](contracts/PHASE_4_READ.md#participantes-e-encontros-adicionais-no-cali-mapa) integradas | Conciliar marcos e preço já aceito. Google/Meet depende de configuração e teste externo |
 | 4C — Interações | Anexos legados e formatos adicionais, moderação e capa de avisos, integração de fontes e despacho do resumo Admin | Implementação e prova interna podem avançar; despacho externo do resumo é etapa separada |
 | 4D — Relatórios | Integrar as fontes restantes e homologar PDF e republicação da revisão com [curadoria aprovada](contracts/PHASE_4_READ.md#curadoria-de-relatórios-no-cali-mapa) | Usar o bundle atualizado do PDF e preservar as fórmulas vigentes. Paridade visual segue no aceite final |
 | 4E — Comercial e administração | Propostas, coleta Forms, Mapa, equipe CALI, ciclo de dados e prova das demais modalidades de [Frentes](contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa) | Escrita de Propostas exige sessão autorizada no Portal e na V2. Exportação/eliminação exigem cobertura, autorização e prova de retomada após falha parcial |

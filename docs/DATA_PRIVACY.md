@@ -72,6 +72,7 @@ Os registros ainda não preenchidos são trabalho documental/validação de cont
 - Termos obrigatórios no primeiro acesso e a cada versão nova, conforme DEC-08; falha ao comprovar versão/aceite bloqueia entrada e permite tentar novamente.
 - Registro da versão apresentada, ator e data de confirmação; alterações de texto seguem versionamento. Não declarar esse registro implementado antes de existir.
 - A triagem de Forms mostra nome, data, etapa e responsável ao Admin com MFA para acompanhar respostas da empresa piloto. A projeção exclui e-mail, conteúdo, anexos e notas. O evento de auditoria registra a ação sem copiar nome, etapa ou responsável.
+- A Agenda mostra nome, papel e resposta para identificar os participantes da reunião. Cliente consulta os participantes do evento visível e ativo da própria empresa. Admin com MFA também consulta o histórico. E-mail, nota de resposta e nome de quem aceitou os valores de extras ficam fora da projeção. [Contrato de Agenda](contracts/PHASE_4_READ.md#participantes-e-encontros-adicionais-no-cali-mapa).
 - Formulários explicam campos privados e obrigatoriedade conforme contrato; a confirmação no acesso não cria privilégio de acesso nem autoriza qualquer dado futuro por consequência.
 - Ações de consulta/correção/exportação e solicitações previstas no perfil apontam para seu contrato e responsável; não confundir solicitar um direito com eliminar imediatamente uma empresa.
 
