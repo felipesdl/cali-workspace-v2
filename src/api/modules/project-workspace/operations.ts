@@ -59,10 +59,13 @@ const action = z.discriminatedUnion('kind', [
   }),
   z.object({
     kind: z.literal('lifecycle'),
+    item: z
+      .object({ id: z.uuid(), kind: z.enum(['front', 'deliverable']), version: z.string().min(1) })
+      .optional(),
     project: z.uuid(),
     expected: z.string(),
     decision: z.enum(['pause', 'suspend', 'cancel', 'resume']),
-    note: z.string().trim().min(3).max(4000),
+    note: z.string().trim().min(4).max(4000),
     resume: z.iso.date().nullable(),
   }),
   z.object({ kind: z.literal('share'), project: z.uuid() }),
@@ -135,6 +138,17 @@ export function createProjectOperations(client: WorkspaceClient) {
             p_score: command.score ?? null,
           });
         case 'lifecycle':
+          if (command.item)
+            return client.rpc('v2_pilot_project_item_lifecycle', {
+              ...scope,
+              p_project_id: command.project,
+              p_item_id: command.item.id,
+              p_kind: command.item.kind,
+              p_expected: command.item.version,
+              p_action: command.decision,
+              p_note: command.note,
+              p_resume: command.resume,
+            });
           return client.rpc('v2_pilot_project_lifecycle', {
             ...scope,
             p_project_id: command.project,

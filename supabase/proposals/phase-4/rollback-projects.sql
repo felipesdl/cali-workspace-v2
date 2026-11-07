@@ -1,6 +1,9 @@
 -- Retira apenas as escritas de Projetos/PDF. Não apaga registros ou inscrições sintéticas.
 begin;
 set local lock_timeout = '5s';
+drop function if exists cali_workspace.v2_pilot_project_item_lifecycle(uuid,uuid,uuid,text,timestamptz,text,text,date);
+drop function if exists cali_workspace.v2_pilot_delivery_collaboration(uuid,uuid,uuid,uuid,text,jsonb);
+drop function if exists cali_workspace.v2_read_pilot_project_journal(uuid,uuid,text,integer,uuid,uuid);
 drop function if exists cali_workspace.v2_edit_pilot_plan(uuid,uuid,uuid,text,timestamptz,text,text,text,date,timestamp without time zone,uuid,text,integer);
 drop function if exists cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date);
 drop function if exists cali_workspace.v2_add_pilot_project_item(uuid,uuid,uuid,text,text,uuid,timestamp without time zone);

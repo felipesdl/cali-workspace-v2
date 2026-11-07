@@ -114,7 +114,7 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_respond_pilot_schedule(
+create or replace function cali_workspace.v2_respond_pilot_schedule(
   p_company_id uuid, p_project_id uuid, p_review_id uuid, p_action text, p_note text,
   p_target_type text default null, p_target_id uuid default null, p_item_action text default null,
   p_requested_date date default null, p_swap_id uuid default null
@@ -162,9 +162,23 @@ begin
       perform cali_workspace.client_request_project_schedule_adjustment_v39(
         p_project_id,p_target_type,p_target_id,btrim(p_note),null,p_item_action,p_requested_date,p_swap_id
       );
-    else perform cali_workspace.admin_resolve_project_schedule_adjustment(
-      p_review_id,p_action='accept_adjustment',btrim(p_note)
-    );
+    else
+      -- O gatilho legado só valida o primeiro envio (draft). Revalidar a estrutura editada.
+      if not exists(select 1 from cali_workspace.deliverables d where d.company_id=p_company_id
+          and d.project_id=p_project_id and d.status<>'cancelled')
+        or exists(select 1 from cali_workspace.deliverables d where d.company_id=p_company_id
+          and d.project_id=p_project_id and d.status<>'cancelled' and d.due_at is null)
+        or exists(select 1 from cali_workspace.project_workstreams w where w.company_id=p_company_id
+          and w.project_id=p_project_id and w.status<>'cancelled' and not exists(
+            select 1 from cali_workspace.deliverables d where d.company_id=p_company_id
+              and d.project_id=p_project_id and d.status<>'cancelled'
+              and (d.workstream_id=w.id or (d.workstream_id is null and lower(btrim(d.workstream))=lower(btrim(w.name))))
+          )) then
+        raise exception using errcode='22023',message='Revise a composição do cronograma antes de abrir outra revisão.';
+      end if;
+      perform cali_workspace.admin_resolve_project_schedule_adjustment(
+        p_review_id,p_action='accept_adjustment',btrim(p_note)
+      );
   end case;
   insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
   values(p_company_id,actor,'project_schedule_'||p_action,'project',p_project_id,jsonb_build_object('review_id',p_review_id));

@@ -1,3 +1,4 @@
+import { type ProjectJournal } from '../api/modules/project-workspace/project-journal';
 import { type AdminReadService } from '../api/modules/project-workspace/admin-read';
 import { type DocumentOperations } from '../api/modules/project-workspace/documents';
 import { type AgendaOperations } from '../api/modules/project-workspace/agenda';
@@ -52,6 +53,7 @@ const rootRoute = createRootRouteWithContext<{
   monthly?: TeamMonthlyService | null;
   disc?: DiscService | null;
   projectWorkspace?: ProjectWorkspace | null;
+  projectJournal?: ProjectJournal | null;
   projectOperations?: ProjectOperations | null;
   hourOperations?: HourOperations | null;
   domainOperations?: DomainOperations | null;
@@ -323,6 +325,7 @@ export function createAppRouter(
     monthly?: TeamMonthlyService | null;
     disc?: DiscService | null;
     projectWorkspace?: ProjectWorkspace | null;
+    projectJournal?: ProjectJournal | null;
     projectOperations?: ProjectOperations | null;
     hourOperations?: HourOperations | null;
     domainOperations?: DomainOperations | null;
@@ -343,6 +346,7 @@ export function createAppRouter(
       monthly: services?.monthly ?? null,
       disc: services?.disc ?? null,
       projectWorkspace: services?.projectWorkspace ?? null,
+      projectJournal: services?.projectJournal ?? null,
       projectOperations: services?.projectOperations ?? null,
       hourOperations: services?.hourOperations ?? null,
       domainOperations: services?.domainOperations ?? null,

@@ -19,3 +19,18 @@ export function formatServerInstant(value: string) {
       }).format(date)
     : 'Data indisponível';
 }
+
+export function toBrasiliaDateTimeInput(instant: string | null) {
+  if (!instant) return '';
+  // O formulário edita o horário contratual de Brasília, sem depender do fuso do navegador.
+  const parts = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(new Date(instant));
+  return parts.replace(' ', 'T');
+}

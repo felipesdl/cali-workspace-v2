@@ -267,10 +267,10 @@ export function ProjectActions({
   return null;
 }
 
-function ReviewNote({ prefix }: { prefix: string }) {
+function ReviewNote({ prefix, minimum = 3 }: { prefix: string; minimum?: number }) {
   return (
     <Field id={prefix + 'note'} label="Justificativa">
-      <textarea id={prefix + 'note'} name="note" required minLength={3} maxLength={4000} />
+      <textarea id={prefix + 'note'} name="note" required minLength={minimum} maxLength={4000} />
     </Field>
   );
 }
@@ -419,11 +419,13 @@ export function LifecycleActions({
   actor,
   project,
   execution,
+  item,
 }: {
   company: string;
   actor?: string;
   project: string;
   execution: string;
+  item?: Extract<ProjectAction, { kind: 'lifecycle' }>['item'];
 }) {
   const submit = useProjectAction(company, actor, project);
   if (!submit || execution === 'cancelled') return null;
@@ -448,6 +450,7 @@ export function LifecycleActions({
           kind: 'lifecycle',
           project,
           expected: execution,
+          item,
           decision,
           note: value(fields, 'note'),
           resume: value(fields, 'resume') || null,
@@ -468,7 +471,7 @@ export function LifecycleActions({
               ))}
             </select>
           </Field>
-          <ReviewNote prefix={prefix} />
+          <ReviewNote prefix={prefix} minimum={4} />
           <Field id={prefix + 'resume'} label="Data planejada de retomada">
             <input id={prefix + 'resume'} name="resume" type="date" />
           </Field>

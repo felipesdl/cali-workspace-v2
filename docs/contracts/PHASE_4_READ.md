@@ -47,7 +47,7 @@ O PostgreSQL descartável prova as guardas, reexecução, transições, isolamen
 
 | Recorte | Operação exercitada localmente | Trabalho pendente |
 | --- | --- | --- |
-| 4A | Pausa e retomada do projeto, edição de planejamento, ajustes por item, encaminhamento e decisão de entregável, avaliação e nova aprovação após correção no mesmo registro | Subtarefas, conversa, histórico de operação, dependências e tratamento de arquivos legados |
+| 4A | Planejamento, ajustes por item, execução, subtarefas, conversas, dependências, revisão de prazo e nova aprovação após correção | Migração dos arquivos legados, paridade visual e decisão sobre vencimento de revisão |
 | 4B | Solicitação ordinária coberta pelo contrato, oferta Admin e confirmação Cliente. Bloqueio por mudança de condição e conflito de horário na empresa. Estado externo lido do evento | Extras, preço aceito, participantes, homologação de saldo/capacidade e integração Google/Meet |
 | 4C | Publicar aviso dirigido, arquivar/restaurar, ciência e desfazer ciência. Mural e agenda leem o mesmo aviso | Anexos de conversa, comentários/reações do mural e resumo Admin |
 | 4D | Rascunho mensal captura o retrato das fontes instaladas. Edição de resumo, revisão e aprovação interna travam a versão esperada | Curadoria completa, PDF e armazenamento privado, publicação, revisão pós-publicação e tratamento da satisfação |
@@ -215,6 +215,18 @@ O lote foi aplicado em uma transação em 07/11/2026. O catálogo confirmou `EXE
 
 A homologação encontrou perda de vínculo quando a opção provisória do seletor era substituída pela lista de frentes. Seleção passou a manter o valor durante a carga, com teste de regressão. O vínculo do registro sintético foi corrigido pela interface e conferido no banco. Nenhum dado fora do piloto foi alterado.
 
-A bateria suspensa de Auth/Edge/Docker não foi retomada. O PostgreSQL descartável usa apenas socket local e encerra ao terminar. Paridade com a publicação 83, subtarefas, conversa e dependências ainda precisam do fechamento específico. Arquivos legados permanecem protegidos pela recusa de reabertura; nenhum conteúdo legado foi migrado implicitamente.
+A bateria suspensa de Auth/Edge/Docker não foi retomada. O PostgreSQL descartável usa apenas socket local e encerra ao terminar. Subtarefas, conversa e dependências foram homologadas no lote seguinte. Paridade com a publicação 83 permanece no aceite final. Arquivos legados permanecem protegidos pela recusa de reabertura; nenhum conteúdo legado foi migrado implicitamente.
 
 Rollback operacional: desligar `VITE_CALI_PHASE4_WRITE`, retirar somente as RPCs novas de Projetos/PDF por `rollback-projects.sql` e manter registros, PDFs, aprovações e inscrições sintéticas. A projeção estendida é compatível com o leitor anterior. A supressão de e-mails do piloto permanece para impedir lembretes futuros dos testes. O rollback geral de escrita não deve ser usado para retirar apenas este lote, pois alcança Forms e outros recortes já homologados.
+
+### Colaboração, histórico e execução de item
+
+`project-journal.sql` expõe revisão de cronograma, movimentos, subtarefas, conversas, dependências e histórico em páginas de 25 registros. A consulta Cliente usa o vínculo da sessão e a visibilidade do projeto, entregável e subtarefa. Omite notas internas, estimativa e responsável administrativo. O histórico preserva a aprovação anterior e a correção no mesmo entregável.
+
+`project-collaboration.sql` usa recibo de reexecução e trava do projeto/entregável. Admin cria/edita subtarefas com prazo em Brasília, complexidade, estimativa, visibilidade e responsável CALI. Envia a parte à revisão, registra retorno de dependência e revisa prazo com motivo e data anterior. Cliente comenta e aprova a parte ou pede até dois ajustes, sem aprovar a entrega inteira. Conversas encerradas recusam escrita. A nota interna nunca entra na projeção Cliente. Mudança de prazo que deixaria uma subtarefa aberta fora da entrega é recusada. A atualização de planejamento revalida a composição antes de abrir nova rodada.
+
+Aplicado no CALI MAPA em 07/11/2026. O entregável de apoio `CALI-DEL-2026-000007` foi inserido como fixture no projeto sintético já inscrito. No navegador, Admin criou a subtarefa, enviou para revisão, compartilhou mensagem e gravou nota interna. Cliente viu a mensagem e não recebeu a nota; pediu ajuste e aprovou a parte após o reenvio. Entrega seguiu em execução. Admin solicitou retorno, Cliente viu a pendência, Admin registrou recebimento e revisou a data com histórico. A prova descartável cobre também limite de dois ajustes, idempotência, MFA, isolamento e conflito.
+
+A pausa revelou `PERFORM … INTO` na função legada de forecast. PostgreSQL interpretou a linha como criação de tabela no schema do primeiro item do `search_path`. `repair-project-forecast.sql` troca somente a leitura por `SELECT … INTO`, mantendo definição restante, assinatura, dono e grants. O hash da definição mudou conforme esperado e o hash de ACL ficou igual. `rollback-project-forecast.sql` restaura a linha anterior. Admin pausou e retomou somente o entregável de apoio; o projeto permaneceu em execução e o histórico exibiu os dois movimentos. A revisão do calendário fora do mesmo dia continua coberta pelo contrato legado e requer cenário próprio de prazo.
+
+Rollback do recorte: `rollback-projects.sql` retira as RPCs V2 e mantém registros, mensagens, dependências, histórico e supressão de e-mail do piloto. A correção do forecast tem reversão própria. Não houve deploy do aplicativo nem ativação de cron.

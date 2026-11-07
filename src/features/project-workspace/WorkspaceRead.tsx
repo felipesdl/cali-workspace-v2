@@ -1,3 +1,6 @@
+import { ProjectJournalPanel } from './ProjectJournalPanel';
+import { workspaceLabel as label } from './workspace-labels';
+import { WorkspacePagination } from './WorkspacePagination';
 import { CommercialDraftEditor } from './CommercialDraftEditor';
 import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
@@ -49,34 +52,6 @@ const adminSatisfaction = getRouteApi('/admin/satisfacao');
 const adminCommercial = getRouteApi('/admin/propostas');
 const clientHours = getRouteApi('/cliente/horas');
 const panel = 'tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
-const labels: Readonly<Record<string, string>> = {
-  draft: 'Rascunho',
-  planned: 'Planejado',
-  client_review: 'Em revisão do Cliente',
-  adjustment_requested: 'Ajuste solicitado',
-  approved: 'Aprovado',
-  accepted: 'Aceito',
-  rejected: 'Recusado',
-  active: 'Ativo',
-  rebriefing: 'Revisão de escopo',
-  closed: 'Encerrado',
-  pending: 'Pendente',
-  not_started: 'Não iniciado',
-  in_progress: 'Em execução',
-  standby: 'Em espera',
-  internal_review: 'Em revisão interna',
-  cancelled: 'Cancelado',
-  normal: 'Em andamento',
-  paused: 'Pausado',
-  suspended: 'Suspenso',
-  published: 'Publicado',
-  sent: 'Disponibilizado',
-  archived: 'Arquivado',
-  meeting: 'Reunião',
-  ended: 'Encerrada',
-};
-const label = (status: string) => labels[status] ?? status;
-
 type Props = { search: WorkspaceSearch; update: (change: Partial<WorkspaceSearch>) => void };
 
 function useScope(search: WorkspaceSearch) {
@@ -133,28 +108,8 @@ function CompanySelect({ search, update }: Props) {
 }
 
 function Pages({ total, search, update }: Props & { total: number }) {
-  const last = Math.max(1, Math.ceil(total / 25));
-  if (last === 1 && search.page === 1) return null;
   return (
-    <nav aria-label="Paginação" className="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
-      <Button
-        variant="secondary"
-        disabled={search.page <= 1}
-        onClick={() => update({ page: search.page - 1 })}
-      >
-        Anterior
-      </Button>
-      <span>
-        Página {search.page} de {last}
-      </span>
-      <Button
-        variant="secondary"
-        disabled={search.page >= last}
-        onClick={() => update({ page: search.page + 1 })}
-      >
-        Próxima
-      </Button>
-    </nav>
+    <WorkspacePagination total={total} page={search.page} change={(page) => update({ page })} />
   );
 }
 
@@ -245,6 +200,7 @@ function Projects({ search, update }: Props) {
                   execution={projectData.project.execution_status}
                 />
               )}
+              <ProjectJournalPanel scope={{ company: companyId, actor, project }} admin={admin} />
               <div className="tw:my-4 tw:flex tw:gap-2">
                 <Button
                   aria-pressed={section === 'deliverables'}
@@ -293,6 +249,38 @@ function Projects({ search, update }: Props) {
                             review={projectData.review.id}
                           />
                         )}
+                      {admin &&
+                        row.updated_at &&
+                        !['approved', 'cancelled', 'completed'].includes(row.status) &&
+                        projectData.project.execution_status === 'normal' &&
+                        ['active', 'rebriefing'].includes(projectData.project.planning_status) && (
+                          <details>
+                            <summary>Execução de {row.name}</summary>
+                            <LifecycleActions
+                              company={companyId}
+                              actor={actor}
+                              project={project}
+                              execution={row.execution_status}
+                              item={{
+                                id: row.id,
+                                kind: section === 'workstreams' ? 'front' : 'deliverable',
+                                version: row.updated_at,
+                              }}
+                            />
+                          </details>
+                        )}
+                      {section === 'deliverables' && (
+                        <ProjectJournalPanel
+                          scope={{ company: companyId, actor, project }}
+                          admin={admin}
+                          delivery={row}
+                          canOperate={
+                            row.execution_status === 'normal' &&
+                            projectData.project.execution_status === 'normal' &&
+                            ['active', 'rebriefing'].includes(projectData.project.planning_status)
+                          }
+                        />
+                      )}
                       {section === 'deliverables' &&
                         documentOperations &&
                         (admin || row.status === 'client_review' || row.status === 'approved') && (

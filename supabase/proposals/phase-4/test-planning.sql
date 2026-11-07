@@ -57,6 +57,16 @@ begin
  perform cali_workspace.fixture_as('admin');
  perform cali_workspace.v2_edit_pilot_plan(a,project,delivery,'deliverable',expected,'save','Entrega alterada','Descrição',null,'2026-11-13 16:00',destination,'MC2',2);
  assert (cali_workspace.v2_read_pilot_project(a,project,'deliverables',1)#>>'{items,rows,0,complexity}')='MC2';
+ expected := (cali_workspace.v2_read_pilot_project(a,project,'deliverables',1)#>>'{items,rows,0,updated_at}')::timestamptz;
+ perform cali_workspace.v2_edit_pilot_plan(a,project,delivery,'deliverable',expected,'save','Entrega alterada','Descrição',null,'2026-11-13 16:00',null,'MC2',2);
+ begin
+  perform cali_workspace.v2_respond_pilot_schedule(a,project,review,'accept_adjustment','Cronograma incompleto');
+  raise exception 'Revisão abriu com frente sem entrega';
+ exception when invalid_parameter_value then null; end;
+ expected := (cali_workspace.v2_read_pilot_project(a,project,'deliverables',1)#>>'{items,rows,0,updated_at}')::timestamptz;
+ perform cali_workspace.v2_edit_pilot_plan(a,project,delivery,'deliverable',expected,'save','Entrega alterada','Descrição',null,'2026-11-13 16:00',destination,'MC2',2);
+ perform cali_workspace.v2_respond_pilot_schedule(a,project,review,'accept_adjustment','Cronograma corrigido');
+
  reset role;
  insert into cali_session_guard.phase4_project_qa(project_id,company_id) values(project,a);
  insert into cali_workspace.notifications values(a,delivery,'deliverable_status','deliverable',true);

@@ -1,3 +1,4 @@
+import { toBrasiliaDateTimeInput } from '../../lib/dates';
 import { useId, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
@@ -152,21 +153,6 @@ export function EditProject({ scope, plan }: { scope: Scope; plan: ProjectDetail
   );
 }
 
-function brasiliaLocal(instant: string | null) {
-  if (!instant) return '';
-  // O formulário edita o horário contratual de Brasília, sem depender do fuso do navegador.
-  const parts = new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'America/Sao_Paulo',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).format(new Date(instant));
-  return parts.replace(' ', 'T');
-}
-
 export function EditPlanItem({
   scope,
   item,
@@ -248,7 +234,7 @@ export function EditPlanItem({
                     name="due"
                     type="datetime-local"
                     required
-                    defaultValue={brasiliaLocal(item.due_at)}
+                    defaultValue={toBrasiliaDateTimeInput(item.due_at)}
                   />
                 </Field>
                 <Field id={prefix + 'complexity'} label="Complexidade">

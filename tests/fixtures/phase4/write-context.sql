@@ -152,8 +152,18 @@ $$;
 create function cali_workspace.change_deliverable_status(uuid,text,text) returns void language sql as $$
  update cali_workspace.deliverables set status=$2,updated_at=clock_timestamp() where id=$1;
 $$;
-create function cali_workspace.admin_set_project_lifecycle_v44(uuid,text,text,uuid,text,date) returns void language sql as $$
- update cali_workspace.projects set execution_status=case $2 when 'resume' then 'normal' else 'paused' end where id=$1;
+create function cali_workspace.refresh_project_forecast(uuid) returns date language sql as $$
+ select roadmap_end_date from cali_workspace.projects where id=$1
+$$;
+create function cali_workspace.admin_set_project_lifecycle_v44(p_project_id uuid,p_action text,p_kind text,p_item_id uuid,p_note text,p_resume date)
+returns void language plpgsql as $$
+declare v_forecast date;
+begin
+ update cali_workspace.projects set execution_status=case p_action when 'resume' then 'normal' else 'paused' end where p_kind='project' and id=p_project_id;
+ update cali_workspace.deliverables set execution_status=case p_action when 'resume' then 'normal' else 'paused' end where p_kind='deliverable' and id=p_item_id and project_id=p_project_id;
+ update cali_workspace.project_workstreams set execution_status=case p_action when 'resume' then 'normal' else 'paused' end where p_kind='front' and id=p_item_id and project_id=p_project_id;
+ perform cali_workspace.refresh_project_forecast(p_project_id) into v_forecast;
+end;
 $$;
 
 alter table cali_workspace.events add column sync_status text;

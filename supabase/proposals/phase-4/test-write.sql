@@ -18,6 +18,7 @@
 \ir project-planning.sql
 \ir document-operations.sql
 \ir delivery-operations.sql
+\ir repair-project-forecast.sql
 \ir agenda-operations.sql
 \ir agenda-change-operations.sql
 \ir hours-operations.sql
@@ -149,7 +150,8 @@ begin
 end $$;
 rollback;
 \echo Fase 4: operações locais de projetos, horas, ocorrências, ciência e privacidade validadas.
-\ir ../phase-4/test-planning.sql
+\ir test-planning.sql
+\ir test-project-journal.sql
 \ir test-delivery-agenda.sql
 \ir test-agenda-changes.sql
 \ir test-record-reviews.sql
@@ -170,6 +172,7 @@ begin
  assert to_regclass('cali_session_guard.phase4_operation_receipts') is not null;
 end $$;
 \ir rollback-write.sql
+\ir rollback-project-forecast.sql
 do $$
 begin
  assert to_regprocedure('cali_workspace.v2_create_pilot_project(uuid,uuid,text,text,date)') is null;

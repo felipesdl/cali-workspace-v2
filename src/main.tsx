@@ -1,3 +1,4 @@
+import { createProjectJournal } from './api/modules/project-workspace/project-journal';
 import { createAdminRead } from './api/modules/project-workspace/admin-read';
 import { createDocumentOperations } from './api/modules/project-workspace/documents';
 import { createAgendaOperations } from './api/modules/project-workspace/agenda';
@@ -74,6 +75,7 @@ try {
           monthly: team && client ? createHostedTeamMonthly(client) : null,
           disc: team && client ? createHostedDisc(client) : null,
           projectWorkspace: phase4 ? createProjectWorkspace(phase4, reportRelease) : null,
+          projectJournal: phase4 ? createProjectJournal(phase4, Boolean(phase4Write)) : null,
           projectOperations: phase4Write ? createProjectOperations(phase4Write) : null,
           hourOperations: phase4Write ? createHourOperations(phase4Write) : null,
           domainOperations: phase4Write ? createDomainOperations(phase4Write) : null,

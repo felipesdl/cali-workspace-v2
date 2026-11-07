@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Colaboração e execução de entregáveis
+
+- Homologados subtarefa com ajuste e aprovação parcial, conversa com nota interna isolada, dependência recebida, revisão de prazo e histórico de execução. Corrigida leitura do forecast na função de ciclo; pausa e retomada por entregável verificadas no CALI MAPA. [Prova e reversão](contracts/PHASE_4_READ.md#colaboração-histórico-e-execução-de-item).
+
 ## 07/11/2026 — Planejamento e revisão de PDF homologados
 
 - Admin edita planejamento com preimagem e histórico. Cliente solicita ajuste por frente ou entregável, com troca limitada a complexidade equivalente. Prova SQL descartável e testes de formulário cobrem conflito, vínculo e horário. No CALI MAPA, Admin e Cliente A percorreram o cronograma, ajuste por data, aprovação, PDF, reabertura e nova aprovação; B não abriu o projeto. O lote preservou o histórico e registrou zero avisos com e-mail. Corrigida perda de frente no seletor assíncrono. [Contrato, estado e limites](contracts/PHASE_4_READ.md#lote-de-projetos-e-entregáveis-no-cali-mapa).

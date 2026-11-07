@@ -12,6 +12,7 @@ export function useProjectAction(company: string, actor: string | undefined, pro
     } finally {
       await Promise.all([
         cache.invalidateQueries({ queryKey: ['projects', actor, company] }),
+        cache.invalidateQueries({ queryKey: ['project-journal', actor, company, project] }),
         cache.invalidateQueries({ queryKey: ['project', actor, company, project] }),
         cache.invalidateQueries({ queryKey: ['phase4-delivery-pdf', actor, company, project] }),
       ]);

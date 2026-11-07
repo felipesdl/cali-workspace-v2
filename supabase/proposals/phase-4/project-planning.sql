@@ -2,7 +2,7 @@
 begin;
 set local lock_timeout = '5s';
 
-create function cali_workspace.v2_edit_pilot_plan(
+create or replace function cali_workspace.v2_edit_pilot_plan(
   p_company_id uuid,p_project_id uuid,p_item_id uuid,p_kind text,p_expected timestamptz,
   p_action text,p_name text,p_description text,p_start date,p_due timestamp without time zone,
   p_workstream_id uuid,p_complexity text,p_position integer
@@ -60,7 +60,7 @@ begin
           and (workstream_id=p_item_id or (workstream_id is null
             and lower(btrim(coalesce(workstream,'')))=lower(btrim(front.name))));
         update cali_workspace.project_workstreams set name=btrim(p_name),objective=nullif(btrim(p_description),''),
-          sort_order=p_position where id=p_item_id;
+          sort_order=p_position,updated_at=clock_timestamp() where id=p_item_id;
       end if;
     when 'deliverable' then
       select * into delivery from cali_workspace.deliverables where id=p_item_id
