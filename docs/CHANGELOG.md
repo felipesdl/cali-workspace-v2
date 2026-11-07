@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Republicação da revisão 3 do relatório executivo
+
+- Admin republicou o relatório sintético com curadoria no CALI MAPA. A baixou o PDF da revisão 3 e B ficou isolado. A ciência da revisão 2 foi preservada e a revisão 3 seguiu sem nova ciência. O teste terminou com a liberação retirada e o gerador desligado. [Prova](contracts/PHASE_4_READ.md#republicação-com-curadoria-no-cali-mapa).
+
 ## 07/11/2026 — Indicadores congelados do relatório executivo
 
 - Tela e gerador usam a mesma projeção de horas, entregáveis e avaliação agregada. Admin conferiu os indicadores da revisão 3 no CALI MAPA. Média fica fora da resposta com menos de duas avaliações. [Prova e reversão](contracts/PHASE_4_READ.md#indicadores-congelados-do-relatório-executivo).

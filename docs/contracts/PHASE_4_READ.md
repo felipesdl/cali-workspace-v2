@@ -50,7 +50,7 @@ O PostgreSQL descartável prova as guardas, reexecução, transições, isolamen
 | 4A | Planejamento, ajustes por item, execução, subtarefas, conversas, dependências, revisão de prazo e nova aprovação após correção | Migração dos arquivos legados, paridade visual e decisão sobre vencimento de revisão |
 | 4B | Lançamento, pausa e retomada sem dupla contagem; solicitação ordinária, oferta, confirmação, remarcação e cancelamento homologados | Homologação hospedada da exclusão, vínculos detalhados, marcos de capacidade, extras, preço aceito, participantes adicionais e Google/Meet |
 | 4C | Publicar aviso dirigido, arquivar/restaurar, ciência e desfazer ciência. Mural e agenda leem o mesmo aviso | Anexos de conversa, comentários/reações do mural e resumo Admin |
-| 4D | Rascunho mensal captura o retrato das fontes instaladas. Edição de resumo e curadoria, revisão e aprovação interna travam a versão esperada | Fontes restantes, republicação de revisão com curadoria no piloto e paridade visual |
+| 4D | Rascunho mensal captura o retrato das fontes instaladas. Curadoria aprovada, PDF, republicação e retirada homologados | Fontes restantes e paridade visual |
 | 4E | Listar formulários existentes da empresa e abrir/encerrar os que atendem às guardas | Editor, formulário público e respostas na V2, Propostas, Mapa, frentes/ajuda, auditoria, ciclo de dados e equipe CALI |
 
 Para reabertura, o item volta a revisão interna e some das consultas Cliente até uma nova liberação. A aprovação anterior fica no histórico. A avaliação da correção fica em uma tabela privada de revisões para preservar a original. O catálogo tem dois índices únicos que permitem uma única avaliação legada por usuário e entregável. As agregações legadas continuam usando a avaliação original. A RPC recusa item documental legado, com registro de arquivo legado ou com link final. O caminho privado V2 está descrito abaixo.
@@ -308,6 +308,12 @@ O catálogo e a preparação do PDF usam a mesma projeção do retrato aprovado 
 Admin conferiu horas e entregáveis na revisão 3 de `CALI-RPT-2026-000012` no CALI MAPA. A média ficou oculta para o retrato com zero avaliações. O teste descartável confirmou igualdade de indicadores entre a preparação do PDF e o catálogo publicado, omissão da avaliação individual e inclusão do agregado quando elegível. O gerador hospedado seguiu desligado. A prova de republicação da revisão com curadoria e as fontes restantes seguem abertas.
 
 Reversão deste incremento: restaurar `v2_prepare_pilot_report_pdf` e `v2_read_pilot_report_catalog` de `2ae02af`, retirar `cali_session_guard.phase4_report_metrics(jsonb)` e recarregar o schema da Data API. Preservar o retrato, as revisões, os PDFs e as ciências.
+
+## Republicação com curadoria no CALI MAPA
+
+Admin gerou a revisão 3 do relatório sintético `CALI-RPT-2026-000012` e republicou no Workspace com a opção de nova ciência desmarcada. A viu `CALI-EXEC-2026-000002`, os indicadores e a curadoria e baixou o PDF A4 de uma página. B ficou sem a revisão. O arquivo de 211.484 bytes coincidiu com o SHA-256 do banco (`3c35f8711e1a7d50ef28239aad1f00ab7e36e427ce6ac0b565d866396e66bc6a`). A inspeção de texto e página confirmou as quatro seções, os indicadores, a assinatura virtual e o protocolo.
+
+A revisão 2 preservou sua ciência. A revisão 3 manteve ciência opcional desmarcada e zero marcações de e-mail. Admin encerrou o teste reabrindo com motivo, o mesmo relatório voltou a rascunho e o download anterior de A foi recusado. O gerador temporário usou JWT obrigatório e foi removido do catálogo após a geração.
 
 ## Limite de autorização no Portal Comercial
 

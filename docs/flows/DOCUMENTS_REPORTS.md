@@ -48,7 +48,7 @@ A biblioteca V2 para PDFs novos do piloto implementa revisão imutável, publica
 
 ## FLOW-12 — Fechamento executivo, versão e ciência
 
-O piloto V2 preserva as revisões aprovadas internamente e permite corrigir o mesmo rascunho com motivo. Admin edita movimentos, decisões, riscos e próximos passos em rascunho ou revisão interna. A aprovação congela os quatro textos para tela e PDF. Cliente consulta o conteúdo da revisão liberada da própria empresa. A publicação da revisão com curadoria segue pendente no CALI MAPA. [Contrato e homologação](../contracts/PHASE_4_READ.md#curadoria-de-relatórios-no-cali-mapa).
+O piloto V2 preserva as revisões aprovadas internamente e permite corrigir o mesmo rascunho com motivo. Admin edita movimentos, decisões, riscos e próximos passos em rascunho ou revisão interna. A aprovação congela os quatro textos para tela e PDF. Cliente consulta o conteúdo da revisão liberada da própria empresa. O CALI MAPA confirmou a republicação sem nova ciência e o corte após retirada. [Contrato e homologação](../contracts/PHASE_4_READ.md#republicação-com-curadoria-no-cali-mapa).
 
 Horas, entregáveis e avaliação agregada na tela usam o mesmo recorte do retrato aprovado que alimenta o PDF. A média aparece com pelo menos duas avaliações. [Indicadores e prova](../contracts/PHASE_4_READ.md#indicadores-congelados-do-relatório-executivo).
 
