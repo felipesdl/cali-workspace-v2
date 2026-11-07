@@ -148,7 +148,7 @@ Fonte exibe essas ações, mas não estabelece uma máquina SQL restrita de todo
 
 ## FLOW-03 — Proposta comercial e oportunidade
 
-A [consulta Admin da V2](../contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin) lê somente oportunidades inscritas no piloto. A [edição de condições e aprovação interna](../contracts/PHASE_4_READ.md#rascunho-e-aprovação-interna-de-propostas) usa a permissão existente do Portal. Criação, cálculo, envio e aceite permanecem pendentes na V2.
+A consulta Admin, a edição de condições e a aprovação interna foram homologadas com [delegação temporária por proposta e operador](../contracts/PHASE_4_READ.md#delegação-temporária-de-propostas-no-staging). Criação, cálculo, envio e aceite permanecem pendentes na V2.
 
 **Objetivo/atores:** Admin trata oportunidade, calcula/edita proposta, revisa e envia. Destinatário comercial não é automaticamente usuário Cliente. Fontes: [tipos/transporte Portal](SOURCES.md#portal), [editor](SOURCES.md#proposal-ui), [rotas](SOURCES.md#routes).
 

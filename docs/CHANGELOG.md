@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Edição e aprovação interna de Propostas no staging
+
+- A delegação da V2 limitou o teste à conta Admin do Felipe, à Empresa A e à versão 1 de um rascunho sintético. O navegador confirmou edição, aprovação e corte de acesso. O banco preservou valor e versão e registrou as duas ações, sem envio. [Contrato e evidência](contracts/PHASE_4_READ.md#delegação-temporária-de-propostas-no-staging).
+
 ## DEC-28 revisada para o staging
 
 - Felipe confirmou o CALI MAPA como staging de testes. Backup, exportação do Storage e restauração deixam de bloquear lotes autorizados nesse ambiente. Mantidos preflight, rollback por lote e homologação sintética. Recuperação fica no preparo de produção separada. [Decisão](DECISIONS.md#dec-28--recuperação-comprovada-e-separação-stagingprodução).

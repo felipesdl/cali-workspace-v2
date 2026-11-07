@@ -1,4 +1,4 @@
--- FLOW-03. Projeção do Portal somente para oportunidades sintéticas inscritas no piloto.
+-- FLOW-03. Projeção do rascunho sintético delegado ao operador do piloto.
 begin;
 set local lock_timeout='5s';
 
@@ -15,6 +15,10 @@ create table if not exists cali_session_guard.phase4_commercial_scope (
   company_id uuid not null references cali_workspace.companies(id),
   submission_id uuid primary key
 );
+alter table cali_session_guard.phase4_commercial_scope
+  add column if not exists operator_id uuid references cali_workspace.profiles(id),
+  add column if not exists proposal_id uuid unique references public.cali_proposals(id),
+  add column if not exists expires_at timestamptz;
 alter table cali_session_guard.phase4_commercial_scope enable row level security;
 revoke all on cali_session_guard.phase4_commercial_scope from public,anon,authenticated,service_role;
 
@@ -35,8 +39,9 @@ begin
         coalesce(p.updated_at,s.updated_at) as "updatedAt"
       from cali_session_guard.phase4_commercial_scope scope
       join public.cali_submissions s on s.id=scope.submission_id
-      left join public.cali_proposals p on p.submission_id=s.id
-      where scope.company_id=p_company_id
+      join public.cali_proposals p on p.id=scope.proposal_id and p.submission_id=s.id
+      where scope.company_id=p_company_id and scope.operator_id=actor
+        and scope.expires_at>statement_timestamp()
     ), page as (
       select * from filtered order by "updatedAt" desc nulls last,"opportunityId","proposalId"
       limit 25 offset (p_page-1)*25

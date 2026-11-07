@@ -115,7 +115,7 @@ PostgreSQL descartável verificou nota inválida, avaliação de outro acesso, i
 
 ## Propostas e auditoria no piloto Admin
 
-Propostas consulta `public.cali_submissions` e `public.cali_proposals` apenas para oportunidades de teste inscritas explicitamente em `cali_session_guard.phase4_commercial_scope` para a empresa selecionada. A inscrição usa identificador, nunca nome, domínio ou e-mail. Cada versão exibe o valor registrado e seu estado; aprovação interna não vira aceite, e o estado do Portal não comprova o ator ou a entrega de e-mail. Briefing, contatos, notas, cálculos, arquivo e chaves de transporte não entram na projeção. Sem escrita no Portal.
+Propostas consulta `public.cali_submissions` e `public.cali_proposals` para a proposta sintética delegada. A tabela privada `cali_session_guard.phase4_commercial_scope` vincula por UUID a empresa, a oportunidade, a versão e o operador, com prazo de expiração. O catálogo exige Admin com MFA, sessão admitida e aceite vigente. A projeção omite briefing, contatos, notas internas, cálculo e arquivo.
 
 Auditoria consulta os eventos selecionados de `activity_log` da empresa, paginados e filtráveis por mês de Brasília. A projeção inclui evento, instante, autor e, quando disponíveis, protocolo e revisão. Metadados livres, notas e hashes ficam fora. Geração e publicação de relatório aparecem como eventos separados. Quando o PDF foi gerado, o protocolo é obtido do evento de geração da mesma empresa, relatório e revisão. Esta é uma projeção de leitura de uma fonte; não certifica imutabilidade nem substitui todas as trilhas da publicação 83.
 
@@ -135,9 +135,9 @@ Instalar `satisfaction-operations.sql` depois das operações de entregáveis e 
 
 Em 06/11/2026, a consulta ao catálogo do CALI MAPA confirmou RLS nas quatro tabelas do Portal, com escrita de propostas restrita à identidade administrativa do Portal. Confirmou também os estados textuais, a validade de 1 a 120 dias, a chave única por oportunidade e versão e a ausência de gatilhos próprios de proposta. A função `portal-send-proposal` está ativa com JWT. Essa inspeção não estabeleceu a correspondência do PDF com a revisão aprovada, a proteção do valor após o envio ou o comportamento efetivo de repetição e aceite externo.
 
-A V2 permite editar condições de pagamento, observações e validade em proposta já cadastrada como rascunho, além de aprovar internamente a versão salva. A RPC usa as permissões efetivas do usuário no Portal, exige Admin com MFA e vínculo explícito da oportunidade à empresa piloto. A edição e a aprovação conferem a data da última escrita e registram a versão na auditoria. Valor, escopo, versão e estado da oportunidade são preservados. Preço e criação de proposta continuam sob o contrato do Portal. Envio e aceite ficam em aberto.
+A V2 permite editar condições de pagamento, observações e validade em proposta já cadastrada como rascunho, além de aprovar internamente a versão salva. A RPC exige Admin com MFA, sessão admitida, aceite vigente e delegação válida para a proposta exata. A edição e a aprovação conferem a data da última escrita e registram a versão na auditoria. Valor, escopo, versão e estado da oportunidade são preservados. Preço e criação de proposta continuam sob o contrato do Portal. Envio e aceite ficam em aberto.
 
-Instalar `commercial-draft.sql` depois de `commercial-read.sql`. O editor exige `VITE_CALI_PHASE4_ADMIN_READ=true` e `VITE_CALI_PHASE4_WRITE=true`. O PostgreSQL descartável verificou RLS, MFA, empresa, recusa de versão obsoleta e bloqueio de edição após aprovação. Em 07/11/2026, as quatro RPCs foram instaladas juntas no CALI MAPA. O catálogo confirmou execução para `authenticated`, nenhuma para `anon`, RLS na tabela de escopo e escrita com as permissões do usuário do Portal. Escopo piloto vazio; nenhuma proposta foi modificada. A prova autenticada aguarda uma oportunidade sintética inscrita e uma sessão Admin com MFA autorizada também no Portal. `rollback-commercial.sql` retira só as quatro RPCs e preserva propostas, escopo e auditoria. O rollback passou no PostgreSQL descartável.
+Instalar `commercial-draft.sql` depois de `commercial-read.sql`. O editor exige `VITE_CALI_PHASE4_ADMIN_READ=true` e `VITE_CALI_PHASE4_WRITE=true`. Em 07/11/2026, as quatro RPCs iniciais foram instaladas juntas no CALI MAPA com escopo vazio e escrita sujeita às permissões do Portal. A delegação temporária substituiu essa versão, conforme a homologação abaixo.
 
 ## Rascunhos de Forms
 
@@ -349,7 +349,15 @@ A revisão 2 preservou sua ciência. A revisão 3 manteve ciência opcional desm
 
 A inspeção de 07/11/2026 confirmou que as policies de leitura e escrita de `cali_proposals` e `cali_submissions` usam a identidade da administradora do Portal. Um Admin do Workspace com MFA não recebe automaticamente esse papel. A RPC de escrita continua com privilégios do chamador. Homologar a edição e aprovação exige sessão com as duas autorizações ou decisão explícita sobre uma regra nova no Portal. Não houve ampliação de policies, criação de proposta hospedada, aceite ou disparo de e-mail neste lote.
 
-No navegador integrado, a sessão Admin abriu Propostas e recebeu lista vazia tanto em ativos quanto em arquivados. A conferência administrativa em leitura encontrou 12 oportunidades, nove propostas em rascunho e zero oportunidades inscritas no piloto. Abrir a rota comprovou acesso à tela, mas não acesso aos registros do Portal. A prova de edição e aprovação segue pendente de sessão com as duas autorizações e de um rascunho sintético inscrito.
+No navegador integrado, a sessão Admin abriu Propostas e recebeu lista vazia tanto em ativos quanto em arquivados. A conferência administrativa em leitura encontrou 12 oportunidades, nove propostas em rascunho e zero oportunidades inscritas no piloto. Felipe autorizou a delegação temporária abaixo.
+
+## Delegação temporária de Propostas no staging
+
+O CALI MAPA recebeu três RPCs V2 e uma guarda privada. A inscrição vincula proposta, oportunidade, empresa e operador. Felipe autorizou sua conta Admin para a versão 1 da proposta sintética `CALI-QA-V2-PROPOSTA-01` da Empresa A, com validade inicial de uma hora. A oportunidade usa um contato em `example.invalid`. Grants e policies do Portal legado foram preservados.
+
+No navegador integrado, a sessão do Felipe salvou condições e validade de 25 dias e aprovou a versão internamente. O valor permaneceu R$ 100,00. A Empresa B não viu a proposta. O banco confirmou dois eventos de auditoria, nenhum envio e a revogação da delegação. A proposta saiu da lista da Empresa A após nova consulta.
+
+A suíte SQL descartável confirmou a recusa para outro Admin com MFA, falta de MFA, empresa divergente, outra versão, autorização expirada e versão obsoleta. `rollback-commercial.sql` retira as RPCs e a guarda privada. Propostas, inscrições e auditoria ficam preservadas.
 
 ## Lote de pedido de privacidade no CALI MAPA
 

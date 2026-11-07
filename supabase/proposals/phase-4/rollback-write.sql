@@ -24,6 +24,7 @@ drop function if exists cali_workspace.v2_read_pilot_audit(uuid,date,integer);
 drop function if exists cali_workspace.v2_save_pilot_commercial_draft(uuid,uuid,timestamptz,text,text,text,integer);
 drop function if exists cali_workspace.v2_read_pilot_commercial_draft(uuid,uuid);
 drop function if exists cali_workspace.v2_require_pilot_commercial_scope(uuid,uuid);
+drop function if exists cali_session_guard.require_phase4_commercial_proposal(uuid,uuid);
 drop function if exists cali_workspace.v2_read_pilot_commercial(uuid,integer);
 drop function if exists cali_workspace.v2_pilot_project_item_lifecycle(uuid,uuid,uuid,text,timestamptz,text,text,date);
 drop function if exists cali_workspace.v2_pilot_delivery_collaboration(uuid,uuid,uuid,uuid,text,jsonb);
