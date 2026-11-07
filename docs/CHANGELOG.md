@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Prévia do resumo diário Admin
+
+- Auditoria mostra totais, horas e blocos por empresa no dia de Brasília. Validada com Admin no CALI MAPA, sem cron e sem e-mail. Cliente não abre a Auditoria. [Prova e reversão](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+
 ## 07/11/2026 — Comentários e reações de avisos
 
 - A comentou, reagiu e recebeu resposta do Admin. B ficou isolado e o aviso foi arquivado após o teste, sem e-mail. [Prova e reversão](contracts/PHASE_4_READ.md#interações-de-avisos-no-cali-mapa).

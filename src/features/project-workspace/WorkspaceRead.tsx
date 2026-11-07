@@ -5,6 +5,7 @@ import { WorkspacePagination } from './WorkspacePagination';
 import { CommercialDraftEditor } from './CommercialDraftEditor';
 import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
+import { AdminDailyPreview } from './AdminDailyPreview';
 import { DeliveryPdf, DocumentLibrary } from './DocumentLibrary';
 import {
   CreateReportDraft,
@@ -807,6 +808,7 @@ function AdminAudit({ search, update }: Props) {
   if (!admin || !adminRead) return null;
   return (
     <div className="tw:grid tw:gap-4">
+      <AdminDailyPreview actor={actor} />
       <CompanySelect search={search} update={update} />
       <Field id="audit-month" label="Mês da auditoria">
         <input

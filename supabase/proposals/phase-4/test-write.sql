@@ -174,6 +174,7 @@ grant usage on schema cali_workspace to service_role;
 \ir test-satisfaction.sql
 \ir test-data-lifecycle-read.sql
 \ir test-hour-corrections.sql
+\ir test-admin-daily-preview.sql
 \ir rollback-forms.sql
 do $$
 begin

@@ -255,7 +255,7 @@ Em 07/11/2026, oito RPCs foram instaladas em uma transação para o piloto. O ca
 - `AV-2026-0003`: Admin publicou aviso dirigido a A. A registrou ciência no mural e viu o mesmo título na agenda. B não recebeu o aviso. Após arquivamento, o aviso saiu da agenda de A e ficou disponível para restauração no Admin. Banco confirmou zero marcações de e-mail.
 - Satisfação: Admin salvou acompanhamento do tema Atendimento. A nota 3/5 e o comentário original permaneceram iguais depois de recarregar.
 
-`rollback-records.sql` retira as oito operações e o gatilho de menção V2; mantém os registros, recibos e a inscrição que protege a ocorrência sintética de disparos posteriores. PDFs de conversa têm [prova própria](#anexos-pdf-de-ocorrências-no-cali-mapa). Comentários e reações têm [prova própria](#interações-de-avisos-no-cali-mapa). O resumo diário Admin continua em recorte separado. Nenhum serviço externo foi ativado.
+`rollback-records.sql` retira as oito operações e o gatilho de menção V2; mantém os registros, recibos e a inscrição que protege a ocorrência sintética de disparos posteriores. PDFs de conversa têm [prova própria](#anexos-pdf-de-ocorrências-no-cali-mapa). Comentários e reações têm [prova própria](#interações-de-avisos-no-cali-mapa). A [prévia do resumo Admin](#prévia-do-resumo-diário-admin-no-cali-mapa) está homologada; envio continua separado. Nenhum serviço externo foi ativado.
 
 ## Lote da biblioteca de PDFs no CALI MAPA
 
@@ -324,3 +324,11 @@ Admin com MFA e Cliente admitido leem e publicam comentários da empresa em avis
 Em 07/11/2026, três RPCs V2 foram instaladas sem alteração das tabelas ou policies legadas. Admin restaurou somente o aviso sintético dirigido a A. Cliente comentou, reagiu, trocou a reação e recebeu a resposta Admin depois da recarga. B ficou sem acesso. Cliente retirou a reação e Admin arquivou novamente; aviso saiu da listagem de A. Banco confirmou dois comentários, zero reações e zero marcações de e-mail. A prova descartável também cobriu aviso geral com isolamento, conflito, reenvio e recusa após arquivamento.
 
 `rollback-notice-interactions.sql` retira as operações e preserva o histórico. Moderação de comentários e capa permanecem em recortes próprios.
+
+## Prévia do resumo diário Admin no CALI MAPA
+
+A prévia na Auditoria usa RESUMO-01/DEC-19. Considera notificações do dia em Brasília até a consulta e horas pela data de atuação. Deduplica por empresa, bloco, título, texto e entidade. Ordena empresas pelo volume; mantém os totais completos, até 12 itens por bloco e 180 caracteres por trecho. Inclui empresas com apenas horas. A lista positiva cobre os tipos operacionais conferidos no piloto e exclui chat, mensagens de tarefa/entregável, avisos internos, destinatários de equipe e notificações sem tipo reconciliado. Tipos que ainda não têm produtor ou classificação inequívoca no piloto não entram por aproximação.
+
+Em 07/11/2026, instalou-se apenas o leitor para Admin com MFA e A/B. No navegador, a prévia mostrou 15 ações Cliente, 14 CALI e 18 minutos, com “e mais 3” e “e mais 2” nos blocos. Cliente foi redirecionado ao tentar abrir a Auditoria. O PostgreSQL descartável verificou sábado, fronteira de Brasília, corte de geração, dia vazio, dia só com horas, deduplicação, isolamento, exclusões e 2.101 avisos elegíveis sem truncar o total.
+
+`rollback-admin-daily-preview.sql` remove só a consulta. Não houve configuração de cron, ativação do digest de chat, seleção de destinatários ou envio de e-mail. Despacho das 19h, destinatários ativos com e-mail, idempotência por destinatário/dia e integração de fontes restantes continuam pendentes.

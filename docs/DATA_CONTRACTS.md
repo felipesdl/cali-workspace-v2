@@ -115,6 +115,8 @@ Não resolver esses pontos com mudanças silenciosas no backend ou no payload fr
 
 ## Contrato do resumo Admin e limites da fonte
 
+A V2 tem [prévia Admin homologada](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa), sem cron ou despacho. Os limites abaixo descrevem o legado estático.
+
 Produto: [RESUMO-01](PRODUCT_RULES.md#resumo-01--contrato-admin-definido-partner-posterior). Fontes: [função](flows/SOURCES.md#admin-summary), [agendamento e desativação do chat](flows/SOURCES.md#admin-summary-schedule), [origem de teste](flows/SOURCES.md#admin-summary-test). Consulta estática, sem executar função/SQL ou acessar o banco.
 
 - Seleciona notificações do dia em Brasília, ordenadas por `created_at`; horas por `work_date` do dia. São critérios distintos: não substituir data de atuação por data de criação do lançamento sem contrato.

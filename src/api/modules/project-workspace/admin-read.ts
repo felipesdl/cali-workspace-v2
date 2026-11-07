@@ -32,6 +32,41 @@ const auditEvents = [
 export type AuditEvent = (typeof auditEvents)[number];
 
 const page = z.object({ companyId: z.uuid(), total: z.number().int().nonnegative() });
+const counter = z.number().int().nonnegative();
+const summaryBlock = z.object({
+  total: counter,
+  items: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        at: z.iso.datetime({ offset: true }),
+        title: z.string(),
+        excerpt: z.string().nullable(),
+        link: z
+          .string()
+          .regex(/^\/(admin|cliente)\/[A-Za-z0-9/_?&=.%:-]+$/)
+          .nullable(),
+      }),
+    )
+    .max(12),
+});
+const dailyPreview = z.object({
+  day: z.iso.date(),
+  asOf: z.iso.datetime({ offset: true }),
+  clientTotal: counter,
+  caliTotal: counter,
+  minutes: counter,
+  companies: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+      minutes: counter,
+      client: summaryBlock,
+      cali: summaryBlock,
+    }),
+  ),
+});
+export type DailyPreview = z.infer<typeof dailyPreview>;
 const audit = page.extend({
   month: z.iso.date().nullable(),
   entries: z.array(
@@ -116,6 +151,13 @@ const commercialDraft = z.object({
 type CommercialDraftChange = { paymentTerms: string; publicNotes: string; validityDays: number };
 export function createAdminRead(client: WorkspaceClient) {
   return {
+    async dailyPreview(signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_admin_daily_preview')
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar o resumo.');
+      return dailyPreview.parse(data);
+    },
     async satisfaction(company: string, page: number, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_read_pilot_satisfaction', {
