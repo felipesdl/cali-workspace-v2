@@ -688,6 +688,7 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                       admin={admin}
                       previouslyReleased={Boolean(item.reportPreviouslyReleased)}
                       acknowledgmentAvailable={Boolean(item.acknowledgmentAvailable)}
+                      acknowledged={Boolean(item.reportAcknowledged)}
                     />
                   )}
                   {item.summary && (

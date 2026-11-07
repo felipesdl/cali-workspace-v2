@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — PDF executivo homologado no CALI MAPA
+
+- PDF da versão 2 gerado e liberado para A; os downloads Admin e Cliente coincidiram com o hash do banco. A registrou ciência, B ficou isolado e o download antigo foi recusado após retirada. Edge temporária removida; nenhuma liberação ficou ativa. Tela passa a mostrar ciência persistida. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-pdf-executivo-no-cali-mapa).
+
 ## 07/11/2026 — Pedido de privacidade homologado
 
 - Cliente A registrou pedido de acesso, Admin respondeu e B ficou isolado. Banco confirmou dois eventos de auditoria e zero notificações. Forms continua em rascunho: a audiência Cliente ainda pode ser lida pelo slug público quando aberta. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-pedido-de-privacidade-no-cali-mapa).

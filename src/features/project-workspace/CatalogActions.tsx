@@ -268,6 +268,7 @@ export function ReportPublicationActions({
   admin,
   previouslyReleased,
   acknowledgmentAvailable,
+  acknowledged,
 }: Scope & {
   id: string;
   version: number;
@@ -276,6 +277,7 @@ export function ReportPublicationActions({
   admin: boolean;
   previouslyReleased: boolean;
   acknowledgmentAvailable: boolean;
+  acknowledged: boolean;
 }) {
   const { operations, refresh } = useCatalogActions({ company, actor }, 'reports');
   const cache = useQueryClient();
@@ -336,6 +338,7 @@ export function ReportPublicationActions({
           }
         />
       )}
+      {!admin && acknowledged && <p role="status">Ciência registrada nesta revisão.</p>}
     </div>
   );
 }

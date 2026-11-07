@@ -129,6 +129,7 @@ export const catalog = z.object({
       reportVersion: z.number().int().positive().nullable().optional(),
       reportPdfReady: z.boolean().optional(),
       reportPreviouslyReleased: z.boolean().optional(),
+      reportAcknowledged: z.boolean().optional(),
     }),
   ),
 });

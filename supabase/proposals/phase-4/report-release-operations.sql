@@ -189,6 +189,7 @@ begin
         case when admin then r.updated_at end as "reportUpdatedAt",
         case when a.report_id is not null then r.version end as "reportVersion",
         p.report_id is not null as "reportPdfReady",
+        x.acknowledged_at is not null as "reportAcknowledged",
         exists(select 1 from cali_session_guard.phase4_report_releases prev where prev.report_id=r.id and prev.version<>r.version)
           as "reportPreviouslyReleased"
       from cali_workspace.reports r

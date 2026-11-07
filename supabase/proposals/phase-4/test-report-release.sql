@@ -94,6 +94,7 @@ begin
     assert payload->>'status'='published';
     assert payload->>'protocol' like 'CALI-EXEC-%';
     assert (payload->>'acknowledgmentAvailable')::boolean=(version<>2);
+    assert payload->>'reportAcknowledged'='false';
     if version=2 then
       begin
         perform cali_workspace.v2_ack_pilot_report_release(a,id,version);
@@ -102,6 +103,10 @@ begin
     else
       assert cali_workspace.v2_ack_pilot_report_release(a,id,version)=id;
       assert cali_workspace.v2_ack_pilot_report_release(a,id,version)=id;
+      select entry into payload from jsonb_array_elements(cali_workspace.v2_read_pilot_report_catalog(a,1)->'entries') entry
+      where entry->>'id'=qa.id::text;
+      assert payload->>'reportAcknowledged'='true';
+      assert payload->>'acknowledgmentAvailable'='false';
     end if;
     perform cali_workspace.fixture_as('admin');
   end loop;
