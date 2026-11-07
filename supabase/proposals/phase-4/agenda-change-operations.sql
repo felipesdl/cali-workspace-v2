@@ -124,10 +124,48 @@ begin
 end;
 $$;
 
+create or replace function cali_workspace.v2_complete_pilot_appointment(p_company_id uuid,p_appointment_id uuid)
+returns uuid language plpgsql security definer set search_path=''
+as $$
+declare
+  actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
+  meeting_id uuid;
+  appointment_status text;
+begin
+  perform pg_advisory_xact_lock(hashtextextended('phase4-agenda:'||p_company_id::text,0));
+  select e.id into meeting_id from cali_workspace.scheduling_requests r
+  join cali_workspace.events e on e.id=r.confirmed_event_id and e.company_id=r.company_id
+  where r.id=p_appointment_id and r.company_id=p_company_id
+    and e.visibility='client' and e.event_type='meeting' and e.schedule_class='contractual'
+    and e.cancelled_at is null and e.ends_at<=now()
+    and e.source_type='scheduling_request' and e.source_entity_id=r.id
+  for update of e;
+  if not found then raise exception using errcode='42501',message='Reunião indisponível para registro.'; end if;
+  select r.status into appointment_status from cali_workspace.scheduling_requests r
+  where r.id=p_appointment_id and r.company_id=p_company_id and r.confirmed_event_id=meeting_id
+    and not (r.extra_visit or r.billable_extra or r.urgency_fee_applies or r.online_extra_requested)
+  for update;
+  if not found then raise exception using errcode='42501',message='Reunião indisponível para registro.'; end if;
+  if appointment_status='completed' and exists(select 1 from cali_workspace.event_outcomes o
+    where o.event_id=meeting_id and o.company_id=p_company_id and o.outcome='occurred') then
+    return p_appointment_id;
+  end if;
+  if appointment_status is distinct from 'confirmed' or exists(select 1 from cali_workspace.agenda_change_requests c
+    where c.event_id=meeting_id and c.status='pending') or exists(select 1 from cali_workspace.event_outcomes o
+    where o.event_id=meeting_id) then
+    raise exception using errcode='40001',message='O estado da reunião mudou.';
+  end if;
+  perform cali_workspace.admin_mark_scheduling_event_outcome_v1(meeting_id,'occurred',null,false,null,false);
+  return p_appointment_id;
+end;
+$$;
+
 revoke all on function cali_workspace.v2_request_pilot_agenda_change(uuid,uuid,uuid,text,text,jsonb),
-  cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer)
+  cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer),
+  cali_workspace.v2_complete_pilot_appointment(uuid,uuid)
   from public,anon,authenticated,service_role;
 grant execute on function cali_workspace.v2_request_pilot_agenda_change(uuid,uuid,uuid,text,text,jsonb),
-  cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer) to authenticated;
+  cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer),
+  cali_workspace.v2_complete_pilot_appointment(uuid,uuid) to authenticated;
 notify pgrst,'reload schema';
 commit;

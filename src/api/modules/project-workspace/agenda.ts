@@ -39,6 +39,7 @@ const appointments = z.array(
       )
       .optional(),
     canRequestChange: z.boolean().optional(),
+    canComplete: z.boolean().optional(),
     latestChange: change.nullable().optional(),
   }),
 );
@@ -149,6 +150,16 @@ export function createAgendaOperations(client: WorkspaceClient) {
       if (error?.code === '40001')
         throw new Error('A reunião ou a disponibilidade mudou. Confira a agenda.');
       if (error) throw new Error('Não foi possível registrar a decisão.');
+      return z.literal(id).parse(data);
+    },
+    async complete(company: string, id: string) {
+      const { data, error } = await client.rpc('v2_complete_pilot_appointment', {
+        p_company_id: company,
+        p_appointment_id: id,
+      });
+      if (error?.code === '40001' || error?.code === '42501')
+        throw new Error('Confira o horário e a situação atual da reunião.');
+      if (error) throw new Error('Não foi possível registrar a realização.');
       return z.literal(id).parse(data);
     },
     async respond(

@@ -126,6 +126,18 @@ export function AgendaActions({
               <p>{formatServerInstant(item.meetingAt)} (Brasília)</p>
             )}
             <AgendaParticipants people={item.participants} />
+            {admin && item.canComplete && (
+              <ActionForm
+                label="Registrar reunião realizada"
+                submit={async () => {
+                  try {
+                    return await agenda.complete(company, item.id);
+                  } finally {
+                    await refresh(item.id);
+                  }
+                }}
+              />
+            )}
             <AgendaChangeActions
               company={company}
               appointment={item.id}

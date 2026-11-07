@@ -1,5 +1,4 @@
 -- Fixture sem fila de envio: valida a marca que o dispatcher leria.
-alter table cali_workspace.events add column source_type text,add column source_entity_id uuid;
 \ir agenda-qa-transport.sql
 begin;
 do $$

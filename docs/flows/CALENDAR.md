@@ -49,4 +49,6 @@ Testar empresa diferente, evento passado/cancelado, opção duplicada, conflito 
 
 A agenda ordinária V2 foi homologada no CALI MAPA: solicitação, oferta, confirmação, remarcação no mesmo evento e cancelamento. O teste preservou a condição sem cobrança e não chamou Google/Meet. [Contrato e evidência](../contracts/PHASE_4_READ.md#lote-de-agenda-ordinária-no-cali-mapa).
 
+A V2 inclui o registro de realização de reunião ordinária após o fim do compromisso, validado no PostgreSQL descartável. Admin registra, Cliente consulta a situação. [Contrato e limites](../contracts/PHASE_4_READ.md#registro-de-realização-de-reunião-ordinária).
+
 O piloto consulta os participantes da reunião ordinária com a visibilidade do evento e mostra os pedidos extras em uma lista separada, com valores e aceites registrados. Alteração de convidados e transições comerciais de extras continuam em recortes próprios. [Contrato e evidência das consultas](../contracts/PHASE_4_READ.md#participantes-e-encontros-adicionais-no-cali-mapa).

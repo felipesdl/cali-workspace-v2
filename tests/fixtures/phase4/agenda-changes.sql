@@ -1,4 +1,16 @@
 -- Dependências sintéticas do contrato legado. Nenhuma comunicação externa.
+alter table cali_workspace.events add column source_type text,add column source_entity_id uuid,
+  add column schedule_class text not null default 'contractual';
+create table cali_workspace.event_outcomes(event_id uuid primary key,company_id uuid,outcome text);
+create function cali_workspace.admin_mark_scheduling_event_outcome_v1(uuid,text,text,boolean,text,boolean)
+returns jsonb language sql as $$
+ insert into cali_workspace.event_outcomes(event_id,company_id,outcome)
+ select e.id,e.company_id,$2 from cali_workspace.events e where e.id=$1;
+ update cali_workspace.scheduling_requests r set status='completed'
+ from cali_workspace.events e where e.id=$1 and r.id=e.source_entity_id
+ returning jsonb_build_object('status',r.status);
+$$;
+
 alter table cali_workspace.scheduling_requests add column online_extra_requested boolean not null default false,
   add column extra_visit_fee_cents integer,add column online_extra_quote_cents integer,
   add column billing_acknowledged_at timestamptz,add column online_extra_quote_accepted_at timestamptz,

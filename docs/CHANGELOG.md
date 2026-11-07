@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Realização de reunião ordinária
+
+- Admin registra a realização de uma reunião contratual confirmada após o horário de fim. A guarda recusa alterações pendentes, reuniões futuras ou canceladas, Cliente e empresa divergente. O PostgreSQL descartável confirmou registro único e situação Realizado para o Cliente. [Contrato, limites e reversão](contracts/PHASE_4_READ.md#registro-de-realização-de-reunião-ordinária).
+
 ## Timer de subtarefa e horas de ocorrências
 
 - Admin concluiu o timer de uma subtarefa interna no CALI MAPA. Dois trechos privados somaram três minutos e mantiveram o vínculo. No mesmo piloto, Admin iniciou o timer no detalhe de uma ocorrência e concluiu em Horas, com quatro minutos vinculados e privados. O PostgreSQL descartável confirmou as guardas e a reversão. [Prova da subtarefa](contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa) · [Prova e reversão da ocorrência](contracts/PHASE_4_READ.md#horas-vinculadas-a-ocorrência).
