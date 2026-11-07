@@ -1,0 +1,28 @@
+import { z } from 'zod';
+
+const count = z.number().int().nonnegative();
+export const reportMetricsSchema = z.object({
+  hours: z.object({ contractedHours: z.number().nonnegative(), consumedMinutes: count }),
+  deliverables: z.object({ approvedCount: count, createdCount: count }),
+  feedback: z.object({ count, average: z.number().min(0).max(5).nullable() }).optional(),
+});
+export type ReportMetrics = z.infer<typeof reportMetricsSchema>;
+
+const brNumber = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
+
+export function executiveMetricRows({ hours, deliverables, feedback }: ReportMetrics) {
+  const rows = [
+    { label: 'Horas contratadas', value: brNumber.format(hours.contractedHours) + ' h' },
+    { label: 'Horas registradas', value: brNumber.format(hours.consumedMinutes / 60) + ' h' },
+    {
+      label: 'Entregáveis',
+      value: `${deliverables.createdCount} criados · ${deliverables.approvedCount} aprovados`,
+    },
+  ];
+  if (feedback && feedback.count >= 2 && feedback.average !== null)
+    rows.push({
+      label: 'Avaliação média',
+      value: `${brNumber.format(feedback.average)}/5 · ${feedback.count} avaliações`,
+    });
+  return rows;
+}

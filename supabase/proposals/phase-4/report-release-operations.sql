@@ -2,6 +2,24 @@
 begin;
 set local lock_timeout='5s';
 
+create or replace function cali_session_guard.phase4_report_metrics(source jsonb)
+returns jsonb language sql immutable set search_path=''
+as $$
+  select jsonb_build_object(
+    'hours',jsonb_build_object('contractedHours',source#>'{hours,contractedHours}',
+      'consumedMinutes',source#>'{hours,consumedMinutes}'),
+    'deliverables',jsonb_build_object('approvedCount',source#>'{deliverables,approvedCount}',
+      'createdCount',source#>'{deliverables,createdCount}'))
+    || case when jsonb_typeof(source#>'{feedback,count}')='number'
+        and source#>'{feedback,count}'>='2'::jsonb
+        and jsonb_typeof(source#>'{feedback,average}')='number'
+        and source#>'{feedback,average}' between '0'::jsonb and '5'::jsonb
+      then jsonb_build_object('feedback',jsonb_build_object(
+        'count',source#>'{feedback,count}','average',source#>'{feedback,average}'))
+      else '{}'::jsonb end
+$$;
+revoke all on function cali_session_guard.phase4_report_metrics(jsonb) from public,anon,authenticated,service_role;
+
 create or replace function cali_workspace.v2_prepare_pilot_report_pdf(
   p_company_id uuid,p_report_id uuid,p_version integer
 )
@@ -27,17 +45,9 @@ begin
   returning a.* into approval;
   if not found then raise exception using errcode='42501',message='Aprovação indisponível.'; end if;
   source := approval.snapshot->'source';
-  metrics := jsonb_build_object(
-    'hours',jsonb_build_object('contractedHours',source#>'{hours,contractedHours}',
-      'consumedMinutes',source#>'{hours,consumedMinutes}'),
-    'deliverables',jsonb_build_object('approvedCount',source#>'{deliverables,approvedCount}',
-      'createdCount',source#>'{deliverables,createdCount}'));
+  metrics := cali_session_guard.phase4_report_metrics(source);
   if source ? 'workflow_mode' then
     metrics := metrics||jsonb_build_object('workflow_mode',source->'workflow_mode');
-  end if;
-  if jsonb_typeof(source->'feedback')='object' then
-    metrics := metrics||jsonb_build_object('feedback',jsonb_build_object(
-      'count',source#>'{feedback,count}','average',source#>'{feedback,average}'));
   end if;
   return jsonb_build_object('ticket',approval.render_nonce,
     'input',approval.snapshot||jsonb_build_object('protocol',approval.render_protocol,
@@ -190,6 +200,8 @@ begin
               and l.company_id=r.company_id and l.entity_type='report' and l.event_type='report_draft_created')
           then coalesce(c.sections,'{"movements":"","decisions":"","risks":"","nextSteps":""}'::jsonb)
         end as "reportCuration",
+        case when a.report_id is not null then cali_session_guard.phase4_report_metrics(a.snapshot->'source')
+        end as "reportMetrics",
         case when x.report_id is not null then x.requires_ack and x.acknowledged_at is null
           else r.status in ('sent','published') and r.revision_parent_id is null
             and coalesce(r.version,1)=1 and r.acknowledged_at is null end as "acknowledgmentAvailable",

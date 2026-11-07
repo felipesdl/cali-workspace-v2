@@ -7,6 +7,7 @@ declare
   id uuid := gen_random_uuid();
   stamp timestamptz;
   payload jsonb;
+  display_metrics jsonb;
   ticket uuid;
   previous_ticket uuid;
   version integer;
@@ -80,6 +81,8 @@ begin
     assert (payload#>'{input,curation}') is not distinct from sections;
     assert payload#>>'{input,version}'=version::text;
     assert payload#>>'{input,source,hours,consumedMinutes}'='115';
+    display_metrics := payload#>'{input,source}';
+    assert not (display_metrics ? 'feedback');
     assert payload::text not like '%QA reservado%';
     payload := cali_workspace.v2_prepare_pilot_report_pdf(a,id,version);
     ticket := (payload->>'ticket')::uuid;
@@ -119,6 +122,7 @@ begin
     where entry->>'id'=qa.id::text;
     assert payload->>'status'='published';
     assert payload->'reportCuration' is not distinct from coalesce(sections,'null'::jsonb);
+    assert payload->'reportMetrics'=display_metrics;
     assert payload->>'protocol' like 'CALI-EXEC-%';
     assert (payload->>'acknowledgmentAvailable')::boolean=(version<>2);
     assert payload->>'reportAcknowledged'='false';
@@ -138,6 +142,8 @@ begin
     perform cali_workspace.fixture_as('admin');
   end loop;
   reset role;
+  assert cali_session_guard.phase4_report_metrics('{"feedback":{"count":2,"average":4.5}}')
+    ->'feedback'='{"count":2,"average":4.5}'::jsonb;
   assert (select a.snapshot#>>'{curation,movements}' from cali_session_guard.phase4_report_approvals a
     where a.report_id=qa.id and a.version=2)='Movimento revisão 2';
   assert (select count(*) from cali_session_guard.phase4_report_releases x

@@ -5,6 +5,10 @@ import {
 } from '../../api/modules/project-workspace/report-curation';
 import { Field } from '../../components/ds/field/Field';
 import { ActionForm } from './ActionForm';
+import {
+  executiveMetricRows,
+  type ReportMetrics,
+} from '../../api/modules/project-workspace/report-metrics';
 
 export function ReportCurationEditor({
   sections,
@@ -57,5 +61,21 @@ export function ReportCurationSections({ sections }: { sections: ReportCuration 
         </div>
       ))}
     </dl>
+  );
+}
+
+export function ReportIndicators({ metrics }: { metrics: ReportMetrics }) {
+  return (
+    <section className="tw:mt-2" aria-label="Indicadores da revisão">
+      <h3 className="tw:font-semibold">Indicadores da revisão</h3>
+      <dl className="tw:grid tw:gap-2">
+        {executiveMetricRows(metrics).map(({ label, value }) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }

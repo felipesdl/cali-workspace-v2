@@ -50,6 +50,8 @@ A biblioteca V2 para PDFs novos do piloto implementa revisão imutável, publica
 
 O piloto V2 preserva as revisões aprovadas internamente e permite corrigir o mesmo rascunho com motivo. Admin edita movimentos, decisões, riscos e próximos passos em rascunho ou revisão interna. A aprovação congela os quatro textos para tela e PDF. Cliente consulta o conteúdo da revisão liberada da própria empresa. A publicação da revisão com curadoria segue pendente no CALI MAPA. [Contrato e homologação](../contracts/PHASE_4_READ.md#curadoria-de-relatórios-no-cali-mapa).
 
+Horas, entregáveis e avaliação agregada na tela usam o mesmo recorte do retrato aprovado que alimenta o PDF. A média aparece com pelo menos duas avaliações. [Indicadores e prova](../contracts/PHASE_4_READ.md#indicadores-congelados-do-relatório-executivo).
+
 **Objetivo/atores/entrada:** Admin compõe/revisa/aprova/envia fechamento em `/admin/relatorios`; Cliente lê versões enviadas/publicadas e registra ciência em `/cliente/relatorios`. Rotas de impressão conservam o papel e o reportId.
 
 **Fontes:** [Admin UI](SOURCES.md#reports-admin), [Cliente UI](SOURCES.md#reports-client), [readiness SQL](SOURCES.md#report-readiness), [ciência](SOURCES.md#report-ack), [eventos](SOURCES.md#report-events), [dúvida](SOURCES.md#report-question), [retirada](SOURCES.md#report-withdraw), [envio EDGE](SOURCES.md#report-send), [policy de leitura posterior](SOURCES.md#report-policy).

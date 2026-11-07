@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 07/11/2026 — Indicadores congelados do relatório executivo
+
+- Tela e gerador usam a mesma projeção de horas, entregáveis e avaliação agregada. Admin conferiu os indicadores da revisão 3 no CALI MAPA. Média fica fora da resposta com menos de duas avaliações. [Prova e reversão](contracts/PHASE_4_READ.md#indicadores-congelados-do-relatório-executivo).
+
 ## 07/11/2026 — Participantes e encontros adicionais na Agenda
 
 - Agenda consulta participantes com a visibilidade do evento e mostra os valores e aceites já registrados dos extras. Decisões de encontros ordinários recusam extras online. [Contrato e prova](contracts/PHASE_4_READ.md#participantes-e-encontros-adicionais-no-cali-mapa).

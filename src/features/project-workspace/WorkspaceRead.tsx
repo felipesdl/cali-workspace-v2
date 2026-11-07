@@ -6,7 +6,7 @@ import { CommercialDraftEditor } from './CommercialDraftEditor';
 import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { AdminDailyPreview } from './AdminDailyPreview';
-import { ReportCurationSections } from './ReportCuration';
+import { ReportCurationSections, ReportIndicators } from './ReportCuration';
 import {
   ActivateContractedFront,
   ContractedFrontTerms,
@@ -740,6 +740,9 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                   )}
                   {item.reportCuration && item.reportVersion && (
                     <ReportCurationSections sections={item.reportCuration} />
+                  )}
+                  {item.reportMetrics && item.reportVersion && (
+                    <ReportIndicators metrics={item.reportMetrics} />
                   )}
                   {item.frontTerms && <ContractedFrontTerms terms={item.frontTerms} />}
                   {item.frontTerms && admin && item.status === 'active' && (

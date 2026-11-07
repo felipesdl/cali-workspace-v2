@@ -8,8 +8,11 @@ import {
   reportCurationSchema,
   reportCurationSections,
 } from '../../../src/api/modules/project-workspace/report-curation';
+import {
+  executiveMetricRows,
+  reportMetricsSchema,
+} from '../../../src/api/modules/project-workspace/report-metrics';
 
-const count = z.number().int().nonnegative();
 export const reportInputSchema = z.object({
   title: z.string().min(1).max(180),
   companyName: z.string().min(1).max(250),
@@ -20,11 +23,8 @@ export const reportInputSchema = z.object({
   periodEnd: z.iso.date(),
   summary: z.string().min(1).max(8000),
   curation: reportCurationSchema.optional(),
-  source: z.object({
+  source: reportMetricsSchema.extend({
     workflow_mode: z.literal('official').optional(),
-    hours: z.object({ contractedHours: z.number().nonnegative(), consumedMinutes: count }),
-    deliverables: z.object({ approvedCount: count, createdCount: count }),
-    feedback: z.object({ count, average: z.number().min(0).max(5).nullable() }).optional(),
   }),
   signer: z.object({
     full_name: z.string().trim().min(1).max(180),
@@ -42,7 +42,6 @@ const contentWidth = width - left * 2;
 const burgundy = rgb(0.35, 0.12, 0.18);
 const ink = rgb(0.19, 0.15, 0.14);
 const pale = rgb(0.95, 0.92, 0.89);
-const brNumber = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
 const brDate = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo' });
 
 function dateOnly(value: string) {
@@ -155,14 +154,7 @@ export async function renderExecutivePdf(
   }
   reserve(44);
   lines('Indicadores do período', bold, 15);
-  const { hours, deliverables, feedback } = input.source;
-  lines(`Horas contratadas: ${brNumber.format(hours.contractedHours)} h`);
-  lines(`Horas registradas: ${brNumber.format(hours.consumedMinutes / 60)} h`);
-  lines(
-    `Entregáveis criados: ${deliverables.createdCount} · Aprovados: ${deliverables.approvedCount}`,
-  );
-  if (feedback && feedback.count >= 2 && feedback.average !== null)
-    lines(`Avaliação média: ${brNumber.format(feedback.average)}/5 · ${feedback.count} avaliações`);
+  for (const { label, value } of executiveMetricRows(input.source)) lines(`${label}: ${value}`);
   reserve(170);
   page.drawLine({ start: { x: left, y }, end: { x: width - left, y }, color: pale, thickness: 1 });
   y -= 26;

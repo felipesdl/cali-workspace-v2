@@ -301,6 +301,14 @@ No CALI MAPA, o Admin salvou as quatro seções do relatório sintético `CALI-R
 
 A instalação alterou a RPC de aprovação e o catálogo de revisões e adicionou a RPC de curadoria. A flag `VITE_CALI_PHASE4_REPORT_RELEASE` habilita o catálogo com curadoria. Para reverter só este lote, restaurar as definições de `v2_update_pilot_report_draft` e `v2_read_pilot_report_catalog` de `cf431f5`, retirar `v2_curate_pilot_report(uuid,uuid,timestamptz,jsonb)` e recarregar o schema da Data API. Preservar a tabela privada, as aprovações e os PDFs. Antes de gerar o PDF da versão 3, usar o bundle do gerador com suporte à curadoria.
 
+## Indicadores congelados do relatório executivo
+
+O catálogo e a preparação do PDF usam a mesma projeção do retrato aprovado de horas contratadas e registradas, entregáveis criados e aprovados e avaliação média. O servidor só inclui a média a partir de duas avaliações e limita a resposta a valores agregados. Tela e PDF usam a mesma formatação. Os cálculos e fontes congeladas continuam no contrato de coleta existente.
+
+Admin conferiu horas e entregáveis na revisão 3 de `CALI-RPT-2026-000012` no CALI MAPA. A média ficou oculta para o retrato com zero avaliações. O teste descartável confirmou igualdade de indicadores entre a preparação do PDF e o catálogo publicado, omissão da avaliação individual e inclusão do agregado quando elegível. O gerador hospedado seguiu desligado. A prova de republicação da revisão com curadoria e as fontes restantes seguem abertas.
+
+Reversão deste incremento: restaurar `v2_prepare_pilot_report_pdf` e `v2_read_pilot_report_catalog` de `2ae02af`, retirar `cali_session_guard.phase4_report_metrics(jsonb)` e recarregar o schema da Data API. Preservar o retrato, as revisões, os PDFs e as ciências.
+
 ## Limite de autorização no Portal Comercial
 
 A inspeção de 07/11/2026 confirmou que as policies de leitura e escrita de `cali_proposals` e `cali_submissions` usam a identidade da administradora do Portal. Um Admin do Workspace com MFA não recebe automaticamente esse papel. A RPC de escrita continua com privilégios do chamador. Homologar a edição e aprovação exige sessão com as duas autorizações ou decisão explícita sobre uma regra nova no Portal. Não houve ampliação de policies, criação de proposta hospedada, aceite ou disparo de e-mail neste lote.
