@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Homologação do rascunho de Forms
+
+- Lote SQL aplicado no CALI MAPA em uma transação. Admin criou o rascunho sintético em A, salvou duas perguntas, editou uma e confirmou persistência após recarga. B ficou sem formulários. Banco confirmou coleta fechada, zero respostas e trilha de edição. [Evidência e reversão](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).
+
 ## 06/11/2026 — Preparação da homologação de Forms
 
 - Guarda compartilhada separada das operações de projeto. Lote Forms com ordem, escopo A/B e rollback próprio documentados. O CALI MAPA foi consultado em leitura, incluindo corpos e permissões das RPCs de Mapa de People. [Lote Forms](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa) · [Mapa](flows/FORMS_PEOPLE_PROFILE.md#mapa-de-people-no-catálogo-hospedado-em-06112026).
