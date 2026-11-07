@@ -4,6 +4,7 @@ set local lock_timeout='5s';
 drop function if exists cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer);
 drop function if exists cali_workspace.v2_complete_pilot_appointment(uuid,uuid);
 drop function if exists cali_workspace.v2_mark_pilot_appointment_absent(uuid,uuid,uuid,text,boolean,text);
+drop function if exists cali_workspace.v2_offer_pilot_appointment_replacement(uuid,uuid,uuid,uuid,timestamp without time zone,text);
 drop function if exists cali_session_guard.phase4_record_appointment_outcome(uuid,uuid,uuid,text,boolean,text);
 drop function if exists cali_workspace.v2_request_pilot_agenda_change(uuid,uuid,uuid,text,text,jsonb);
 drop function if exists cali_workspace.v2_list_pilot_appointments(uuid,integer);

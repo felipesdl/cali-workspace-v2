@@ -32,6 +32,8 @@ No piloto, [comentários e reações](../contracts/PHASE_4_READ.md#interações-
 
 ## FLOW-15 — Administrar equipe CALI e decidir submissões
 
+O piloto V2 inclui consulta de atribuições por empresa, com Admin e MFA. [Projeção e prova local](../contracts/PHASE_4_READ.md#equipe-cali-por-empresa).
+
 **Objetivo/atores/entrada:** Admin em `/admin/equipe-cali` cadastra Partner, atribui empresas/módulos, convida e decide itens enviados. Operação detalhada do papel Partner não integra a matriz Cliente/Admin solicitada; sua administração e efeitos em Cliente integram esta ficha.
 
 **Fontes:** [staff/RLS](SOURCES.md#staff), [Admin UI](SOURCES.md#staff-ui), [convite EDGE](SOURCES.md#staff-invite), [decisão de horas](SOURCES.md#staff-review), [timer Partner posterior](SOURCES.md#hour-idle).

@@ -122,6 +122,7 @@ export function AgendaActions({
         const offer = admin && item.status === 'submitted';
         const confirm = !admin && item.status === 'client_review';
         const absenceEventId = admin ? item.absenceEventId : null;
+        const replacementEventId = admin ? item.replacementEventId : null;
         const options = offer ? item.requested_slots : item.admin_proposed_slots;
         return (
           <article
@@ -134,9 +135,39 @@ export function AgendaActions({
               {item.request_mode === 'remote' ? 'Online' : 'Presencial'}
             </p>
             {item.meetingAt && item.status !== 'cancelled' && (
-              <p>{formatServerInstant(item.meetingAt)} (Brasília)</p>
+              <p>
+                {item.replacementPending && 'Horário anterior · '}
+                {formatServerInstant(item.meetingAt)} (Brasília)
+              </p>
             )}
             <AgendaParticipants people={item.participants} />
+            {replacementEventId && (
+              <ActionForm
+                label="Oferecer horário de reposição"
+                submit={async (fields, request) =>
+                  refresh(
+                    await agenda.offerReplacement(
+                      company,
+                      item.id,
+                      replacementEventId,
+                      request,
+                      read(fields, 'start'),
+                      read(fields, 'note'),
+                    ),
+                  )
+                }
+              >
+                {(prefix) => (
+                  <>
+                    <Field id={prefix + 'start'} label="Início da reposição (Brasília)">
+                      <input id={prefix + 'start'} name="start" type="datetime-local" required />
+                    </Field>
+                    <AppointmentNote prefix={prefix} />
+                    <p>A reposição tem a mesma duração do encontro anterior.</p>
+                  </>
+                )}
+              </ActionForm>
+            )}
             {admin && item.canComplete && (
               <ActionForm
                 label="Registrar reunião realizada"
@@ -252,7 +283,7 @@ export function AgendaActions({
                 )}
               </ActionForm>
             )}
-            {offer && (
+            {(offer || replacementEventId) && (
               <ActionForm
                 label="Recusar solicitação"
                 submit={async (fields) =>

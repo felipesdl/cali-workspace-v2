@@ -264,6 +264,15 @@ const adminChildren = [
   }),
   createRoute({
     getParentRoute: () => adminRoute,
+    path: 'equipe-cali',
+    validateSearch: workspaceSearch,
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/WorkspaceRead'),
+      'AdminStaffRosterPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => adminRoute,
     path: 'satisfacao',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(

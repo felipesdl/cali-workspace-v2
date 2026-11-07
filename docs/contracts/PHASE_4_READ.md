@@ -424,3 +424,19 @@ Em 07/11/2026, instalou-se apenas o leitor para Admin com MFA e A/B. No navegado
 No preflight hospedado em leitura, `notice_comments` tinha RLS ativo e duas políticas de leitura aplicáveis. A chave única de capacidade por empresa e mês e a rotina legada de resultado da Agenda estavam presentes. Não havia reunião sintética passada e confirmada em A/B.
 
 Este lote tem validação local. A DEC-28 condiciona novas migrations hospedadas à preservação e restauração isolada validadas. Para a moderação, a reversão operacional retira a RPC de escrita e mantém a leitura filtrada e a policy restritiva. Remover o filtro sem restaurar os comentários tornaria visíveis textos já ocultados. O rollback de Agenda preserva os resultados registrados. A retirada de `v2_set_pilot_capacity_pause` desativa o controle de Horas e mantém a decisão mensal gravada. As projeções de Projetos, Relatórios e Frentes são aditivas e compatíveis com as respostas anteriores.
+
+## Reposição de reunião ordinária
+
+Na V2, Admin com MFA oferece reposição para reunião contratual marcada como não realizada, quando a regra de resultado permite reposição. O horário é informado em Brasília. A operação mantém duração e condições contratuais, recusa conflito e registra a oferta no pedido existente. Cliente confirma pelo fluxo de Agenda. Na confirmação, o servidor confere se a sessão contratual já está reservada no mês de destino. O novo evento é separado e o anterior permanece no calendário e no histórico como não realizado. O motivo interno fica restrito.
+
+O PostgreSQL descartável comprovou empresa divergente, horário passado, reenvio do mesmo pedido, duração preservada, confirmação do Cliente, recusa por sessão já reservada e histórico preservado. A reversão retira a operação da V2 e preserva os registros. Instalação, prova A/B no navegador e sincronização externa seguem pendentes.
+
+## Equipe CALI por empresa
+
+`/admin/equipe-cali` consulta a equipe atribuída à empresa piloto selecionada. O servidor exige Admin com MFA, pagina a resposta e retorna nome, situação, convite, módulos e data de atribuição. A consulta omite e-mails e identidade do Auth. O PostgreSQL descartável comprovou a fronteira de empresa e a recusa para Cliente e Admin sem MFA. O preflight em leitura encontrou zero atribuições nas duas empresas piloto. A homologação hospedada precisa de uma atribuição sintética. A reversão remove a consulta; cadastro, atribuição, convite, revogação e decisão de submissões continuam em recortes próprios.
+
+## Acervo legado de entregáveis
+
+A consulta ao CALI MAPA identificou três arquivos ligados a entregáveis, com vínculo de empresa/projeto e objeto correspondente no Storage. Um PDF está publicado para o Cliente, um PDF está arquivado e privado, e um DOCX está arquivado e privado. Todos têm até 2 MiB. Nenhum pertence a A/B. O inventário não transferiu arquivos. A migração deve preservar a situação de publicação, a versão e o histórico e ter escopo definido; a validação com A/B pode usar arquivos sintéticos próprios.
+
+O preflight também confirmou que as RPCs V2 de leitura, escopo e edição de Propostas ainda não estão no CALI MAPA. A prova de edição e aprovação fica para depois da instalação e usa uma oportunidade sintética com a mesma identidade autorizada no Portal e na V2.

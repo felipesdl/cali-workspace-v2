@@ -13,6 +13,9 @@ declare
   past_appointment uuid := gen_random_uuid();
   absent_meeting uuid := gen_random_uuid();
   absent_appointment uuid := gen_random_uuid();
+  replacement_request uuid := gen_random_uuid();
+  replacement_reservation uuid := gen_random_uuid();
+  replacement_start timestamp := (current_date+30)+time '10:00';
   current_at timestamptz := (current_date+8+time '10:00') at time zone 'America/Sao_Paulo';
   choice_day date := (select min(current_date+n) from generate_series(12,20) n where extract(isodow from current_date+n)<6);
   choices jsonb := jsonb_build_array(
@@ -155,8 +158,57 @@ begin
   assert exists(select 1 from jsonb_array_elements(cali_workspace.v2_list_pilot_appointments(a,1)) item
     where item->>'id'=absent_appointment::text and item->>'status'='reschedule_review');
   assert cali_workspace.v2_list_pilot_appointments(a,1)::text not like '%Motivo reservado%';
+  assert exists(select 1 from jsonb_array_elements(cali_workspace.v2_read_pilot_catalog(
+    a,'calendar',date_trunc('month',(now()-interval '2 hours') at time zone 'America/Sao_Paulo')::date,1)->'entries') item
+    where item->>'id'=absent_meeting::text and item->>'status'='not_occurred');
+  assert cali_workspace.v2_read_pilot_catalog(
+    a,'calendar',date_trunc('month',(now()-interval '2 hours') at time zone 'America/Sao_Paulo')::date,1)::text not like '%Motivo reservado%';
   reset role;
   assert (select count(*) from cali_workspace.event_outcomes where event_id=absent_meeting and outcome='not_occurred')=1;
+  set local role authenticated;
+  perform cali_workspace.fixture_as('admin');
+  assert exists(select 1 from jsonb_array_elements(cali_workspace.v2_list_pilot_appointments(a,1)) item
+    where item->>'replacementEventId'=absent_meeting::text);
+  begin
+    perform cali_workspace.v2_offer_pilot_appointment_replacement(b,absent_appointment,absent_meeting,
+      gen_random_uuid(),replacement_start,'Reposição de outra empresa');
+    raise exception 'Reposição cruzada';
+  exception when insufficient_privilege then null; end;
+  begin
+    perform cali_workspace.v2_offer_pilot_appointment_replacement(a,absent_appointment,absent_meeting,
+      gen_random_uuid(),now()::timestamp-interval '1 hour','Opção expirada');
+    raise exception 'Reposição no passado';
+  exception when invalid_parameter_value then null; end;
+  assert cali_workspace.v2_offer_pilot_appointment_replacement(a,absent_appointment,absent_meeting,
+    replacement_request,replacement_start,'Horário de reposição')=absent_appointment;
+  assert cali_workspace.v2_offer_pilot_appointment_replacement(a,absent_appointment,absent_meeting,
+    replacement_request,replacement_start,'Horário de reposição')=absent_appointment;
+  perform cali_workspace.fixture_as('clientA');
+  assert exists(select 1 from jsonb_array_elements(cali_workspace.v2_list_pilot_appointments(a,1)) item
+    where item->>'id'=absent_appointment::text and item->>'status'='client_review'
+      and item->>'replacementEventId' is null and item->>'replacementPending'='true'
+      and ((item#>>'{admin_proposed_slots,0,endsAt}')::timestamptz
+        -(item#>>'{admin_proposed_slots,0,startsAt}')::timestamptz)=interval '1 hour');
+  reset role;
+  insert into cali_workspace.scheduling_requests(id,company_id,title,request_mode,status,requested_slots,
+      meeting_entitlement,contract_session_number)
+    values(replacement_reservation,a,'Outra reserva do mesmo mês','remote','submitted',
+      jsonb_build_array(jsonb_build_object('startsAt',replacement_start at time zone 'America/Sao_Paulo')),
+      'contractual',1);
+  set local role authenticated;
+  begin
+    perform cali_workspace.v2_respond_pilot_appointment(a,absent_appointment,'confirm',null,0);
+    raise exception 'Reposição consumiu sessão já reservada';
+  exception when serialization_failure then null; end;
+  reset role;
+  update cali_workspace.scheduling_requests set status='declined' where id=replacement_reservation;
+  set local role authenticated;
+  assert cali_workspace.v2_respond_pilot_appointment(a,absent_appointment,'confirm',null,0)=absent_appointment;
+  reset role;
+  assert exists(select 1 from cali_workspace.scheduling_requests r join cali_workspace.events e on e.id=r.confirmed_event_id
+    where r.id=absent_appointment and r.status='confirmed' and e.id<>absent_meeting
+      and e.starts_at=(replacement_start at time zone 'America/Sao_Paulo'));
+  assert exists(select 1 from cali_workspace.event_outcomes where event_id=absent_meeting and outcome='not_occurred');
 end $$;
 rollback;
-\echo Fase 4: pedido, remarcação, cancelamento e realização de reunião ordinária validados no piloto isolado.
+\echo Fase 4: pedido, remarcação, cancelamento, resultado e reposição de reunião ordinária validados no piloto isolado.

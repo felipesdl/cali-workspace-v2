@@ -49,6 +49,8 @@ const appointments = z.array(
     canRequestChange: z.boolean().optional(),
     canComplete: z.boolean().optional(),
     absenceEventId: z.uuid().nullish(),
+    replacementEventId: z.uuid().nullish(),
+    replacementPending: z.boolean().optional(),
     latestChange: change.nullable().optional(),
   }),
 );
@@ -170,6 +172,27 @@ export function createAgendaOperations(client: WorkspaceClient) {
         throw new Error('Confira o horário e a situação atual da reunião.');
       if (error) throw new Error('Não foi possível registrar a realização.');
       return z.literal(id).parse(data);
+    },
+    async offerReplacement(
+      company: string,
+      appointment: string,
+      event: string,
+      requestId: string,
+      start: string,
+      note: string,
+    ) {
+      const { data, error } = await client.rpc('v2_offer_pilot_appointment_replacement', {
+        p_company_id: company,
+        p_appointment_id: appointment,
+        p_event_id: event,
+        p_request_id: requestId,
+        p_start: localSlot.shape.start.parse(start),
+        p_note: z.string().trim().max(2000).parse(note),
+      });
+      if (error?.code === '40001')
+        throw new Error('Confira a situação do pedido e a cobertura do horário escolhido.');
+      if (error) throw new Error('Não foi possível oferecer a reposição.');
+      return z.literal(appointment).parse(data);
     },
     async markAbsent(
       company: string,

@@ -1,13 +1,10 @@
 -- Dependências sintéticas do contrato legado. Nenhuma comunicação externa.
 alter table cali_workspace.events add column source_type text,add column source_entity_id uuid,
-  add column schedule_class text not null default 'contractual';
-create table cali_workspace.event_outcomes(
-  event_id uuid primary key,company_id uuid,outcome text,reason_category text,justified boolean,note text
-);
+  add column schedule_class text not null default 'contractual',add column contract_session_number integer;
 create function cali_workspace.admin_mark_scheduling_event_outcome_v1(uuid,text,text,boolean,text,boolean)
 returns jsonb language sql as $$
- insert into cali_workspace.event_outcomes(event_id,company_id,outcome,reason_category,justified,note)
- select e.id,e.company_id,$2,$3,$4,$5 from cali_workspace.events e where e.id=$1;
+ insert into cali_workspace.event_outcomes(event_id,company_id,outcome,reason_category,justified,note,replacement_allowed)
+ select e.id,e.company_id,$2,$3,$4,$5,($2='not_occurred' and $4) from cali_workspace.events e where e.id=$1;
  update cali_workspace.scheduling_requests r set status=case
    when $2='occurred' then 'completed' when $4 then 'reschedule_review' else 'not_occurred' end
  from cali_workspace.events e where e.id=$1 and r.id=e.source_entity_id
@@ -17,7 +14,10 @@ $$;
 alter table cali_workspace.scheduling_requests add column online_extra_requested boolean not null default false,
   add column extra_visit_fee_cents integer,add column online_extra_quote_cents integer,
   add column billing_acknowledged_at timestamptz,add column online_extra_quote_accepted_at timestamptz,
-  add column extra_visit_cancellation_fee_cents integer;
+  add column extra_visit_cancellation_fee_cents integer,
+  add column meeting_entitlement text,add column contract_session_number integer,add column selected_slot jsonb;
+create or replace function cali_workspace.resolve_meeting_entitlement_v66(uuid,text,timestamptz,uuid)
+returns jsonb language sql as $$ select '{"billable":false,"sessionNumber":1}'::jsonb $$;
 create table cali_workspace.event_attendees(
   id uuid primary key default gen_random_uuid(),event_id uuid,company_id uuid,name text,email text,
   attendee_type text,status text,created_at timestamptz not null default clock_timestamp()

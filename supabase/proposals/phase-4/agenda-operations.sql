@@ -18,6 +18,13 @@ begin
         r.request_mode,r.created_at,r.admin_note,r.requested_slots,r.admin_proposed_slots,
         case when e.cancelled_at is null then e.sync_status end as sync_status,
         e.starts_at as "meetingAt",
+        coalesce(outcome.outcome='not_occurred' and outcome.replacement_allowed
+          and r.status in ('reschedule_review','client_review'),false) as "replacementPending",
+        case when admin and r.status='reschedule_review' and outcome.outcome='not_occurred'
+          and outcome.replacement_allowed and e.cancelled_at is null and e.schedule_class='contractual'
+          and e.source_type='scheduling_request' and e.source_entity_id=r.id
+          and to_regprocedure('cali_workspace.v2_offer_pilot_appointment_replacement(uuid,uuid,uuid,uuid,timestamp without time zone,text)') is not null
+          then e.id end as "replacementEventId",
         coalesce((select jsonb_agg(jsonb_build_object('id',a.id,'name',a.name,
             'role',a.attendee_type,'status',a.status) order by a.created_at,a.id)
           from cali_workspace.event_attendees a where a.event_id=e.id and a.company_id=r.company_id
@@ -32,6 +39,7 @@ begin
         case when c.id is not null then jsonb_build_object('id',c.id,'action',c.action,'status',c.status,
           'reason',c.reason,'slots',c.slots,'note',c.decision_note) end as "latestChange" from cali_workspace.scheduling_requests r
       left join cali_workspace.events e on e.id=r.confirmed_event_id and e.company_id=r.company_id
+      left join cali_workspace.event_outcomes outcome on outcome.event_id=e.id and outcome.company_id=e.company_id
       left join lateral (
         select * from cali_workspace.agenda_change_requests x where x.event_id=e.id and x.company_id=e.company_id
         order by (x.status='pending') desc,x.created_at desc,x.id limit 1
@@ -50,7 +58,7 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_request_pilot_appointment(
+create or replace function cali_workspace.v2_request_pilot_appointment(
   p_company_id uuid,p_request_id uuid,p_mode text,p_title text,p_purpose text,p_location text,p_slots jsonb
 )
 returns uuid language plpgsql security definer set search_path = ''
@@ -126,7 +134,11 @@ begin
   if not found then raise exception using errcode='42501', message='Solicitação indisponível.'; end if;
 
   if (p_action='confirm' and appointment.status<>'client_review')
-    or (p_action<>'confirm' and appointment.status<>'submitted') then
+    or (p_action<>'confirm' and appointment.status<>'submitted'
+      and not (p_action='decline' and appointment.status='reschedule_review' and exists(
+        select 1 from cali_workspace.event_outcomes o where o.event_id=appointment.confirmed_event_id
+          and o.company_id=p_company_id and o.outcome='not_occurred' and o.replacement_allowed
+      ))) then
     raise exception using errcode='40001', message='A solicitação mudou de estado.';
   end if;
   if p_action='decline' then
@@ -150,6 +162,27 @@ begin
     resolution := cali_workspace.resolve_meeting_entitlement_v66(p_company_id,appointment.request_mode,begins,p_appointment_id);
     if (resolution->>'billable')::boolean is distinct from false then
       raise exception using errcode='40001', message='As condições do encontro mudaram.';
+    end if;
+    if exists(select 1 from cali_workspace.event_outcomes o
+      where o.event_id=appointment.confirmed_event_id and o.company_id=p_company_id
+        and o.outcome='not_occurred' and o.replacement_allowed)
+      and coalesce(resolution->>'sessionNumber','') <> ''
+      and (
+        exists(select 1 from cali_workspace.events e
+          where e.company_id=p_company_id and e.cancelled_at is null and e.schedule_class='contractual'
+            and e.contract_session_number=(resolution->>'sessionNumber')::integer
+            and date_trunc('month',e.starts_at at time zone 'America/Sao_Paulo')=
+              date_trunc('month',begins at time zone 'America/Sao_Paulo')
+            and (e.source_type is distinct from 'scheduling_request' or e.source_entity_id is distinct from p_appointment_id))
+        or exists(select 1 from cali_workspace.scheduling_requests r
+          where r.company_id=p_company_id and r.id<>p_appointment_id and r.confirmed_event_id is null
+            and r.meeting_entitlement='contractual' and r.status in ('submitted','client_review','confirmed','reschedule_review')
+            and r.contract_session_number=(resolution->>'sessionNumber')::integer
+            and date_trunc('month',coalesce(
+              (r.selected_slot->>'startsAt')::timestamptz,(r.requested_slots->0->>'startsAt')::timestamptz
+            ) at time zone 'America/Sao_Paulo')=date_trunc('month',begins at time zone 'America/Sao_Paulo'))
+      ) then
+      raise exception using errcode='40001',message='A sessão contratual já está ocupada no mês.';
     end if;
     perform cali_workspace.client_accept_scheduling_proposal_v2(p_appointment_id,p_index,false);
   end if;

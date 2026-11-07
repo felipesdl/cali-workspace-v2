@@ -198,6 +198,66 @@ revoke all on function cali_workspace.v2_mark_pilot_appointment_absent(uuid,uuid
 grant execute on function cali_workspace.v2_mark_pilot_appointment_absent(uuid,uuid,uuid,text,boolean,text)
   to authenticated;
 
+create or replace function cali_workspace.v2_offer_pilot_appointment_replacement(
+  p_company_id uuid,p_appointment_id uuid,p_event_id uuid,p_request_id uuid,
+  p_start timestamp without time zone,p_note text
+)
+returns uuid language plpgsql security definer set search_path=''
+as $$
+declare
+  actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
+  signature bytea;
+  saved uuid;
+  original cali_workspace.events%rowtype;
+  begins timestamptz := p_start at time zone 'America/Sao_Paulo';
+  ends timestamptz;
+  mode text;
+begin
+  if p_request_id is null or p_event_id is null or p_start is null or not isfinite(p_start)
+    or length(btrim(p_note))>2000 then
+    raise exception using errcode='22023',message='Confira o horário da reposição.';
+  end if;
+  signature := sha256(convert_to(jsonb_build_array('agenda-replacement',p_appointment_id,
+    p_event_id,p_start,btrim(p_note))::text,'UTF8'));
+  perform pg_advisory_xact_lock(hashtextextended('phase4-agenda:'||p_company_id::text,0));
+  saved := cali_session_guard.read_phase4_receipt(actor,p_company_id,p_request_id,signature);
+  if saved is not null then return saved; end if;
+
+  select e.* into original from cali_workspace.events e
+  join cali_workspace.event_outcomes o on o.event_id=e.id and o.company_id=e.company_id
+  where e.id=p_event_id and e.company_id=p_company_id and e.event_type='meeting'
+    and e.visibility='client' and e.schedule_class='contractual' and e.cancelled_at is null
+    and e.source_type='scheduling_request' and e.source_entity_id=p_appointment_id
+    and o.outcome='not_occurred' and o.replacement_allowed for update of e;
+  if not found then raise exception using errcode='42501',message='Reposição indisponível.'; end if;
+  select r.request_mode into mode from cali_workspace.scheduling_requests r
+  where r.id=p_appointment_id and r.company_id=p_company_id and r.confirmed_event_id=original.id
+    and r.status='reschedule_review' and not (r.extra_visit or r.billable_extra or r.urgency_fee_applies
+      or r.online_extra_requested) for update;
+  if not found then raise exception using errcode='40001',message='A solicitação mudou de estado.'; end if;
+
+  ends := begins+(original.ends_at-original.starts_at);
+  if begins<=now() or ends is null or not isfinite(ends) or ends<=begins then
+    raise exception using errcode='22023',message='Horário indisponível.';
+  end if;
+  if exists(select 1 from cali_workspace.events e where e.company_id=p_company_id and e.cancelled_at is null
+    and e.starts_at<ends and coalesce(e.ends_at,e.starts_at)>begins)
+    or (cali_workspace.resolve_meeting_entitlement_v66(p_company_id,mode,begins,p_appointment_id)->>'billable')::boolean
+      is distinct from false then
+    raise exception using errcode='40001',message='Horário ocupado ou fora da cobertura contratual.';
+  end if;
+  perform cali_workspace.admin_respond_scheduling_request_v1(p_appointment_id,
+    jsonb_build_array(jsonb_build_object('startsAt',begins,'endsAt',ends)),btrim(p_note),false);
+  insert into cali_session_guard.phase4_operation_receipts values(actor,p_company_id,p_request_id,signature,p_appointment_id);
+  return p_appointment_id;
+end;
+$$;
+
+revoke all on function cali_workspace.v2_offer_pilot_appointment_replacement(uuid,uuid,uuid,uuid,timestamp without time zone,text)
+  from public,anon,authenticated,service_role;
+grant execute on function cali_workspace.v2_offer_pilot_appointment_replacement(uuid,uuid,uuid,uuid,timestamp without time zone,text)
+  to authenticated;
+
 revoke all on function cali_workspace.v2_request_pilot_agenda_change(uuid,uuid,uuid,text,text,jsonb),
   cali_workspace.v2_decide_pilot_agenda_change(uuid,uuid,boolean,text,integer),
   cali_workspace.v2_complete_pilot_appointment(uuid,uuid)

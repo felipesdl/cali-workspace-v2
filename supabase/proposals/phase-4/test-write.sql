@@ -207,6 +207,7 @@ rollback;
 grant usage on schema cali_workspace to service_role;
 \ir test-report-release.sql
 \ir test-admin-read.sql
+\ir test-staff-roster.sql
 \ir test-commercial-draft.sql
 \ir test-satisfaction.sql
 \ir test-data-lifecycle-read.sql

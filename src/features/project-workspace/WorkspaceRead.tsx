@@ -65,6 +65,7 @@ const adminHours = getRouteApi('/admin/horas');
 const adminPrivacy = getRouteApi('/admin/privacidade');
 const adminForms = getRouteApi('/admin/formularios');
 const adminAudit = getRouteApi('/admin/auditoria');
+const adminStaffRoster = getRouteApi('/admin/equipe-cali');
 const adminSatisfaction = getRouteApi('/admin/satisfacao');
 const adminCommercial = getRouteApi('/admin/propostas');
 const clientHours = getRouteApi('/cliente/horas');
@@ -980,6 +981,66 @@ function AdminCommercial({ search, update }: Props) {
         </>
       )}
     </div>
+  );
+}
+
+const staffInvitationLabels = {
+  not_invited: 'Convite pendente de envio',
+  invited: 'Convite enviado',
+  accepted: 'Convite aceito',
+};
+
+export function AdminStaffRosterPage() {
+  const { adminRead } = useRouteContext({ from: '__root__' });
+  const search = adminStaffRoster.useSearch();
+  const navigate = adminStaffRoster.useNavigate();
+  const { companyId, actor, admin } = useScope(search);
+  const update: Props['update'] = (change) => void navigate({ search: { ...search, ...change } });
+  const result = useQuery({
+    queryKey: ['phase4-staff-roster', actor, companyId, search.page],
+    queryFn:
+      admin && adminRead && companyId
+        ? ({ signal }) => adminRead.staffRoster(companyId, search.page, signal)
+        : skipToken,
+  });
+  if (!admin || !adminRead) return null;
+
+  return (
+    <section className="tw:grid tw:gap-4" aria-label="Equipe CALI vinculada à empresa">
+      <CompanySelect search={search} update={update} />
+      {!companyId ? (
+        <FeedbackState kind="empty">Selecione uma empresa.</FeedbackState>
+      ) : result.isPending ? (
+        <FeedbackState kind="loading">Carregando vínculos da equipe…</FeedbackState>
+      ) : result.isError ? (
+        <FeedbackState kind="error" onRetry={() => void result.refetch()}>
+          Não foi possível consultar a equipe CALI.
+        </FeedbackState>
+      ) : (
+        <>
+          {result.data.entries.length ? (
+            <ul className="tw:grid tw:gap-3">
+              {result.data.entries.map((member) => (
+                <li key={member.id} className={panel}>
+                  <h2 className="tw:font-semibold">{member.name ?? 'Nome não informado'}</h2>
+                  <p>
+                    {member.active ? 'Ativo' : 'Inativo'} ·{' '}
+                    {staffInvitationLabels[member.invitation]}
+                  </p>
+                  <p>Módulos · {member.modules?.join(', ') || 'Sem módulos atribuídos'}</p>
+                  {member.assignedAt && (
+                    <p>Vínculo desde {formatServerInstant(member.assignedAt)} (Brasília)</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <FeedbackState kind="empty">Nenhum membro vinculado nesta página.</FeedbackState>
+          )}
+          <Pages total={result.data.total} search={search} update={update} />
+        </>
+      )}
+    </section>
   );
 }
 

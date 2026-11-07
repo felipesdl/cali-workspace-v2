@@ -51,4 +51,6 @@ A agenda ordinária V2 foi homologada no CALI MAPA: solicitação, oferta, confi
 
 A V2 inclui o registro de realização de reunião ordinária após o fim do compromisso, validado no PostgreSQL descartável. Admin registra, Cliente consulta a situação. [Contrato e limites](../contracts/PHASE_4_READ.md#registro-de-realização-de-reunião-ordinária).
 
+Quando o resultado admite reposição, Admin oferece horário e Cliente confirma. O horário mantém a duração e precisa ter sessão contratual disponível no mês de destino. A reunião anterior fica no histórico. [Contrato e prova local](../contracts/PHASE_4_READ.md#reposição-de-reunião-ordinária).
+
 O piloto consulta os participantes da reunião ordinária com a visibilidade do evento e mostra os pedidos extras em uma lista separada, com valores e aceites registrados. Alteração de convidados e transições comerciais de extras continuam em recortes próprios. [Contrato e evidência das consultas](../contracts/PHASE_4_READ.md#participantes-e-encontros-adicionais-no-cali-mapa).

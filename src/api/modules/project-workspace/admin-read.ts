@@ -37,6 +37,18 @@ const auditEvents = [
 export type AuditEvent = (typeof auditEvents)[number];
 
 const page = z.object({ companyId: z.uuid(), total: z.number().int().nonnegative() });
+const staffRoster = page.extend({
+  entries: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string().nullable(),
+      active: z.boolean(),
+      modules: z.array(z.string()).nullable(),
+      invitation: z.enum(['not_invited', 'invited', 'accepted']),
+      assignedAt: z.iso.datetime({ offset: true }).nullable(),
+    }),
+  ),
+});
 const counter = z.number().int().nonnegative();
 const summaryBlock = z.object({
   total: counter,
@@ -156,6 +168,15 @@ const commercialDraft = z.object({
 type CommercialDraftChange = { paymentTerms: string; publicNotes: string; validityDays: number };
 export function createAdminRead(client: WorkspaceClient) {
   return {
+    async staffRoster(company: string, page: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_staff_roster', { p_company_id: company, p_page: page })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar a equipe CALI.');
+      const result = staffRoster.parse(data);
+      if (result.companyId !== company) throw new Error('Contexto divergente.');
+      return result;
+    },
     async dailyPreview(signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_read_pilot_admin_daily_preview')

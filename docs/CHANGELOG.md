@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## Reposição, consulta de Equipe CALI e ensaio de recuperação
+
+- Admin oferece reposição contratual e Cliente confirma. O banco recusa sessão já reservada e mantém a reunião anterior no histórico. Equipe CALI ganhou consulta paginada por empresa. Os dois fluxos passaram no PostgreSQL descartável e aguardam homologação hospedada. [Reposição](contracts/PHASE_4_READ.md#reposição-de-reunião-ordinária) · [Equipe CALI](contracts/PHASE_4_READ.md#equipe-cali-por-empresa).
+- Inventário hospedado encontrou três arquivos legados fora de A/B e confirmou que as RPCs V2 de Propostas ainda precisam ser instaladas. [Acervo e preflight](contracts/PHASE_4_READ.md#acervo-legado-de-entregáveis).
+- O ensaio DEC-28 restaurou fixtures em segundo cluster e conferiu dados, grants, função e arquivo por SHA-256. A prova com a captura do CALI MAPA continua pendente. [Recuperação](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+
 ## Complementos locais da fase 4
 
 - Projetos indica revisão vencida e mantém a resposta aberta. Horas registra pausa por capacidade e retomada no mês. Agenda registra não realização e encaminha reposição conforme a regra legada. Avisos permite ocultar e restaurar comentários com auditoria. Relatórios mostra contagens das fontes para Admin. Frentes indica modalidades com vaga em uso. [Contratos, testes e pendências](contracts/PHASE_4_READ.md#complementos-locais-da-fase-4).

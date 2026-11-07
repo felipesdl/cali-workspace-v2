@@ -19,9 +19,11 @@ begin
   return (
     with matched as (
       select e.id,e.title,e.protocol,
-        case when e.cancelled_at is null then e.event_type else 'cancelled' end as status,
+        case when e.cancelled_at is not null then 'cancelled'
+          when o.outcome in ('occurred','not_occurred') then o.outcome else e.event_type end as status,
         e.starts_at as instant,null::date as day,null::text as summary,false as "acknowledgmentAvailable",null::boolean as "noticeAcknowledged",false as "noticeEditable",null::timestamptz as "reportUpdatedAt",null::jsonb as "frontTerms"
       from cali_workspace.events e
+      left join cali_workspace.event_outcomes o on o.event_id=e.id and o.company_id=e.company_id
       where p_module='calendar' and e.company_id=p_company_id
         and e.starts_at < ((p_month+interval '1 month') at time zone 'America/Sao_Paulo')
         and (e.starts_at >= (p_month::timestamp at time zone 'America/Sao_Paulo')

@@ -31,6 +31,8 @@ const labels: Readonly<Record<string, string>> = {
   sent: 'Disponibilizado',
   archived: 'Arquivado',
   meeting: 'Reunião',
+  occurred: 'Realizado',
+  not_occurred: 'Não realizado',
   ended: 'Encerrada',
 };
 export const workspaceLabel = (status: string) => labels[status] ?? status;

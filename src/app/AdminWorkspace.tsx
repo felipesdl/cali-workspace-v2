@@ -26,7 +26,9 @@ export function AdminWorkspace() {
         ? 'Auditoria'
         : pathname === '/admin/propostas'
           ? 'Propostas'
-          : null);
+          : pathname === '/admin/equipe-cali'
+            ? 'Equipe CALI'
+            : null);
   const operationsTitle =
     adminReadTitle ||
     (projectWorkspace &&
