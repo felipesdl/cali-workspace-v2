@@ -19,7 +19,7 @@ A empresa de Cliente vem da sessão, nunca do filtro da URL. Admin escolhe uma d
 - O corpo instalado de abertura e o de resolução de ajuste calculam `now() + 24h × client_response_business_days`, padrão 3: **72 horas corridas** no padrão. O ajuste v39 exige revisão pendente e permite pedidos nas rodadas 1 e 2. O timestamp não funciona como bloqueio de prazo nessa RPC. Reagendamento exige data; troca exige outro entregável do projeto com complexidade equivalente.
 - Compartilhar cronograma já insere notificações com `email_required=true`; o gatilho de movimento também pode marcar e-mail no compartilhamento e na aprovação. Exercitar o fluxo exige separar o transporte no ambiente de teste e conferir duplicidade. UPDATE direto não substitui as guardas das operações.
 - A RPC legada de mudança de status não reabre entregável aprovado. A de relatório v63 só aceita relatório ainda não visto, arquiva o anterior e cria outro registro. Ambas precisam de caminho V2 conforme DEC-06/11/12, com histórico e visibilidade por revisão.
-- Horas para Cliente combinam permissão por mês, publicação do lançamento e projeto operacional. A soma implementada usa exatamente esses lançamentos; preço, saldo e capacidade seguem nos contratos próprios.
+- Horas para Cliente combinam permissão por mês, publicação do lançamento e projeto operacional. A soma do extrato usa exatamente os lançamentos exibíveis. A capacidade usa o consumo operacional agregado, conforme o contrato abaixo.
 
 ## Validação e reversão
 
@@ -174,3 +174,9 @@ O catálogo do CALI MAPA confirmou que `capacity_month` usa a franquia do ciclo 
 A tela separa capacidade mensal e extrato. O extrato mantém o total dos lançamentos que aquele perfil pode listar. A consulta agrega os minutos operacionais sem copiar descrições ou justificativas internas. A resposta anterior da RPC continua compatível com a tela.
 
 O PostgreSQL descartável confirmou mês oculto, fronteira A/B, consumo com horas internas agregadas, saldo, excedente e ausência de franquia. A instalação proposta consiste somente em `read-hours.sql`. O preflight confirmou as dependências e a ausência de `v2_read_pilot_hours` no CALI MAPA. Para homologar, instalar essa RPC e conferir um mês visível e um oculto com Cliente A, além da leitura Admin em A/B. A reversão deste lote remove apenas `cali_workspace.v2_read_pilot_hours(uuid,date,integer)` e recarrega o catálogo PostgREST. A prova no navegador hospedado continua pendente.
+
+## Lote de leitura para homologação A/B
+
+O preflight no CALI MAPA conferiu as colunas e os tipos de Projetos, Horas e dos catálogos, os sete auxiliares de sessão e visibilidade e a ausência das quatro RPCs V2. A ordem proposta é `read-projects.sql`, `read-hours.sql` e `read-catalogs.sql`, em uma transação. O lote cria as funções de consulta e concede execução a `authenticated`. Cada função confere sessão, empresa piloto e papel antes de projetar o resultado.
+
+A prova usa a V2 local com a flag de leitura. Com Admin, consultar A e B. Com Cliente, conferir a empresa da sessão, o mês de Horas oculto, os estados vazios e as projeções permitidas. Nos catálogos, conferir Projetos, Agenda, Ocorrências, Documentos, Avisos, Relatórios e Frentes. A prova usa os dados sintéticos já presentes. Depois, encerrar o servidor local. Se necessário, `rollback-read.sql` remove as quatro RPCs e recarrega o catálogo. A instalação hospedada aguarda autorização para este lote.
