@@ -27,6 +27,11 @@ const auditLabels = {
   agenda_change_requested: 'Pediu alteração de agenda',
   commercial_proposal_edited: 'Editou proposta comercial',
   commercial_proposal_approved: 'Aprovou proposta internamente',
+  form_draft_created: 'Criou rascunho de formulário',
+  form_draft_edited: 'Editou rascunho de formulário',
+  form_open: 'Abriu formulário para respostas',
+  form_closed: 'Encerrou formulário',
+  form_response_triaged: 'Registrou triagem de formulário',
   satisfaction_followup_saved: 'Registrou acompanhamento de avaliação',
   agenda_change_decided: 'Decidiu alteração de agenda',
 } as const satisfies Record<AuditEvent, string>;

@@ -31,19 +31,28 @@ begin
           'deliverable_reopened','deliverable_client_approved',
           'record_open','account_record_feedback','record_reopen_requested','record_reopen_decided',
           'agenda_change_requested','agenda_change_decided','satisfaction_followup_saved',
-          'commercial_proposal_edited','commercial_proposal_approved'
+          'commercial_proposal_edited','commercial_proposal_approved',
+          'form_draft_created','form_draft_edited','form_open','form_closed','form_response_triaged'
         )
+    ), selected as (
+      select * from filtered order by created_at desc,id desc limit 25 offset (p_page-1)*25
     ), page as (
       select f.id::text as id,f.created_at as "at",f.event_type as event,f.entity_type as "entity",
         f.entity_id as "objectId",case when f.actor_user_id is null then 'Sistema'
           else coalesce(nullif(btrim(p.full_name),''),'Usuário sem identificação') end as "actorName",
-        f.revision,coalesce(x.render_protocol,r.protocol) as protocol
-      from filtered f
+        f.revision,coalesce(pdf.protocol,r.protocol) as protocol
+      from selected f
       left join cali_workspace.profiles p on p.id=f.actor_user_id
       left join cali_workspace.reports r on f.entity_type='report' and r.id=f.entity_id and r.company_id=p_company_id
-      left join cali_session_guard.phase4_report_approvals x on x.report_id=r.id and x.company_id=p_company_id
-        and to_jsonb(x.version)=f.revision
-      order by f.created_at desc,f.id desc limit 25 offset (p_page-1)*25
+      left join lateral (
+        select a.metadata->>'protocol' as protocol
+        from cali_workspace.activity_log a
+        where f.entity_type='report' and f.revision is not null and a.company_id=p_company_id
+          and a.entity_type='report' and a.entity_id=f.entity_id and a.event_type='report_pdf_generated'
+          and a.metadata->'version'=f.revision
+          and a.metadata->>'protocol' ~ '^CALI-EXEC-[0-9]{4}-[0-9]{6}$'
+        order by a.created_at desc,a.id desc limit 1
+      ) pdf on true
     )
     select jsonb_build_object('companyId',p_company_id,'month',p_month,'total',(select count(*) from filtered),
       'entries',coalesce((select jsonb_agg(to_jsonb(page) order by "at" desc,id desc) from page),'[]'::jsonb))

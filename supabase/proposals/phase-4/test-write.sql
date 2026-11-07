@@ -7,6 +7,7 @@
 \ir read-projects.sql
 \ir read-catalogs.sql
 \ir pilot-role.sql
+\ir admin-audit-read.sql
 \ir operation-receipts.sql
 \ir forms-operations.sql
 \ir forms-draft.sql
@@ -25,7 +26,6 @@
 \ir notice-operations.sql
 \ir report-draft-operations.sql
 \ir report-release-operations.sql
-\ir admin-audit-read.sql
 \ir commercial-read.sql
 \ir commercial-draft.sql
 \ir satisfaction-operations.sql

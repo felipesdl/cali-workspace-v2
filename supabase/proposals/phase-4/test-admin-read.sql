@@ -22,7 +22,8 @@ begin
   values(a,mapped),(a,empty_opportunity);
   insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata,created_at)
   values(a,admin,'report_released_in_app','report',item,'{"version":2,"privateNote":"NOTA RESERVADA"}','2026-11-01 02:00Z'),
-    (a,admin,'report_pdf_generated','report',item,'{"version":2,"sha256":"HASH RESERVADO"}','2026-11-01 03:00Z'),
+    (a,admin,'report_pdf_generated','report',item,'{"version":2,"protocol":"CALI-EXEC-2026-000025","sha256":"HASH RESERVADO"}','2026-11-01 03:00Z'),
+    (a,admin,'form_response_triaged','form_response',gen_random_uuid(),'{"note":"RESPOSTA RESERVADA"}','2026-11-02 11:00Z'),
     (b,admin,'record_open','account_record',gen_random_uuid(),'{}','2026-11-02 11:00Z'),
     (a,admin,'unknown_internal_event','report',item,'{}','2026-11-02 11:00Z');
   set local role authenticated;
@@ -45,11 +46,14 @@ begin
   assert payload->>'total'='1';
   assert payload#>>'{entries,0,event}'='report_released_in_app';
   assert payload#>>'{entries,0,revision}'='2';
+  assert payload#>>'{entries,0,protocol}'='CALI-EXEC-2026-000025';
   assert payload#>>'{entries,0,actorName}'='Pessoa sintética';
   assert payload::text not like '%RESERVADA%';
   payload := cali_workspace.v2_read_pilot_audit(a,'2026-11-01',1);
-  assert payload->>'total'='1';
-  assert payload#>>'{entries,0,event}'='report_pdf_generated';
+  assert payload->>'total'='2';
+  assert payload#>>'{entries,0,event}'='form_response_triaged';
+  assert payload#>>'{entries,1,event}'='report_pdf_generated';
+  assert payload::text not like '%RESPOSTA RESERVADA%';
   assert payload::text not like '%RESERVADO%';
 
   payload := cali_workspace.v2_read_pilot_commercial(a,1);

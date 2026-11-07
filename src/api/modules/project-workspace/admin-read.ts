@@ -23,6 +23,11 @@ const auditEvents = [
   'satisfaction_followup_saved',
   'commercial_proposal_edited',
   'commercial_proposal_approved',
+  'form_draft_created',
+  'form_draft_edited',
+  'form_open',
+  'form_closed',
+  'form_response_triaged',
 ] as const;
 export type AuditEvent = (typeof auditEvents)[number];
 

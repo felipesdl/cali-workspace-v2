@@ -117,9 +117,9 @@ PostgreSQL descartável verificou nota inválida, avaliação de outro acesso, i
 
 Propostas consulta `public.cali_submissions` e `public.cali_proposals` apenas para oportunidades de teste inscritas explicitamente em `cali_session_guard.phase4_commercial_scope` para a empresa selecionada. A inscrição usa identificador, nunca nome, domínio ou e-mail. Cada versão exibe o valor registrado e seu estado; aprovação interna não vira aceite, e o estado do Portal não comprova o ator ou a entrega de e-mail. Briefing, contatos, notas, cálculos, arquivo e chaves de transporte não entram na projeção. Sem escrita no Portal.
 
-Auditoria consulta os eventos selecionados de `activity_log` da empresa, paginados e filtráveis por mês de Brasília. A projeção inclui evento, instante, autor e, quando disponíveis, protocolo e revisão. Metadados livres, notas e hashes ficam fora. Geração e publicação de relatório aparecem como eventos separados. Esta é uma projeção de leitura de uma fonte; não certifica imutabilidade nem substitui todas as trilhas da publicação 83.
+Auditoria consulta os eventos selecionados de `activity_log` da empresa, paginados e filtráveis por mês de Brasília. A projeção inclui evento, instante, autor e, quando disponíveis, protocolo e revisão. Metadados livres, notas e hashes ficam fora. Geração e publicação de relatório aparecem como eventos separados. Quando o PDF foi gerado, o protocolo é obtido do evento de geração da mesma empresa, relatório e revisão. Esta é uma projeção de leitura de uma fonte; não certifica imutabilidade nem substitui todas as trilhas da publicação 83.
 
-Instalar `admin-audit-read.sql` depois das propostas de relatórios. Instalar `commercial-read.sql` somente após conferir as tabelas e tipos efetivos do Portal, e cadastrar apenas as oportunidades sintéticas revisadas. As duas telas exigem Admin com MFA, empresa piloto e `VITE_CALI_PHASE4_ADMIN_READ=true` além da flag de leitura. Sem fallback a fixtures na composição hospedada. O rollback retira RPCs da V2, mantendo os dados e as inscrições.
+Instalar `admin-audit-read.sql` após a guarda de papel do piloto. Instalar `commercial-read.sql` somente após conferir as tabelas e tipos efetivos do Portal, e cadastrar apenas as oportunidades sintéticas revisadas. As duas telas exigem Admin com MFA, empresa piloto e `VITE_CALI_PHASE4_ADMIN_READ=true` além da flag de leitura. Sem fallback a fixtures na composição hospedada. O rollback retira RPCs da V2, mantendo os dados e as inscrições.
 
 PostgreSQL descartável confirmou negação a Cliente e Admin sem MFA, escopo por empresa e inscrição, versões e valor preservados, fronteira do mês em Brasília e ausência de campos privados. A validação deste leitor usou fixtures. O lote abaixo registra a inspeção do catálogo hospedado e as operações de rascunho.
 
@@ -184,3 +184,11 @@ A prova na V2 local usou a flag de leitura e as sessões Admin e Cliente A/B. Ag
 Para testar resultados positivos, um projeto identificado foi criado em A e outubro foi aberto temporariamente para Horas de A. Admin e Cliente A abriram o detalhe do projeto. Cliente B recebeu “Projeto indisponível” ao usar o mesmo identificador. Cliente A consultou o painel de outubro. O projeto e os dois registros temporários de visibilidade foram removidos, a configuração inicial foi confirmada e os servidores locais foram encerrados. Os estados com lançamentos, anexos ou revisões permanecem cobertos pela prova isolada e pelas homologações dos respectivos fluxos.
 
 Se necessário, `rollback-read.sql` retira as quatro consultas e recarrega o catálogo.
+
+## Lote de auditoria de Formulários
+
+A tela Admin de Auditoria passa a incluir criação e edição de rascunho, abertura, encerramento e triagem. A projeção continua por empresa piloto e usa o autor, a data e o tipo do evento. Etapa, responsável, conteúdo de resposta, identificador de pergunta e notas ficam fora do resultado.
+
+A auditoria lê o protocolo do PDF executivo no evento de geração da revisão correspondente. Assim a consulta usa a trilha já existente e pode ser instalada separadamente das tabelas privadas de Relatórios. O PostgreSQL descartável confirmou a revisão, o protocolo, o evento de triagem, o isolamento e a omissão dos metadados privados.
+
+O preflight confirmou a guarda de papel, as colunas de dependência, a existência de eventos de Forms em A e a ausência de `v2_read_pilot_audit`. O lote hospedado proposto consiste somente em `admin-audit-read.sql`. Com as flags locais de leitura e leitura Admin, verificar os eventos em A e sua ausência em B. Conferir que a sessão Cliente fica sem acesso à auditoria. A reversão remove somente `cali_workspace.v2_read_pilot_audit(uuid,date,integer)` e recarrega o catálogo. A instalação aguarda autorização.
