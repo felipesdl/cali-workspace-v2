@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## 06/11/2026 — Homologação das consultas da Fase 4
+
+- Quatro consultas instaladas no CALI MAPA. Admin e Cliente A abriram projeto sintético. Cliente B recebeu projeto indisponível. Horas exibiu capacidade em mês liberado e respeitou mês oculto. Catálogos abriram nas duas empresas e os registros temporários foram removidos. [Evidência e reversão](contracts/PHASE_4_READ.md#lote-de-leitura-para-homologação-ab).
+
 ## 06/11/2026 — Capacidade e saldo de horas
 
 - Horas mostra franquia, consumo operacional, saldo e excedente conforme o cálculo de capacidade do banco. O extrato continua filtrado pelo perfil. Isolamento, mês oculto e ausência de franquia validados em PostgreSQL descartável. [Contrato e homologação](contracts/PHASE_4_READ.md#capacidade-e-saldo-de-horas-no-piloto).

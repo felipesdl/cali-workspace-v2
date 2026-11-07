@@ -2,7 +2,7 @@
 
 Primeiro incremento da fase 4. A publicação 83 continua como referência de interface e comportamento; a composição simplificada serve para validar os contratos do piloto. Paridade e aceite final seguem no [roteiro da Patrícia](../HOMOLOGACAO_PATRICIA.md).
 
-Em 05/11/2026, leitura somente do catálogo do CALI MAPA conferiu colunas, políticas, gatilhos e corpos de RPCs. O incremento usa quatro novas RPCs em propostas SQL, sem mudar tabelas, grants legados ou gatilhos. Não houve aplicação hospedada.
+Em 05/11/2026, leitura somente do catálogo do CALI MAPA conferiu colunas, políticas, gatilhos e corpos de RPCs. O incremento usa quatro novas RPCs em propostas SQL, sem mudar tabelas, grants legados ou gatilhos. A aplicação e a prova hospedada estão registradas no lote de leitura ao fim deste documento.
 
 | Domínio | Consulta implementada no código | Próxima entrega operacional |
 | --- | --- | --- |
@@ -173,10 +173,14 @@ O catálogo do CALI MAPA confirmou que `capacity_month` usa a franquia do ciclo 
 
 A tela separa capacidade mensal e extrato. O extrato mantém o total dos lançamentos que aquele perfil pode listar. A consulta agrega os minutos operacionais sem copiar descrições ou justificativas internas. A resposta anterior da RPC continua compatível com a tela.
 
-O PostgreSQL descartável confirmou mês oculto, fronteira A/B, consumo com horas internas agregadas, saldo, excedente e ausência de franquia. A instalação proposta consiste somente em `read-hours.sql`. O preflight confirmou as dependências e a ausência de `v2_read_pilot_hours` no CALI MAPA. Para homologar, instalar essa RPC e conferir um mês visível e um oculto com Cliente A, além da leitura Admin em A/B. A reversão deste lote remove apenas `cali_workspace.v2_read_pilot_hours(uuid,date,integer)` e recarrega o catálogo PostgREST. A prova no navegador hospedado continua pendente.
+O PostgreSQL descartável confirmou mês oculto, fronteira A/B, consumo com horas internas agregadas, saldo, excedente e ausência de franquia. A instalação proposta consiste somente em `read-hours.sql`. O preflight confirmou as dependências e a ausência de `v2_read_pilot_hours` no CALI MAPA. Para homologar, instalar essa RPC e conferir um mês visível e um oculto com Cliente A, além da leitura Admin em A/B. A reversão deste lote remove apenas `cali_workspace.v2_read_pilot_hours(uuid,date,integer)` e recarrega o catálogo PostgREST. A prova no navegador com o CALI MAPA foi concluída no lote abaixo.
 
 ## Lote de leitura para homologação A/B
 
-O preflight no CALI MAPA conferiu as colunas e os tipos de Projetos, Horas e dos catálogos, os sete auxiliares de sessão e visibilidade e a ausência das quatro RPCs V2. A ordem proposta é `read-projects.sql`, `read-hours.sql` e `read-catalogs.sql`, em uma transação. O lote cria as funções de consulta e concede execução a `authenticated`. Cada função confere sessão, empresa piloto e papel antes de projetar o resultado.
+O preflight no CALI MAPA conferiu as colunas e os tipos de Projetos, Horas e dos catálogos, os sete auxiliares de sessão e visibilidade e a ausência das quatro RPCs V2. O lote foi aplicado em 06/11/2026 na ordem `read-projects.sql`, `read-hours.sql` e `read-catalogs.sql`, em uma transação. O catálogo confirmou execução das quatro funções por `authenticated` e ausência do grant para `anon`, `service_role` e `PUBLIC`. Cada função confere sessão, empresa piloto e papel antes de projetar o resultado.
 
-A prova usa a V2 local com a flag de leitura. Com Admin, consultar A e B. Com Cliente, conferir a empresa da sessão, o mês de Horas oculto, os estados vazios e as projeções permitidas. Nos catálogos, conferir Projetos, Agenda, Ocorrências, Documentos, Avisos, Relatórios e Frentes. A prova usa os dados sintéticos já presentes. Depois, encerrar o servidor local. Se necessário, `rollback-read.sql` remove as quatro RPCs e recarrega o catálogo. A instalação hospedada aguarda autorização para este lote.
+A prova na V2 local usou a flag de leitura e as sessões Admin e Cliente A/B. Agenda, Ocorrências, Documentos, Relatórios e Frentes retornaram o estado vazio nas duas empresas. Avisos mostrou a publicação geral nos quatro contextos. Admin consultou franquia, consumo e saldo em A e B. Os Clientes encontraram novembro oculto, conforme a configuração original.
+
+Para testar resultados positivos, um projeto identificado foi criado em A e outubro foi aberto temporariamente para Horas de A. Admin e Cliente A abriram o detalhe do projeto. Cliente B recebeu “Projeto indisponível” ao usar o mesmo identificador. Cliente A consultou o painel de outubro. O projeto e os dois registros temporários de visibilidade foram removidos, a configuração inicial foi confirmada e os servidores locais foram encerrados. Os estados com lançamentos, anexos ou revisões permanecem cobertos pela prova isolada e pelas homologações dos respectivos fluxos.
+
+Se necessário, `rollback-read.sql` retira as quatro consultas e recarrega o catálogo.
