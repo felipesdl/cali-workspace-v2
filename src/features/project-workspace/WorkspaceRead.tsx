@@ -11,6 +11,7 @@ import {
 import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { AdminDailyPreview } from './AdminDailyPreview';
+import { MapaReview } from './MapaReview';
 import { ReportCurationSections, ReportIndicators, ReportSources } from './ReportCuration';
 import {
   ActivateContractedFront,
@@ -71,6 +72,7 @@ const adminHours = getRouteApi('/admin/horas');
 const adminPrivacy = getRouteApi('/admin/privacidade');
 const adminForms = getRouteApi('/admin/formularios');
 const adminAudit = getRouteApi('/admin/auditoria');
+const adminMapa = getRouteApi('/admin/mapa-people');
 const adminStaffRoster = getRouteApi('/admin/equipe-cali');
 const adminSatisfaction = getRouteApi('/admin/satisfacao');
 const adminCommercial = getRouteApi('/admin/propostas');
@@ -1042,6 +1044,55 @@ function AdminCommercial({ search, update }: Props) {
         </>
       )}
     </div>
+  );
+}
+
+export function AdminMapaPage() {
+  const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
+  const search = adminMapa.useSearch();
+  const navigate = adminMapa.useNavigate();
+  const { companyId, actor, admin } = useScope(search);
+  const cache = useQueryClient();
+  const update: Props['update'] = (change) => void navigate({ search: { ...search, ...change } });
+  const key = ['phase4-mapa', actor, companyId];
+  const result = useQuery({
+    queryKey: [...key, search.page],
+    queryFn:
+      admin && adminRead && companyId
+        ? ({ signal }) => adminRead.mapa(companyId, search.page, signal)
+        : skipToken,
+  });
+  if (!admin || !adminRead) return null;
+  return (
+    <section className="tw:grid tw:gap-4" aria-label="Triagem do Mapa de People">
+      <CompanySelect search={search} update={update} />
+      {!companyId && <FeedbackState kind="empty">Selecione uma empresa.</FeedbackState>}
+      {companyId && result.isPending && (
+        <FeedbackState kind="loading">Carregando registros…</FeedbackState>
+      )}
+      {result.isError && (
+        <FeedbackState kind="error" onRetry={() => void result.refetch()}>
+          Não foi possível consultar os registros.
+        </FeedbackState>
+      )}
+      {companyId && result.data && (
+        <>
+          {result.data.entries.length === 0 && (
+            <FeedbackState kind="empty">Nenhum registro vinculado nesta página.</FeedbackState>
+          )}
+          {result.data.entries.map((entry) => (
+            <MapaReview
+              key={JSON.stringify([entry.id, entry.revision])}
+              entry={entry}
+              company={companyId}
+              operations={domainOperations}
+              saved={() => cache.invalidateQueries({ queryKey: key })}
+            />
+          ))}
+          <Pages total={result.data.total} search={search} update={update} />
+        </>
+      )}
+    </section>
   );
 }
 

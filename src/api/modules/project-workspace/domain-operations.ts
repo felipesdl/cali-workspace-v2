@@ -205,9 +205,27 @@ const formTriageResponse = z.object({
   owner: z.string().nullable(),
 });
 export type FormTriageResponse = z.infer<typeof formTriageResponse>;
+export const mapaReviewStatus = z.enum(['novo', 'em_andamento', 'cancelado']);
 
 export function createDomainOperations(client: WorkspaceClient) {
   return {
+    async reviewMapa(
+      company: string,
+      id: string,
+      revision: number,
+      status: z.infer<typeof mapaReviewStatus>,
+      opinion: string,
+    ) {
+      const { data, error } = await client.rpc('v2_review_pilot_mapa', {
+        p_company_id: company,
+        p_record_id: id,
+        p_revision: revision,
+        p_status: status,
+        p_opinion: opinion,
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
     async frontOptions(company: string, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_list_pilot_front_options', { p_company_id: company })

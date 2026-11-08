@@ -41,6 +41,19 @@ const auditEvents = [
 export type AuditEvent = (typeof auditEvents)[number];
 
 const page = z.object({ companyId: z.uuid(), total: z.number().int().nonnegative() });
+const mapaRoster = page.extend({
+  entries: z.array(
+    z.object({
+      id: z.uuid(),
+      protocol: z.string(),
+      status: z.string(),
+      createdAt: z.iso.datetime({ offset: true }),
+      opinion: z.string().nullable(),
+      revision: z.number().int().nonnegative(),
+    }),
+  ),
+});
+export type MapaEntry = z.infer<typeof mapaRoster>['entries'][number];
 const staffRoster = page.extend({
   entries: z.array(
     z.object({
@@ -209,6 +222,15 @@ const commercialDraft = z.object({
 type CommercialDraftChange = { paymentTerms: string; publicNotes: string; validityDays: number };
 export function createAdminRead(client: WorkspaceClient) {
   return {
+    async mapa(company: string, page: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_list_pilot_mapa', { p_company_id: company, p_page: page })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar o Mapa de People.');
+      const result = mapaRoster.parse(data);
+      if (result.companyId !== company) throw new Error('Contexto divergente.');
+      return result;
+    },
     async staffRoster(company: string, page: number, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_read_pilot_staff_roster', { p_company_id: company, p_page: page })

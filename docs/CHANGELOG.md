@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Fila do resumo e triagem do Mapa
+
+- O ensaio da fila no CALI MAPA comprovou seleção do Admin do piloto, corte às 19h, reexecução sem duplicar e rollback. Cron e envio desligados. [Contrato](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+- Mapa de People ganhou listagem e triagem por empresa e operador. O staging confirmou a rota Admin em A/B. A escrita passou na cópia descartável. Nenhuma resposta foi inserida no staging por causa do gatilho legado de notificação. [Contrato e rollback](contracts/PHASE_4_READ.md#triagem-do-mapa-de-people).
+
 ## Exportação Excel de Forms
 
 - Admin baixou o XLSX da coleta de texto encerrada de A no CALI MAPA. Arquivo e auditoria conferidos. B ficou sem a coleta, que seguiu encerrada e sem e-mail. [Contrato e rollback](contracts/PHASE_4_READ.md#exportação-excel-de-forms).

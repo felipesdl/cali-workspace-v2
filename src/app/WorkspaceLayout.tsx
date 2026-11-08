@@ -126,6 +126,13 @@ export function WorkspaceLayout({
               </Link>
               <Link
                 className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                to="/admin/mapa-people"
+                search={workspaceSearch.parse({})}
+              >
+                Mapa de People
+              </Link>
+              <Link
+                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
                 to="/admin/equipe-cali"
                 search={workspaceSearch.parse({})}
               >

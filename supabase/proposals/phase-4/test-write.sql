@@ -228,6 +228,7 @@ grant usage on schema cali_workspace to service_role;
 \ir test-report-client-source-counts.sql
 \ir test-admin-read.sql
 \ir test-staff-roster.sql
+\ir test-mapa-operations.sql
 \ir test-commercial-draft.sql
 \ir test-commercial-create.sql
 \ir test-commercial-delivery.sql

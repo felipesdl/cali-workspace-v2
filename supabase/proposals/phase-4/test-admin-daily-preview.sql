@@ -1,7 +1,9 @@
 alter table cali_workspace.notifications add column id uuid not null default gen_random_uuid(),
   add column created_at timestamptz not null default now();
 \ir admin-daily-preview.sql
+\ir admin-daily-queue.sql
 begin;
+alter table cali_workspace.profiles add column email text;
 do $$
 declare
   a constant uuid:='9c5ab148-78b8-4410-9338-58c44222a5db';
@@ -14,6 +16,10 @@ declare
   visible_report uuid := gen_random_uuid();
   withdrawn_report uuid := gen_random_uuid();
   later_report uuid := gen_random_uuid();
+  inactive uuid := gen_random_uuid();
+  missing_email uuid := gen_random_uuid();
+  staff uuid := gen_random_uuid();
+  not_enrolled uuid := gen_random_uuid();
 begin
   select id into receiver from cali_workspace.profiles where role='admin' limit 1;
   select id into client from cali_workspace.profiles where role='client' and company_id=a limit 1;
@@ -67,6 +73,24 @@ begin
   payload:=cali_session_guard.phase4_build_admin_daily_preview('2026-11-09 22:00Z');
   assert payload->>'clientTotal'='2101';
   assert jsonb_array_length(payload#>'{companies,0,client,items}')=12;
+  update cali_workspace.profiles set email='admin@example.invalid' where id=receiver;
+  update cali_workspace.profiles set email='client@example.invalid' where id=client;
+  insert into cali_workspace.profiles(id,role,email,active) values
+    (inactive,'admin','inactive@example.invalid',false),
+    (missing_email,'admin','  ',true),
+    (staff,'staff','staff@example.invalid',true),
+    (not_enrolled,'admin','outside@example.invalid',true);
+  insert into cali_session_guard.phase4_admin_digest_recipients values
+    (receiver),(client),(inactive),(missing_email),(staff);
+  assert cali_session_guard.phase4_enqueue_admin_digest(instant-interval '1 minute')=0;
+  assert cali_session_guard.phase4_enqueue_admin_digest(instant+interval '1 minute')=0;
+  assert cali_session_guard.phase4_enqueue_admin_digest('2026-11-08 22:00Z')=0;
+  assert cali_session_guard.phase4_enqueue_admin_digest(instant+interval '29 seconds')=1;
+  assert cali_session_guard.phase4_enqueue_admin_digest(instant)=0;
+  assert (select profile_id from cali_session_guard.phase4_admin_digest_queue)=receiver;
+  assert (select as_of from cali_session_guard.phase4_admin_digest_queue)=instant;
+  assert (select q.payload->>'clientTotal' from cali_session_guard.phase4_admin_digest_queue q)='13';
+  assert not has_function_privilege('authenticated','cali_session_guard.phase4_enqueue_admin_digest(timestamptz)','execute');
   set local role authenticated;
   perform cali_workspace.fixture_as('clientA');
   begin
@@ -84,5 +108,6 @@ begin
   assert not has_function_privilege('anon','cali_workspace.v2_read_pilot_admin_daily_preview()','execute');
 end $$;
 rollback;
+\ir rollback-admin-daily-queue.sql
 \ir rollback-admin-daily-preview.sql
 \echo Fase 4C: resumo Admin com corte Brasília, exclusões, totais e limite visual.

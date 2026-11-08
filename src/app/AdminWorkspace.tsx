@@ -30,6 +30,7 @@ export function AdminWorkspace() {
             ? 'Equipe CALI'
             : null);
   const operationsTitle =
+    (adminRead && pathname === '/admin/mapa-people' && 'Mapa de People') ||
     adminReadTitle ||
     (projectWorkspace &&
       (pathname === '/admin/formularios'
