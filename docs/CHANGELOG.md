@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Diagnóstico do Mapa e exportação de Privacidade
+
+- O Admin baixou o PDF de um diagnóstico sintético do Mapa em A. B ficou isolada. Em Privacidade, o Admin conferiu o JSON e a prévia de eliminação de uma empresa descartável. As fixtures temporárias foram removidas. [Mapa](contracts/PHASE_4_READ.md#jornada-e-relatório-detalhado-do-mapa) · [Privacidade](contracts/PHASE_4_READ.md#exportação-estruturada-e-prévia-de-eliminação).
+
 ## Coleta condicional com PDF
 
 - Homologou dois caminhos no navegador do CALI MAPA, conferiu o download Admin byte a byte e encerrou a coleta sintética. A interface passou a aguardar a resposta à pergunta condicional obrigatória antes de mostrar o anexo. [Evidência e reversão](contracts/PHASE_4_READ.md#caminhos-condicionais-e-pdf-de-resposta-em-forms).
