@@ -471,9 +471,17 @@ Foi atualizada somente a definição de `v2_read_pilot_report_catalog`, preserva
 
 Na V2, Admin com MFA oferece reposição para reunião contratual marcada como não realizada, quando a regra de resultado permite reposição. O horário é informado em Brasília. A operação mantém duração e condições contratuais, recusa conflito e registra a oferta no pedido existente. Cliente confirma pelo fluxo de Agenda. Na confirmação, o servidor confere se a sessão contratual já está reservada no mês de destino. O novo evento é separado e o anterior permanece no calendário e no histórico como não realizado. O motivo interno fica restrito.
 
-O PostgreSQL descartável comprovou empresa divergente, horário passado, reenvio do mesmo pedido, duração preservada, confirmação do Cliente, recusa por sessão já reservada e histórico preservado. A reversão retira a operação da V2 e preserva os registros. Instalação, prova A/B no navegador e sincronização externa seguem pendentes.
+O PostgreSQL descartável comprovou empresa divergente, horário passado, reenvio do mesmo pedido, duração preservada, confirmação do Cliente, recusa por sessão já reservada e histórico preservado.
 
-O preflight seguinte no CALI MAPA confirmou duas empresas sintéticas e zero reuniões passadas e confirmadas elegíveis para registrar resultado. As RPCs de solicitação, resposta e remarcação já estão presentes. A RPC V2 de pausa por capacidade ainda está ausente. A sessão de inventário não pode executar a função de cálculo de capacidade. A prova segue com reunião sintética passada e consulta de capacidade por Admin autorizado.
+### Resultado, reposição e capacidade no staging
+
+O CALI MAPA recebeu as operações de resultado, reposição e pausa mensal, além dos campos que exibem as ações disponíveis. As duas reuniões passadas da Empresa A foram inscritas na guarda de e-mail. Pelo navegador, o Admin registrou uma reunião realizada e outra não realizada com falta justificada. O Cliente A viu o resultado sem a justificativa interna e confirmou a reposição de uma hora. O banco confirmou dois eventos distintos para a reposição e preservou o resultado da reunião original.
+
+A primeira oferta sem cobertura terminou em timeout. A RPC passou a tratar a falta de cobertura como erro de validação. O navegador confirmou a mensagem antes de a fixture receber uma sessão mensal temporária para o teste válido. Ao encerrar a prova, a sessão mensal voltou a zero e o evento futuro sintético foi cancelado antes da sincronização externa. O banco confirmou zero notificações destinadas a e-mail nas duas reuniões e nenhum vínculo com o Google.
+
+Em Horas, a franquia de novembro da Empresa A foi reduzida de 12,5 h para 0,25 h durante o teste, usando os 27 minutos sintéticos já registrados. O Admin pausou e retomou as atividades pelo navegador. O banco confirmou os dois eventos de auditoria, a retomada e a restauração de 12,5 h.
+
+A reversão específica restaura as três definições capturadas antes do lote e retira as cinco rotinas novas, incluindo o auxiliar privado, sem apagar histórico. O SQL de reversão está em `output/runtime/phase4b/rollback.sql` no workspace de operação. A guarda de e-mail permanece para as fixtures inscritas. Sincronização Google/Meet, ata, participantes e transições de encontros adicionais seguem pendentes.
 
 ## Equipe CALI por empresa
 

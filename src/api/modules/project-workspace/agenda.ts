@@ -191,6 +191,8 @@ export function createAgendaOperations(client: WorkspaceClient) {
       });
       if (error?.code === '40001')
         throw new Error('Confira a situação do pedido e a cobertura do horário escolhido.');
+      if (error?.code === '22023')
+        throw new Error('Escolha um horário futuro dentro da cobertura contratual.');
       if (error) throw new Error('Não foi possível oferecer a reposição.');
       return z.literal(appointment).parse(data);
     },

@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Resultado, reposição e capacidade no staging
+
+- Admin registrou realização e não realização em duas reuniões sintéticas. Cliente A confirmou a reposição de uma hora sem acesso à justificativa interna. A falta de cobertura passou a receber mensagem de validação. A reposição sintética foi encerrada sem sincronização externa ou e-mail.
+- Admin pausou e retomou as atividades de novembro por capacidade excedida. As franquias originais de horas e de reuniões foram restauradas. [Prova e reversão](contracts/PHASE_4_READ.md#resultado-reposição-e-capacidade-no-staging).
+
 ## Aceite por link e contenção do resumo de teste
 
 - A proposta sintética 03 foi enviada ao simulador do Resend e aceita pelo link local. O banco confirmou PDF, recibo e auditoria. A função temporária foi removida e o link foi revogado. [Prova no staging](contracts/PHASE_4_READ.md#calculadora-cali-build-e-e-mail-sintético).

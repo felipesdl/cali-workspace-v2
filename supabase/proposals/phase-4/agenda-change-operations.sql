@@ -240,11 +240,13 @@ begin
   if begins<=now() or ends is null or not isfinite(ends) or ends<=begins then
     raise exception using errcode='22023',message='Horário indisponível.';
   end if;
+  if (cali_workspace.resolve_meeting_entitlement_v66(p_company_id,mode,begins,p_appointment_id)->>'billable')::boolean
+    is distinct from false then
+    raise exception using errcode='22023',message='Horário fora da cobertura contratual.';
+  end if;
   if exists(select 1 from cali_workspace.events e where e.company_id=p_company_id and e.cancelled_at is null
-    and e.starts_at<ends and coalesce(e.ends_at,e.starts_at)>begins)
-    or (cali_workspace.resolve_meeting_entitlement_v66(p_company_id,mode,begins,p_appointment_id)->>'billable')::boolean
-      is distinct from false then
-    raise exception using errcode='40001',message='Horário ocupado ou fora da cobertura contratual.';
+    and e.starts_at<ends and coalesce(e.ends_at,e.starts_at)>begins) then
+    raise exception using errcode='40001',message='Horário ocupado.';
   end if;
   perform cali_workspace.admin_respond_scheduling_request_v1(p_appointment_id,
     jsonb_build_array(jsonb_build_object('startsAt',begins,'endsAt',ends)),btrim(p_note),false);
