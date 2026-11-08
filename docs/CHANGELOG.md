@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Envio sintético do resumo Admin
+
+- O worker temporário do CALI MAPA registrou um único recibo para o resumo fictício enviado ao simulador do Resend. Worker, chave e fila foram removidos. [Evidência do teste](contracts/PHASE_4_READ.md#envio-sintético-do-resumo-admin-pelo-resend).
+
 ## Forms condicional, Equipe CALI, Mapa e exportação
 
 - Forms ganhou saltos por opção e anexo PDF. A prova do CALI MAPA foi revertida. A Equipe passou de inativa para ativa e voltou a inativa no navegador. A jornada do Mapa foi homologada em A/B. O PDF detalhado foi renderizado localmente. A exportação estruturada e a prévia de eliminação foram instaladas. [Contrato da fase 4](contracts/PHASE_4_READ.md#caminhos-condicionais-e-pdf-de-resposta-em-forms).
