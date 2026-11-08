@@ -208,6 +208,7 @@ rollback;
 \ir test-planning.sql
 \ir test-project-journal.sql
 \ir test-delivery-agenda.sql
+\ir test-legacy-delivery-files.sql
 \ir test-agenda-changes.sql
 \ir test-agenda-followup.sql
 \ir test-agenda-material-guests.sql

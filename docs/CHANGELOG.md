@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Ensaio de cópia de arquivos de entregáveis
+
+- A cópia de três cargas sintéticas passou no CALI MAPA em transação revertida. No PostgreSQL descartável, A leu somente o PDF publicado e B ficou sem acesso. Os dois arquivados ficaram privados, com hash, autoria e cadeia de revisão preservados. O acervo inventariado e o corte dos leitores legados ficam para o rollout. [Contrato e evidências](contracts/PHASE_4_READ.md#acervo-legado-de-entregáveis).
+
 ## Prazo, capas e contagens do relatório
 
 - O staging sinaliza revisão de projeto vencida e mantém a opção de pedir ajuste. Avisos dirigidos podem receber capa privada. Relatórios congelam na aprovação as contagens visíveis ao Cliente e as exibem na mesma revisão da tela e do PDF. [Evidências](contracts/PHASE_4_READ.md#prazo-de-revisão-vencido-no-cali-mapa).
