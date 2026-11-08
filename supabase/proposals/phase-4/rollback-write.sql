@@ -21,6 +21,11 @@ drop function if exists cali_workspace.v2_save_pilot_satisfaction_followup(uuid,
 drop function if exists cali_session_guard.phase4_low_feedback(uuid);
 drop function if exists cali_workspace.v2_read_pilot_staff_roster(uuid,integer);
 drop function if exists cali_workspace.v2_read_pilot_audit(uuid,date,integer);
+drop function if exists public.v2_external_pilot_commercial_offer(text,boolean);
+drop function if exists cali_workspace.v2_record_pilot_commercial_email(uuid,uuid);
+drop function if exists cali_workspace.v2_stage_pilot_commercial_email(uuid,text,text);
+drop function if exists cali_workspace.v2_prepare_pilot_commercial_email(uuid,uuid,timestamptz);
+drop function if exists cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid,timestamptz,numeric,numeric,integer);
 drop function if exists cali_workspace.v2_accept_pilot_commercial_offer(uuid,uuid,integer);
 drop function if exists cali_workspace.v2_read_pilot_received_offers(uuid);
 drop function if exists cali_workspace.v2_send_pilot_commercial_offer(uuid,uuid,timestamptz);

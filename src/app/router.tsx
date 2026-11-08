@@ -322,7 +322,17 @@ const discRespondentRoute = createRoute({
   ),
 });
 
+const externalCommercialRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/proposta-externa',
+  component: lazyRouteComponent(
+    () => import('../features/project-workspace/ExternalCommercialPage'),
+    'ExternalCommercialPage',
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
+  externalCommercialRoute,
   discRespondentRoute,
   accessGateRoute,
   callbackRoute,

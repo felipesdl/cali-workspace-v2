@@ -6,6 +6,8 @@ import { Field } from '../../components/ds/field/Field';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { ActionForm } from './ActionForm';
 
+const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
 export function CreateCommercialDraft({
   company,
   actor,
@@ -58,6 +60,34 @@ export function SendCommercialOffer({
         ]);
         return result;
       }}
+    />
+  );
+}
+
+export function EmailCommercialOffer({
+  company,
+  proposal,
+  expected,
+  service,
+}: {
+  company: string;
+  proposal: string;
+  expected: string;
+  service: AdminReadService;
+}) {
+  const [link, setLink] = useState<string>();
+  return link ? (
+    <div className="tw:grid tw:gap-2" role="status">
+      <p>Envio confirmado pelo simulador de e-mail.</p>
+      <a className="tw:text-brand tw:underline" href={link} target="_blank" rel="noreferrer">
+        Abrir link do e-mail de teste
+      </a>
+    </div>
+  ) : (
+    <ActionForm
+      label="Enviar PDF ao simulador"
+      submit={() => service.emailCommercialOffer(company, proposal, expected)}
+      saved={setLink}
     />
   );
 }
@@ -130,57 +160,119 @@ function DraftFields({
   refresh: () => Promise<void>;
 }) {
   const [dirty, setDirty] = useState(false);
+  const [pricingDirty, setPricingDirty] = useState(false);
+  const pricing = value.pricing;
   return (
     <div className="tw:grid tw:gap-2">
-      <ActionForm
-        label="Salvar condições"
-        submit={async (fields) => {
-          const result = await service.saveCommercialDraft(company, value.id, value.updatedAt, {
-            paymentTerms: String(fields.get('terms') ?? ''),
-            publicNotes: String(fields.get('notes') ?? ''),
-            validityDays: Number(fields.get('validity')),
-          });
-          await refresh();
-          return result;
-        }}
-      >
-        {(prefix) => (
-          <>
-            <Field id={prefix + 'terms'} label="Condições de pagamento">
-              <textarea
-                id={prefix + 'terms'}
-                name="terms"
-                maxLength={2000}
-                defaultValue={value.paymentTerms ?? ''}
-                onChange={() => setDirty(true)}
-              />
-            </Field>
-            <Field id={prefix + 'notes'} label="Observações da proposta">
-              <textarea
-                id={prefix + 'notes'}
-                name="notes"
-                maxLength={4000}
-                defaultValue={value.publicNotes ?? ''}
-                onChange={() => setDirty(true)}
-              />
-            </Field>
-            <Field id={prefix + 'validity'} label="Validade em dias">
-              <input
-                id={prefix + 'validity'}
-                name="validity"
-                type="number"
-                min={1}
-                max={120}
-                required
-                defaultValue={value.validityDays}
-                onChange={() => setDirty(true)}
-              />
-            </Field>
-          </>
-        )}
-      </ActionForm>
-      {dirty ? (
-        <p>Salve as condições antes de aprovar a proposta.</p>
+      {pricing && !dirty && (
+        <ActionForm
+          label="Calcular e salvar mensalidade"
+          submit={async (fields) => {
+            const result = await service.priceCommercialDraft(company, value.id, value.updatedAt, {
+              extras: Number(fields.get('extras')),
+              discount: Number(fields.get('discount')),
+              months: Number(fields.get('months')),
+            });
+            await refresh();
+            return result;
+          }}
+        >
+          {(prefix) => (
+            <>
+              <p>CALI Build · Mensalidade atual de {money.format(pricing.monthly)}</p>
+              <Field id={prefix + 'extras'} label="Adicionais em reais">
+                <input
+                  id={prefix + 'extras'}
+                  name="extras"
+                  type="number"
+                  min={0}
+                  max={100000}
+                  step="0.01"
+                  required
+                  defaultValue={pricing.extras}
+                  onChange={() => setPricingDirty(true)}
+                />
+              </Field>
+              <Field id={prefix + 'discount'} label="Desconto em porcentagem">
+                <input
+                  id={prefix + 'discount'}
+                  name="discount"
+                  type="number"
+                  min={0}
+                  max={50}
+                  step="0.01"
+                  required
+                  defaultValue={pricing.discount}
+                  onChange={() => setPricingDirty(true)}
+                />
+              </Field>
+              <Field id={prefix + 'months'} label="Duração em meses">
+                <input
+                  id={prefix + 'months'}
+                  name="months"
+                  type="number"
+                  min={1}
+                  max={60}
+                  required
+                  defaultValue={pricing.months}
+                  onChange={() => setPricingDirty(true)}
+                />
+              </Field>
+            </>
+          )}
+        </ActionForm>
+      )}
+      {!pricingDirty && (
+        <ActionForm
+          label="Salvar condições"
+          submit={async (fields) => {
+            const result = await service.saveCommercialDraft(company, value.id, value.updatedAt, {
+              paymentTerms: String(fields.get('terms') ?? ''),
+              publicNotes: String(fields.get('notes') ?? ''),
+              validityDays: Number(fields.get('validity')),
+            });
+            await refresh();
+            return result;
+          }}
+        >
+          {(prefix) => (
+            <>
+              <Field id={prefix + 'terms'} label="Condições de pagamento">
+                <textarea
+                  id={prefix + 'terms'}
+                  name="terms"
+                  maxLength={2000}
+                  defaultValue={value.paymentTerms ?? ''}
+                  onChange={() => setDirty(true)}
+                />
+              </Field>
+              <Field id={prefix + 'notes'} label="Observações da proposta">
+                <textarea
+                  id={prefix + 'notes'}
+                  name="notes"
+                  maxLength={4000}
+                  defaultValue={value.publicNotes ?? ''}
+                  onChange={() => setDirty(true)}
+                />
+              </Field>
+              <Field id={prefix + 'validity'} label="Validade em dias">
+                <input
+                  id={prefix + 'validity'}
+                  name="validity"
+                  type="number"
+                  min={1}
+                  max={120}
+                  required
+                  defaultValue={value.validityDays}
+                  onChange={() => setDirty(true)}
+                />
+              </Field>
+            </>
+          )}
+        </ActionForm>
+      )}
+      {dirty || pricingDirty ? (
+        <p>Salve as alterações antes de aprovar a proposta.</p>
       ) : (
         <ActionForm
           label="Aprovar versão internamente"

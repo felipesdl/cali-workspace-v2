@@ -369,6 +369,14 @@ O PostgreSQL descartável comprovou reexecução sem duplicar, MFA Admin, empres
 
 A leitura da Edge legada confirmou que ela recebe PDF e destinatário no payload, grava o arquivo e chama o Resend antes de atualizar os registros comerciais. A chave de idempotência usa proposta e data da revisão. A integração da V2 precisa vincular o PDF e o destinatário à versão aprovada e registrar a entrega externa separadamente do aceite no Workspace. A Edge legada não foi executada nesta homologação.
 
+## Calculadora CALI Build e e-mail sintético
+
+O piloto aplica no servidor os fatores do CALI Build, arredonda o subtotal em múltiplos de R$ 50, aplica adicionais, desconto de até 50% e o prazo mínimo de quatro ou seis meses conforme o pacote. A base sintética vem da inscrição da oportunidade. Na proposta `CALI-QA-V2-PROPOSTA-03`, o navegador conferiu a versão 1 aprovada a R$ 1.395,00 por mês durante quatro meses. O banco confirmou base de R$ 1.000,00, subtotal de R$ 1.550,00 e desconto de 10%. A calculadora dos demais serviços e o catálogo de preços comerciais ficam em recorte próprio.
+
+O envio preparado para staging lê a revisão aprovada do banco, gera e persiste o PDF e usa apenas `delivered@resend.dev`. O mesmo pedido reutiliza o PDF, o token e a chave de idempotência. O aceite externo usa um token com prazo, guarda somente seu hash e exige confirmação. A abertura do link apenas consulta a proposta. A auditoria identifica o canal de teste. O link aponta para o frontend local na porta 5173 e o pacote local foi validado com transporte simulado, incluindo falha e nova tentativa. A revisão automática recusou a publicação da Edge hospedada. O Resend e o aceite externo ainda aguardam a prova hospedada.
+
+Depois de autorizar a prova da Edge, reabrir temporariamente apenas a delegação da proposta sintética 03, publicar `workspace-commercial-email` com JWT obrigatório no CALI MAPA e ativar `VITE_CALI_PHASE4_COMMERCIAL_EMAIL=true` no loopback. Ao final, revogar o link e a delegação, remover apenas essa Edge do staging e conferir a remoção no catálogo. Para retirar também as operações de banco deste lote, usar `rollback-commercial-email.sql`. Propostas, PDFs e auditoria ficam preservados.
+
 ## Lote de pedido de privacidade no CALI MAPA
 
 A rotina legada de abertura avisa todos os Admins ativos e a de resposta notifica o solicitante. `privacy-qa-transport.sql` suprime os dois avisos apenas para empresa e descrição sintéticas inscritas. O PostgreSQL descartável comprovou que outra solicitação ou outra empresa mantém o transporte anterior.
@@ -448,6 +456,10 @@ Em 07/11/2026, instalou-se apenas o leitor para Admin com MFA e A/B. No navegado
 No preflight hospedado em leitura, `notice_comments` tinha RLS ativo e duas políticas de leitura aplicáveis. A chave única de capacidade por empresa e mês e a rotina legada de resultado da Agenda estavam presentes. Não havia reunião sintética passada e confirmada em A/B.
 
 Este lote tem validação local. A DEC-28 revisada dispensa backup e restauração para os lotes autorizados no staging. A instalação exige preflight e rollback por recorte. Para a moderação, a reversão operacional retira a RPC de escrita e mantém a leitura filtrada e a policy restritiva. Remover o filtro sem restaurar os comentários tornaria visíveis textos já ocultados. O rollback de Agenda preserva os resultados registrados. A retirada de `v2_set_pilot_capacity_pause` desativa o controle de Horas e mantém a decisão mensal gravada. As projeções de Projetos, Relatórios e Frentes são aditivas e compatíveis com as respostas anteriores.
+
+## Contagens das fontes no staging
+
+Foi atualizada somente a definição de `v2_read_pilot_report_catalog`, preservando permissões e operações de escrita. No navegador, o Admin abriu **Fontes do relatório** no rascunho sintético `CALI-RPT-2026-000012` de 01/10/2026. Projetos, tarefas criadas, tarefas concluídas, eventos, documentos e comentários mostraram zero, conforme o retrato do período. Campo ausente continua distinto de zero. A prova em PostgreSQL descartável também cobre a ausência da projeção no Cliente e o uso do retrato congelado após aprovação. Não houve nova publicação ou alteração de PDF. Para reverter, restaurar somente a definição anterior do leitor, guardada no preflight.
 
 ## Reposição de reunião ordinária
 

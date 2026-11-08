@@ -50,7 +50,11 @@ begin
           and s.contact_email like '%@example.invalid',false) as "canCreate",
         coalesce(p.status='aprovada' and scope.recipient_id is not null
           and scope.recipient_revoked_at is null and scope.delivered_at is null
-          and left(s.protocol,11)='CALI-QA-V2-' and s.contact_email like '%@example.invalid',false) as "canSend"
+          and left(s.protocol,11)='CALI-QA-V2-' and s.contact_email like '%@example.invalid',false) as "canSend",
+        coalesce(p.status='aprovada' and scope.recipient_id is null and scope.delivered_at is null
+          and p.calculator_data->'pilotBuild' is not null and left(s.protocol,11)='CALI-QA-V2-'
+          and s.contact_email='qa-proposta-v2@example.invalid'
+          and to_regprocedure('cali_workspace.v2_prepare_pilot_commercial_email(uuid,uuid,timestamptz)') is not null,false) as "canEmail"
       from cali_session_guard.phase4_commercial_scope scope
       join public.cali_submissions s on s.id=scope.submission_id
       left join public.cali_proposals p on p.id=scope.proposal_id and p.submission_id=s.id

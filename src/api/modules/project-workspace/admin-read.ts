@@ -129,6 +129,7 @@ const commercial = page.extend({
       opportunityId: z.uuid(),
       canCreate: z.boolean().default(false),
       canSend: z.boolean().default(false),
+      canEmail: z.boolean().default(false),
       protocol: z.string().nullable(),
       opportunityStatus,
       service: z.string(),
@@ -155,6 +156,17 @@ const receivedOffers = z.array(
     canAccept: z.boolean(),
   }),
 );
+const externalOffer = z.object({
+  protocol: z.string(),
+  version: z.number().int().positive(),
+  total: z.number().positive(),
+  package: z.enum(['ESSENCIAL', 'COMPLETO']),
+  months: z.number().int().positive(),
+  paymentTerms: z.string().nullable(),
+  publicNotes: z.string().nullable(),
+  deadline: z.iso.datetime({ offset: true }),
+  acceptedAt: z.iso.datetime({ offset: true }).nullable(),
+});
 
 const satisfactionSource = z.enum(['record', 'deliverable']);
 const theme = z.enum(['prazo', 'qualidade', 'comunicacao', 'atendimento', 'outro']);
@@ -183,6 +195,15 @@ const commercialDraft = z.object({
   paymentTerms: z.string().nullable(),
   publicNotes: z.string().nullable(),
   validityDays: z.number().int().min(1).max(120),
+  pricing: z
+    .object({
+      extras: z.number().nonnegative(),
+      discount: z.number().min(0).max(50),
+      months: z.number().int().min(1).max(60),
+      subtotal: z.number().nonnegative(),
+      monthly: z.number().nonnegative(),
+    })
+    .nullish(),
 });
 type CommercialDraftChange = { paymentTerms: string; publicNotes: string; validityDays: number };
 export function createAdminRead(client: WorkspaceClient) {
@@ -265,6 +286,24 @@ export function createAdminRead(client: WorkspaceClient) {
       if (error) throw new Error('Não foi possível criar o rascunho.');
       return z.uuid().parse(data);
     },
+    async priceCommercialDraft(
+      company: string,
+      proposal: string,
+      expected: string,
+      pricing: { extras: number; discount: number; months: number },
+    ) {
+      const { data, error } = await client.rpc('v2_price_pilot_commercial_draft', {
+        p_company_id: company,
+        p_proposal_id: proposal,
+        p_expected: expected,
+        p_extras: pricing.extras,
+        p_discount: pricing.discount,
+        p_months: pricing.months,
+      });
+      if (error?.code === '40001') throw new Error('A proposta mudou. Atualize a consulta.');
+      if (error) throw new Error('Não foi possível calcular o valor.');
+      return z.literal(proposal).parse(data);
+    },
     async sendCommercialOffer(company: string, proposal: string, expected: string) {
       const { data, error } = await client.rpc('v2_send_pilot_commercial_offer', {
         p_company_id: company,
@@ -274,6 +313,26 @@ export function createAdminRead(client: WorkspaceClient) {
       if (error?.code === '40001') throw new Error('A proposta mudou. Atualize a consulta.');
       if (error) throw new Error('Não foi possível enviar a proposta no Workspace.');
       return z.literal(proposal).parse(data);
+    },
+    async emailCommercialOffer(company: string, proposal: string, expected: string) {
+      const { data, error } = await client.functions.invoke('workspace-commercial-email', {
+        body: { company, proposal, expected },
+      });
+      if (error) throw new Error('Não foi possível confirmar o envio de teste. Tente novamente.');
+      return z
+        .object({
+          testLink: z.string().regex(/^http:\/\/127\.0\.0\.1:5173\/proposta-externa#[a-f0-9]{64}$/),
+        })
+        .parse(data).testLink;
+    },
+    async externalCommercialOffer(token: string, accept: boolean, signal?: AbortSignal) {
+      const request = client.schema('public').rpc('v2_external_pilot_commercial_offer', {
+        p_token: token,
+        p_accept: accept,
+      });
+      const { data, error } = await (signal ? request.abortSignal(signal) : request);
+      if (error) throw new Error('Não foi possível consultar ou aceitar esta proposta.');
+      return externalOffer.nullable().parse(data);
     },
     async receivedOffers(company: string, signal: AbortSignal) {
       const { data, error } = await client

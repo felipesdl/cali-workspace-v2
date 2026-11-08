@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "docs:check": "node scripts/check-docs.mjs",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run local:config:check && npm run docs:check && npm run build && npm run local:functions:build && npm run disc:functions:build && npm run executive:functions:build",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run local:config:check && npm run docs:check && npm run build && npm run local:functions:build && npm run disc:functions:build && npm run executive:functions:build && npm run commercial:functions:build",
     "local:config:check": "node scripts/local-environment.ts --check-config",
     "local:preflight": "node scripts/local-environment.ts --preflight",
     "local:db:inspect": "node scripts/local-database.ts --inspect",
@@ -26,7 +26,8 @@
     "local:functions:build": "node scripts/build-local-functions.ts",
     "local:access:test": "node scripts/local-access-test.ts",
     "disc:functions:build": "node scripts/build-disc-functions.ts",
-    "executive:functions:build": "node scripts/build-executive-functions.ts"
+    "executive:functions:build": "node scripts/build-executive-functions.ts",
+    "commercial:functions:build": "node scripts/build-commercial-functions.ts"
   },
   "dependencies": {
     "@fontsource/inter": "5.2.5",

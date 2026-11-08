@@ -96,11 +96,13 @@ export function CommercialResults({
   create,
   editor,
   send,
+  email,
 }: {
   entries: Awaited<ReturnType<AdminReadService['commercial']>>['entries'];
   create?: (opportunity: string) => ReactNode;
   editor?: (proposal: string) => ReactNode;
   send?: (proposal: string, expected: string) => ReactNode;
+  email?: (proposal: string, expected: string) => ReactNode;
 }) {
   return (
     <ul className="tw:grid tw:gap-2">
@@ -123,6 +125,10 @@ export function CommercialResults({
             entry.proposalId &&
             entry.updatedAt &&
             send?.(entry.proposalId, entry.updatedAt)}
+          {entry.canEmail &&
+            entry.proposalId &&
+            entry.updatedAt &&
+            email?.(entry.proposalId, entry.updatedAt)}
           {entry.updatedAt && <p>Atualização: {formatServerInstant(entry.updatedAt)} (Brasília)</p>}
         </li>
       ))}

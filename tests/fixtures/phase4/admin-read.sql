@@ -4,13 +4,14 @@ alter table cali_workspace.profiles add column full_name text;
 update cali_workspace.profiles set full_name='Pessoa sintética' where role='admin';
 create table public.cali_submissions (
   id uuid primary key,protocol text,status text,service_slug text,updated_at timestamptz,
-  contact_email text,internal_notes text
+  contact_email text,internal_notes text,answers jsonb default '{}'::jsonb
 );
 create table public.cali_proposals (
   id uuid primary key default gen_random_uuid(),submission_id uuid references public.cali_submissions(id),status text,
   version integer,total_value numeric,package_code text,updated_at timestamptz default clock_timestamp(),
   service_slug text,base_price numeric,subtotal numeric,final_unit numeric,
-  pdf_path text,calculator_data jsonb
+  extras numeric default 0,discount_pct numeric default 0,contract_months integer default 1,
+  pdf_path text,calculator_data jsonb,sent_at timestamptz,resend_email_id text
 );
 
 alter table public.cali_proposals add column payment_terms text, add column public_notes text,

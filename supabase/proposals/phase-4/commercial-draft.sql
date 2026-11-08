@@ -32,7 +32,13 @@ begin
   where p.id=p_proposal_id and p.status='rascunho';
   if not found then return null; end if;
   return jsonb_build_object('id',draft.id,'updatedAt',draft.updated_at,'paymentTerms',draft.payment_terms,
-    'publicNotes',draft.public_notes,'validityDays',draft.validity_days);
+    'publicNotes',draft.public_notes,'validityDays',draft.validity_days,
+    'pricing',case when draft.service_slug='cali-build' and draft.package_code in ('ESSENCIAL','COMPLETO')
+      and to_regprocedure('cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid,timestamptz,numeric,numeric,integer)') is not null
+      and exists(select 1 from cali_session_guard.phase4_commercial_scope g where g.proposal_id=draft.id
+        and g.pilot_price between 50 and 100000)
+      then jsonb_build_object('extras',draft.extras,'discount',coalesce(draft.calculator_data#>'{pilotBuild,discount}',to_jsonb(draft.discount_pct)),
+        'months',draft.contract_months,'subtotal',draft.subtotal,'monthly',draft.final_unit) end);
 end;
 $$;
 

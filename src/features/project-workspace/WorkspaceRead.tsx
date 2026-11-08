@@ -5,6 +5,7 @@ import { WorkspacePagination } from './WorkspacePagination';
 import {
   CommercialDraftEditor,
   CreateCommercialDraft,
+  EmailCommercialOffer,
   SendCommercialOffer,
 } from './CommercialDraftEditor';
 import { SatisfactionResults } from './SatisfactionResults';
@@ -963,6 +964,18 @@ function AdminCommercial({ search, update }: Props) {
           {result.data.entries.length ? (
             <CommercialResults
               entries={result.data.entries}
+              email={
+                domainOperations && import.meta.env.VITE_CALI_PHASE4_COMMERCIAL_EMAIL === 'true'
+                  ? (proposal, expected) => (
+                      <EmailCommercialOffer
+                        company={companyId}
+                        proposal={proposal}
+                        expected={expected}
+                        service={adminRead}
+                      />
+                    )
+                  : undefined
+              }
               send={
                 domainOperations
                   ? (proposal, expected) => (

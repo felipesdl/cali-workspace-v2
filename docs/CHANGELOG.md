@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Calculadora CALI Build e e-mail de Propostas
+
+- A proposta sintética 03 foi calculada e aprovada no staging por R$ 1.395,00 mensais em quatro meses. O PDF, o reenvio e o aceite por link foram validados localmente. A prova hospedada de e-mail aguarda a Edge. [Contrato e reversão](contracts/PHASE_4_READ.md#calculadora-cali-build-e-e-mail-sintético).
+- Admin abriu as seis contagens de fontes de um rascunho sintético no staging. O leitor passou a expor os valores já gravados no retrato do relatório, sem alterar o relatório ou o PDF. [Prova e reversão](contracts/PHASE_4_READ.md#contagens-das-fontes-no-staging).
+
 ## Moderação de comentários no staging
 
 - Admin ocultou e restaurou um comentário sintético com motivo. O Cliente A observou as duas mudanças e o aviso voltou ao arquivo. [Prova e reversão](contracts/PHASE_4_READ.md#moderação-de-comentários-no-staging).
