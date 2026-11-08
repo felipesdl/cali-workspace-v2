@@ -152,7 +152,7 @@ begin
     end if;
     if p_action='add_question' then
       question_kind := p_fields->>'kind';
-      if question_kind is null or question_kind not in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')
+      if question_kind is null or question_kind not in ('name','email','phone','short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')
         or jsonb_array_length(next_questions)>=40
         or (question_kind='file' and jsonb_path_exists(next_questions,'$[*] ? (@.kind == "file")')) then
         raise exception using errcode='22023',message='Tipo ou limite de perguntas indisponível.';
@@ -168,7 +168,7 @@ begin
       question_id := p_fields->>'id';
       if (select count(*) from jsonb_array_elements(next_questions) q where q->>'id'=question_id)<>1
         or not exists(select 1 from jsonb_array_elements(next_questions) q
-          where q->>'id'=question_id and q->>'kind' in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')) then
+          where q->>'id'=question_id and q->>'kind' in ('name','email','phone','short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')) then
         raise exception using errcode='22023',message='Pergunta indisponível para editar.';
       end if;
       select q->>'kind' into question_kind from jsonb_array_elements(next_questions) q where q->>'id'=question_id;

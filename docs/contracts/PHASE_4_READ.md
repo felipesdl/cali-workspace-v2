@@ -636,6 +636,14 @@ A suíte isolada comprovou salto, encerramento, bloqueio de respostas fora do ca
 
 Em 08/11, o formulário sintético de A `teste-v2-qa-condicional-pdf-0811` passou no navegador do CALI MAPA. O caminho “Não” registrou uma resposta sem anexo. O caminho “Sim” registrou a segunda resposta com PDF. O download pela triagem Admin retornou um arquivo idêntico ao original, byte a byte. O teste encontrou exibição antecipada do campo de PDF antes de responder à pergunta condicional obrigatória. A interface passou a aguardar a escolha, com as três situações verificadas no navegador. A coleta terminou fechada com duas respostas sintéticas e um PDF privado. Nenhuma configuração de envio foi alterada. A reversão de UI é independente do contrato de banco e preserva o anexo registrado.
 
+## Campos de contato no Forms V2
+
+O editor piloto oferece Nome, E-mail e Telefone / WhatsApp conforme os tipos da [publicação 83](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/forms/formModel.ts). A página pública informa quem pode consultar esses dados. A abertura mantém a confirmação explícita de que qualquer pessoa com o link pode responder e exige que a confirmação por e-mail esteja desativada.
+
+A coleta confere os formatos também no servidor, incluindo o caminho pelo endpoint legado quando a pergunta pertence a um Forms V2 elegível. Quando há PDF, a mesma gravação registra o nome e o e-mail das primeiras perguntas de contato respondidas no caminho. O e-mail fica em minúsculas. As três respostas seguem como texto nas colunas correspondentes do Excel. A triagem e a exportação continuam restritas a Admin com MFA e à empresa selecionada.
+
+A prova em PostgreSQL descartável cobriu publicação, formatos inválidos, o caminho legado, o caminho com PDF e a exportação. A atualização SQL ainda precisa de aplicação e homologação no CALI MAPA. Em um eventual rollback, encerrar primeiro as coletas que usam os novos tipos e restaurar as definições anteriores de edição, elegibilidade, validação e submissão, preservando as respostas.
+
 ## Ativação sintética da Equipe CALI
 
 Admin com MFA alterna a situação de membros fictícios com módulos e vínculo exclusivo à empresa selecionada. A operação usa revisão e recibo. Exige endereço reservado, ausência de conta, autor de convite e aceite. O catálogo hospedado preenche a data de convite no cadastro inicial, por isso a data isolada não determina elegibilidade.

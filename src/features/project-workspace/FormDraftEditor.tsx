@@ -16,6 +16,9 @@ import { ActionForm } from './ActionForm';
 
 type Scope = { company: string; actor?: string; operations: DomainOperations };
 const questionLabels = {
+  name: 'Nome',
+  email: 'E-mail',
+  phone: 'Telefone / WhatsApp',
   short_text: 'Resposta curta',
   long_text: 'Resposta longa',
   number: 'Número',

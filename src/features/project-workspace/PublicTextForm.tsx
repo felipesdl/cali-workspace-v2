@@ -64,6 +64,9 @@ function PublicTextForm({ slug }: { slug: string }) {
       {domainOperations && form?.status === 'open' && !sent && (
         <>
           {form.description && <p className="tw:whitespace-pre-line">{form.description}</p>}
+          {visible.some(({ kind }) => kind === 'name' || kind === 'email' || kind === 'phone') && (
+            <p>Os dados de contato informados ficam disponíveis à administração do formulário.</p>
+          )}
           <ActionForm
             label="Enviar respostas"
             submit={(fields, request) =>
@@ -120,6 +123,15 @@ function reachableQuestions(questions: PublicFormQuestion[], choices: Record<str
   }
   return reachable;
 }
+
+const inputSettings = {
+  name: { type: 'text', autoComplete: 'name', maxLength: 160 },
+  email: { type: 'email', autoComplete: 'email', maxLength: 254 },
+  phone: { type: 'tel', autoComplete: 'tel', maxLength: 40 },
+  short_text: { type: 'text', maxLength: 5000 },
+  number: { type: 'number', step: 'any' },
+  date: { type: 'date' },
+};
 
 function PublicQuestion({
   question,
@@ -185,14 +197,7 @@ function PublicQuestion({
       {kind === 'long_text' ? (
         <textarea id={inputId} name={id} required={required} maxLength={5000} />
       ) : (
-        <input
-          id={inputId}
-          name={id}
-          required={required}
-          type={kind === 'short_text' ? 'text' : kind}
-          step={kind === 'number' ? 'any' : undefined}
-          maxLength={kind === 'short_text' ? 5000 : undefined}
-        />
+        <input id={inputId} name={id} required={required} {...inputSettings[kind]} />
       )}
     </Field>
   );

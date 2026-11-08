@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Nome, e-mail e telefone no Forms
+
+- O editor e a coleta piloto aceitam campos de contato, inclusive em formulários com anexo PDF. A validação local cobriu formatos inválidos e exportação Excel. [Contrato e estado de homologação](contracts/PHASE_4_READ.md#campos-de-contato-no-forms-v2).
+
 ## Aceite do simulador para a devolutiva do Mapa
 
 - Admin confirmou o envio de um PDF sintético pelo navegador. O CALI MAPA registrou um recibo e um evento de auditoria. A Edge temporária, a flag, as RPCs e a fixture foram retiradas após a prova. [Evidência](contracts/PHASE_4_READ.md#devolutiva-sintética-do-mapa).

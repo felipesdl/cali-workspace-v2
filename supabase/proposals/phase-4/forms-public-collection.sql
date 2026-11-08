@@ -17,7 +17,7 @@ returns boolean language sql immutable set search_path='' as $$
   else jsonb_array_length(p_questions) between 1 and 40
     and not exists(select 1 from jsonb_array_elements(p_questions) q
       where case when jsonb_typeof(q) is distinct from 'object' then true else
-        coalesce(q->>'kind','') not in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')
+        coalesce(q->>'kind','') not in ('name','email','phone','short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')
         or coalesce(q->>'id','') !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
         or coalesce(length(q->>'label'),0) not between 1 and 400
         or jsonb_typeof(q->'required') is distinct from 'boolean'
@@ -136,6 +136,14 @@ returns boolean language sql immutable set search_path='' as $$
         then q->'required'='true'::jsonb
       when q->>'kind'='file' then a.value<>'"[PDF anexado]"'::jsonb
       when q->>'kind'='number' then jsonb_typeof(a.value)<>'number'
+      when q->>'kind'='name' then jsonb_typeof(a.value)<>'string'
+        or length(btrim(a.value#>>'{}')) not between 1 and 160
+      when q->>'kind'='email' then jsonb_typeof(a.value)<>'string'
+        or length(btrim(a.value#>>'{}'))>254
+        or btrim(a.value#>>'{}') !~ '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$'
+      when q->>'kind'='phone' then jsonb_typeof(a.value)<>'string'
+        or btrim(a.value#>>'{}') !~ '^[+0-9 .()-]{8,40}$'
+        or length(regexp_replace(a.value#>>'{}','[^0-9]','','g'))<8
       when q->>'kind'='yes_no' then a.value not in ('"Sim"'::jsonb,'"Não"'::jsonb)
       when q->>'kind'='single_choice' then not (q->'options' @> jsonb_build_array(a.value))
       when q->>'kind'='multi_choice' then case
@@ -164,7 +172,7 @@ declare
 begin
   select f.* into form from cali_workspace.forms f where f.id=new.form_id
     and (jsonb_path_exists(f.questions,'$[*].logic')
-      or jsonb_path_exists(f.questions,'$[*] ? (@.kind == "file")'))
+      or jsonb_path_exists(f.questions,'$[*] ? (@.kind == "file" || @.kind == "name" || @.kind == "email" || @.kind == "phone")'))
     and f.id=(cali_session_guard.phase4_public_text_form(f.slug)).id
     for share;
   if not found then return new; end if;
@@ -250,9 +258,18 @@ begin
     response_id:=gen_random_uuid();
     insert into cali_session_guard.phase4_form_pdfs(response_id,question_id,bytes)
       values(response_id,attachment_question::uuid,pdf);
-    insert into cali_workspace.form_responses(id,form_id,answers) values(response_id,form.id,
-      coalesce((select jsonb_object_agg(key,value) from jsonb_each(normalized)
-        where value not in ('""'::jsonb,'[]'::jsonb)),'{}'::jsonb));
+    insert into cali_workspace.form_responses(id,form_id,answers,respondent_name,respondent_email)
+    values(response_id,form.id,
+      coalesce((select jsonb_object_agg(q->>'id',case
+          when q->>'kind'='email' then to_jsonb(lower(btrim(normalized->>(q->>'id'))))
+          when q->>'kind' in ('name','phone') then to_jsonb(btrim(normalized->>(q->>'id')))
+          else normalized->(q->>'id') end)
+        from jsonb_array_elements(reached) q
+        where normalized->(q->>'id') not in ('""'::jsonb,'[]'::jsonb)),'{}'::jsonb),
+      (select btrim(normalized->>(q->>'id')) from jsonb_array_elements(reached) with ordinality as questions(q,position)
+        where q->>'kind'='name' and nullif(btrim(normalized->>(q->>'id')),'') is not null order by position limit 1),
+      (select lower(btrim(normalized->>(q->>'id'))) from jsonb_array_elements(reached) with ordinality as questions(q,position)
+        where q->>'kind'='email' and nullif(btrim(normalized->>(q->>'id')),'') is not null order by position limit 1));
   else
     result:=public.cali_form_submit(form.slug,case
       when jsonb_path_exists(form.questions,'$[*].logic') then normalized||jsonb_build_object(

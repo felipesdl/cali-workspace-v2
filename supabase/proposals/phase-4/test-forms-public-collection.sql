@@ -23,6 +23,10 @@ declare
   single_question text;
   multi_question text;
   yes_no_question text;
+  name_question text;
+  email_question text;
+  phone_question text;
+  contact_kind text;
   version timestamptz;
   answers jsonb;
   exported jsonb;
@@ -50,6 +54,11 @@ begin
   perform cali_workspace.v2_edit_pilot_form_draft(a,form,version,'add_question','{"kind":"multi_choice","label":"Regiões QA","required":true,"options":["Norte","Sul"]}');
   version:=(cali_workspace.v2_read_pilot_form_draft(a,form)->>'updatedAt')::timestamptz;
   perform cali_workspace.v2_edit_pilot_form_draft(a,form,version,'add_question','{"kind":"yes_no","label":"Confirma QA","required":true}');
+  foreach contact_kind in array array['name','email','phone'] loop
+    perform cali_workspace.v2_edit_pilot_form_draft(a,form,
+      (cali_workspace.v2_read_pilot_form_draft(a,form)->>'updatedAt')::timestamptz,
+      'add_question',jsonb_build_object('kind',contact_kind,'label',contact_kind,'required',contact_kind<>'phone'));
+  end loop;
   perform cali_workspace.v2_open_pilot_public_form(a,form,'draft',true);
   set local role anon;
   question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,0,id}';
@@ -59,9 +68,13 @@ begin
   single_question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,3,id}';
   multi_question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,4,id}';
   yes_no_question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,5,id}';
+  name_question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,6,id}';
+  email_question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,7,id}';
+  phone_question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,8,id}';
   assert public.v2_read_pilot_public_text_form(slug)#>'{questions,3,options}'='["Azul","Verde"]'::jsonb;
   answers:=jsonb_build_object(question,'Resposta sintética',number_question,0,date_question,'2028-02-29',
-    single_question,'Azul',multi_question,'["Norte","Sul"]'::jsonb,yes_no_question,'Não');
+    single_question,'Azul',multi_question,'["Norte","Sul"]'::jsonb,yes_no_question,'Não',
+    name_question,'Pessoa de teste',email_question,'pessoa@example.invalid',phone_question,'+55 (11) 99999-1234');
   begin
     perform public.v2_submit_pilot_public_text_form(slug,gen_random_uuid(),answers||jsonb_build_object(single_question,'Vermelho'));
     raise exception 'Alternativa fora da lista aceita';
@@ -86,6 +99,18 @@ begin
     perform public.v2_submit_pilot_public_text_form(slug,gen_random_uuid(),answers||'{"__visited":""}');
     raise exception 'Campo de controle injetado';
   exception when invalid_parameter_value then null; end;
+  begin
+    perform public.cali_form_submit(slug,answers||jsonb_build_object(email_question,'email inválido'));
+    raise exception 'Endpoint legado aceitou e-mail inválido';
+  exception when invalid_parameter_value then null; end;
+  begin
+    perform public.v2_submit_pilot_public_text_form(slug,gen_random_uuid(),answers||jsonb_build_object(phone_question,'1234567'));
+    raise exception 'Telefone com poucos dígitos aceito';
+  exception when invalid_parameter_value then null; end;
+  begin
+    perform public.v2_submit_pilot_public_text_form(slug,gen_random_uuid(),answers||jsonb_build_object(name_question,'   '));
+    raise exception 'Nome obrigatório em branco aceito';
+  exception when invalid_parameter_value then null; end;
   assert public.v2_submit_pilot_public_text_form(slug,request,answers);
   assert public.v2_submit_pilot_public_text_form(slug,request,answers);
   begin
@@ -107,6 +132,9 @@ begin
   assert exported#>>'{responses,0,values,3}'='Azul';
   assert exported#>>'{responses,0,values,4}'='Norte, Sul';
   assert exported#>>'{responses,0,values,5}'='Não';
+  assert exported#>>'{responses,0,values,6}'='Pessoa de teste';
+  assert exported#>>'{responses,0,values,7}'='pessoa@example.invalid';
+  assert exported#>>'{responses,0,values,8}'='+55 (11) 99999-1234';
   assert exported::text not like '%respondent_email%';
   begin
     perform cali_workspace.v2_export_pilot_form_responses(b,form);
@@ -208,6 +236,9 @@ declare
   slug constant text:='coleta-anexo-qa';
   pdf bytea:=convert_to('%PDF-1.4','UTF8');
   question text;
+  name_question text;
+  email_question text;
+  contact_kind text;
   response uuid;
   answers jsonb;
 begin
@@ -217,9 +248,16 @@ begin
   perform cali_workspace.v2_edit_pilot_form_draft(a,form,
     (cali_workspace.v2_read_pilot_form_draft(a,form)->>'updatedAt')::timestamptz,
     'add_question','{"kind":"file","label":"Documento","required":true}');
+  foreach contact_kind in array array['name','email'] loop
+    perform cali_workspace.v2_edit_pilot_form_draft(a,form,
+      (cali_workspace.v2_read_pilot_form_draft(a,form)->>'updatedAt')::timestamptz,
+      'add_question',jsonb_build_object('kind',contact_kind,'label',contact_kind,'required',contact_kind<>'phone'));
+  end loop;
   perform cali_workspace.v2_open_pilot_public_form(a,form,'draft',true);
   set local role anon;
   question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,0,id}';
+  name_question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,1,id}';
+  email_question:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,2,id}';
   begin
     perform public.v2_submit_pilot_public_text_form(slug,gen_random_uuid(),
       jsonb_build_object(question,encode(convert_to('inválido','UTF8'),'base64')));
@@ -229,7 +267,8 @@ begin
     perform public.cali_form_submit(slug,jsonb_build_object(question,'[PDF anexado]'));
     raise exception 'Marcador de PDF sem arquivo aceito';
   exception when invalid_parameter_value then null; end;
-  answers:=jsonb_build_object(question,encode(pdf,'base64'));
+  answers:=jsonb_build_object(question,encode(pdf,'base64'),name_question,'Pessoa fictícia',
+    email_question,'PESSOA@example.invalid');
   assert public.v2_submit_pilot_public_text_form(slug,request,answers);
   assert public.v2_submit_pilot_public_text_form(slug,request,answers);
   set local role authenticated;
@@ -247,6 +286,8 @@ begin
   exception when insufficient_privilege then null; end;
   reset role;
   assert (select count(*) from cali_workspace.form_responses r where r.form_id=form)=1;
+  assert (select r.respondent_name='Pessoa fictícia' and r.respondent_email='pessoa@example.invalid'
+    and r.answers->>email_question='pessoa@example.invalid' from cali_workspace.form_responses r where r.id=response);
   assert (select r.answers->>question from cali_workspace.form_responses r where r.id=response)='[PDF anexado]';
   assert not has_function_privilege('anon','cali_workspace.v2_read_pilot_form_pdf(uuid,uuid,uuid)','execute');
 end;

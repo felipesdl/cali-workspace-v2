@@ -141,6 +141,9 @@ function rejected(code?: string) {
 }
 
 export const formQuestionKind = z.enum([
+  'name',
+  'email',
+  'phone',
   'short_text',
   'long_text',
   'number',
