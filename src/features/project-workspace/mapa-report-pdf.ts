@@ -7,7 +7,7 @@ import { formatServerInstant } from '../../lib/dates';
 import { mapaReportContent } from './mapa-report-content';
 
 export async function mapaReportPdf(report: MapaReport) {
-  const pdf = await PDFDocument.create();
+  const pdf = await PDFDocument.create({ updateMetadata: false });
   pdf.registerFontkit(fontkit);
   const [regular, bold] = await Promise.all([
     pdf.embedFont(interRegular, { subset: true }),

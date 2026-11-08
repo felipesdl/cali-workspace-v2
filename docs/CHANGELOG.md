@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Devolutiva sintética do Mapa
+
+- A confirmação Admin prepara a revisão conferida, gera o mesmo PDF do download e restringe o destino ao simulador. A suíte PostgreSQL e o teste de transporte local validaram escopo, revisão e repetição após falha. A instalação e a prova externa estão pendentes. [Contrato e rollback](contracts/PHASE_4_READ.md#devolutiva-sintética-do-mapa).
+
 ## Inventário de arquivos V2 para eliminação
 
 - A prévia Admin inclui sete grupos adicionais de arquivos V2. O PostgreSQL descartável validou isolamento e tratamento de capas compartilhadas. Admin conferiu os grupos no CALI MAPA com uma empresa descartável. [Escopo e rollback](contracts/PHASE_4_READ.md#inventário-ampliado-de-arquivos-para-eliminação).

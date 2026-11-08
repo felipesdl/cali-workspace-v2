@@ -72,6 +72,8 @@ As quatro RPCs públicas checam uma identidade administrativa específica. As co
 
 O piloto V2 precisa de associação explícita por identificador, projeção por operação e revisão de quem pode acessar. A consulta existente do legado permanece separada. Estados permitidos e guarda de acesso a relatórios ainda precisam de reconciliação.
 
+Na devolutiva sintética V2, Admin com MFA confere a revisão do diagnóstico e confirma o envio. O servidor confere a delegação e a revisão antes de gerar o mesmo PDF do download. O piloto só entrega ao endereço do simulador e registra a aceitação do provedor. Veja [escopo, testes e rollback](../contracts/PHASE_4_READ.md#devolutiva-sintética-do-mapa).
+
 Em 07/11, o catálogo hospedado confirmou que o leitor público por slug não exige vínculo mesmo com audiência Cliente. A coleta da fixture ficou fechada. [Evidência](../contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).
 
 A V2 exige [confirmação explícita de coleta pública](../contracts/PHASE_4_READ.md#confirmação-de-coleta-pública-em-forms). Abertura privada por vínculo não faz parte do leitor legado.

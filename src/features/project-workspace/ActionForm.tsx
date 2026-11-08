@@ -7,11 +7,13 @@ export function ActionForm<T>({
   submit,
   children,
   saved,
+  success = 'Operação concluída.',
 }: {
   label: string;
   submit: (values: FormData, id: string) => Promise<T>;
   children?: (fieldId: string) => ReactNode;
   saved?: (result: T) => void;
+  success?: string;
 }) {
   const prefix = useId();
   const [requestId, setRequestId] = useState(() => crypto.randomUUID());
@@ -39,7 +41,7 @@ export function ActionForm<T>({
           </Button>
         </div>
       </fieldset>
-      {mutation.isSuccess && <p role="status">Operação concluída.</p>}
+      {mutation.isSuccess && <p role="status">{success}</p>}
       {mutation.isError && <p role="alert">{mutation.error.message}</p>}
     </form>
   );

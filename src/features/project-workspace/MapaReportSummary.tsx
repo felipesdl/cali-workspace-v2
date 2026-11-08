@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { type AdminReadService } from '../../api/modules/project-workspace/admin-read';
 import { Button } from '../../components/ds/button/Button';
+import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 
 import { mapaReportContent } from './mapa-report-content';
 import { FileDownload } from './FileDownload';
+import { ActionForm } from './ActionForm';
 
 export function MapaReportSummary({
   company,
@@ -51,7 +53,7 @@ export function MapaReportSummary({
       {open && report.data === null && (
         <FeedbackState kind="empty">Nenhum diagnóstico completo disponível.</FeedbackState>
       )}
-      {open && content && (
+      {open && data && content && (
         <div className="tw:grid tw:gap-3">
           <p>
             Nota ponderada · <strong>{content.score}</strong>
@@ -104,6 +106,25 @@ export function MapaReportSummary({
               return mapaReportPdf(current);
             }}
           />
+          {import.meta.env.DEV && import.meta.env.VITE_CALI_PHASE4_MAPA_EMAIL === 'true' && (
+            <ActionForm
+              key={JSON.stringify(data)}
+              label="Enviar diagnóstico ao simulador"
+              submit={async (fields) => {
+                if (fields.get('confirm') !== 'on') {
+                  throw new Error('Confirme o envio de teste.');
+                }
+                return service.emailMapaReport(data);
+              }}
+              success="O simulador aceitou o diagnóstico de teste."
+            >
+              {() => (
+                <Checkbox name="confirm" required>
+                  Conferi este diagnóstico. Enviar o PDF apenas ao simulador de e-mail.
+                </Checkbox>
+              )}
+            </ActionForm>
+          )}
         </div>
       )}
     </div>

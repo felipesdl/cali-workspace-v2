@@ -1112,7 +1112,14 @@ export function AdminMapaPage() {
                 entry={entry}
                 company={companyId}
                 operations={domainOperations}
-                saved={() => cache.invalidateQueries({ queryKey: key })}
+                saved={async () => {
+                  await Promise.all([
+                    cache.invalidateQueries({ queryKey: key }),
+                    cache.invalidateQueries({
+                      queryKey: ['phase4-mapa-report', actor, companyId, entry.id],
+                    }),
+                  ]);
+                }}
               />
               <MapaReportSummary
                 record={entry.id}

@@ -5,6 +5,7 @@ create table public.mapa_respostas(id uuid primary key,protocolo text,status tex
   d3_decisao integer,d3_custo integer,d4_colaboradores integer,d4_unidades integer,d4_turnover integer);
 \ir mapa-operations.sql
 \ir mapa-report-read.sql
+\ir mapa-email.sql
 create table public.mapa_sessoes_resumo(session_id uuid primary key,accessed_at timestamptz,last_seen_at timestamptz,
   max_step smallint,started boolean,submitted boolean,copy_events integer,referrer_host text,device_type text);
 \ir mapa-journeys.sql
@@ -21,6 +22,9 @@ declare
   result jsonb;
   journey uuid:=gen_random_uuid();
   ignored uuid:=gen_random_uuid();
+  email_job uuid;
+  receipt uuid:=gen_random_uuid();
+  expected_report jsonb;
 begin
   perform cali_workspace.fixture_as('admin');
   actor:=auth.uid();
@@ -69,6 +73,32 @@ begin
   assert cali_workspace.v2_list_pilot_mapa(b,1)->>'total'='0';
   assert cali_workspace.v2_review_pilot_mapa(a,record_id,0,'em_andamento','Parecer de teste')=record_id;
   assert cali_workspace.v2_review_pilot_mapa(a,record_id,0,'em_andamento','Parecer de teste')=record_id;
+  expected_report:=cali_workspace.v2_read_pilot_mapa_report(a,record_id);
+  email_job:=(cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report)->>'id')::uuid;
+  assert cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report)->>'id'=email_job::text;
+  begin
+    perform cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report-'opinion');
+    raise exception 'Relatório obsoleto enviado';
+  exception when serialization_failure then null; end;
+  begin
+    perform cali_workspace.v2_prepare_pilot_mapa_email(b,record_id,expected_report);
+    raise exception 'Envio cruzado permitido';
+  exception when insufficient_privilege then null; end;
+  assert not has_function_privilege('authenticated','cali_workspace.v2_record_pilot_mapa_email(uuid,uuid)','execute');
+  reset role;
+  update cali_session_guard.phase4_mapa_email set created_at=now()-interval '11 minutes' where id=email_job;
+  set local role authenticated;
+  begin
+    perform cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report);
+    raise exception 'Envio incerto reaberto fora da janela';
+  exception when invalid_parameter_value then null; end;
+  reset role;
+  set local role service_role;
+  perform cali_workspace.v2_record_pilot_mapa_email(email_job,receipt);
+  perform cali_workspace.v2_record_pilot_mapa_email(email_job,receipt);
+  reset role;
+  set local role authenticated;
+  assert cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report)->>'sent'='true';
   begin
     perform cali_workspace.v2_review_pilot_mapa(a,record_id,0,'cancelado','Não deve salvar');
     raise exception 'Revisão obsoleta aceita';
@@ -104,10 +134,14 @@ begin
   assert (select observacoes from public.mapa_respostas where id=record_id)
     ='{"d1_obs":"preservar","parecer":"Parecer de teste"}'::jsonb;
   assert (select count(*) from cali_workspace.activity_log where entity_id=record_id and event_type='mapa_review_saved')=1;
+  assert (select count(*) from cali_workspace.activity_log where entity_id=record_id and event_type='mapa_report_email_test')=1;
+  assert (select status from public.mapa_respostas where id=record_id)='em_andamento';
 end $$;
 rollback;
 drop function cali_workspace.v2_list_pilot_mapa_journeys(uuid,integer);
 drop table cali_session_guard.phase4_mapa_journey_scope;
+\ir rollback-mapa-email.sql
+drop table cali_session_guard.phase4_mapa_email;
 \ir rollback-mapa-report-read.sql
 \ir rollback-mapa-operations.sql
-\echo Fase 4E: Mapa com triagem, operador, MFA, escopo e concorrência validados.
+\echo Fase 4E: Mapa com triagem, escopo, concorrência e recibo da devolutiva validados.

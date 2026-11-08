@@ -70,7 +70,7 @@ const mapaJourneys = page.extend({
   ),
 });
 const mapaScore = z.number().min(0).max(10);
-const mapaReport = z.object({
+export const mapaReport = z.object({
   companyId: z.uuid(),
   recordId: z.uuid(),
   version: z.union([z.literal(1), z.literal(2)]),
@@ -292,6 +292,13 @@ export function createAdminRead(client: WorkspaceClient) {
         throw new Error('Contexto divergente.');
       }
       return report;
+    },
+    async emailMapaReport(report: MapaReport) {
+      const { data, error } = await client.functions.invoke('workspace-mapa-email-pilot', {
+        body: { report },
+      });
+      if (error) throw new Error('Não foi possível confirmar o envio de teste.');
+      return z.object({ accepted: z.literal(true) }).parse(data);
     },
     async staffRoster(company: string, page: number, signal: AbortSignal) {
       const { data, error } = await client
