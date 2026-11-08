@@ -33,6 +33,7 @@ with period as (
         )
         or (n.notification_type='document' and n.entity_type='file' and n.entity_id is not null)
         or (n.notification_type='record_opened' and n.entity_type='account_record' and n.entity_id is not null)
+        or (n.notification_type='team_month_confirmed' and n.entity_type='team_month_review' and n.entity_id is not null)
       ))
       or (p.role::text='client' and p.company_id=n.company_id and n.notification_type in (
         'client_dependency','deliverable_due_revision','deliverable_status','project_schedule_review',

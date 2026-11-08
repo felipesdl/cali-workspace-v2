@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Confirmação mensal no resumo Admin
+
+- Primeira confirmação pelo Cliente gera aviso Admin no app e entra no resumo, sem e-mail. Suíte local validou confirmação e reenvio; CALI MAPA confirmou produtor, exclusões e prévia com eventos revertidos. [Evidência e rollback](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+- Conferência em leitura confirmou que a eliminação legada não cobre as estruturas privadas V2. [Dependências da execução](contracts/PHASE_4_READ.md#conferência-de-dependências-da-eliminação).
+
 ## Escopo priorizado e preço manual de Propostas
 
 - Admin ajusta escopo e valor final no rascunho delegado. A prova no CALI MAPA confirmou teto do pacote, persistência após recarga e retorno ao cálculo integral. Proposta fictícia sem envio e delegação encerrada. [Contrato e rollback](contracts/PHASE_4_READ.md#escopo-priorizado-e-preço-manual).

@@ -3,6 +3,19 @@
 \unset cali_keep_monthly_metrics
 \ir ../../../tests/fixtures/team/vacancies.sql
 \ir review.sql
+create table cali_workspace.fixture_month_notifications(
+ company_id uuid,actor_id uuid,target text,notification_type text,body text,
+ entity_type text,entity_id uuid,action_url text,email_required boolean
+);
+create function cali_workspace.notify_workspace_movement(
+ p_company_id uuid,p_actor_id uuid,p_target text,p_notification_type text,p_title text,p_body text,
+ p_entity_type text,p_entity_id uuid,p_action_url text,p_relevance text,p_email_required boolean
+) returns uuid[] language sql as $$
+ insert into cali_workspace.fixture_month_notifications
+ values(p_company_id,p_actor_id,p_target,p_notification_type,p_body,p_entity_type,p_entity_id,p_action_url,p_email_required);
+ select array[p_entity_id];
+$$;
+\ir ../phase-4/admin-daily-monthly-source.sql
 
 do $$
 declare
@@ -62,6 +75,12 @@ begin
   or not exists(select 1 from cali_workspace.team_month_snapshots where company_id=cb and job_title='Coordenação QA')
   or (select count(*) from cali_workspace.team_vacancy_events where company_id=cb)<>1 then
   raise exception 'Histórico de snapshot ou evento de vaga perdido'; end if;
+ if (select count(*) from cali_workspace.fixture_month_notifications)<>1
+  or not exists(select 1 from cali_workspace.fixture_month_notifications n
+    where n.company_id=cb and n.target='admin' and n.notification_type='team_month_confirmed'
+      and n.entity_type='team_month_review' and not n.email_required
+      and n.action_url='/admin/equipe?companyId='||cb::text||'&view=monthly&month='||to_char(month,'YYYY-MM')) then
+  raise exception 'A primeira confirmação deve gerar um aviso Admin sem e-mail; replay e revisão não repetem.'; end if;
  -- Confirmação vazia da outra empresa é explícita e válida.
  update cali_workspace.team_members set archived_at=clock_timestamp() where company_id=ca;
  set local role authenticated;
@@ -123,6 +142,7 @@ begin
   ('9c5ab148-78b8-4410-9338-58c44222a5db','6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76')) then
   raise exception 'Admin sem MFA leu métricas do piloto'; end if;
 end $$;
+\ir ../phase-4/rollback-admin-daily-monthly-source.sql
 \ir rollback-read.sql
 \ir rollback-review.sql
 \ir rollback-metrics.sql
