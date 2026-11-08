@@ -1,4 +1,5 @@
 import { decodePdf, encodePdf, pdfPayload } from './pdf-payload';
+import { encodeAttachment, maxAttachmentBytes } from './file-payload';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 import { companyStatus } from '../companies/schemas';
@@ -51,6 +52,7 @@ const records = z.object({
   feedback: feedback.nullable().optional(),
   reopen: reopen.nullable().optional(),
   attachmentsEnabled: z.boolean().optional(),
+  imageAttachmentsEnabled: z.boolean().optional(),
   messages: z.array(
     z.object({
       id: z.uuid(),
@@ -791,17 +793,34 @@ export function createDomainOperations(client: WorkspaceClient) {
     async recordAction(company: string, id: string, input: RecordAction, file?: File) {
       const command = recordAction.parse(input);
       if (file) {
-        if (command.action !== 'message') throw new Error('Anexe o PDF na conversa.');
-        const { data, error } = await client.rpc('v2_post_pilot_record_pdf', {
+        if (command.action !== 'message') throw new Error('Anexe o arquivo na conversa.');
+        const pdf = file.name.toLowerCase().endsWith('.pdf');
+        if (
+          !pdf &&
+          (!/\.(png|jpe?g|webp)$/i.test(file.name) ||
+            file.size < 8 ||
+            file.size > maxAttachmentBytes)
+        )
+          throw new Error('Selecione um PDF ou imagem PNG, JPEG ou WebP de até 2 MiB.');
+        const params = {
           p_company_id: company,
           p_request_id: id,
           p_record_id: command.record,
           p_body: command.body,
           p_internal: command.internal,
           p_file_name: file.name,
-          p_pdf_base64: await encodePdf(file),
-        });
-        if (error?.code === '22023') throw new Error('Confira a mensagem e o PDF de até 2 MiB.');
+        };
+        const { data, error } = pdf
+          ? await client.rpc('v2_post_pilot_record_pdf', {
+              ...params,
+              p_pdf_base64: await encodePdf(file),
+            })
+          : await client.rpc('v2_post_pilot_record_image', {
+              ...params,
+              p_image_base64: await encodeAttachment(file),
+            });
+        if (error?.code === '22023')
+          throw new Error('Confira a mensagem e o formato do anexo de até 2 MiB.');
         if (error) throw rejected(error.code);
         return z.uuid().parse(data);
       }
@@ -819,7 +838,7 @@ export function createDomainOperations(client: WorkspaceClient) {
       if (error) throw rejected(error.code);
       return z.uuid().parse(data);
     },
-    async recordPdf(company: string, record: string, message: string, signal: AbortSignal) {
+    async recordAttachment(company: string, record: string, message: string, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_read_pilot_record_pdf', {
           p_company_id: company,
@@ -831,9 +850,14 @@ export function createDomainOperations(client: WorkspaceClient) {
       if (error) throw rejected(error.code);
       const result = pdfPayload.parse(data);
       if (result.id !== message) throw rejected();
-      return decodePdf(result);
+      return decodePdf(result, 'anexo');
     },
-    async withdrawRecordPdf(company: string, record: string, message: string, reason: string) {
+    async withdrawRecordAttachment(
+      company: string,
+      record: string,
+      message: string,
+      reason: string,
+    ) {
       const { data, error } = await client.rpc('v2_withdraw_pilot_record_pdf', {
         p_company_id: company,
         p_record_id: record,

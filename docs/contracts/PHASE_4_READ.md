@@ -423,6 +423,14 @@ Em 07/11/2026, o lote instalou a tabela privada, três RPCs e a extensão do lei
 
 O PostgreSQL descartável também provou arquivo inválido sem postagem, PDF Cliente, alteração de pedido já usado, negação de download interno/cruzado e retirada idempotente. A reversão `rollback-record-attachments.sql` retira as três RPCs, oculta a capacidade de anexo e preserva bytes e histórico. O acervo de anexos do bucket legado, outros formatos e anexos na abertura da ocorrência ficam fora deste recorte.
 
+### Imagens em conversas de ocorrências
+
+A conversa V2 aceita PNG, JPEG e WebP além de PDF. Mantém um anexo de até 2 MiB por mensagem. O servidor confere extensão e assinatura do formato antes de postar. A mensagem, o arquivo e o recibo confirmam juntos. O download continua privado, sem cache, com comparação SHA-256 e entrega como arquivo. O contrato anterior de PDF preserva o recibo e o caminho de download.
+
+Em 08/11, Admin enviou e baixou três imagens fictícias na ocorrência de teste da Empresa A. Os downloads corresponderam byte a byte aos arquivos de origem. Admin retirou os anexos e a conversa manteve as mensagens. O banco confirmou três retiradas auditadas e nenhuma marcação de e-mail. O ensaio SQL descartável confirmou recusa de extensão incompatível, reenvio sem duplicação e recusa de download para outra empresa. O rollback do lote em `output/runtime/phase4c/record-images-rollback.sql` desliga novos uploads de imagem e mantém os arquivos e o leitor autenticado.
+
+A [publicação 83](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/lib/recordsExperienceRuntimeV2.ts#L50) também aceita documentos Office e múltiplos anexos. Office, múltiplos anexos e limites maiores exigem validação própria. O acervo legado fica para o rollout.
+
 ## Interações de avisos no CALI MAPA
 
 Admin com MFA e Cliente admitido leem e publicam comentários da empresa em avisos publicados do seu público. Aviso geral não forma conversa entre empresas. O leitor retorna texto, papel e instante, sem identificadores de usuários. Comentários usam recibo de reenvio; a reação própria usa o valor anterior para recusar sobrescrita concorrente. Gostei, Adorei, Aplausos e retirada correspondem ao contrato legado de uma reação por usuário/aviso. Reação existente em outro contexto não é movida. Nenhuma dessas operações dispara notificação.

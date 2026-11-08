@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Imagens em ocorrências
+
+- Conversas aceitam PNG, JPEG e WebP junto do PDF, com conferência do formato e download privado. Admin enviou, baixou e retirou três imagens fictícias no CALI MAPA; bytes e auditoria conferidos. [Contrato e rollback](contracts/PHASE_4_READ.md#imagens-em-conversas-de-ocorrências).
+
 ## Confirmação mensal no resumo Admin
 
 - Primeira confirmação pelo Cliente gera aviso Admin no app e entra no resumo, sem e-mail. Suíte local validou confirmação e reenvio; CALI MAPA confirmou produtor, exclusões e prévia com eventos revertidos. [Evidência e rollback](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).

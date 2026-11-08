@@ -11,7 +11,7 @@ import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { formatServerInstant } from '../../lib/dates';
 import { ActionForm } from './ActionForm';
 import { RecordReviewActions } from './RecordReviewActions';
-import { PdfDownload } from './PdfDownload';
+import { FileDownload } from './FileDownload';
 import { workspaceSearch } from '../../api/modules/project-workspace/schemas';
 
 const states = {
@@ -66,10 +66,12 @@ function MessageFields({
   prefix,
   admin,
   attachmentsEnabled,
+  imageAttachmentsEnabled,
 }: {
   prefix: string;
   admin: boolean;
   attachmentsEnabled?: boolean;
+  imageAttachmentsEnabled?: boolean;
 }) {
   return (
     <>
@@ -78,8 +80,14 @@ function MessageFields({
       </Field>
       {admin && <Checkbox name="internal">Somente para a CALI</Checkbox>}
       {attachmentsEnabled && (
-        <Field id={prefix + 'pdf'} label="Anexo PDF de até 2 MiB (opcional)">
-          <input id={prefix + 'pdf'} name="pdf" type="file" accept="application/pdf,.pdf" />
+        <Field id={prefix + 'attachment'} label="Anexo de até 2 MiB (opcional)">
+          <input
+            id={prefix + 'attachment'}
+            name="attachment"
+            type="file"
+            accept={imageAttachmentsEnabled ? '.pdf,.png,.jpg,.jpeg,.webp' : '.pdf'}
+          />
+          <span>{imageAttachmentsEnabled ? 'PDF, PNG, JPEG ou WebP.' : 'PDF.'}</span>
         </Field>
       )}
     </>
@@ -175,9 +183,10 @@ export function RecordConversation({
                   {message.attachment && (
                     <div className="tw:grid tw:gap-2">
                       <p className="tw:break-words">{message.attachment.fileName}</p>
-                      <PdfDownload
+                      <FileDownload
+                        label="Baixar anexo"
                         download={(signal) =>
-                          operations.recordPdf(company, record, message.id, signal)
+                          operations.recordAttachment(company, record, message.id, signal)
                         }
                       />
                       {message.attachment.canWithdraw && (
@@ -186,7 +195,7 @@ export function RecordConversation({
                           <ActionForm
                             label="Confirmar retirada do anexo"
                             submit={async (fields) => {
-                              const result = await operations.withdrawRecordPdf(
+                              const result = await operations.withdrawRecordAttachment(
                                 company,
                                 record,
                                 message.id,
@@ -234,7 +243,7 @@ export function RecordConversation({
             <ActionForm
               label="Registrar mensagem"
               submit={(fields, id) => {
-                const attachment = fields.get('pdf');
+                const attachment = fields.get('attachment');
                 return submit(
                   {
                     action: 'message',
@@ -253,6 +262,7 @@ export function RecordConversation({
                   prefix={prefix}
                   admin={admin}
                   attachmentsEnabled={data.attachmentsEnabled}
+                  imageAttachmentsEnabled={data.imageAttachmentsEnabled}
                 />
               )}
             </ActionForm>

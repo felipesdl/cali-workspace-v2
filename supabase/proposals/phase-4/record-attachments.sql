@@ -1,9 +1,9 @@
--- FLOW-10. PDF e mensagem confirmam juntos. O arquivo nunca fica acessível por URL.
+-- FLOW-10. Anexo e mensagem confirmam juntos. Download autenticado.
 begin;
 set local lock_timeout='5s';
-create function cali_workspace.v2_post_pilot_record_pdf(
+create or replace function cali_session_guard.phase4_post_record_attachment(
   p_company_id uuid,p_request_id uuid,p_record_id uuid,p_body text,p_internal boolean,
-  p_file_name text,p_pdf_base64 text
+  p_file_name text,p_base64 text,p_image boolean
 )
 returns uuid language plpgsql security definer set search_path=''
 as $$
@@ -12,21 +12,33 @@ declare
   bytes bytea;
   signature bytea;
   saved uuid;
+  extension text:=lower(substring(p_file_name from '\.([^.]+)$'));
 begin
-  if coalesce(length(p_file_name),0) not between 5 and 180 or lower(right(p_file_name,4))<>'.pdf'
+  if coalesce(length(p_file_name),0) not between 5 and 180
+    or (case when p_image then coalesce(extension in ('png','jpg','jpeg','webp'),false)
+      else extension is not distinct from 'pdf' end) is not true
     or p_file_name ~ '[[:cntrl:]/]' or position(chr(92) in p_file_name)>0
-    or coalesce(length(p_pdf_base64),0) not between 12 and 2796204 then
-    raise exception using errcode='22023',message='Selecione um PDF de até 2 MiB.';
+    or coalesce(length(p_base64),0) not between 12 and 2796204 then
+    raise exception using errcode='22023',message='Selecione um anexo compatível de até 2 MiB.';
   end if;
   begin
-    bytes:=decode(p_pdf_base64,'base64');
+    bytes:=decode(p_base64,'base64');
   exception when invalid_parameter_value then
-    raise exception using errcode='22023',message='PDF inválido.';
+    raise exception using errcode='22023',message='Anexo inválido.';
   end;
-  if octet_length(bytes) not between 8 and 2097152 or substring(bytes from 1 for 5)<>convert_to('%PDF-','UTF8') then
-    raise exception using errcode='22023',message='PDF inválido.';
+  if octet_length(bytes) not between 8 and 2097152 or not (
+    case extension
+      when 'pdf' then substring(bytes from 1 for 5)=convert_to('%PDF-','UTF8')
+      when 'png' then substring(bytes from 1 for 16)=decode('89504e470d0a1a0a0000000d49484452','hex')
+      when 'webp' then substring(bytes from 1 for 4)=convert_to('RIFF','UTF8')
+        and substring(bytes from 9 for 8) in (convert_to('WEBPVP8 ','UTF8'),convert_to('WEBPVP8L','UTF8'),convert_to('WEBPVP8X','UTF8'))
+      else substring(bytes from 1 for 3)=decode('ffd8ff','hex')
+        and substring(bytes from octet_length(bytes)-1 for 2)=decode('ffd9','hex')
+    end
+  ) then
+    raise exception using errcode='22023',message='O conteúdo não corresponde ao formato do anexo.';
   end if;
-  signature:=sha256(convert_to(jsonb_build_array('record-pdf',p_record_id,btrim(p_body),coalesce(p_internal,false),
+  signature:=sha256(convert_to(jsonb_build_array(case when p_image then 'record-image' else 'record-pdf' end,p_record_id,btrim(p_body),coalesce(p_internal,false),
     p_file_name,encode(sha256(bytes),'hex'))::text,'UTF8'));
   saved:=cali_session_guard.read_phase4_receipt(actor,p_company_id,p_request_id,signature);
   if saved is not null then return saved; end if;
@@ -37,6 +49,26 @@ begin
   insert into cali_session_guard.phase4_operation_receipts values(actor,p_company_id,p_request_id,signature,saved);
   return saved;
 end;
+$$;
+revoke all on function cali_session_guard.phase4_post_record_attachment(uuid,uuid,uuid,text,boolean,text,text,boolean)
+  from public,anon,authenticated,service_role;
+
+create or replace function cali_workspace.v2_post_pilot_record_pdf(
+  p_company_id uuid,p_request_id uuid,p_record_id uuid,p_body text,p_internal boolean,
+  p_file_name text,p_pdf_base64 text
+)
+returns uuid language sql security definer set search_path='' as $$
+  select cali_session_guard.phase4_post_record_attachment(
+    p_company_id,p_request_id,p_record_id,p_body,p_internal,p_file_name,p_pdf_base64,false);
+$$;
+
+create or replace function cali_workspace.v2_post_pilot_record_image(
+  p_company_id uuid,p_request_id uuid,p_record_id uuid,p_body text,p_internal boolean,
+  p_file_name text,p_image_base64 text
+)
+returns uuid language sql security definer set search_path='' as $$
+  select cali_session_guard.phase4_post_record_attachment(
+    p_company_id,p_request_id,p_record_id,p_body,p_internal,p_file_name,p_image_base64,true);
 $$;
 
 create function cali_workspace.v2_read_pilot_record_pdf(p_company_id uuid,p_record_id uuid,p_message_id uuid)
@@ -96,9 +128,11 @@ end;
 $$;
 
 revoke all on function cali_workspace.v2_post_pilot_record_pdf(uuid,uuid,uuid,text,boolean,text,text),
+  cali_workspace.v2_post_pilot_record_image(uuid,uuid,uuid,text,boolean,text,text),
   cali_workspace.v2_read_pilot_record_pdf(uuid,uuid,uuid),
   cali_workspace.v2_withdraw_pilot_record_pdf(uuid,uuid,uuid,text) from public,anon,authenticated,service_role;
 grant execute on function cali_workspace.v2_post_pilot_record_pdf(uuid,uuid,uuid,text,boolean,text,text),
+  cali_workspace.v2_post_pilot_record_image(uuid,uuid,uuid,text,boolean,text,text),
   cali_workspace.v2_read_pilot_record_pdf(uuid,uuid,uuid),
   cali_workspace.v2_withdraw_pilot_record_pdf(uuid,uuid,uuid,text) to authenticated;
 notify pgrst,'reload schema';

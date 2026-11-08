@@ -34,6 +34,8 @@ RPCs de edição/exclusão exigem Admin e mensagem de author_role admin; mensage
 
 Anexos legados usam bucket privado e caminhos do contexto. Policies de upload/leitura devem ser lidas junto do vínculo da mensagem; upload bem-sucedido não equivale a mensagem postada. Notas internas não entram no DTO de conversa cliente. No piloto, [PDFs de conversa](../contracts/PHASE_4_READ.md#anexos-pdf-de-ocorrências-no-cali-mapa) são gravados com a mensagem e baixados após conferir a visibilidade vigente.
 
+O piloto aplica o mesmo contrato a [imagens PNG, JPEG e WebP](../contracts/PHASE_4_READ.md#imagens-em-conversas-de-ocorrências). Formato incompatível impede a postagem; retirada preserva a mensagem. Os três formatos passaram pelo envio e download autenticados no CALI MAPA.
+
 ## Continuidade, falhas e aceite
 
 A [implementação piloto da avaliação e reabertura](../contracts/PHASE_4_READ.md#avaliação-e-reabertura-de-ocorrências) valida a avaliação do próprio solicitante, reexecução e decisão Admin. O transporte legado não foi exercitado.

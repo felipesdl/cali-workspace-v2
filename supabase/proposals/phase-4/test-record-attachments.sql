@@ -10,6 +10,9 @@ declare
   shared uuid;
   hidden uuid;
   client_file uuid;
+  image_id uuid;
+  image_request uuid:=gen_random_uuid();
+  png text:='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aSuoAAAAASUVORK5CYII=';
   payload jsonb;
 begin
   set local role authenticated;
@@ -22,6 +25,12 @@ begin
   assert jsonb_array_length(cali_workspace.v2_read_pilot_record(a,ticket,1)->'messages')=1;
   client_file:=cali_workspace.v2_post_pilot_record_pdf(a,gen_random_uuid(),ticket,'Anexo Cliente',false,'cliente.pdf',bytes);
   perform cali_workspace.fixture_as('admin');
+  begin
+    perform cali_workspace.v2_post_pilot_record_image(a,gen_random_uuid(),ticket,'Imagem inválida',false,'renomeado.png',bytes);
+    raise exception 'Arquivo com extensão incompatível aceito';
+  exception when invalid_parameter_value then null; end;
+  image_id:=cali_workspace.v2_post_pilot_record_image(a,image_request,ticket,'Imagem pública',false,'pixel.png',png);
+  assert cali_workspace.v2_post_pilot_record_image(a,image_request,ticket,'Imagem pública',false,'pixel.png',png)=image_id;
   shared:=cali_workspace.v2_post_pilot_record_pdf(a,request,ticket,'Mensagem pública',false,'publico.pdf',bytes);
   assert cali_workspace.v2_post_pilot_record_pdf(a,request,ticket,'Mensagem pública',false,'publico.pdf',bytes)=shared;
   begin
@@ -41,9 +50,15 @@ begin
     perform cali_workspace.v2_read_pilot_record_pdf(b,ticket,shared);
     raise exception 'PDF da outra empresa disponível';
   exception when insufficient_privilege then null; end;
+  begin
+    perform cali_workspace.v2_read_pilot_record_pdf(b,ticket,image_id);
+    raise exception 'Imagem da outra empresa disponível';
+  exception when insufficient_privilege then null; end;
   perform cali_workspace.fixture_as('clientA');
   payload:=cali_workspace.v2_read_pilot_record(a,ticket,1);
   assert payload->>'attachmentsEnabled'='true';
+  assert payload->>'imageAttachmentsEnabled'='true';
+  assert decode(cali_workspace.v2_read_pilot_record_pdf(a,ticket,image_id)->>'content','base64')=decode(png,'base64');
   assert payload::text like '%publico.pdf%' and payload::text not like '%interno.pdf%';
   assert cali_workspace.v2_read_pilot_record_pdf(a,ticket,shared)->>'content'=bytes;
   assert current_setting('response.headers') like '%private, no-store%';
@@ -62,11 +77,11 @@ begin
     raise exception 'PDF retirado disponível';
   exception when insufficient_privilege then null; end;
   reset role;
-  assert (select count(*) from cali_workspace.account_record_messages where record_id=ticket)=4;
+  assert (select count(*) from cali_workspace.account_record_messages where record_id=ticket)=5;
   assert (select count(*) from cali_workspace.activity_log where entity_id=ticket and event_type='record_attachment_withdrawn')=1;
   assert not exists(select 1 from cali_workspace.notifications where entity_id=ticket and email_required);
   assert not has_table_privilege('authenticated','cali_session_guard.phase4_record_attachments','select');
 end $$;
 rollback;
 \ir rollback-record-attachments.sql
-\echo Fase 4C: PDF atômico com mensagem, visibilidade, reexecução e retirada validados.
+\echo Fase 4C: anexos atômicos com mensagem, visibilidade, reexecução e retirada validados.

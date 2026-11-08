@@ -45,6 +45,8 @@ begin
   return (
     select jsonb_build_object('id',r.id,'title',r.title,'status',r.workflow_status,'visibility',r.visibility,
       'attachmentsEnabled',attachments_enabled,
+      'imageAttachmentsEnabled',to_regprocedure(
+        'cali_workspace.v2_post_pilot_record_image(uuid,uuid,uuid,text,boolean,text,text)') is not null,
       'feedback',(select jsonb_build_object('score',f.score,'comment',f.comment)
         from cali_workspace.account_record_feedback f where f.company_id=p_company_id and f.record_id=r.id and f.user_id=actor),
       'reopen',(select jsonb_build_object('id',q.id,'status',q.status,
