@@ -648,7 +648,11 @@ A prova em PostgreSQL descartável cobriu publicação, formatos inválidos, o c
 
 O editor permite criar e editar uma escala de inteiros entre 0 e 10, com mínimo menor que máximo e rótulos opcionais nos extremos. O padrão é 0 a 10. A coleta pública grava o valor como número e o Excel mantém a nota na coluna da pergunta. O bloco de texto exibe instruções na posição do fluxo, sem campo de resposta nem coluna na planilha. A publicação exige pelo menos uma pergunta que aceite resposta.
 
-O PostgreSQL descartável valida edição, limites, rejeição de nota fracionária ou enviada como texto, bloqueio de resposta para o bloco e persistência e exportação da nota zero. Os contratos de rascunho, coleta e exportação são um lote só; aplicar nessa ordem. Instalação e prova pelo navegador do CALI MAPA seguem pendentes para esses dois tipos. Para reverter, encerrar primeiro as coletas que os usam e restaurar as funções anteriores de edição, coleta, guarda e exportação, preservando as respostas.
+O PostgreSQL descartável validou edição, limites, rejeição de nota fracionária ou enviada como texto, bloqueio de resposta para o bloco e persistência e exportação da nota zero.
+
+Em 08/11, o CALI MAPA recebeu as oito definições de `f185c99` em uma transação: sete funções substituídas e um validador privado novo. No navegador, o Admin criou um formulário sintético na Empresa A. O rascunho só com o bloco não ofereceu abertura. Com a escala de 0 a 4, a edição do rótulo do máximo apareceu na página pública; o bloco ficou visível sem campo de resposta. O banco confirmou uma única resposta com a nota zero numérica. O Excel trouxe zero na coluna da escala, sem coluna para o bloco. A coleta ficou fechada, com confirmação por e-mail desativada e zero envios.
+
+Os contratos de rascunho, coleta e exportação formam um lote. O rollback em `output/runtime/phase4e/forms-scale-rollback.sql` recusa execução enquanto houver coleta V2 aberta usando os novos tipos. Restaura as sete definições anteriores, remove o validador novo e preserva as respostas. A prova é funcional no staging; não inclui migração do acervo ou paridade visual.
 
 ## Ativação sintética da Equipe CALI
 

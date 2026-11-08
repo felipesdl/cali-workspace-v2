@@ -2,7 +2,7 @@
 
 ## Escala e bloco de texto no Forms
 
-- Editor configura limites e rótulos da escala. A coleta grava nota inteira e exibe blocos de texto sem gerar resposta ou coluna no Excel. [Validação local e estado do CALI MAPA](contracts/PHASE_4_READ.md#escala-e-bloco-de-texto-no-forms-v2).
+- Homologação no CALI MAPA: Admin configurou a escala, o navegador gravou nota zero e o Excel trouxe apenas a coluna da escala. O bloco apareceu sem campo de resposta. Coleta sintética encerrada sem envio de e-mail. [Evidência e rollback](contracts/PHASE_4_READ.md#escala-e-bloco-de-texto-no-forms-v2).
 
 ## Nome, e-mail e telefone no Forms
 
