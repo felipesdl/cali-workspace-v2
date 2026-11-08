@@ -11,7 +11,13 @@ with period as (
   select day,day::timestamp at time zone 'America/Sao_Paulo' as starts_at,
     (day+1)::timestamp at time zone 'America/Sao_Paulo' as ends_at from period
 ), eligible as (
-  select n.id,n.company_id,n.created_at,n.title,n.body,n.entity_type,n.entity_id,n.action_url,
+  select n.id,n.company_id,n.created_at,n.title,n.body,n.entity_type,n.entity_id,
+    case
+      when p.role::text='admin' and n.notification_type='document' and n.entity_type='file'
+        then '/admin/documentos?companyId='||n.company_id::text
+      when p.role::text='admin' and n.notification_type='record_opened' and n.entity_type='account_record'
+        then '/admin/registros?companyId='||n.company_id::text||'&record='||n.entity_id::text
+      else n.action_url end as action_url,
     case p.role::text when 'admin' then 'client' else 'cali' end as block
   from cali_workspace.notifications n
   join cali_session_guard.pilot_companies pilot on pilot.company_id=n.company_id
@@ -19,10 +25,14 @@ with period as (
   cross join bounds b
   where n.created_at>=b.starts_at and n.created_at<b.ends_at and n.created_at<=p_instant
     and (
-      (p.role::text='admin' and n.notification_type in (
-        'client_task_adjustment_requested','client_task_approved','deliverable_status','nps','project_schedule_adjustment',
-        'project_schedule_approved','record_feedback','record_reopen_request','review_response',
-        'scheduling_confirmed','scheduling_request'
+      (p.role::text='admin' and (
+        n.notification_type in (
+          'client_task_adjustment_requested','client_task_approved','deliverable_status','nps','project_schedule_adjustment',
+          'project_schedule_approved','record_feedback','record_reopen_request','review_response',
+          'scheduling_confirmed','scheduling_request'
+        )
+        or (n.notification_type='document' and n.entity_type='file' and n.entity_id is not null)
+        or (n.notification_type='record_opened' and n.entity_type='account_record' and n.entity_id is not null)
       ))
       or (p.role::text='client' and p.company_id=n.company_id and n.notification_type in (
         'client_dependency','deliverable_due_revision','deliverable_status','project_schedule_review',

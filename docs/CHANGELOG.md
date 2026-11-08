@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Documentos e solicitações no resumo Admin
+
+- O resumo inclui avisos de documento e nova solicitação do Cliente, com atalhos por empresa. PostgreSQL descartável e CALI MAPA confirmaram corte, exclusões e deduplicação. Os avisos sintéticos foram revertidos, sem despacho. [Evidência e rollback](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+
 ## Escala e bloco de texto no Forms
 
 - Homologação no CALI MAPA: Admin configurou a escala, o navegador gravou nota zero e o Excel trouxe apenas a coluna da escala. O bloco apareceu sem campo de resposta. Coleta sintética encerrada sem envio de e-mail. [Evidência e rollback](contracts/PHASE_4_READ.md#escala-e-bloco-de-texto-no-forms-v2).

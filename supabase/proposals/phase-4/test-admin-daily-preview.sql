@@ -73,6 +73,20 @@ begin
   assert payload::text not like '%Relatório retirado%' and payload::text not like '%depois do corte%';
   assert payload::text not like '%Chat excluído%' and payload::text not like '%Staff excluído%';
   assert cali_session_guard.phase4_build_admin_daily_preview('2026-11-08 22:00Z')->'companies'='[]'::jsonb;
+  insert into cali_workspace.notifications(company_id,user_id,notification_type,title,body,entity_type,entity_id,created_at,action_url)
+  values
+    (a,receiver,'document','Documento do Cliente','Documento sintético','file',visible_report,'2026-11-08 20:00Z','/admin/documentos'),
+    (a,receiver,'document','Documento do Cliente','Documento sintético','file',visible_report,'2026-11-08 21:00Z','/admin/documentos'),
+    (a,receiver,'record_opened','Solicitação do Cliente','Solicitação sintética','account_record',visible_report,'2026-11-08 21:30Z','/admin/registros'),
+    (a,receiver,'document','Tipo fora do contrato','Teste','report',null,'2026-11-08 20:00Z','/admin/relatorios'),
+    (a,client,'document','Documento da CALI','Teste','file',null,'2026-11-08 20:00Z','/cliente/documentos'),
+    (a,receiver,'record_message','Mensagem sem nova solicitação','Teste','account_record',null,'2026-11-08 20:00Z','/admin/registros');
+  payload:=cali_session_guard.phase4_build_admin_daily_preview('2026-11-08 22:00Z');
+  assert payload->>'clientTotal'='2' and payload->>'caliTotal'='0';
+  assert payload#>>'{companies,0,client,items,0,title}'='Solicitação do Cliente';
+  assert payload#>>'{companies,0,client,items,0,link}'='/admin/registros?companyId='||a::text||'&record='||visible_report::text;
+  assert payload#>>'{companies,0,client,items,1,link}'='/admin/documentos?companyId='||a::text;
+  assert cali_session_guard.phase4_build_admin_daily_preview('2026-11-10 22:00Z')->'companies'='[]'::jsonb;
   insert into cali_workspace.notifications(company_id,user_id,notification_type,title,body,created_at)
   select a,receiver,'review_response','Volume '||i,'Fixture','2026-11-09 04:00Z'::timestamptz
   from generate_series(1,2101) i;
@@ -90,7 +104,7 @@ begin
     (receiver),(client),(inactive),(missing_email),(staff);
   assert cali_session_guard.phase4_enqueue_admin_digest(instant-interval '1 minute')=0;
   assert cali_session_guard.phase4_enqueue_admin_digest(instant+interval '1 minute')=0;
-  assert cali_session_guard.phase4_enqueue_admin_digest('2026-11-08 22:00Z')=0;
+  assert cali_session_guard.phase4_enqueue_admin_digest('2026-11-10 22:00Z')=0;
   assert cali_session_guard.phase4_enqueue_admin_digest(instant+interval '29 seconds')=1;
   assert cali_session_guard.phase4_enqueue_admin_digest(instant)=0;
   assert (select profile_id from cali_session_guard.phase4_admin_digest_queue)=receiver;
