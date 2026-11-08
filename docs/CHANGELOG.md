@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Coleta de texto por link em Forms
+
+- No CALI MAPA, uma resposta fictícia entrou pelo link público da Empresa A. Admin encerrou a coleta, o link passou a mostrar o estado fechado e o banco confirmou um recibo e zero e-mails. A primeira abertura havia falhado pela ausência das RPCs no catálogo, conferidas após a instalação. [Contrato e evidências](contracts/PHASE_4_READ.md#coleta-pública-de-texto-na-v2).
+
 ## Ensaio de cópia de arquivos de entregáveis
 
 - A cópia de três cargas sintéticas passou no CALI MAPA em transação revertida. No PostgreSQL descartável, A leu somente o PDF publicado e B ficou sem acesso. Os dois arquivados ficaram privados, com hash, autoria e cadeia de revisão preservados. O acervo inventariado e o corte dos leitores legados ficam para o rollout. [Contrato e evidências](contracts/PHASE_4_READ.md#acervo-legado-de-entregáveis).
