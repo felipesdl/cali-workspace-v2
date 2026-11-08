@@ -17,6 +17,34 @@ $$;
 revoke all on function cali_session_guard.phase4_form_options_valid(text,jsonb)
   from public,anon,authenticated,service_role;
 
+-- Regras do editor legado: por alternativa, avançar para uma pergunta posterior ou encerrar.
+create or replace function cali_session_guard.phase4_form_logic_valid(p_questions jsonb)
+returns boolean language sql immutable set search_path='' as $$
+  select not exists (
+    select 1 from jsonb_array_elements(p_questions) with ordinality q(item,position)
+    where q.item?'logic' and case
+      when q.item->>'kind' not in ('single_choice','yes_no')
+        or jsonb_typeof(q.item->'logic') is distinct from 'array' then true
+      else jsonb_array_length(q.item->'logic') not between 1 and 26
+        or (select count(distinct rule->>'when') from jsonb_array_elements(q.item->'logic') rule)
+          <>jsonb_array_length(q.item->'logic')
+        or exists(select 1 from jsonb_array_elements(q.item->'logic') rule where case
+          when jsonb_typeof(rule) is distinct from 'object' then true
+          else rule-'when'-'goTo'<>'{}'::jsonb
+            or jsonb_typeof(rule->'when') is distinct from 'string'
+            or not coalesce((case when q.item->>'kind'='yes_no' then '["Sim","Não"]'::jsonb
+              else q.item->'options' end) @> jsonb_build_array(rule->'when'),false)
+            or jsonb_typeof(rule->'goTo') is distinct from 'string'
+            or (rule->>'goTo'<>'__end' and not exists(
+              select 1 from jsonb_array_elements(p_questions) with ordinality target(item,position)
+              where target.position>q.position and target.item->>'id'=rule->>'goTo'))
+          end)
+      end
+  );
+$$;
+revoke all on function cali_session_guard.phase4_form_logic_valid(jsonb)
+  from public,anon,authenticated,service_role;
+
 create or replace function cali_workspace.v2_create_pilot_form_draft(
   p_company_id uuid,p_form_id uuid,p_slug text,p_title text
 )
@@ -54,7 +82,7 @@ begin
   return (
     select jsonb_build_object('id',f.id,'title',f.title,'description',f.description,'updatedAt',f.updated_at,
       'questions',coalesce((select jsonb_agg(jsonb_build_object(
-        'id',q.item->>'id','label',q.item->>'label','kind',q.item->>'kind','options',q.item->'options',
+        'id',q.item->>'id','label',q.item->>'label','kind',q.item->>'kind','options',q.item->'options','logic',q.item->'logic',
         'required',coalesce(q.item->'required'='true'::jsonb,false)) order by q.position)
         from jsonb_array_elements(f.questions) with ordinality q(item,position)
         where nullif(q.item->>'id','') is not null and q.item->>'kind' is not null
@@ -81,7 +109,7 @@ declare
   question_id text;
   new_question jsonb;
 begin
-  if p_action is null or p_action not in ('details','add_question','edit_question')
+  if p_action is null or p_action not in ('details','add_question','edit_question','set_logic')
     or p_expected is null or jsonb_typeof(p_fields) is distinct from 'object' then
     raise exception using errcode='22023',message='Confira os dados do formulário.';
   end if;
@@ -102,6 +130,20 @@ begin
       or next_title ~ '[<>]' or next_description ~ '[<>]' then
       raise exception using errcode='22023',message='Confira o título e a descrição.';
     end if;
+  elsif p_action='set_logic' then
+    question_id := p_fields->>'id';
+    if jsonb_typeof(p_fields->'logic') is distinct from 'array'
+      or not exists(select 1 from jsonb_array_elements(next_questions) q
+        where q->>'id'=question_id and q->>'kind' in ('single_choice','yes_no')) then
+      raise exception using errcode='22023',message='Confira a regra da pergunta.';
+    end if;
+    select jsonb_agg(case when q.item->>'id' is distinct from question_id then q.item
+      when p_fields->'logic'='[]'::jsonb then q.item-'logic'
+      else q.item||jsonb_build_object('logic',p_fields->'logic') end order by q.position)
+    into next_questions from jsonb_array_elements(next_questions) with ordinality q(item,position);
+    if not cali_session_guard.phase4_form_logic_valid(next_questions) then
+      raise exception using errcode='22023',message='Confira as alternativas e os destinos da pergunta.';
+    end if;
   else
     label := btrim(p_fields->>'label');
     if coalesce(length(label),0) not between 1 and 400
@@ -110,8 +152,9 @@ begin
     end if;
     if p_action='add_question' then
       question_kind := p_fields->>'kind';
-      if question_kind is null or question_kind not in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no')
-        or jsonb_array_length(next_questions)>=40 then
+      if question_kind is null or question_kind not in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')
+        or jsonb_array_length(next_questions)>=40
+        or (question_kind='file' and jsonb_path_exists(next_questions,'$[*] ? (@.kind == "file")')) then
         raise exception using errcode='22023',message='Tipo ou limite de perguntas indisponível.';
       end if;
       question_id := gen_random_uuid()::text;
@@ -125,7 +168,7 @@ begin
       question_id := p_fields->>'id';
       if (select count(*) from jsonb_array_elements(next_questions) q where q->>'id'=question_id)<>1
         or not exists(select 1 from jsonb_array_elements(next_questions) q
-          where q->>'id'=question_id and q->>'kind' in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no')) then
+          where q->>'id'=question_id and q->>'kind' in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')) then
         raise exception using errcode='22023',message='Pergunta indisponível para editar.';
       end if;
       select q->>'kind' into question_kind from jsonb_array_elements(next_questions) q where q->>'id'=question_id;
@@ -133,6 +176,12 @@ begin
       if p_fields?'options' then
         if not cali_session_guard.phase4_form_options_valid(question_kind,p_fields->'options') then
           raise exception using errcode='22023',message='Confira as opções da pergunta.';
+        end if;
+        if exists(select 1 from jsonb_array_elements(next_questions) q
+          cross join lateral jsonb_array_elements(case when jsonb_typeof(q->'logic')='array'
+            then q->'logic' else '[]'::jsonb end) rule
+          where q->>'id'=question_id and not (p_fields->'options' @> jsonb_build_array(rule->'when'))) then
+          raise exception using errcode='P4F03',message='Remova a regra da alternativa antes de excluir a opção.';
         end if;
         new_question:=new_question||jsonb_build_object('options',p_fields->'options');
       end if;

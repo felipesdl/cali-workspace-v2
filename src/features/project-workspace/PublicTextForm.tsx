@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { getRouteApi, useRouteContext } from '@tanstack/react-router';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
-import { type FormQuestionKind } from '../../api/modules/project-workspace/domain-operations';
+import {
+  FORM_BRANCH_END,
+  type PublicFormQuestion,
+} from '../../api/modules/project-workspace/domain-operations';
 import { Field } from '../../components/ds/field/Field';
 import { ActionForm } from './ActionForm';
 
@@ -16,6 +19,7 @@ export function PublicTextFormPage() {
 function PublicTextForm({ slug }: { slug: string }) {
   const { domainOperations } = useRouteContext({ from: '__root__' });
   const [sent, setSent] = useState(false);
+  const [branchAnswers, setBranchAnswers] = useState<Record<string, string>>({});
   const enabled = domainOperations && /^[a-z0-9-]{1,100}$/.test(slug);
   const result = useQuery({
     queryKey: ['phase4-public-text-form', slug],
@@ -26,6 +30,20 @@ function PublicTextForm({ slug }: { slug: string }) {
     gcTime: 0,
   });
   const form = result.data;
+  const questions = form?.status === 'open' ? form.questions : [];
+  const visible = reachableQuestions(questions, branchAnswers);
+
+  function selectBranch(id: string, value: string) {
+    setBranchAnswers((previous) => {
+      const next = { ...previous, [id]: value };
+      return Object.fromEntries(
+        reachableQuestions(questions, next).map((question) => [
+          question.id,
+          next[question.id] ?? '',
+        ]),
+      );
+    });
+  }
 
   return (
     <main className="tw:mx-auto tw:grid tw:max-w-2xl tw:gap-4 tw:p-6 tw:text-copy">
@@ -49,23 +67,19 @@ function PublicTextForm({ slug }: { slug: string }) {
           <ActionForm
             label="Enviar respostas"
             submit={(fields, request) =>
-              domainOperations.submitPublicTextForm(
-                slug,
-                request,
-                Object.fromEntries(
-                  form.questions.map(({ id, kind }) => {
-                    if (kind === 'multi_choice') return [id, fields.getAll(id).map(String)];
-                    const value = String(fields.get(id) ?? '').trim();
-                    return [id, kind === 'number' && value !== '' ? Number(value) : value];
-                  }),
-                ),
-              )
+              domainOperations.submitPublicTextForm(slug, request, readAnswers(visible, fields))
             }
             saved={() => setSent(true)}
           >
             {(prefix) =>
-              form.questions.map((question) => (
-                <PublicQuestion key={question.id} question={question} prefix={prefix} />
+              visible.map((question) => (
+                <PublicQuestion
+                  key={question.id}
+                  question={question}
+                  prefix={prefix}
+                  value={branchAnswers[question.id] ?? ''}
+                  selectBranch={selectBranch}
+                />
               ))
             }
           </ActionForm>
@@ -75,21 +89,63 @@ function PublicTextForm({ slug }: { slug: string }) {
   );
 }
 
+function readAnswers(questions: PublicFormQuestion[], fields: FormData) {
+  const answers: Record<string, string | number | string[] | File> = {};
+  for (const { id, kind } of questions) {
+    const input = fields.get(id);
+    if (kind === 'file') {
+      if (input instanceof File && input.name) answers[id] = input;
+    } else if (kind === 'multi_choice') {
+      answers[id] = fields.getAll(id).map(String);
+    } else {
+      const value = String(input ?? '').trim();
+      answers[id] = kind === 'number' && value !== '' ? Number(value) : value;
+    }
+  }
+  return answers;
+}
+
+function reachableQuestions(questions: PublicFormQuestion[], choices: Record<string, string>) {
+  const reachable: PublicFormQuestion[] = [];
+  let index = 0;
+  while (index < questions.length) {
+    const question = questions[index];
+    reachable.push(question);
+    const destination = question.logic?.find((rule) => rule.when === choices[question.id])?.goTo;
+    if (destination === FORM_BRANCH_END) break;
+    const target = questions.findIndex((candidate) => candidate.id === destination);
+    index = target > index ? target : index + 1;
+  }
+  return reachable;
+}
+
 function PublicQuestion({
   question,
   prefix,
+  value,
+  selectBranch,
 }: {
-  question: {
-    id: string;
-    kind: FormQuestionKind;
-    label: string;
-    required: boolean;
-    options?: string[];
-  };
+  question: PublicFormQuestion;
   prefix: string;
+  value: string;
+  selectBranch: (id: string, value: string) => void;
 }) {
   const { id, kind, label, required } = question;
   const inputId = prefix + id;
+  if (kind === 'file') {
+    return (
+      <Field id={inputId} label={label}>
+        <input
+          id={inputId}
+          name={id}
+          type="file"
+          accept=".pdf,application/pdf"
+          required={required}
+        />
+        <span>PDF de até 2 MiB</span>
+      </Field>
+    );
+  }
   if (kind === 'multi_choice')
     return (
       <fieldset className="tw:grid tw:gap-1">
@@ -108,7 +164,13 @@ function PublicQuestion({
   if (kind === 'single_choice' || kind === 'yes_no')
     return (
       <Field id={inputId} label={label}>
-        <select id={inputId} name={id} required={required} defaultValue="">
+        <select
+          id={inputId}
+          name={id}
+          required={required}
+          value={value}
+          onChange={(event) => selectBranch(id, event.currentTarget.value)}
+        >
           <option value="">Selecione</option>
           {(kind === 'yes_no' ? ['Sim', 'Não'] : (question.options ?? [])).map((option) => (
             <option key={option}>{option}</option>

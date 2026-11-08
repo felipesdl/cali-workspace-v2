@@ -619,3 +619,31 @@ O PostgreSQL descartável conferiu resultados do diagnóstico legado e da versã
 A abertura V2 e o leitor público usam a mesma validação de audiência, origem do rascunho e perguntas suportadas. Um formulário legado, vazio, com pergunta incompatível ou identificador repetido não pode ser aberto pela V2. Um formulário legado aberto continua podendo ser encerrado. A lista Admin mostra a abertura apenas para coletas aptas, e a confirmação explícita continua obrigatória. Os leitores e a submissão legados não foram alterados.
 
 No CALI MAPA, Admin viu a abertura disponível no Forms sintético de A já homologado; a coleta legada de triagem permaneceu fechada e sem ação de abrir. O catálogo confirmou zero coletas abertas no piloto. A cópia descartável comprovou a recusa do formulário incompatível e a abertura/encerramento do rascunho apto. A reversão das três definições está em `output/runtime/phase4e/forms-opening-rollback.sql`; reverte esta guarda antes da reversão das alternativas.
+
+## Caminhos condicionais e PDF de resposta em Forms
+
+No rascunho, Admin define destinos por opção de escolha única ou Sim/Não. A opção pode seguir para a próxima pergunta, saltar para uma pergunta posterior ou encerrar. O banco rejeita destinos inválidos e recalcula o caminho a cada envio. A gravação também confere o caminho quando a coleta condicional da V2 recebe uma chamada pela interface legada.
+
+A coleta aceita uma pergunta de anexo PDF, com até 2 MiB por resposta. O arquivo fica em tabela privada, com gravação atômica junto da resposta e recibo. A planilha registra apenas a presença do PDF. Admin com MFA pode baixar o anexo pela triagem da empresa. O download confere integridade e registra a operação. Outros formatos e anexos de coletas legadas exigem outro contrato.
+
+A suíte isolada comprovou salto, encerramento, bloqueio de respostas fora do caminho, obrigatoriedade, reenvio, tentativa legada com referência a PDF inexistente e download negado a Cliente e outra empresa. No CALI MAPA, as coletas sintéticas, duas respostas condicionais e um anexo foram revertidos antes do commit das funções. O banco confirmou zero PDFs retidos no ensaio. O rollback exato está em `output/runtime/phase4e/forms-branch-pdf-rollback.sql` e recusa execução se já houver PDFs coletados.
+
+## Ativação sintética da Equipe CALI
+
+Admin com MFA alterna a situação de membros fictícios com módulos e vínculo exclusivo à empresa selecionada. A operação usa revisão e recibo. Exige endereço reservado, ausência de conta, autor de convite e aceite. O catálogo hospedado preenche a data de convite no cadastro inicial, por isso a data isolada não determina elegibilidade.
+
+No navegador do CALI MAPA, o membro fictício de A foi criado, ativado e devolvido a inativo. A suíte isolada cobriu recusa entre empresas, reenvio e revisão antiga. O rollback exato em `output/runtime/phase4e/staff-activation-rollback.sql` retira a operação e restaura a projeção anterior. Convite, autenticação e revogação de uma pessoa da Equipe seguem com aceite próprio.
+
+## Exportação estruturada e prévia de eliminação
+
+A exportação reaproveita os dados estruturados e o registro de destinatário do contrato legado. Preserva o bloco separado de dados restritos e acrescenta perguntas e respostas estruturadas de Forms. Os bytes de anexos ficam fora do JSON. Admin com MFA confirma o destinatário autorizado e baixa o arquivo na interface, com limite de 8 MiB e resposta privada.
+
+A prévia de eliminação aplica a elegibilidade vigente e exibe contagens do Storage legado, Forms e PDFs V2. As duas consultas foram instaladas no CALI MAPA, com verificação de permissões. A suíte isolada cobriu o retorno estruturado e a elegibilidade. A homologação do pacote com uma empresa descartável e a execução da eliminação permanecem pendentes. Falta reconciliar as superfícies V2, arquivos externos e a retomada após falha parcial antes de habilitar a exclusão. [Rollback](../../supabase/proposals/phase-4/rollback-data-lifecycle-export.sql).
+
+## Jornada e relatório detalhado do Mapa
+
+A jornada consulta sessões sintéticas delegadas explicitamente à empresa e ao operador. O Admin vê etapa, horários, dispositivo, origem, cópias e situação. O estado Abandonou usa o limite de 15 minutos da publicação 83. A projeção pagina e não entrega a chave da sessão original.
+
+No navegador do CALI MAPA, a sessão sintética apareceu em A na etapa 3 de 7, com um evento de cópia, e não apareceu em B. A suíte isolada também cobriu o escopo e a paginação por empresa. A delegação e os quatro eventos de homologação foram removidos após a conferência.
+
+O relatório inclui síntese, notas, observações por dimensão, parecer e serviço recomendado. Tela e PDF usam a mesma composição de conteúdo. O download revalida o acesso ao relatório. A consulta detalhada foi instalada no CALI MAPA. O PDF de uma resposta fictícia foi gerado, reaberto e renderizado em três páginas no ambiente local. Falta homologar o download com uma resposta delegada no staging, além de concluir a comparação visual e o envio da devolutiva. A reversão do lote está em `output/runtime/phase4e/mapa-journey-report-rollback.sql`.

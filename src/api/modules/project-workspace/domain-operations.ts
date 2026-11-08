@@ -148,25 +148,29 @@ export const formQuestionKind = z.enum([
   'single_choice',
   'multi_choice',
   'yes_no',
+  'file',
 ]);
+export const FORM_BRANCH_END = '__end';
+const formBranch = z.object({
+  when: z.string().min(1).max(300),
+  goTo: z.union([z.uuid(), z.literal(FORM_BRANCH_END)]),
+});
+const publicFormQuestion = z.object({
+  id: z.uuid(),
+  kind: formQuestionKind,
+  options: z.array(z.string()).max(26).optional(),
+  logic: z.array(formBranch).max(26).optional(),
+  label: z.string(),
+  required: z.boolean(),
+});
+export type PublicFormQuestion = z.infer<typeof publicFormQuestion>;
 const publicTextForm = z.discriminatedUnion('status', [
   z.object({ status: z.literal('closed') }),
   z.object({
     status: z.literal('open'),
     title: z.string(),
     description: z.string().nullable(),
-    questions: z
-      .array(
-        z.object({
-          id: z.uuid(),
-          kind: formQuestionKind,
-          options: z.array(z.string()).max(26).optional(),
-          label: z.string(),
-          required: z.boolean(),
-        }),
-      )
-      .min(1)
-      .max(40),
+    questions: z.array(publicFormQuestion).min(1).max(40),
   }),
 ]);
 const formDraft = z.object({
@@ -180,6 +184,7 @@ const formDraft = z.object({
       label: z.string(),
       kind: z.string(),
       options: z.array(z.string()).nullish(),
+      logic: z.array(formBranch).nullish().catch(null),
       required: z.boolean(),
     }),
   ),
@@ -206,6 +211,11 @@ const formDraftChange = z.discriminatedUnion('action', [
     label: z.string().trim().min(1).max(400),
     required: z.boolean(),
   }),
+  z.object({
+    action: z.literal('set_logic'),
+    id: z.uuid(),
+    logic: z.array(formBranch).max(26),
+  }),
 ]);
 export type FormDraftChange = z.infer<typeof formDraftChange>;
 
@@ -213,6 +223,7 @@ const formTriageResponse = z.object({
   id: z.uuid(),
   respondent_name: z.string().nullable(),
   submitted_at: z.string(),
+  pdfAvailable: z.boolean().optional(),
   stage: z.string().nullable(),
   owner: z.string().nullable(),
 });
@@ -232,6 +243,24 @@ export const mapaReviewStatus = z.enum(['novo', 'em_andamento', 'cancelado']);
 
 export function createDomainOperations(client: WorkspaceClient) {
   return {
+    async setStaffActive(
+      company: string,
+      request: string,
+      member: string,
+      revision: string,
+      active: boolean,
+    ) {
+      const { data, error } = await client.rpc('v2_set_pilot_staff_active', {
+        p_company_id: company,
+        p_request_id: request,
+        p_member_id: member,
+        p_expected: revision,
+        p_active: active,
+      });
+      if (error?.code === '40001') throw new Error('A situação mudou. Recarregue a equipe.');
+      if (error) throw rejected(error.code);
+      return z.literal(member).parse(data);
+    },
     async saveStaffDraft(
       company: string,
       request: string,
@@ -353,14 +382,22 @@ export function createDomainOperations(client: WorkspaceClient) {
     async submitPublicTextForm(
       slug: string,
       request: string,
-      answers: Record<string, string | number | string[]>,
+      answers: Record<string, string | number | string[] | File>,
     ) {
+      const encoded = Object.fromEntries(
+        await Promise.all(
+          Object.entries(answers).map(async ([id, value]) => [
+            id,
+            value instanceof File ? await encodePdf(value) : value,
+          ]),
+        ),
+      );
       const { data, error } = await client
         .schema('public')
         .rpc('v2_submit_pilot_public_text_form', {
           p_slug: slug,
           p_request_id: request,
-          p_answers: answers,
+          p_answers: encoded,
         });
       if (error?.code === '42501') throw new Error('Este formulário não está recebendo respostas.');
       if (error?.code === 'P0001' || error?.code === '22023')
@@ -614,6 +651,8 @@ export function createDomainOperations(client: WorkspaceClient) {
         p_action: action,
         p_fields: fields,
       });
+      if (error?.code === 'P4F03')
+        throw new Error('Remova a regra da alternativa antes de excluir a opção.');
       if (error?.code === '22023')
         throw new Error('Confira o texto. Use texto simples, sem marcação.');
       if (error) throw rejected(error.code);
@@ -631,6 +670,19 @@ export function createDomainOperations(client: WorkspaceClient) {
         })
         .nullable()
         .parse(data);
+    },
+    async formResponsePdf(company: string, form: string, response: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_form_pdf', {
+          p_company_id: company,
+          p_form_id: form,
+          p_response_id: response,
+        })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      const result = pdfPayload.parse(data);
+      if (result.id !== response) throw rejected();
+      return decodePdf(result);
     },
     async formExport(company: string, form: string, signal: AbortSignal) {
       const { data, error } = await client
@@ -812,6 +864,39 @@ export function createDomainOperations(client: WorkspaceClient) {
         .abortSignal(signal);
       if (error) throw rejected(error.code);
       return subjects.parse(data);
+    },
+    async exportCompanyData(company: string, recipient: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_export_pilot_company_data', { p_company_id: company, p_recipient: recipient })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      const exported = z
+        .object({ company: z.object({ id: z.literal(company) }) })
+        .passthrough()
+        .parse(data);
+      return {
+        blob: new Blob([JSON.stringify(exported, null, 2)], { type: 'application/json' }),
+        fileName: 'dados-cali-' + company + '.json',
+      };
+    },
+    async previewCompanyElimination(company: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_preview_pilot_company_elimination', { p_company_id: company })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      const id = z.literal(company);
+      return z
+        .discriminatedUnion('eligible', [
+          z.object({ companyId: id, eligible: z.literal(false) }),
+          z.object({
+            companyId: id,
+            eligible: z.literal(true),
+            legacyStorageObjects: z.number().int().nonnegative(),
+            forms: z.number().int().nonnegative(),
+            formsPdfs: z.number().int().nonnegative(),
+          }),
+        ])
+        .parse(data);
     },
     async dataLifecycle(company: string, signal: AbortSignal) {
       const { data, error } = await client

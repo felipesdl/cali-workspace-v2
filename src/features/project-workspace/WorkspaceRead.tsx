@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { ProjectJournalPanel } from './ProjectJournalPanel';
 import { workspaceLabel as label } from './workspace-labels';
 import { WorkspacePagination } from './WorkspacePagination';
@@ -11,9 +11,10 @@ import {
 import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { AdminDailyPreview } from './AdminDailyPreview';
+import { MapaJourneys } from './MapaJourneys';
 import { MapaReview } from './MapaReview';
 import { MapaReportSummary } from './MapaReportSummary';
-import { StaffDraftEditor } from './StaffDraftEditor';
+import { StaffActivation, StaffDraftEditor } from './StaffDraftEditor';
 import { ReportCurationSections, ReportIndicators, ReportSources } from './ReportCuration';
 import {
   ActivateContractedFront,
@@ -1056,11 +1057,12 @@ export function AdminMapaPage() {
   const { companyId, actor, admin } = useScope(search);
   const cache = useQueryClient();
   const update: Props['update'] = (change) => void navigate({ search: { ...search, ...change } });
+  const [view, setView] = useState<'responses' | 'journeys'>('responses');
   const key = ['phase4-mapa', actor, companyId];
   const result = useQuery({
     queryKey: [...key, search.page],
     queryFn:
-      admin && adminRead && companyId
+      view === 'responses' && admin && adminRead && companyId
         ? ({ signal }) => adminRead.mapa(companyId, search.page, signal)
         : skipToken,
   });
@@ -1068,16 +1070,37 @@ export function AdminMapaPage() {
   return (
     <section className="tw:grid tw:gap-4" aria-label="Triagem do Mapa de People">
       <CompanySelect search={search} update={update} />
+      {companyId && (
+        <div className="tw:flex tw:flex-wrap tw:gap-2" role="group" aria-label="Visão do Mapa">
+          <Button
+            variant={view === 'responses' ? 'primary' : 'secondary'}
+            aria-pressed={view === 'responses'}
+            onClick={() => setView('responses')}
+          >
+            Respostas
+          </Button>
+          <Button
+            variant={view === 'journeys' ? 'primary' : 'secondary'}
+            aria-pressed={view === 'journeys'}
+            onClick={() => setView('journeys')}
+          >
+            Jornada e acessos
+          </Button>
+        </div>
+      )}
+      {companyId && view === 'journeys' && (
+        <MapaJourneys key={companyId} company={companyId} actor={actor} service={adminRead} />
+      )}
       {!companyId && <FeedbackState kind="empty">Selecione uma empresa.</FeedbackState>}
-      {companyId && result.isPending && (
+      {companyId && view === 'responses' && result.isPending && (
         <FeedbackState kind="loading">Carregando registros…</FeedbackState>
       )}
-      {result.isError && (
+      {view === 'responses' && result.isError && (
         <FeedbackState kind="error" onRetry={() => void result.refetch()}>
           Não foi possível consultar os registros.
         </FeedbackState>
       )}
-      {companyId && result.data && (
+      {companyId && view === 'responses' && result.data && (
         <>
           {result.data.entries.length === 0 && (
             <FeedbackState kind="empty">Nenhum registro vinculado nesta página.</FeedbackState>
@@ -1163,6 +1186,17 @@ export function AdminStaffRosterPage() {
                   <p>Módulos · {member.modules?.join(', ') || 'Sem módulos atribuídos'}</p>
                   {member.assignedAt && (
                     <p>Vínculo desde {formatServerInstant(member.assignedAt)} (Brasília)</p>
+                  )}
+                  {domainOperations && member.activationRevision && (
+                    <StaffActivation
+                      key={'activation-' + member.activationRevision}
+                      company={companyId}
+                      member={member.id}
+                      active={member.active}
+                      revision={member.activationRevision}
+                      operations={domainOperations}
+                      saved={refresh}
+                    />
                   )}
                   {domainOperations && member.draftRevision && (
                     <StaffDraftEditor

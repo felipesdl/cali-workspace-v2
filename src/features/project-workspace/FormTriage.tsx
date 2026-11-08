@@ -1,3 +1,4 @@
+import { PdfDownload } from './PdfDownload';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { type DomainOperations } from '../../api/modules/project-workspace/domain-operations';
@@ -36,46 +37,55 @@ export function FormTriage({
         const choices = new Set(stages);
         if (response.stage) choices.add(response.stage);
         return (
-          <ActionForm
-            key={JSON.stringify([response.id, response.stage, response.owner])}
-            label="Salvar triagem"
-            submit={async (fields) => {
-              const id = await operations.saveFormTriage(
-                company,
-                form,
-                response,
-                String(fields.get('stage') ?? ''),
-                String(fields.get('owner') ?? ''),
-              );
-              await cache.invalidateQueries({ queryKey: key });
-              return id;
-            }}
-          >
-            {(prefix) => (
-              <>
-                <p>
-                  {response.respondent_name || 'Resposta sem nome'} ·{' '}
-                  {formatServerInstant(response.submitted_at)}
-                </p>
-                <Field id={prefix + 'stage'} label="Etapa">
-                  <select id={prefix + 'stage'} name="stage" defaultValue={response.stage ?? ''}>
-                    <option value="">Sem etapa</option>
-                    {[...choices].map((stage) => (
-                      <option key={stage}>{stage}</option>
-                    ))}
-                  </select>
-                </Field>
-                <Field id={prefix + 'owner'} label="Responsável">
-                  <input
-                    id={prefix + 'owner'}
-                    name="owner"
-                    maxLength={120}
-                    defaultValue={response.owner ?? ''}
-                  />
-                </Field>
-              </>
+          <article key={response.id} className="tw:grid tw:gap-2">
+            <ActionForm
+              key={JSON.stringify([response.stage, response.owner])}
+              label="Salvar triagem"
+              submit={async (fields) => {
+                const id = await operations.saveFormTriage(
+                  company,
+                  form,
+                  response,
+                  String(fields.get('stage') ?? ''),
+                  String(fields.get('owner') ?? ''),
+                );
+                await cache.invalidateQueries({ queryKey: key });
+                return id;
+              }}
+            >
+              {(prefix) => (
+                <>
+                  <p>
+                    {response.respondent_name || 'Resposta sem nome'} ·{' '}
+                    {formatServerInstant(response.submitted_at)}
+                  </p>
+                  <Field id={prefix + 'stage'} label="Etapa">
+                    <select id={prefix + 'stage'} name="stage" defaultValue={response.stage ?? ''}>
+                      <option value="">Sem etapa</option>
+                      {[...choices].map((stage) => (
+                        <option key={stage}>{stage}</option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field id={prefix + 'owner'} label="Responsável">
+                    <input
+                      id={prefix + 'owner'}
+                      name="owner"
+                      maxLength={120}
+                      defaultValue={response.owner ?? ''}
+                    />
+                  </Field>
+                </>
+              )}
+            </ActionForm>
+            {response.pdfAvailable && (
+              <PdfDownload
+                download={(signal) =>
+                  operations.formResponsePdf(company, form, response.id, signal)
+                }
+              />
             )}
-          </ActionForm>
+          </article>
         );
       })}
       {(page > 1 || responses.length === 25) && (

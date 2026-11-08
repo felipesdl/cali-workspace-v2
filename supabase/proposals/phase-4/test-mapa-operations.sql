@@ -5,6 +5,9 @@ create table public.mapa_respostas(id uuid primary key,protocolo text,status tex
   d3_decisao integer,d3_custo integer,d4_colaboradores integer,d4_unidades integer,d4_turnover integer);
 \ir mapa-operations.sql
 \ir mapa-report-read.sql
+create table public.mapa_sessoes_resumo(session_id uuid primary key,accessed_at timestamptz,last_seen_at timestamptz,
+  max_step smallint,started boolean,submitted boolean,copy_events integer,referrer_host text,device_type text);
+\ir mapa-journeys.sql
 begin;
 do $$
 declare
@@ -16,6 +19,8 @@ declare
   actor uuid;
   other_admin uuid:=gen_random_uuid();
   result jsonb;
+  journey uuid:=gen_random_uuid();
+  ignored uuid:=gen_random_uuid();
 begin
   perform cali_workspace.fixture_as('admin');
   actor:=auth.uid();
@@ -29,7 +34,16 @@ begin
   insert into cali_workspace.profiles(id,role,active) values(other_admin,'admin',true);
   update public.mapa_respostas set d1_rh_hoje=2,d1_processos=4,
     d2_valores=5,d3_indicadores=1,d4_colaboradores=3 where id=record_id;
+  insert into public.mapa_sessoes_resumo values
+    (journey,now()-interval '25 minutes',now()-interval '20 minutes',2,true,false,1,'qa.example.invalid','desktop'),
+    (ignored,now(),now(),7,true,true,0,null,'mobile');
+  insert into cali_session_guard.phase4_mapa_journey_scope values(journey,a,actor,now()+interval '10 minutes');
   set local role authenticated;
+  result:=cali_workspace.v2_list_pilot_mapa_journeys(a,1);
+  assert result->>'total'='1' and result#>>'{entries,0,status}'='abandoned';
+  assert result#>>'{entries,0,step}'='2' and result#>>'{entries,0,copies}'='1';
+  assert strpos(result::text,journey::text)=0;
+  assert cali_workspace.v2_list_pilot_mapa_journeys(b,1)->>'total'='0';
   result:=cali_workspace.v2_read_pilot_mapa_report(a,record_id);
   assert result->'dimensions'='[6,10,2,6]'::jsonb and (result->>'score')::numeric=6.4;
   assert result->'subscores'='null'::jsonb and result->>'version'='1';
@@ -92,6 +106,8 @@ begin
   assert (select count(*) from cali_workspace.activity_log where entity_id=record_id and event_type='mapa_review_saved')=1;
 end $$;
 rollback;
+drop function cali_workspace.v2_list_pilot_mapa_journeys(uuid,integer);
+drop table cali_session_guard.phase4_mapa_journey_scope;
 \ir rollback-mapa-report-read.sql
 \ir rollback-mapa-operations.sql
 \echo Fase 4E: Mapa com triagem, operador, MFA, escopo e concorrência validados.

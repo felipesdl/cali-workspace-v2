@@ -4,26 +4,8 @@ import { type AdminReadService } from '../../api/modules/project-workspace/admin
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 
-const dimensions = [
-  ['Maturidade estrutural', 'Processos e políticas', 'Estrutura e papéis', 'Governança'],
-  [
-    'Liderança e cultura',
-    'Comportamento de dono',
-    'Fidelidade aos valores',
-    'Desenvolvimento e sucessão',
-  ],
-  ['Dados e decisão', 'Indicadores', 'Decisão baseada em dados', 'Tecnologia e IA'],
-  [
-    'Dimensões operacionais',
-    'Tamanho e complexidade',
-    'Vínculos e regimes',
-    'Rotatividade e custo',
-  ],
-] as const;
-const decimal = new Intl.NumberFormat('pt-BR', {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-});
+import { mapaReportContent } from './mapa-report-content';
+import { FileDownload } from './FileDownload';
 
 export function MapaReportSummary({
   company,
@@ -44,6 +26,7 @@ export function MapaReportSummary({
   });
 
   const data = report.isSuccess && !report.isFetching ? report.data : null;
+  const content = data && mapaReportContent(data);
 
   return (
     <div className="tw:grid tw:gap-3">
@@ -68,33 +51,59 @@ export function MapaReportSummary({
       {open && report.data === null && (
         <FeedbackState kind="empty">Nenhum diagnóstico completo disponível.</FeedbackState>
       )}
-      {open && data && (
-        <div className="tw:grid tw:gap-2">
+      {open && content && (
+        <div className="tw:grid tw:gap-3">
           <p>
-            Nota ponderada: <strong>{decimal.format(data.score)}/10</strong>
+            Nota ponderada · <strong>{content.score}</strong>
           </p>
+          <p>{content.outlook}</p>
           <ul className="tw:sm:grid-cols-2 tw:grid tw:gap-3">
-            {dimensions.map(([label, ...subtitles], dimension) => (
+            {content.dimensions.map((dimension) => (
               <li
-                key={label}
+                key={dimension.title}
                 className="tw:rounded-control tw:border tw:border-border-default tw:p-3"
               >
-                <strong>{label}</strong> · {decimal.format(data.dimensions[dimension])}/10
-                {data.subscores && (
+                <strong>{dimension.title}</strong> · {dimension.score}
+                <meter
+                  className="tw:block tw:w-full tw:accent-brand"
+                  min={0}
+                  max={10}
+                  value={dimension.value}
+                  aria-label={dimension.title}
+                />
+                {dimension.subScores.length > 0 && (
                   <ul>
-                    {subtitles.map((subtitle, index) => {
-                      const value = data.subscores?.[dimension * 3 + index];
-                      return value === undefined ? null : (
-                        <li key={subtitle}>
-                          {subtitle}: {decimal.format(value)}/10
-                        </li>
-                      );
-                    })}
+                    {dimension.subScores.map((row) => (
+                      <li key={row}>{row}</li>
+                    ))}
                   </ul>
+                )}
+                {dimension.observation && (
+                  <p className="tw:whitespace-pre-wrap">{dimension.observation}</p>
                 )}
               </li>
             ))}
           </ul>
+          {content.opinion && (
+            <section>
+              <h3>Parecer CALI</h3>
+              <p className="tw:whitespace-pre-wrap">{content.opinion}</p>
+            </section>
+          )}
+          {content.recommendation && (
+            <p>
+              Serviço recomendado · <strong>{content.recommendation}</strong>
+            </p>
+          )}
+          <FileDownload
+            label="Baixar diagnóstico em PDF"
+            download={async (signal) => {
+              const current = await service.mapaReport(company, record, signal);
+              if (!current) throw new Error('Diagnóstico indisponível.');
+              const { mapaReportPdf } = await import('./mapa-report-pdf');
+              return mapaReportPdf(current);
+            }}
+          />
         </div>
       )}
     </div>

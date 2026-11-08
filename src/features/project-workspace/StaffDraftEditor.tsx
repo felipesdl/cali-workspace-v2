@@ -90,3 +90,30 @@ export function StaffDraftEditor({
     </details>
   );
 }
+
+export function StaffActivation({
+  company,
+  member,
+  revision,
+  active,
+  operations,
+  saved,
+}: {
+  company: string;
+  member: string;
+  revision: string;
+  active: boolean;
+  operations: DomainOperations;
+  saved: () => Promise<void>;
+}) {
+  return (
+    <ActionForm
+      label={active ? 'Desativar membro de teste' : 'Ativar membro de teste'}
+      submit={async (_, request) => {
+        const id = await operations.setStaffActive(company, request, member, revision, !active);
+        await saved();
+        return id;
+      }}
+    />
+  );
+}

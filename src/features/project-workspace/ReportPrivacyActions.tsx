@@ -7,6 +7,8 @@ import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { formatCalendarDate, formatServerInstant } from '../../lib/dates';
 import { companyStatusLabels } from '../companies/presentation';
 import { ActionForm } from './ActionForm';
+import { FileDownload } from './FileDownload';
+import { type DomainOperations } from '../../api/modules/project-workspace/domain-operations';
 
 const kinds = {
   access: 'Acesso aos dados',
@@ -66,7 +68,95 @@ export function DataLifecycleOverview({ company, actor }: { company: string; act
           )}
         </dl>
       )}
+      {result.data && !result.data.eliminatedAt && (
+        <CompanyDataActions
+          key={company}
+          company={company}
+          operations={domainOperations}
+          eligible={result.data.waitingPeriodMet}
+        />
+      )}
     </section>
+  );
+}
+
+function CompanyDataActions({
+  company,
+  operations,
+  eligible,
+}: {
+  company: string;
+  operations: DomainOperations;
+  eligible: boolean;
+}) {
+  const [recipient, setRecipient] = useState('');
+  const [confirmed, setConfirmed] = useState(false);
+  const [review, setReview] = useState(false);
+  const inventory = useQuery({
+    queryKey: ['phase4-company-elimination-preview', company],
+    queryFn:
+      eligible && review
+        ? ({ signal }) => operations.previewCompanyElimination(company, signal)
+        : skipToken,
+    gcTime: 0,
+  });
+  return (
+    <div className="tw:grid tw:gap-3">
+      <details>
+        <summary>Exportação de dados da empresa</summary>
+        <div className="tw:grid tw:gap-2">
+          <Field id="company-export-recipient" label="Destinatário autorizado">
+            <input
+              id="company-export-recipient"
+              value={recipient}
+              maxLength={200}
+              onChange={(event) => {
+                setRecipient(event.currentTarget.value);
+                setConfirmed(false);
+              }}
+            />
+          </Field>
+          <label>
+            <input
+              type="checkbox"
+              checked={confirmed}
+              onChange={(event) => setConfirmed(event.currentTarget.checked)}
+            />
+            Confirmo que o destinatário pode receber os dados restritos deste arquivo.
+          </label>
+          {recipient.trim().length >= 3 && confirmed && (
+            <FileDownload
+              label="Baixar dados em JSON"
+              download={(signal) => operations.exportCompanyData(company, recipient.trim(), signal)}
+            />
+          )}
+        </div>
+      </details>
+      {eligible && (
+        <div>
+          <Button variant="secondary" onClick={() => setReview(!review)} aria-expanded={review}>
+            Conferir eliminação
+          </Button>
+          {review && inventory.isPending && (
+            <FeedbackState kind="loading">Preparando a conferência…</FeedbackState>
+          )}
+          {review && inventory.isError && (
+            <FeedbackState kind="error" onRetry={() => void inventory.refetch()}>
+              Não foi possível conferir a eliminação.
+            </FeedbackState>
+          )}
+          {review && inventory.data?.eligible && (
+            <p>
+              {inventory.data.legacyStorageObjects} arquivo(s) no inventário legado ·{' '}
+              {inventory.data.forms} formulário(s) · {inventory.data.formsPdfs} anexo(s) V2
+            </p>
+          )}
+          {review && inventory.data?.eligible === false && (
+            <p>A empresa ainda não atende ao intervalo para eliminação.</p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

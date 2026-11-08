@@ -54,6 +54,21 @@ const mapaRoster = page.extend({
   ),
 });
 export type MapaEntry = z.infer<typeof mapaRoster>['entries'][number];
+const mapaJourneys = page.extend({
+  entries: z.array(
+    z.object({
+      id: z.string().regex(/^[a-f0-9]{64}$/),
+      accessedAt: z.iso.datetime({ offset: true }),
+      lastSeenAt: z.iso.datetime({ offset: true }),
+      step: z.number().int().min(0).max(7),
+      started: z.boolean(),
+      copies: z.number().int().nonnegative(),
+      device: z.string().nullable(),
+      referrer: z.string().nullable(),
+      status: z.enum(['completed', 'in_progress', 'abandoned']),
+    }),
+  ),
+});
 const mapaScore = z.number().min(0).max(10);
 const mapaReport = z.object({
   companyId: z.uuid(),
@@ -62,7 +77,21 @@ const mapaReport = z.object({
   dimensions: z.tuple([mapaScore, mapaScore, mapaScore, mapaScore]),
   subscores: z.array(mapaScore).length(12).nullable(),
   score: mapaScore,
+  protocol: z.string().optional(),
+  createdAt: z.iso.datetime({ offset: true }).optional(),
+  companyName: z.string().nullish(),
+  observations: z
+    .tuple([
+      z.string().nullable(),
+      z.string().nullable(),
+      z.string().nullable(),
+      z.string().nullable(),
+    ])
+    .optional(),
+  opinion: z.string().nullish(),
+  recommendedService: z.string().optional(),
 });
+export type MapaReport = z.infer<typeof mapaReport>;
 
 const staffRoster = page.extend({
   entries: z.array(
@@ -73,6 +102,7 @@ const staffRoster = page.extend({
       modules: z.array(z.string()).nullable(),
       invitation: z.enum(['not_invited', 'invited', 'accepted']),
       assignedAt: z.iso.datetime({ offset: true }).nullable(),
+      activationRevision: z.iso.datetime({ offset: true }).nullish(),
       draftRevision: z.iso.datetime({ offset: true }).nullish(),
     }),
   ),
@@ -240,6 +270,15 @@ export function createAdminRead(client: WorkspaceClient) {
         .abortSignal(signal);
       if (error) throw new Error('Não foi possível consultar o Mapa de People.');
       const result = mapaRoster.parse(data);
+      if (result.companyId !== company) throw new Error('Contexto divergente.');
+      return result;
+    },
+    async mapaJourneys(company: string, page: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_list_pilot_mapa_journeys', { p_company_id: company, p_page: page })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar a jornada.');
+      const result = mapaJourneys.parse(data);
       if (result.companyId !== company) throw new Error('Contexto divergente.');
       return result;
     },

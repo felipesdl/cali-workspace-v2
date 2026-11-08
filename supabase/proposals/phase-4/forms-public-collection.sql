@@ -17,12 +17,14 @@ returns boolean language sql immutable set search_path='' as $$
   else jsonb_array_length(p_questions) between 1 and 40
     and not exists(select 1 from jsonb_array_elements(p_questions) q
       where case when jsonb_typeof(q) is distinct from 'object' then true else
-        coalesce(q->>'kind','') not in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no')
+        coalesce(q->>'kind','') not in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')
         or coalesce(q->>'id','') !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
         or coalesce(length(q->>'label'),0) not between 1 and 400
         or jsonb_typeof(q->'required') is distinct from 'boolean'
         or not cali_session_guard.phase4_form_options_valid(q->>'kind',q->'options')
-        or q-'id'-'kind'-'label'-'required'-'options'<>'{}'::jsonb end)
+        or q-'id'-'kind'-'label'-'required'-'options'-'logic'<>'{}'::jsonb end)
+    and (select count(*) from jsonb_array_elements(p_questions) q where q->>'kind'='file')<=1
+    and cali_session_guard.phase4_form_logic_valid(p_questions)
     and (select count(distinct q->>'id')=count(*) from jsonb_array_elements(p_questions) q)
   end;
 $$;
@@ -101,41 +103,38 @@ begin
 end;
 $$;
 
-create or replace function public.v2_submit_pilot_public_text_form(p_slug text,p_request_id uuid,p_answers jsonb)
-returns boolean language plpgsql security definer set search_path=''
-as $$
-declare
-  form cali_workspace.forms;
-  signature bytea;
-  previous bytea;
-  result jsonb;
-begin
-  if p_request_id is null or jsonb_typeof(p_answers) is distinct from 'object' or length(p_answers::text)>100000 then
-    raise exception using errcode='22023',message='Confira as respostas.';
-  end if;
-  perform 1 from cali_workspace.forms f where f.slug=p_slug and length(p_slug) between 1 and 100
-    and f.id=(cali_session_guard.phase4_public_text_form(p_slug)).id for update;
-  if not found then raise exception using errcode='42501',message='Formulário indisponível.'; end if;
-  form:=cali_session_guard.phase4_public_text_form(p_slug);
-  if form.id is null then raise exception using errcode='42501',message='Formulário indisponível.'; end if;
-  signature:=sha256(convert_to(p_answers::text,'UTF8'));
-  select r.fingerprint into previous from cali_session_guard.phase4_public_form_receipts r
-    where r.form_id=form.id and r.request_id=p_request_id;
-  if found then
-    if previous=signature then return true; end if;
-    raise exception using errcode='40001',message='Este envio já foi registrado.';
-  end if;
-  if form.status<>'open' then raise exception using errcode='42501',message='Coleta encerrada.'; end if;
-  if exists(select 1 from jsonb_each(p_answers) as a(key,value)
-    where not exists(select 1 from jsonb_array_elements(form.questions) q where q->>'id'=a.key)) then
-    raise exception using errcode='22023',message='Confira as respostas.';
-  end if;
-  if exists(
-    select 1 from jsonb_array_elements(form.questions) q
+create or replace function cali_session_guard.phase4_form_reachable(p_questions jsonb,p_answers jsonb)
+returns table(question jsonb) language sql immutable set search_path='' as $$
+  with recursive ordered as (
+    select q.item,q.position from jsonb_array_elements(p_questions) with ordinality q(item,position)
+  ), path as (
+    select item,position from ordered where position=1
+    union all
+    select target.item,target.position from path current
+    left join lateral (
+      select rule->>'goTo' as destination from jsonb_array_elements(current.item->'logic') rule
+      where to_jsonb(rule->>'when')=p_answers->(current.item->>'id') limit 1
+    ) rule on true
+    join ordered target on target.position>current.position and case
+      when rule.destination is null then target.position=current.position+1
+      else target.item->>'id'=rule.destination
+    end
+  )
+  select item from path order by position;
+$$;
+revoke all on function cali_session_guard.phase4_form_reachable(jsonb,jsonb)
+  from public,anon,authenticated,service_role;
+
+create or replace function cali_session_guard.phase4_form_answers_valid(p_reached jsonb,p_answers jsonb)
+returns boolean language sql immutable set search_path='' as $$
+  select not exists(select 1 from jsonb_each(p_answers) as a(key,value)
+    where not exists(select 1 from jsonb_array_elements(p_reached) q where q->>'id'=a.key)) and not exists(
+    select 1 from jsonb_array_elements(p_reached) q
     cross join lateral (select p_answers->(q->>'id') as value) a
     where case
       when a.value is null or a.value='""'::jsonb
         then q->'required'='true'::jsonb
+      when q->>'kind'='file' then a.value<>'"[PDF anexado]"'::jsonb
       when q->>'kind'='number' then jsonb_typeof(a.value)<>'number'
       when q->>'kind'='yes_no' then a.value not in ('"Sim"'::jsonb,'"Não"'::jsonb)
       when q->>'kind'='single_choice' then not (q->'options' @> jsonb_build_array(a.value))
@@ -151,10 +150,117 @@ begin
       else jsonb_typeof(a.value)<>'string' or length(a.value#>>'{}')>5000
         or (q->'required'='true'::jsonb and btrim(a.value#>>'{}')='')
     end
-  ) then raise exception using errcode='22023',message='Confira as respostas.'; end if;
-  result:=public.cali_form_submit(form.slug,p_answers);
-  if result->>'ok' is distinct from 'true' then
-    raise exception using errcode='22023',message='Não foi possível salvar as respostas.';
+  );
+$$;
+revoke all on function cali_session_guard.phase4_form_answers_valid(jsonb,jsonb)
+  from public,anon,authenticated,service_role;
+
+-- Protege também a gravação pelo endpoint legado sem mudar a interface dele.
+create or replace function cali_session_guard.phase4_check_conditional_response()
+returns trigger language plpgsql security definer set search_path='' as $$
+declare
+  form cali_workspace.forms;
+  reached jsonb;
+begin
+  select f.* into form from cali_workspace.forms f where f.id=new.form_id
+    and (jsonb_path_exists(f.questions,'$[*].logic')
+      or jsonb_path_exists(f.questions,'$[*] ? (@.kind == "file")'))
+    and f.id=(cali_session_guard.phase4_public_text_form(f.slug)).id
+    for share;
+  if not found then return new; end if;
+  if form.status<>'open' or jsonb_typeof(new.answers) is distinct from 'object' then
+    raise exception using errcode='42501',message='Coleta indisponível.';
+  end if;
+  select coalesce(jsonb_agg(question),'[]'::jsonb) into reached
+    from cali_session_guard.phase4_form_reachable(form.questions,new.answers);
+  if not cali_session_guard.phase4_form_answers_valid(reached,new.answers) then
+    raise exception using errcode='22023',message='Confira as respostas do caminho selecionado.';
+  end if;
+  if exists(select 1 from jsonb_array_elements(reached) q where q->>'kind'='file'
+    and new.answers->>(q->>'id')='[PDF anexado]'
+    and not exists(select 1 from cali_session_guard.phase4_form_pdfs a
+      where a.response_id=new.id and a.question_id::text=q->>'id')) then
+    raise exception using errcode='22023',message='Anexe o PDF antes de enviar.';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function cali_session_guard.phase4_check_conditional_response()
+  from public,anon,authenticated,service_role;
+drop trigger if exists phase4_check_conditional_response on cali_workspace.form_responses;
+create trigger phase4_check_conditional_response before insert on cali_workspace.form_responses
+for each row execute function cali_session_guard.phase4_check_conditional_response();
+
+create or replace function public.v2_submit_pilot_public_text_form(p_slug text,p_request_id uuid,p_answers jsonb)
+returns boolean language plpgsql security definer set search_path=''
+as $$
+declare
+  form cali_workspace.forms;
+  signature bytea;
+  previous bytea;
+  result jsonb;
+  reached jsonb;
+  normalized jsonb:=p_answers;
+  attachment_question text;
+  pdf_text text;
+  pdf bytea;
+  response_id uuid;
+  created_response_count integer;
+begin
+  if p_request_id is null or jsonb_typeof(p_answers) is distinct from 'object' or octet_length(p_answers::text)>2896250 then
+    raise exception using errcode='22023',message='Confira as respostas.';
+  end if;
+  perform 1 from cali_workspace.forms f where f.slug=p_slug and length(p_slug) between 1 and 100
+    and f.id=(cali_session_guard.phase4_public_text_form(p_slug)).id for update;
+  if not found then raise exception using errcode='42501',message='Formulário indisponível.'; end if;
+  form:=cali_session_guard.phase4_public_text_form(p_slug);
+  if form.id is null then raise exception using errcode='42501',message='Formulário indisponível.'; end if;
+  signature:=sha256(convert_to(p_answers::text,'UTF8'));
+  select r.fingerprint into previous from cali_session_guard.phase4_public_form_receipts r
+    where r.form_id=form.id and r.request_id=p_request_id;
+  if found then
+    if previous=signature then return true; end if;
+    raise exception using errcode='40001',message='Este envio já foi registrado.';
+  end if;
+  if form.status<>'open' then raise exception using errcode='42501',message='Coleta encerrada.'; end if;
+  select coalesce(jsonb_agg(question),'[]'::jsonb) into reached
+  from cali_session_guard.phase4_form_reachable(form.questions,p_answers);
+  select q->>'id' into attachment_question from jsonb_array_elements(reached) q where q->>'kind'='file';
+  if attachment_question is not null and p_answers?attachment_question then
+    pdf_text:=p_answers->>attachment_question;
+    if jsonb_typeof(p_answers->attachment_question) is distinct from 'string'
+      or length(pdf_text) not between 12 and 2796204 then
+      raise exception using errcode='22023',message='Selecione um PDF de até 2 MiB.';
+    end if;
+    pdf:=decode(pdf_text,'base64');
+    if octet_length(pdf) not between 8 and 2097152 or substring(pdf from 1 for 5)<>convert_to('%PDF-','UTF8') then
+      raise exception using errcode='22023',message='PDF inválido.';
+    end if;
+    normalized:=jsonb_set(normalized,array[attachment_question],'"[PDF anexado]"'::jsonb);
+  end if;
+  if octet_length(normalized::text)>100000 or not cali_session_guard.phase4_form_answers_valid(reached,normalized) then
+    raise exception using errcode='22023',message='Confira as respostas.';
+  end if;
+  if pdf is not null then
+    select count(*) into created_response_count from cali_workspace.form_responses r
+      where r.form_id=form.id and r.submitted_at>statement_timestamp()-interval '1 minute';
+    if created_response_count>=30 then
+      raise exception using errcode='22023',message='Muitas respostas ao mesmo tempo. Tente de novo em instantes.';
+    end if;
+    response_id:=gen_random_uuid();
+    insert into cali_session_guard.phase4_form_pdfs(response_id,question_id,bytes)
+      values(response_id,attachment_question::uuid,pdf);
+    insert into cali_workspace.form_responses(id,form_id,answers) values(response_id,form.id,
+      coalesce((select jsonb_object_agg(key,value) from jsonb_each(normalized)
+        where value not in ('""'::jsonb,'[]'::jsonb)),'{}'::jsonb));
+  else
+    result:=public.cali_form_submit(form.slug,case
+      when jsonb_path_exists(form.questions,'$[*].logic') then normalized||jsonb_build_object(
+        '__visited',(select jsonb_agg(q->>'id') from jsonb_array_elements(reached) q))
+      else normalized end);
+    if result->>'ok' is distinct from 'true' then
+      raise exception using errcode='22023',message='Não foi possível salvar as respostas.';
+    end if;
   end if;
   insert into cali_session_guard.phase4_public_form_receipts values(form.id,p_request_id,signature);
   return true;

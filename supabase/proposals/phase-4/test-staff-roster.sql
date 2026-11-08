@@ -1,6 +1,6 @@
 create table cali_workspace.staff_members (
   id uuid primary key, full_name text, email text, active boolean not null,
-  modules text[], accepted_at timestamptz, invited_at timestamptz, user_id uuid, invited_by uuid,
+  modules text[], accepted_at timestamptz, invited_at timestamptz default now(), user_id uuid, invited_by uuid,
   updated_at timestamptz not null default clock_timestamp()
 );
 create table cali_workspace.staff_company_assignments (
@@ -9,6 +9,7 @@ create table cali_workspace.staff_company_assignments (
 );
 \ir staff-roster-read.sql
 \ir staff-roster-write.sql
+\ir staff-roster-activation.sql
 begin;
 do $$
 declare
@@ -21,6 +22,7 @@ declare
   change uuid:=gen_random_uuid();
   revision timestamptz;
   next_revision timestamptz;
+  activate uuid:=gen_random_uuid();
 begin
   insert into cali_workspace.staff_members(id,full_name,email,active,modules,accepted_at,invited_at,user_id) values
     (member_a,'Equipe A','a@example.invalid',true,array['projects'],now(),now(),gen_random_uuid()),
@@ -60,14 +62,31 @@ begin
   exception when serialization_failure then null; end;
   select (item->>'draftRevision')::timestamptz into strict next_revision
   from jsonb_array_elements(cali_workspace.v2_read_pilot_staff_roster(a,1)->'entries') item where item->>'id'=draft::text;
+  begin
+    perform cali_workspace.v2_set_pilot_staff_active(b,gen_random_uuid(),draft,next_revision,true);
+    raise exception 'Ativação cruzada aceita';
+  exception when insufficient_privilege then null; end;
+  assert cali_workspace.v2_set_pilot_staff_active(a,activate,draft,next_revision,true)=draft;
+  assert cali_workspace.v2_set_pilot_staff_active(a,activate,draft,next_revision,true)=draft;
+  begin
+    perform cali_workspace.v2_set_pilot_staff_active(a,gen_random_uuid(),draft,next_revision,false);
+    raise exception 'Ativação obsoleta aceita';
+  exception when serialization_failure then null; end;
+  select (item->>'activationRevision')::timestamptz into strict revision
+  from jsonb_array_elements(cali_workspace.v2_read_pilot_staff_roster(a,1)->'entries') item
+  where item->>'id'=draft::text and (item->>'active')::boolean and item->>'draftRevision' is null;
+  assert cali_workspace.v2_set_pilot_staff_active(a,gen_random_uuid(),draft,revision,false)=draft;
+  select (item->>'draftRevision')::timestamptz into strict next_revision
+  from jsonb_array_elements(cali_workspace.v2_read_pilot_staff_roster(a,1)->'entries') item where item->>'id'=draft::text;
   assert cali_workspace.v2_save_pilot_staff_draft(a,gen_random_uuid(),draft,next_revision,null,null,true)=draft;
   assert cali_workspace.v2_read_pilot_staff_roster(a,1)->>'total'='1';
   reset role;
   assert exists(select 1 from cali_workspace.staff_members where id=draft and not active and user_id is null);
-  assert (select count(*) from cali_workspace.activity_log where entity_id=draft)=3;
+  assert (select count(*) from cali_workspace.activity_log where entity_id=draft)=5;
   assert not has_function_privilege('anon','cali_workspace.v2_read_pilot_staff_roster(uuid,integer)','EXECUTE');
 end;
 $$;
 rollback;
 \echo Fase 4E: Equipe CALI limitada à empresa e a Admin com MFA.
+drop function cali_workspace.v2_set_pilot_staff_active(uuid,uuid,uuid,timestamptz,boolean);
 \ir rollback-staff-roster-write.sql

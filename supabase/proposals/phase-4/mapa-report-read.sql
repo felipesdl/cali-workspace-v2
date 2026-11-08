@@ -25,6 +25,8 @@ declare
   c numeric;
   d numeric;
   score numeric;
+  maturity numeric;
+  suggested_service text;
 begin
   select response.* into r from cali_session_guard.phase4_mapa_scope g
   join public.mapa_respostas response on response.id=g.record_id
@@ -66,8 +68,21 @@ begin
   end if;
   a:=dimensions[1]; b:=dimensions[2]; c:=dimensions[3]; d:=dimensions[4];
   score:=a*.25+b*.30+c*.20+d*.25;
+  maturity:=(a+b+c)/3;
+  suggested_service:=case
+    when maturity<5 and d<5 then 'Diagnóstico Executivo de People'
+    when maturity<5 then 'Projeto de Cultura e Direção'
+    when d<5 then 'Assessoria Estratégica Mensal — CALI Partner'
+    else 'Assessoria Estratégica Mensal — CALI Full' end;
   return jsonb_build_object('companyId',p_company_id,'recordId',p_record_id,'version',protocol_version,
-    'dimensions',dimensions,'subscores',subscores,'score',round(score,1));
+    'dimensions',dimensions,'subscores',subscores,'score',round(score,1),
+    'protocol',r.protocolo,'createdAt',r.created_at,
+    'companyName',left(to_jsonb(r)->>'c_empresa',250),
+    'observations',jsonb_build_array(
+      left(r.observacoes->>'d1_obs',4000),left(r.observacoes->>'d2_obs',4000),
+      left(r.observacoes->>'d3_obs',4000),left(r.observacoes->>'d4_obs',4000)),
+    'opinion',left(r.observacoes->>'parecer',4000),
+    'recommendedService',coalesce(nullif(left(r.observacoes->>'servico_recomendado',250),''),suggested_service));
 end;
 $$;
 revoke all on function cali_workspace.v2_read_pilot_mapa_report(uuid,uuid) from public,anon,authenticated,service_role;

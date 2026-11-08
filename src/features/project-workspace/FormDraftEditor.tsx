@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   formQuestionKind,
+  FORM_BRANCH_END,
   type DomainOperations,
   type FormDraft,
   type FormDraftChange,
@@ -22,6 +23,7 @@ const questionLabels = {
   single_choice: 'Escolha única',
   multi_choice: 'Escolha múltipla',
   yes_no: 'Sim ou não',
+  file: 'Anexo PDF (até 2 MiB)',
 };
 
 const text = (fields: FormData, name: string) => String(fields.get(name) ?? '');
@@ -197,7 +199,7 @@ function DraftContent({
         )}
       </ActionForm>
       <ol className="tw:grid tw:gap-2">
-        {draft.questions.map((question) => (
+        {draft.questions.map((question, index) => (
           <li key={question.id}>
             <p>{question.label}</p>
             {formQuestionKind.safeParse(question.kind).success && (
@@ -227,6 +229,11 @@ function DraftContent({
                 </ActionForm>
               </details>
             )}
+            <QuestionBranch
+              question={question}
+              destinations={draft.questions.slice(index + 1)}
+              save={(change) => save(draft, change)}
+            />
           </li>
         ))}
       </ol>
@@ -252,11 +259,17 @@ function DraftContent({
                   value={kind}
                   onChange={(event) => setKind(formQuestionKind.parse(event.currentTarget.value))}
                 >
-                  {formQuestionKind.options.map((kind) => (
-                    <option key={kind} value={kind}>
-                      {questionLabels[kind]}
-                    </option>
-                  ))}
+                  {formQuestionKind.options
+                    .filter(
+                      (option) =>
+                        option !== 'file' ||
+                        !draft.questions.some((question) => question.kind === 'file'),
+                    )
+                    .map((kind) => (
+                      <option key={kind} value={kind}>
+                        {questionLabels[kind]}
+                      </option>
+                    ))}
                 </select>
               </Field>
               <QuestionFields prefix={prefix} kind={kind} required />
@@ -265,5 +278,62 @@ function DraftContent({
         </ActionForm>
       )}
     </div>
+  );
+}
+
+function QuestionBranch({
+  question,
+  destinations,
+  save,
+}: {
+  question: FormDraft['questions'][number];
+  destinations: FormDraft['questions'];
+  save: (change: FormDraftChange) => Promise<string>;
+}) {
+  const options = question.kind === 'yes_no' ? ['Sim', 'Não'] : question.options;
+  if ((question.kind !== 'single_choice' && question.kind !== 'yes_no') || !options?.length) {
+    return null;
+  }
+
+  return (
+    <details>
+      <summary>Caminho por resposta</summary>
+      <ActionForm
+        label="Salvar caminhos da pergunta"
+        submit={(fields) =>
+          save({
+            action: 'set_logic',
+            id: question.id,
+            logic: options.flatMap((option, index) => {
+              const goTo = text(fields, 'route-' + index);
+              return goTo ? [{ when: option, goTo }] : [];
+            }),
+          })
+        }
+      >
+        {(prefix) =>
+          options.map((option, index) => {
+            const name = 'route-' + index;
+            return (
+              <Field key={option} id={prefix + name} label={'Se responder ' + option}>
+                <select
+                  id={prefix + name}
+                  name={name}
+                  defaultValue={question.logic?.find((rule) => rule.when === option)?.goTo ?? ''}
+                >
+                  <option value="">Seguir para a próxima pergunta</option>
+                  {destinations.map((destination) => (
+                    <option key={destination.id} value={destination.id}>
+                      {destination.label}
+                    </option>
+                  ))}
+                  <option value={FORM_BRANCH_END}>Encerrar perguntas</option>
+                </select>
+              </Field>
+            );
+          })
+        }
+      </ActionForm>
+    </details>
   );
 }
