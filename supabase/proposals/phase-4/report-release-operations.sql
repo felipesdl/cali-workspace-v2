@@ -211,6 +211,7 @@ begin
           'documentsPublished',source.snapshot#>'{documents,publishedCount}',
           'comments',source.snapshot#>'{conversations,commentCount}'
         )) end as "reportSourceCounts",
+        a.snapshot->'clientSourceCounts' as "reportClientSourceCounts",
         case when x.report_id is not null then x.requires_ack and x.acknowledged_at is null
           else r.status in ('sent','published') and r.revision_parent_id is null
             and coalesce(r.version,1)=1 and r.acknowledged_at is null end as "acknowledgmentAvailable",

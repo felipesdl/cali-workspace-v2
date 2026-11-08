@@ -28,6 +28,7 @@ import {
 } from './CatalogActions';
 import { AgendaActions } from './AgendaActions';
 import { NoticeInteractions } from './NoticeInteractions';
+import { NoticeCover } from './NoticeCover';
 import { OpenRecord, RecordConversation } from './RecordActions';
 import {
   DataLifecycleOverview,
@@ -783,6 +784,12 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                   {item.reportMetrics && item.reportVersion && (
                     <ReportIndicators metrics={item.reportMetrics} />
                   )}
+                  {item.reportClientSourceCounts && item.reportVersion && (
+                    <ReportSources
+                      counts={item.reportClientSourceCounts}
+                      title="Conteúdo visível no Workspace"
+                    />
+                  )}
                   {admin && item.reportSourceCounts && (
                     <ReportSources counts={item.reportSourceCounts} />
                   )}
@@ -790,6 +797,18 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                   {item.frontTerms && admin && item.status === 'active' && (
                     <EndContractedFront company={companyId} actor={actor} id={item.id} />
                   )}
+                  {module === 'notices' &&
+                    item.status === 'published' &&
+                    item.noticeCoverEnabled && (
+                      <NoticeCover
+                        company={companyId}
+                        actor={actor}
+                        notice={item.id}
+                        version={item.noticeCoverVersion ?? null}
+                        hasCover={Boolean(item.noticeHasCover)}
+                        editable={Boolean(item.noticeEditable)}
+                      />
+                    )}
                   {module === 'notices' && item.status === 'published' && (
                     <NoticeInteractions company={companyId} actor={actor} notice={item.id} />
                   )}

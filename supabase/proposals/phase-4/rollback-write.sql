@@ -68,6 +68,8 @@ drop function if exists cali_workspace.v2_complete_pilot_appointment(uuid,uuid);
 drop function if exists cali_workspace.v2_mark_pilot_appointment_absent(uuid,uuid,uuid,text,boolean,text);
 drop function if exists cali_workspace.v2_offer_pilot_appointment_replacement(uuid,uuid,uuid,uuid,timestamp without time zone,text);
 drop function if exists cali_session_guard.phase4_record_appointment_outcome(uuid,uuid,uuid,text,boolean,text);
+drop function if exists cali_workspace.v2_save_pilot_notice_cover(uuid,uuid,uuid,uuid,text,text);
+drop function if exists cali_workspace.v2_read_pilot_notice_cover(uuid,uuid,uuid);
 drop function if exists cali_workspace.v2_publish_pilot_notice(uuid,uuid,text,text,text,date);
 drop function if exists cali_workspace.v2_set_pilot_notice_state(uuid,uuid,text,text);
 drop function if exists cali_workspace.v2_ack_pilot_notice(uuid,uuid,boolean);

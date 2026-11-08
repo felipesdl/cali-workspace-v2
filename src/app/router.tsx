@@ -322,6 +322,15 @@ const discRespondentRoute = createRoute({
   ),
 });
 
+const publicTextFormRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/f/$slug',
+  component: lazyRouteComponent(
+    () => import('../features/project-workspace/PublicTextForm'),
+    'PublicTextFormPage',
+  ),
+});
+
 const externalCommercialRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/proposta-externa',
@@ -333,6 +342,7 @@ const externalCommercialRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   externalCommercialRoute,
+  publicTextFormRoute,
   discRespondentRoute,
   accessGateRoute,
   callbackRoute,

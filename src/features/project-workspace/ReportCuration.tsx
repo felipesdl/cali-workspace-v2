@@ -4,12 +4,12 @@ import {
   type ReportCuration,
 } from '../../api/modules/project-workspace/report-curation';
 import { Field } from '../../components/ds/field/Field';
-import { type z } from 'zod';
 import { ActionForm } from './ActionForm';
 import {
   executiveMetricRows,
   type ReportMetrics,
-  type reportSourceCountsSchema,
+  reportSourceRows,
+  type ReportSourceCounts,
 } from '../../api/modules/project-workspace/report-metrics';
 
 export function ReportCurationEditor({
@@ -57,7 +57,7 @@ export function ReportCurationSections({ sections }: { sections: ReportCuration 
   return (
     <dl className="tw:mt-2 tw:grid tw:gap-2">
       {filled.map(({ key, label }) => (
-        <div key={key}>
+        <div key={label}>
           <dt className="tw:font-semibold">{label}</dt>
           <dd className="tw:break-words tw:whitespace-pre-line">{sections[key]}</dd>
         </div>
@@ -82,28 +82,23 @@ export function ReportIndicators({ metrics }: { metrics: ReportMetrics }) {
   );
 }
 
-type ReportSourceCounts = z.infer<typeof reportSourceCountsSchema>;
-
-const reportSourceLabels = [
-  ['projects', 'Projetos no período'],
-  ['tasksCreated', 'Tarefas criadas'],
-  ['tasksCompleted', 'Tarefas concluídas'],
-  ['events', 'Eventos no período'],
-  ['documentsPublished', 'Documentos publicados'],
-  ['comments', 'Comentários no período'],
-] as const satisfies ReadonlyArray<readonly [keyof ReportSourceCounts, string]>;
-
-export function ReportSources({ counts }: { counts: ReportSourceCounts }) {
-  const rows = reportSourceLabels.filter(([key]) => counts[key] !== undefined);
+export function ReportSources({
+  counts,
+  title = 'Fontes do relatório',
+}: {
+  counts: ReportSourceCounts;
+  title?: string;
+}) {
+  const rows = reportSourceRows(counts);
   if (rows.length === 0) return null;
   return (
     <details className="tw:mt-2">
-      <summary className="tw:cursor-pointer">Fontes do relatório</summary>
+      <summary className="tw:cursor-pointer">{title}</summary>
       <dl className="tw:grid tw:gap-2">
-        {rows.map(([key, label]) => (
-          <div key={key}>
+        {rows.map(({ label, value }) => (
+          <div key={label}>
             <dt>{label}</dt>
-            <dd>{counts[key]}</dd>
+            <dd>{value}</dd>
           </div>
         ))}
       </dl>

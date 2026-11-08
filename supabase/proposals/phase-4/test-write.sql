@@ -18,6 +18,7 @@
 \ir forms-triage.sql
 \ir test-forms-draft.sql
 \ir test-forms-triage.sql
+\ir test-forms-public-collection.sql
 \ir project-operations.sql
 \ir project-planning.sql
 \ir document-operations.sql
@@ -217,9 +218,13 @@ rollback;
 \ir test-privacy-qa-transport.sql
 \ir test-catalog-actions.sql
 \ir test-notice-interactions.sql
+\ir notice-interactions.sql
+\ir test-notice-covers.sql
+\ir rollback-notice-interactions.sql
 \ir test-documents.sql
 grant usage on schema cali_workspace to service_role;
 \ir test-report-release.sql
+\ir test-report-client-source-counts.sql
 \ir test-admin-read.sql
 \ir test-staff-roster.sql
 \ir test-commercial-draft.sql

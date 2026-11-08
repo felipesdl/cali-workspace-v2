@@ -17,6 +17,14 @@ const reopen = z.object({
 });
 export type RecordFeedback = z.infer<typeof feedback>;
 export type RecordReopen = z.infer<typeof reopen>;
+const noticeCoverMime = z.enum(['image/png', 'image/jpeg']);
+const noticeCoverPayload = z.object({
+  mimeType: noticeCoverMime,
+  content: z
+    .string()
+    .max(1_420_000)
+    .regex(/^[A-Za-z0-9+/=\s]+$/),
+});
 const noticeReaction = z.enum(['like', 'love', 'clap']);
 export type NoticeReaction = z.infer<typeof noticeReaction>;
 const noticeInteractions = z.object({
@@ -133,6 +141,25 @@ function rejected(code?: string) {
 }
 
 const formQuestionKind = z.enum(['short_text', 'long_text']);
+const publicTextForm = z.discriminatedUnion('status', [
+  z.object({ status: z.literal('closed') }),
+  z.object({
+    status: z.literal('open'),
+    title: z.string(),
+    description: z.string().nullable(),
+    questions: z
+      .array(
+        z.object({
+          id: z.uuid(),
+          kind: formQuestionKind,
+          label: z.string(),
+          required: z.boolean(),
+        }),
+      )
+      .min(1)
+      .max(40),
+  }),
+]);
 const formDraft = z.object({
   id: z.uuid(),
   title: z.string(),
@@ -255,6 +282,67 @@ export function createDomainOperations(client: WorkspaceClient) {
       });
       if (error) throw rejected(error.code);
       return z.uuid().parse(data);
+    },
+    async readPublicTextForm(slug: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .schema('public')
+        .rpc('v2_read_pilot_public_text_form', { p_slug: slug })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      return publicTextForm.nullable().parse(data);
+    },
+    async submitPublicTextForm(slug: string, request: string, answers: Record<string, string>) {
+      const { data, error } = await client
+        .schema('public')
+        .rpc('v2_submit_pilot_public_text_form', {
+          p_slug: slug,
+          p_request_id: request,
+          p_answers: answers,
+        });
+      if (error?.code === '42501') throw new Error('Este formulário não está recebendo respostas.');
+      if (error?.code === 'P0001') throw new Error('Confira as respostas e tente novamente.');
+      if (error) throw rejected(error.code);
+      return z.literal(true).parse(data);
+    },
+    async saveNoticeCover(
+      company: string,
+      notice: string,
+      request: string,
+      version: string | null,
+      file: File | null,
+    ) {
+      const mime = file && noticeCoverMime.safeParse(file.type);
+      if (file && (!mime || !mime.success || file.size < 12 || file.size > 1024 * 1024))
+        throw new Error('Selecione um PNG ou JPEG de até 1 MiB.');
+      const bytes = file ? new Uint8Array(await file.arrayBuffer()) : null;
+      let binary = '';
+      if (bytes) {
+        for (let offset = 0; offset < bytes.length; offset += 8192) {
+          binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
+        }
+      }
+      const { data, error } = await client.rpc('v2_save_pilot_notice_cover', {
+        p_company_id: company,
+        p_notice_id: notice,
+        p_request_id: request,
+        p_expected: version,
+        p_mime: file?.type ?? null,
+        p_base64: file ? btoa(binary) : null,
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
+    async noticeCover(company: string, notice: string, version: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_notice_cover', {
+          p_company_id: company,
+          p_notice_id: notice,
+          p_cover_id: version,
+        })
+        .abortSignal(signal);
+      if (error) throw rejected(error.code);
+      const cover = noticeCoverPayload.parse(data);
+      return `data:${cover.mimeType};base64,${cover.content.replace(/\s/g, '')}`;
     },
     async noticeInteractions(company: string, id: string, page: number, signal: AbortSignal) {
       const { data, error } = await client
@@ -421,6 +509,7 @@ export function createDomainOperations(client: WorkspaceClient) {
             title: z.string(),
             status: z.enum(['draft', 'open', 'closed']),
             responses: z.number().int().nonnegative(),
+            publicTextLink: z.boolean().optional(),
           }),
         )
         .parse(data);

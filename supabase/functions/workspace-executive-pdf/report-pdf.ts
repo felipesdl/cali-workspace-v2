@@ -11,6 +11,8 @@ import {
 import {
   executiveMetricRows,
   reportMetricsSchema,
+  reportSourceCountsSchema,
+  reportSourceRows,
 } from '../../../src/api/modules/project-workspace/report-metrics';
 
 export const reportInputSchema = z.object({
@@ -23,6 +25,7 @@ export const reportInputSchema = z.object({
   periodEnd: z.iso.date(),
   summary: z.string().min(1).max(8000),
   curation: reportCurationSchema.optional(),
+  clientSourceCounts: reportSourceCountsSchema.optional(),
   source: reportMetricsSchema.extend({
     workflow_mode: z.literal('official').optional(),
   }),
@@ -155,6 +158,12 @@ export async function renderExecutivePdf(
   reserve(44);
   lines('Indicadores do período', bold, 15);
   for (const { label, value } of executiveMetricRows(input.source)) lines(`${label}: ${value}`);
+  if (input.clientSourceCounts) {
+    reserve(44);
+    lines('Conteúdo visível no Workspace', bold, 15);
+    for (const { label, value } of reportSourceRows(input.clientSourceCounts))
+      lines(`${label}: ${value}`);
+  }
   reserve(170);
   page.drawLine({ start: { x: left, y }, end: { x: width - left, y }, color: pale, thickness: 1 });
   y -= 26;

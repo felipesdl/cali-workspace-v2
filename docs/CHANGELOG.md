@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Prazo, capas e contagens do relatório
+
+- O staging sinaliza revisão de projeto vencida e mantém a opção de pedir ajuste. Avisos dirigidos podem receber capa privada. Relatórios congelam na aprovação as contagens visíveis ao Cliente e as exibem na mesma revisão da tela e do PDF. [Evidências](contracts/PHASE_4_READ.md#prazo-de-revisão-vencido-no-cali-mapa).
+
 ## Realização e comprovantes de visita extra
 
 - Admin registra a visita realizada, lança a despesa e anexa e baixa o comprovante em PDF. A confirmação de visita ignora eventos cancelados e mantém o bloqueio de horários com evento ativo. [Homologação e rollback](contracts/PHASE_4_READ.md#conclusão-da-visita-extra-e-comprovantes-no-cali-mapa).

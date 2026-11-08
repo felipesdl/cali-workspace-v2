@@ -319,7 +319,7 @@ Reversão deste lote: reaplicar a definição de `v2_read_pilot_catalog` de `2ff
 
 Admin com MFA consulta as combinações de frente e modalidade do plano, ativa um vínculo com escopo e vigência e encerra com confirmação. `validate_company_front` continua responsável pelas regras de catálogo, elegibilidade e vagas. A ativação bloqueia a linha da empresa antes da escrita e usa recibo por solicitação. O encerramento preserva o vínculo e sua autoria, e a repetição devolve o mesmo resultado. Cliente segue com leitura da própria empresa. O vínculo não executa cobrança, alteração de plano ou sincronização.
 
-No CALI MAPA, B já tinha CALI Build Essencial. Admin ativou **Indicadores essenciais** com escopo sintético, e a tentativa de ativar **Liderança** em paralelo à frente existente foi recusada. B viu a frente com modalidade e vigência; A ficou vazia. Admin encerrou o vínculo e manteve o registro no histórico. Após recarregar, B voltou ao estado vazio. Partner, Full e Build Completo ainda precisam de prova específica de suas vagas. PostgreSQL descartável também passou em repetição, recusa sem plano e isolamento.
+No CALI MAPA, B já tinha CALI Build Essencial. Admin ativou **Indicadores essenciais** com escopo sintético, e a tentativa de ativar **Liderança** em paralelo à frente existente foi recusada. B viu a frente com modalidade e vigência; A ficou vazia. Admin encerrou o vínculo e manteve o registro no histórico. Após recarregar, B voltou ao estado vazio. Em 08/11, Admin ativou e encerrou em A as três modalidades do Full, vaga adicional no Partner e acompanhamento no Build Completo. Cliente A viu as frentes ativas do Full e voltou à lista vazia após o encerramento. A configuração de plano de A foi restaurada. PostgreSQL descartável também passou em repetição, recusa sem plano e isolamento.
 
 Instalar `front-operations.sql` após `pilot-role.sql`, `operation-receipts.sql` e o catálogo atualizado. `rollback-front-operations.sql` retira só as três RPCs e preserva os registros, recibos e auditoria.
 
@@ -429,7 +429,7 @@ Admin com MFA e Cliente admitido leem e publicam comentários da empresa em avis
 
 Em 07/11/2026, três RPCs V2 foram instaladas sem alteração das tabelas ou policies legadas. Admin restaurou somente o aviso sintético dirigido a A. Cliente comentou, reagiu, trocou a reação e recebeu a resposta Admin depois da recarga. B ficou sem acesso. Cliente retirou a reação e Admin arquivou novamente; aviso saiu da listagem de A. Banco confirmou dois comentários, zero reações e zero marcações de e-mail. A prova descartável também cobriu aviso geral com isolamento, conflito, reenvio e recusa após arquivamento.
 
-`rollback-notice-interactions.sql` retira as operações e preserva o histórico. Moderação de comentários e capa permanecem em recortes próprios.
+`rollback-notice-interactions.sql` retira as operações e preserva o histórico. Moderação de comentários e capa foram tratadas nos lotes seguintes.
 
 ## Moderação de comentários no staging
 
@@ -513,7 +513,7 @@ Em 07/11/2026, a consulta foi instalada no CALI MAPA. No navegador, o Admin viu 
 
 ## Acervo legado de entregáveis
 
-A consulta ao CALI MAPA identificou três arquivos ligados a entregáveis, com vínculo de empresa/projeto e objeto correspondente no Storage. Um PDF está publicado para o Cliente, um PDF está arquivado e privado, e um DOCX está arquivado e privado. Todos têm até 2 MiB. Nenhum pertence a A/B. O inventário não transferiu arquivos. A migração deve preservar a situação de publicação, a versão e o histórico e ter escopo definido; a validação com A/B pode usar arquivos sintéticos próprios.
+A consulta ao CALI MAPA identificou três arquivos ligados a entregáveis, com vínculo de empresa/projeto e objeto correspondente no Storage. Um PDF está publicado para o Cliente, um PDF está arquivado e privado, e um DOCX está arquivado e privado. Todos têm até 2 MiB. Nenhum pertence a A/B. O inventário não transferiu arquivos. Em 08/11, Felipe definiu que o ensaio usará arquivos sintéticos em A/B e que os três itens inventariados serão tratados na janela de rollout. O ensaio deve incluir PDF publicado, PDF arquivado e DOCX arquivado, com conferência de hash, empresa, vínculo ao entregável, versão, histórico e bloqueio de download dos dois arquivados. O importador V2 atual aceita apenas PDF. A preparação do corte precisa definir o destino privado do DOCX e o rollback antes da movimentação.
 
 O estado da instalação e da prova autenticada de Propostas fica no [contrato do rascunho](#rascunho-e-aprovação-interna-de-propostas).
 
@@ -536,3 +536,25 @@ A correção em `fix-cancelled-extra-visit-conflict.sql` exclui eventos cancelad
 Em uma visita sintética com horário passado e ainda sem resultado, Admin registrou a realização pelo navegador, lançou estacionamento de R$ 19,42 e anexou o PDF ao protocolo gerado. O download teve o mesmo SHA-256 do original e a lista persistiu após recarga. Cliente A viu a visita realizada sem dados de despesas, e a consulta Admin de B ficou vazia. O PostgreSQL descartável também verificou repetição do registro e anexo, recusa de substituição do PDF e bloqueio de leitura por Cliente ou outra empresa. Banco confirmou eventos locais, zero e-mails e cron do resumo desligado. Google Calendar/Meet segue para a revisão pré-rollout.
 
 Para instalar sobre a base do piloto, aplicar `agenda-extra-expense-receipts.sql` antes de atualizar a projeção em `agenda-extras-read.sql`. A realização estende `phase4_record_appointment_outcome` em `agenda-change-operations.sql`. No CALI MAPA, o rollback específico em `output/runtime/phase4b/extra-visit-completion-rollback.sql` restaura as quatro definições anteriores e retira as RPCs de comprovantes, preservando arquivos e histórico.
+
+## Prazo de revisão vencido no CALI MAPA
+
+Em 08/11, a consulta de Projetos passou a retornar o indicador de atraso para revisão pendente. No navegador, Cliente A viu o prazo vencido e enviou um pedido de ajuste. A consulta Admin de B não exibiu o projeto de A. O banco confirmou a transição para ajuste solicitado, com zero marcações de e-mail. O projeto sintético foi retirado da visão do Cliente com o histórico preservado. A reversão específica em `output/runtime/phase4a/overdue-review-rollback.sql` restaura apenas a consulta anterior.
+
+## Capas privadas no mural
+
+Admin pode anexar, trocar ou remover uma capa PNG ou JPEG de até 1 MiB em aviso publicado dirigido a uma única empresa piloto. O mural retorna a versão atual, e a leitura dos bytes exige sessão, empresa e acesso ao aviso. As versões anteriores ficam privadas, com histórico de autoria e sem acesso pelo leitor de capas. O acervo de capas do Storage legado segue em seu fluxo próprio.
+
+No CALI MAPA, Admin publicou um aviso sintético em A e anexou um PNG. Cliente A carregou a imagem, a consulta de B ficou sem o aviso e a retirada da capa refletiu em A após recarga. Admin arquivou o aviso. O PostgreSQL descartável verificou reexecução, recusa de versão obsoleta, recusa de edição pelo Cliente, fronteira de empresa e bloqueio de versão retirada. O rollback em `output/runtime/phase4c/notice-cover-rollback.sql` restaura a projeção e retira as duas RPCs, preservando o histórico.
+
+## Contagens visíveis ao Cliente na tela e no PDF
+
+Decisão de 08/11. O relatório inclui contagens de projetos, tarefas, eventos, documentos publicados e comentários de entregáveis que a empresa já pode consultar. A aprovação congela as contagens para a revisão. O cálculo usa datas de Brasília e exclui rascunhos de projeto, entregáveis cancelados ou privados, tarefas e comentários internos, eventos cancelados e documentos arquivados. O catálogo Admin mantém seus agregados operacionais. Revisões já aprovadas conservam seu retrato original.
+
+No CALI MAPA, a revisão 4 de `CALI-RPT-2026-000012` contou um evento de outubro visível ao Cliente e excluiu o evento interno. O Cliente A viu os seis valores na tela e no PDF `CALI-EXEC-2026-000003`, cujo hash conferiu com o banco. B ficou sem o relatório. A revisão foi retirada, as fixtures de agenda foram canceladas e a função temporária de PDF com JWT obrigatório foi removida. A suíte PostgreSQL verificou fronteira do mês, visibilidade, isolamento e congelamento. O rollback específico em `output/runtime/phase4d/client-counts-rollback.sql` restaura o leitor anterior e retira o congelamento para aprovações futuras, preservando revisões e PDFs.
+
+## Coleta pública de texto na V2
+
+A rota `/f/$slug` atende formulários de texto criados pela V2 e abertos explicitamente para link público em empresa piloto. A projeção retorna perguntas, título e descrição quando aberto. Ao encerrar, devolve só o estado. O envio reaproveita a persistência legada, valida os campos de texto no servidor, usa um recibo por tentativa e serializa com o fechamento. A coleta fica disponível por link para visitantes, e a configuração exige confirmação por e-mail desativada. Anexos, perguntas condicionais e exportação seguem em recortes próprios.
+
+No CALI MAPA, as RPCs e a projeção do link no Admin foram instaladas. A abertura da fixture, o envio de uma resposta e o encerramento pelo navegador estão pendentes de confirmação específica. O PostgreSQL descartável passou leitura anônima, rejeição de campo desconhecido, reexecução e recusa de nova resposta após o encerramento. O rollback em `output/runtime/phase4e/forms-public-rollback.sql` retira os leitores e a escrita V2 e restaura a listagem Admin, mantendo as respostas e o histórico.

@@ -35,3 +35,21 @@ export function executiveMetricRows({ hours, deliverables, feedback }: ReportMet
     });
   return rows;
 }
+
+export type ReportSourceCounts = z.infer<typeof reportSourceCountsSchema>;
+
+const reportSourceLabels = [
+  ['projects', 'Projetos no período'],
+  ['tasksCreated', 'Tarefas criadas'],
+  ['tasksCompleted', 'Tarefas concluídas'],
+  ['events', 'Eventos no período'],
+  ['documentsPublished', 'Documentos publicados'],
+  ['comments', 'Comentários no período'],
+] as const satisfies ReadonlyArray<readonly [keyof ReportSourceCounts, string]>;
+
+export function reportSourceRows(counts: ReportSourceCounts) {
+  return reportSourceLabels.flatMap(([key, label]) => {
+    const value = counts[key];
+    return value === undefined ? [] : [{ label, value }];
+  });
+}

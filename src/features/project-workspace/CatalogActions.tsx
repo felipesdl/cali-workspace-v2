@@ -4,7 +4,7 @@ import { PdfDownload } from './PdfDownload';
 import { formatServerInstant } from '../../lib/dates';
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouteContext } from '@tanstack/react-router';
+import { Link, useRouteContext } from '@tanstack/react-router';
 import { Button } from '../../components/ds/button/Button';
 import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
@@ -391,6 +391,11 @@ export function FormAdministration({ company, actor }: Scope) {
             {form.slug} · {form.responses} resposta(s) ·{' '}
             {form.status === 'open' ? 'Aberto' : form.status === 'draft' ? 'Rascunho' : 'Fechado'}
           </p>
+          {form.publicTextLink && (
+            <Link to="/f/$slug" params={{ slug: form.slug }} className="tw:underline">
+              Abrir link público de resposta
+            </Link>
+          )}
           {form.status === 'draft' && form.responses === 0 && (
             <FormDraftEditor company={company} actor={actor} id={form.id} operations={operations} />
           )}
