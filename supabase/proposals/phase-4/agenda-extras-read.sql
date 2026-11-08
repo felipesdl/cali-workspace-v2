@@ -28,10 +28,23 @@ begin
           and r.request_mode='remote' and r.online_extra_quote_accepted_at is null
           and r.status in ('submitted','client_review')
           and to_regprocedure('cali_workspace.v2_quote_pilot_extra(uuid,uuid,uuid,timestamptz,integer,text)') is not null) as "canQuote",
-        (actions.enabled and admin and r.extra_visit and r.status='completed'
-          and exists(select 1 from cali_workspace.event_outcomes o
-            where o.event_id=r.confirmed_event_id and o.outcome='occurred')
-          and to_regprocedure('cali_workspace.v2_record_pilot_extra_expense(uuid,uuid,uuid,text,integer,text,numeric,text)') is not null) as "canRecordExpense",
+        (actions.enabled and admin and r.extra_visit and r.status='confirmed' and exists(
+          select 1 from cali_workspace.events e
+          where e.id=r.confirmed_event_id and e.company_id=r.company_id and e.event_type='meeting'
+            and e.visibility='client' and e.schedule_class='extra' and e.source_type='scheduling_request'
+            and e.source_entity_id=r.id and e.cancelled_at is null and e.ends_at<=now()
+            and not exists(select 1 from cali_workspace.event_outcomes o where o.event_id=e.id)
+            and not exists(select 1 from cali_workspace.agenda_change_requests c
+              where c.event_id=e.id and c.status='pending')
+        )) as "canCompleteVisit",
+        expense_gate.enabled as "canRecordExpense",
+        case when expense_gate.enabled and to_regprocedure('cali_workspace.v2_read_pilot_extra_expense_pdf(uuid,uuid)') is not null
+          then coalesce((select jsonb_agg(jsonb_build_object('id',x.id,'kind',x.expense_kind,
+            'amountCents',x.amount_cents,'protocol',x.protocol,'fileName',pdf.file_name) order by x.created_at desc,x.id)
+            from cali_workspace.extra_visit_expenses x
+            left join cali_session_guard.phase4_extra_expense_pdf pdf on pdf.expense_id=x.id
+            where x.company_id=r.company_id and x.request_id=r.id),'[]'::jsonb)
+        end as expenses,
         case when actions.enabled and admin then r.requested_slots end as "requestedSlots",
         case when actions.enabled and not admin then r.admin_proposed_slots end as "offeredSlots",
         case when actions.enabled then array_remove(array[
@@ -56,6 +69,11 @@ begin
         and to_regprocedure('cali_workspace.v2_act_pilot_extra_appointment(uuid,uuid,uuid,timestamptz,text,integer,text,jsonb,boolean)') is not null
         and exists(select 1 from cali_session_guard.phase4_agenda_qa q
           where q.company_id=r.company_id and q.title=r.title) as enabled) actions
+      cross join lateral (select actions.enabled and admin and r.extra_visit and r.status='completed'
+        and exists(select 1 from cali_workspace.event_outcomes o
+          where o.event_id=r.confirmed_event_id and o.company_id=r.company_id and o.outcome='occurred')
+        and to_regprocedure('cali_workspace.v2_record_pilot_extra_expense(uuid,uuid,uuid,text,integer,text,numeric,text)') is not null
+        as enabled) expense_gate
       where r.company_id=p_company_id and (r.extra_visit or r.online_extra_requested)
     ), page as (
       select * from matched order by "requestedAt" desc,id limit 25 offset (p_page-1)*25

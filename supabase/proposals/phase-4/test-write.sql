@@ -25,6 +25,7 @@
 \ir repair-project-forecast.sql
 \ir agenda-operations.sql
 \ir agenda-qa-transport.sql
+\ir agenda-extra-expense-receipts.sql
 \ir agenda-extras-read.sql
 \ir test-agenda-extras-read.sql
 \ir agenda-change-operations.sql
@@ -33,6 +34,7 @@
 \ir agenda-guests.sql
 \ir agenda-extra-actions.sql
 \ir agenda-extra-intake.sql
+\ir test-agenda-extra-expense-receipts.sql
 \ir hours-operations.sql
 \ir record-operations.sql
 \ir record-review-operations.sql

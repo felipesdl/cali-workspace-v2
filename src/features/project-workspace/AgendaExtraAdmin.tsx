@@ -6,6 +6,9 @@ import {
 } from '../../api/modules/project-workspace/agenda';
 import { Field } from '../../components/ds/field/Field';
 import { ActionForm } from './ActionForm';
+import { PdfDownload } from './PdfDownload';
+
+const reais = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
 const expenseLabels: Record<(typeof extraExpenseKind.options)[number], string> = {
   transport: 'Deslocamento',
@@ -48,9 +51,19 @@ export function AgendaExtraAdmin({
   );
   const [protocol, setProtocol] = useState('');
   const version = item.version;
-  if (!item.canRecordExpense && (!item.canQuote || !version)) return null;
+  if (!item.canCompleteVisit && !item.canRecordExpense && (!item.canQuote || !version)) return null;
   return (
     <div className="tw:my-3 tw:grid tw:gap-3">
+      {item.canCompleteVisit && (
+        <ActionForm
+          label="Registrar visita realizada"
+          submit={async () => {
+            const completed = await agenda.complete(company, item.id);
+            await refresh();
+            return completed;
+          }}
+        />
+      )}
       {item.canQuote && version && (
         <ActionForm
           label="Salvar orçamento pendente"
@@ -86,15 +99,17 @@ export function AgendaExtraAdmin({
       {item.canRecordExpense && (
         <ActionForm
           label="Registrar despesa da visita"
-          submit={(fields, request) =>
-            agenda.recordExtraExpense(company, item.id, request, {
+          submit={async (fields, request) => {
+            const recorded = await agenda.recordExtraExpense(company, item.id, request, {
               kind,
               cents: amountInCents(fields),
               note: String(fields.get('note') ?? ''),
               hours: kind === 'extra_hours' ? Number(fields.get('hours')) : null,
               approval: String(fields.get('approval') ?? ''),
-            })
-          }
+            });
+            await refresh();
+            return recorded;
+          }}
           saved={setProtocol}
         >
           {(prefix) => (
@@ -143,6 +158,56 @@ export function AgendaExtraAdmin({
             </>
           )}
         </ActionForm>
+      )}
+      {!!item.expenses?.length && (
+        <ul aria-label="Despesas registradas" className="tw:grid tw:gap-3">
+          {item.expenses.map((expense) => (
+            <li key={expense.id}>
+              <p>
+                {expenseLabels[expense.kind]} · {reais.format(expense.amountCents / 100)}
+                {expense.protocol && ` · ${expense.protocol}`}
+              </p>
+              {expense.fileName ? (
+                <>
+                  <p>{expense.fileName}</p>
+                  <PdfDownload
+                    download={(signal) =>
+                      agenda.downloadExtraExpensePdf(company, expense.id, signal)
+                    }
+                  />
+                </>
+              ) : (
+                <ActionForm
+                  label="Anexar comprovante"
+                  submit={async (fields, request) => {
+                    const file = fields.get('pdf');
+                    if (!(file instanceof File)) throw new Error('Selecione um PDF.');
+                    const saved = await agenda.saveExtraExpensePdf(
+                      company,
+                      expense.id,
+                      request,
+                      file,
+                    );
+                    await refresh();
+                    return saved;
+                  }}
+                >
+                  {(prefix) => (
+                    <Field id={prefix + 'pdf'} label="Comprovante em PDF">
+                      <input
+                        id={prefix + 'pdf'}
+                        name="pdf"
+                        type="file"
+                        accept="application/pdf,.pdf"
+                        required
+                      />
+                    </Field>
+                  )}
+                </ActionForm>
+              )}
+            </li>
+          ))}
+        </ul>
       )}
       {protocol && <p role="status">Despesa registrada. Protocolo {protocol}.</p>}
     </div>

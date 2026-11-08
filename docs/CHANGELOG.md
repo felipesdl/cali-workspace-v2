@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Realização e comprovantes de visita extra
+
+- Admin registra a visita realizada, lança a despesa e anexa e baixa o comprovante em PDF. A confirmação de visita ignora eventos cancelados e mantém o bloqueio de horários com evento ativo. [Homologação e rollback](contracts/PHASE_4_READ.md#conclusão-da-visita-extra-e-comprovantes-no-cali-mapa).
+
 ## Pedidos adicionais, orçamento e despesas
 
 - Cliente abre visita ou encontro online adicional. Admin edita orçamento pendente e registra despesa em visita já realizada. O piloto também comprovou a recusa e o registro da taxa após cancelamento. Google Calendar/Meet fica para revisão pré-rollout. [Escopo e validação](contracts/PHASE_4_READ.md#abertura-de-extras-revisão-de-orçamento-e-despesas).

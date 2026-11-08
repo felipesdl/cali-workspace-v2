@@ -69,3 +69,9 @@ begin
    decision_note=$3,chosen_slot=chosen where id=$1;
 end;
 $$;
+
+create table cali_workspace.extra_visit_expenses (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid not null,request_id uuid not null,expense_kind text not null,
+  amount_cents integer not null,protocol text,created_at timestamptz not null default clock_timestamp()
+);

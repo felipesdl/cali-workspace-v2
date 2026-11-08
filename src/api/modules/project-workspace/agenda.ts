@@ -131,6 +131,18 @@ const extras = z.object({
       actions: z.array(extraAction).nullish(),
       canQuote: z.boolean().optional(),
       canRecordExpense: z.boolean().optional(),
+      canCompleteVisit: z.boolean().optional(),
+      expenses: z
+        .array(
+          z.object({
+            id: z.uuid(),
+            kind: extraExpenseKind,
+            amountCents: z.number().int().positive(),
+            protocol: z.string().nullable(),
+            fileName: z.string().nullable(),
+          }),
+        )
+        .nullish(),
     }),
   ),
 });
@@ -199,6 +211,26 @@ export function createAgendaOperations(client: WorkspaceClient) {
         throw new Error('Confira a realização da visita e os dados da despesa.');
       if (error) throw new Error('Não foi possível registrar a despesa.');
       return z.string().min(1).parse(data);
+    },
+    async saveExtraExpensePdf(company: string, expense: string, requestId: string, file: File) {
+      const { data, error } = await client.rpc('v2_save_pilot_extra_expense_pdf', {
+        p_company_id: company,
+        p_expense_id: expense,
+        p_request_id: requestId,
+        p_file_name: file.name,
+        p_pdf_base64: await encodePdf(file),
+      });
+      if (error?.code === '22023') throw new Error('Confira o arquivo PDF.');
+      if (error?.code === '40001') throw new Error('A despesa mudou. Atualize a agenda.');
+      if (error) throw new Error('Não foi possível anexar o comprovante.');
+      return z.literal(expense).parse(data);
+    },
+    async downloadExtraExpensePdf(company: string, expense: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_extra_expense_pdf', { p_company_id: company, p_expense_id: expense })
+        .abortSignal(signal);
+      if (error) throw new Error('Comprovante indisponível.');
+      return decodePdf(pdfPayload.parse(data));
     },
     async actOnExtra(
       company: string,

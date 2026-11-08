@@ -55,7 +55,7 @@ Quando o resultado admite reposição, Admin oferece horário e Cliente confirma
 
 O piloto consulta os participantes da reunião ordinária com a visibilidade do evento e mostra os pedidos extras em uma lista separada. Admin gerencia convidados externos em reunião local e publica link e PDF na ata da reunião realizada. O solicitante aceita o orçamento online com o valor e as condições exibidas. Os pedidos adicionais inscritos têm ações por papel e estado. [Homologação e limites](../contracts/PHASE_4_READ.md#materiais-da-ata-convidados-locais-e-encontros-adicionais).
 
-O [lote de abertura de extras e despesas](../contracts/PHASE_4_READ.md#abertura-de-extras-revisão-de-orçamento-e-despesas) validou pedidos novos, orçamento pendente, recusa, taxa de cancelamento e registro de despesa. A confirmação direta ainda herda a colisão com evento cancelado do legado.
+O [lote de abertura de extras e despesas](../contracts/PHASE_4_READ.md#abertura-de-extras-revisão-de-orçamento-e-despesas) validou pedidos novos, orçamento pendente, recusa, taxa de cancelamento e registro de despesa. A [conclusão da visita e comprovantes](../contracts/PHASE_4_READ.md#conclusão-da-visita-extra-e-comprovantes-no-cali-mapa) validou realização, despesa com PDF privado e confirmação em horário de evento cancelado pelos dois perfis. Evento ativo continua ocupando o horário.
 
 ## Revisão pré-rollout
 

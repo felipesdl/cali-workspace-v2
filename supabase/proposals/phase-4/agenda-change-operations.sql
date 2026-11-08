@@ -145,7 +145,9 @@ begin
   select e.id into meeting_id from cali_workspace.scheduling_requests r
   join cali_workspace.events e on e.id=r.confirmed_event_id and e.company_id=r.company_id
   where r.id=p_appointment_id and r.company_id=p_company_id
-    and e.visibility='client' and e.event_type='meeting' and e.schedule_class='contractual'
+    and e.visibility='client' and e.event_type='meeting'
+    and ((e.schedule_class='contractual' and not r.extra_visit)
+      or (e.schedule_class='extra' and p_event_id is null and r.extra_visit))
     and e.cancelled_at is null and e.ends_at<=now()
     and e.source_type='scheduling_request' and e.source_entity_id=r.id
     and (p_event_id is null or e.id=p_event_id)
@@ -153,7 +155,10 @@ begin
   if not found then raise exception using errcode='42501',message='Reunião indisponível para registro.'; end if;
   select r.status into appointment_status from cali_workspace.scheduling_requests r
   where r.id=p_appointment_id and r.company_id=p_company_id and r.confirmed_event_id=meeting_id
-    and not (r.extra_visit or r.billable_extra or r.urgency_fee_applies or r.online_extra_requested)
+    and (not (r.extra_visit or r.billable_extra or r.urgency_fee_applies or r.online_extra_requested)
+      or (p_event_id is null and r.extra_visit and not r.online_extra_requested and r.request_mode='in_person'
+        and exists(select 1 from cali_session_guard.phase4_agenda_qa q
+          where q.company_id=r.company_id and q.title=r.title)))
   for update;
   if not found then raise exception using errcode='42501',message='Reunião indisponível para registro.'; end if;
   if exists(select 1 from cali_workspace.event_outcomes o

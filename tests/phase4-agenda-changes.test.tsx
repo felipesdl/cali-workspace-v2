@@ -44,6 +44,8 @@ it('envia a opção de remarcação escolhida pelo Admin e mantém o pedido pend
           requestExtra: unexpected,
           quoteExtra: unexpected,
           recordExtraExpense: unexpected,
+          saveExtraExpensePdf: unexpected,
+          downloadExtraExpensePdf: unexpected,
           acceptOnlineQuote: unexpected,
           requestChange: unexpected,
           complete: unexpected,
