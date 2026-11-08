@@ -1,5 +1,9 @@
 import { decodePdf, encodePdf, pdfPayload } from './pdf-payload';
-import { encodeAttachment, maxAttachmentBytes } from './file-payload';
+import {
+  encodeAttachment,
+  maxAttachmentBytes,
+  maxRecordAttachmentBatchBytes,
+} from './file-payload';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 import { companyStatus } from '../companies/schemas';
@@ -52,6 +56,7 @@ const records = z.object({
   feedback: feedback.nullable().optional(),
   reopen: reopen.nullable().optional(),
   attachmentsEnabled: z.boolean().optional(),
+  attachmentBatchesEnabled: z.boolean().optional(),
   imageAttachmentsEnabled: z.boolean().optional(),
   messages: z.array(
     z.object({
@@ -61,6 +66,16 @@ const records = z.object({
       visibility: z.string(),
       created_at: z.string(),
       attachment: z.object({ fileName: z.string(), canWithdraw: z.boolean() }).nullish(),
+      attachments: z
+        .array(
+          z.object({
+            position: z.number().int().min(1).max(5),
+            fileName: z.string(),
+            canWithdraw: z.boolean(),
+          }),
+        )
+        .max(5)
+        .nullish(),
     }),
   ),
 });
@@ -790,10 +805,49 @@ export function createDomainOperations(client: WorkspaceClient) {
       if (result && result.id !== record) throw rejected();
       return result;
     },
-    async recordAction(company: string, id: string, input: RecordAction, file?: File) {
+    async recordAction(
+      company: string,
+      id: string,
+      input: RecordAction,
+      files: File[] = [],
+      batch = false,
+    ) {
       const command = recordAction.parse(input);
-      if (file) {
+      if (files.length) {
         if (command.action !== 'message') throw new Error('Anexe o arquivo na conversa.');
+        if (batch) {
+          if (
+            files.length > 5 ||
+            files.some(
+              (file) =>
+                file.size < 8 ||
+                file.size > maxRecordAttachmentBatchBytes ||
+                !/\.(pdf|png|jpe?g|webp|docx|xlsx|pptx)$/i.test(file.name),
+            )
+          )
+            throw new Error('Selecione até cinco arquivos compatíveis de até 10 MiB cada.');
+          if (files.reduce((bytes, file) => bytes + file.size, 0) > maxRecordAttachmentBatchBytes)
+            throw new Error('A mensagem pode ter até 10 MiB em anexos.');
+          const { data, error } = await client.rpc('v2_post_pilot_record_batch', {
+            p_company_id: company,
+            p_request_id: id,
+            p_record_id: command.record,
+            p_body: command.body,
+            p_internal: command.internal,
+            p_files: await Promise.all(
+              files.map(async (file) => ({
+                fileName: file.name,
+                base64: await encodeAttachment(file),
+              })),
+            ),
+          });
+          if (error?.code === '22023')
+            throw new Error('Confira o formato, o tamanho e a quantidade dos anexos.');
+          if (error) throw rejected(error.code);
+          return z.uuid().parse(data);
+        }
+        if (files.length !== 1) throw new Error('Selecione um único anexo.');
+        const [file] = files;
         const pdf = file.name.toLowerCase().endsWith('.pdf');
         if (
           !pdf &&
@@ -838,18 +892,28 @@ export function createDomainOperations(client: WorkspaceClient) {
       if (error) throw rejected(error.code);
       return z.uuid().parse(data);
     },
-    async recordAttachment(company: string, record: string, message: string, signal: AbortSignal) {
-      const { data, error } = await client
-        .rpc('v2_read_pilot_record_pdf', {
-          p_company_id: company,
-          p_record_id: record,
-          p_message_id: message,
-        })
-        .abortSignal(signal);
+    async recordAttachment(
+      company: string,
+      record: string,
+      message: string,
+      signal: AbortSignal,
+      position?: number,
+    ) {
+      const target = { p_company_id: company, p_record_id: record, p_message_id: message };
+      const query =
+        position === undefined
+          ? client.rpc('v2_read_pilot_record_pdf', target)
+          : client.rpc('v2_read_pilot_record_attachment', { ...target, p_position: position });
+      const { data, error } = await query.abortSignal(signal);
       if (error?.code === '42501') throw new Error('Anexo indisponível para este acesso.');
       if (error) throw rejected(error.code);
-      const result = pdfPayload.parse(data);
-      if (result.id !== message) throw rejected();
+      const result = pdfPayload
+        .extend({
+          position: z.number().optional(),
+          content: z.string().max(14_200_000),
+        })
+        .parse(data);
+      if (result.id !== message || result.position !== position) throw rejected();
       return decodePdf(result, 'anexo');
     },
     async withdrawRecordAttachment(
@@ -857,13 +921,21 @@ export function createDomainOperations(client: WorkspaceClient) {
       record: string,
       message: string,
       reason: string,
+      position?: number,
     ) {
-      const { data, error } = await client.rpc('v2_withdraw_pilot_record_pdf', {
+      const target = {
         p_company_id: company,
         p_record_id: record,
         p_message_id: message,
         p_reason: z.string().trim().min(3).max(1000).parse(reason),
-      });
+      };
+      const { data, error } =
+        position === undefined
+          ? await client.rpc('v2_withdraw_pilot_record_pdf', target)
+          : await client.rpc('v2_withdraw_pilot_record_attachment', {
+              ...target,
+              p_position: position,
+            });
       if (error) throw rejected(error.code);
       return z.literal(message).parse(data);
     },

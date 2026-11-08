@@ -1,4 +1,5 @@
 export const maxAttachmentBytes = 2 * 1024 * 1024;
+export const maxRecordAttachmentBatchBytes = 10 * 1024 * 1024;
 
 export async function encodeAttachment(file: File) {
   const bytes = new Uint8Array(await file.arrayBuffer());

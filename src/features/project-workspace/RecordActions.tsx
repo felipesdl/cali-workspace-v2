@@ -67,11 +67,13 @@ function MessageFields({
   admin,
   attachmentsEnabled,
   imageAttachmentsEnabled,
+  attachmentBatchesEnabled,
 }: {
   prefix: string;
   admin: boolean;
   attachmentsEnabled?: boolean;
   imageAttachmentsEnabled?: boolean;
+  attachmentBatchesEnabled?: boolean;
 }) {
   return (
     <>
@@ -80,14 +82,34 @@ function MessageFields({
       </Field>
       {admin && <Checkbox name="internal">Somente para a CALI</Checkbox>}
       {attachmentsEnabled && (
-        <Field id={prefix + 'attachment'} label="Anexo de até 2 MiB (opcional)">
+        <Field
+          id={prefix + 'attachment'}
+          label={
+            attachmentBatchesEnabled
+              ? 'Anexos de até 10 MiB no total (opcional)'
+              : 'Anexo de até 2 MiB (opcional)'
+          }
+        >
           <input
             id={prefix + 'attachment'}
             name="attachment"
             type="file"
-            accept={imageAttachmentsEnabled ? '.pdf,.png,.jpg,.jpeg,.webp' : '.pdf'}
+            multiple={attachmentBatchesEnabled}
+            accept={
+              attachmentBatchesEnabled
+                ? '.pdf,.png,.jpg,.jpeg,.webp,.docx,.xlsx,.pptx'
+                : imageAttachmentsEnabled
+                  ? '.pdf,.png,.jpg,.jpeg,.webp'
+                  : '.pdf'
+            }
           />
-          <span>{imageAttachmentsEnabled ? 'PDF, PNG, JPEG ou WebP.' : 'PDF.'}</span>
+          <span>
+            {attachmentBatchesEnabled
+              ? 'Até cinco arquivos. PDF, PNG, JPEG, WebP, Word, Excel ou PowerPoint.'
+              : imageAttachmentsEnabled
+                ? 'PDF, PNG, JPEG ou WebP.'
+                : 'PDF.'}
+          </span>
         </Field>
       )}
     </>
@@ -113,13 +135,18 @@ export function RecordConversation({
   });
   if (!domainOperations) return null;
   const operations = domainOperations;
-  async function submit(command: RecordAction | RecordReviewAction, id: string, file?: File) {
+  async function submit(
+    command: RecordAction | RecordReviewAction,
+    id: string,
+    files?: File[],
+    batch?: boolean,
+  ) {
     try {
       switch (command.action) {
         case 'open':
         case 'message':
         case 'change_status':
-          return await operations.recordAction(company, id, command, file);
+          return await operations.recordAction(company, id, command, files, batch);
         default:
           return await operations.reviewRecord(company, id, command);
       }
@@ -180,16 +207,25 @@ export function RecordConversation({
                     {message.visibility === 'internal' && ' · Interna'}
                   </p>
                   <p className="tw:break-words tw:whitespace-pre-line">{message.body}</p>
-                  {message.attachment && (
-                    <div className="tw:grid tw:gap-2">
-                      <p className="tw:break-words">{message.attachment.fileName}</p>
+                  {(
+                    message.attachments ??
+                    (message.attachment ? [{ ...message.attachment, position: undefined }] : [])
+                  ).map((attachment) => (
+                    <div className="tw:grid tw:gap-2" key={attachment.position ?? 1}>
+                      <p className="tw:break-words">{attachment.fileName}</p>
                       <FileDownload
                         label="Baixar anexo"
                         download={(signal) =>
-                          operations.recordAttachment(company, record, message.id, signal)
+                          operations.recordAttachment(
+                            company,
+                            record,
+                            message.id,
+                            signal,
+                            attachment.position,
+                          )
                         }
                       />
-                      {message.attachment.canWithdraw && (
+                      {attachment.canWithdraw && (
                         <details>
                           <summary className="tw:cursor-pointer">Retirar anexo</summary>
                           <ActionForm
@@ -200,6 +236,7 @@ export function RecordConversation({
                                 record,
                                 message.id,
                                 String(fields.get('reason') ?? ''),
+                                attachment.position,
                               );
                               await cache.invalidateQueries({ queryKey: key });
                               return result;
@@ -220,7 +257,7 @@ export function RecordConversation({
                         </details>
                       )}
                     </div>
-                  )}
+                  ))}
                 </li>
               ))}
             </ol>
@@ -243,7 +280,9 @@ export function RecordConversation({
             <ActionForm
               label="Registrar mensagem"
               submit={(fields, id) => {
-                const attachment = fields.get('attachment');
+                const attachments = fields
+                  .getAll('attachment')
+                  .filter((file): file is File => file instanceof File && file.name !== '');
                 return submit(
                   {
                     action: 'message',
@@ -252,7 +291,8 @@ export function RecordConversation({
                     internal: admin && fields.has('internal'),
                   },
                   id,
-                  attachment instanceof File && attachment.name ? attachment : undefined,
+                  attachments,
+                  data.attachmentBatchesEnabled,
                 );
               }}
               saved={() => setPage(1)}
@@ -263,6 +303,7 @@ export function RecordConversation({
                   admin={admin}
                   attachmentsEnabled={data.attachmentsEnabled}
                   imageAttachmentsEnabled={data.imageAttachmentsEnabled}
+                  attachmentBatchesEnabled={data.attachmentBatchesEnabled}
                 />
               )}
             </ActionForm>

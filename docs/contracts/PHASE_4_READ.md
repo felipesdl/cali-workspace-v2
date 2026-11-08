@@ -429,7 +429,15 @@ A conversa V2 aceita PNG, JPEG e WebP além de PDF. Mantém um anexo de até 2 M
 
 Em 08/11, Admin enviou e baixou três imagens fictícias na ocorrência de teste da Empresa A. Os downloads corresponderam byte a byte aos arquivos de origem. Admin retirou os anexos e a conversa manteve as mensagens. O banco confirmou três retiradas auditadas e nenhuma marcação de e-mail. O ensaio SQL descartável confirmou recusa de extensão incompatível, reenvio sem duplicação e recusa de download para outra empresa. O rollback do lote em `output/runtime/phase4c/record-images-rollback.sql` desliga novos uploads de imagem e mantém os arquivos e o leitor autenticado.
 
-A [publicação 83](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/lib/recordsExperienceRuntimeV2.ts#L50) também aceita documentos Office e múltiplos anexos. Office, múltiplos anexos e limites maiores exigem validação própria. O acervo legado fica para o rollout.
+### Office e múltiplos anexos em ocorrências
+
+Uma mensagem aceita até cinco PDFs, imagens ou arquivos DOCX, XLSX e PPTX, com 10 MiB somados. Um único arquivo pode ocupar todo o limite. A [publicação 83](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/lib/recordsExperienceRuntimeV2.ts#L50) aceitava 10 MiB por arquivo. O teto total da V2 corresponde ao tamanho homologado em uma requisição. A capacidade de 50 MiB por mensagem segue fora da prova.
+
+A mensagem e todos os anexos confirmam na mesma transação. O servidor valida quantidade, bytes, extensão e estrutura do pacote Office pelo diretório ZIP, sem extrair os documentos. Download privado e retirada auditada usam a posição do arquivo. Os anexos anteriores ficam na posição 1 e as RPCs antigas continuam apontando para essa posição.
+
+No CALI MAPA, Admin enviou DOCX, XLSX e PPTX juntos e conferiu os downloads byte a byte. Também gravou cinco arquivos de 2 MiB e enviou e baixou um arquivo único de 10 MiB. A tela recusou o sexto arquivo, um arquivo de 10 MiB + 1 byte e um lote acima de 10 MiB. O banco confirmou as três mensagens válidas, nove arquivos retirados e nenhuma mensagem das tentativas recusadas. A suíte SQL verificou recusa no servidor, rejeição de extensão Office trocada, atomicidade, reenvio, isolamento e retirada de apenas um arquivo.
+
+Aplicar [record-attachment-batches.sql](../../supabase/proposals/phase-4/record-attachment-batches.sql) após os anexos de ocorrência. O [rollback do lote](../../supabase/proposals/phase-4/rollback-record-attachment-batches.sql) desliga novos envios em lote e mantém leitura, retirada e arquivos existentes. O acervo legado fica para o rollout.
 
 ## Interações de avisos no CALI MAPA
 
@@ -677,6 +685,8 @@ Os contratos de rascunho, coleta e exportação formam um lote. O rollback em `o
 Admin com MFA alterna a situação de membros fictícios com módulos e vínculo exclusivo à empresa selecionada. A operação usa revisão e recibo. Exige endereço reservado, ausência de conta, autor de convite e aceite. O catálogo hospedado preenche a data de convite no cadastro inicial, por isso a data isolada não determina elegibilidade.
 
 No navegador do CALI MAPA, o membro fictício de A foi criado, ativado e devolvido a inativo. A suíte isolada cobriu recusa entre empresas, reenvio e revisão antiga. O rollback exato em `output/runtime/phase4e/staff-activation-rollback.sql` retira a operação e restaura a projeção anterior. Convite, autenticação e revogação de uma pessoa da Equipe seguem com aceite próprio.
+
+O preflight seguinte confirmou três RPCs V2 instaladas para consulta, rascunho e ativação sintética. A [função de convite da publicação 83](../flows/SOURCES.md#staff-invite) envia o endereço do Workspace ao membro ativo. A admissão e o corte por atribuição precisam de prova própria. A camada de acesso V2 ainda bloqueia o perfil Partner. Convite, aceite e revogação devem ser ensaiados separadamente com identidade fictícia antes de habilitar a operação Admin.
 
 ## Exportação estruturada e prévia de eliminação
 

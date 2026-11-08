@@ -36,6 +36,8 @@ Anexos legados usam bucket privado e caminhos do contexto. Policies de upload/le
 
 O piloto aplica o mesmo contrato a [imagens PNG, JPEG e WebP](../contracts/PHASE_4_READ.md#imagens-em-conversas-de-ocorrências). Formato incompatível impede a postagem; retirada preserva a mensagem. Os três formatos passaram pelo envio e download autenticados no CALI MAPA.
 
+O [lote de anexos](../contracts/PHASE_4_READ.md#office-e-múltiplos-anexos-em-ocorrências) aceita Office e até cinco arquivos com 10 MiB somados. O lote confirma com a mensagem e cada arquivo tem retirada própria. O envio e o download no limite passaram no CALI MAPA.
+
 ## Continuidade, falhas e aceite
 
 A [implementação piloto da avaliação e reabertura](../contracts/PHASE_4_READ.md#avaliação-e-reabertura-de-ocorrências) valida a avaliação do próprio solicitante, reexecução e decisão Admin. O transporte legado não foi exercitado.

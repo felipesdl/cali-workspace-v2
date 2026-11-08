@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Office e lotes de anexos em ocorrências
+
+- DOCX, XLSX e PPTX homologados na mesma mensagem. CALI MAPA aceitou cinco arquivos e um arquivo de 10 MiB. O limite de 10 MiB é por mensagem. Os nove arquivos fictícios foram retirados com o histórico preservado. [Evidências, compatibilidade e rollback](contracts/PHASE_4_READ.md#office-e-múltiplos-anexos-em-ocorrências).
+
 ## Imagens em ocorrências
 
 - Conversas aceitam PNG, JPEG e WebP junto do PDF, com conferência do formato e download privado. Admin enviou, baixou e retirou três imagens fictícias no CALI MAPA; bytes e auditoria conferidos. [Contrato e rollback](contracts/PHASE_4_READ.md#imagens-em-conversas-de-ocorrências).
