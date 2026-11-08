@@ -6,6 +6,62 @@ import { Field } from '../../components/ds/field/Field';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { ActionForm } from './ActionForm';
 
+export function CreateCommercialDraft({
+  company,
+  actor,
+  opportunity,
+  service,
+}: {
+  company: string;
+  actor?: string;
+  opportunity: string;
+  service: AdminReadService;
+}) {
+  const cache = useQueryClient();
+  return (
+    <ActionForm
+      label="Criar rascunho de teste"
+      submit={async () => {
+        const result = await service.createCommercialDraft(company, opportunity);
+        await Promise.all([
+          cache.invalidateQueries({ queryKey: ['phase4-commercial', actor, company] }),
+          cache.invalidateQueries({ queryKey: ['phase4-audit', actor, company] }),
+        ]);
+        return result;
+      }}
+    />
+  );
+}
+
+export function SendCommercialOffer({
+  company,
+  actor,
+  proposal,
+  expected,
+  service,
+}: {
+  company: string;
+  actor?: string;
+  proposal: string;
+  expected: string;
+  service: AdminReadService;
+}) {
+  const cache = useQueryClient();
+  return (
+    <ActionForm
+      label="Enviar no Workspace de teste"
+      submit={async () => {
+        const result = await service.sendCommercialOffer(company, proposal, expected);
+        await Promise.all([
+          cache.invalidateQueries({ queryKey: ['phase4-commercial', actor, company] }),
+          cache.invalidateQueries({ queryKey: ['phase4-audit', actor, company] }),
+        ]);
+        return result;
+      }}
+    />
+  );
+}
+
 export function CommercialDraftEditor({
   company,
   actor,

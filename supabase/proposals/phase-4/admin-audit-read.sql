@@ -33,7 +33,8 @@ begin
           'agenda_change_requested','agenda_change_decided','scheduling_event_not_occurred',
           'notice_comment_hidden','notice_comment_restored','capacity_pause_recorded','capacity_pause_resumed',
           'satisfaction_followup_saved',
-          'commercial_proposal_edited','commercial_proposal_approved',
+          'commercial_proposal_created','commercial_proposal_edited','commercial_proposal_approved',
+          'commercial_proposal_delivered','commercial_proposal_accepted',
           'form_draft_created','form_draft_edited','form_open','form_closed','form_response_triaged'
         )
     ), selected as (

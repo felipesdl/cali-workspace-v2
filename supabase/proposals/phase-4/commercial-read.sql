@@ -18,7 +18,15 @@ create table if not exists cali_session_guard.phase4_commercial_scope (
 alter table cali_session_guard.phase4_commercial_scope
   add column if not exists operator_id uuid references cali_workspace.profiles(id),
   add column if not exists proposal_id uuid unique references public.cali_proposals(id),
-  add column if not exists expires_at timestamptz;
+  add column if not exists expires_at timestamptz,
+  add column if not exists pilot_package text,
+  add column if not exists pilot_price numeric(12,2),
+  add column if not exists recipient_id uuid references cali_workspace.profiles(id),
+  add column if not exists delivered_at timestamptz,
+  add column if not exists accept_by timestamptz,
+  add column if not exists accepted_at timestamptz,
+  add column if not exists recipient_revoked_at timestamptz,
+  add column if not exists offer jsonb;
 alter table cali_session_guard.phase4_commercial_scope enable row level security;
 revoke all on cali_session_guard.phase4_commercial_scope from public,anon,authenticated,service_role;
 
@@ -36,12 +44,18 @@ begin
       select s.id as "opportunityId",s.protocol,s.status::text as "opportunityStatus",
         s.service_slug as service,p.id as "proposalId",p.status::text as "proposalStatus",
         p.version,p.total_value as total,p.package_code as package,
-        coalesce(p.updated_at,s.updated_at) as "updatedAt"
+        coalesce(p.updated_at,s.updated_at) as "updatedAt",
+        coalesce(scope.proposal_id is null and scope.pilot_package is not null and scope.pilot_price>0
+          and s.status='edicao' and left(s.protocol,11)='CALI-QA-V2-'
+          and s.contact_email like '%@example.invalid',false) as "canCreate",
+        coalesce(p.status='aprovada' and scope.recipient_id is not null
+          and scope.recipient_revoked_at is null and scope.delivered_at is null
+          and left(s.protocol,11)='CALI-QA-V2-' and s.contact_email like '%@example.invalid',false) as "canSend"
       from cali_session_guard.phase4_commercial_scope scope
       join public.cali_submissions s on s.id=scope.submission_id
-      join public.cali_proposals p on p.id=scope.proposal_id and p.submission_id=s.id
+      left join public.cali_proposals p on p.id=scope.proposal_id and p.submission_id=s.id
       where scope.company_id=p_company_id and scope.operator_id=actor
-        and scope.expires_at>statement_timestamp()
+        and scope.expires_at>statement_timestamp() and (scope.proposal_id is null or p.id is not null)
     ), page as (
       select * from filtered order by "updatedAt" desc nulls last,"opportunityId","proposalId"
       limit 25 offset (p_page-1)*25

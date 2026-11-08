@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Proposta sintética da criação ao aceite
+
+- O Admin criou, editou, aprovou e enviou a versão 1 no Workspace de staging. Cliente A aceitou pelo navegador. O banco confirmou valor, versão, cinco eventos de auditoria e retirada das permissões temporárias. [Contrato e prova](contracts/PHASE_4_READ.md#criação-envio-no-workspace-e-aceite-no-staging).
+- A consulta de Equipe CALI mostrou a atribuição sintética inativa em A e lista vazia em B. A interface agora distingue registro de convite de entrega comprovada. [Prova](contracts/PHASE_4_READ.md#equipe-cali-por-empresa).
+
 ## Edição e aprovação interna de Propostas no staging
 
 - A delegação da V2 limitou o teste à conta Admin do Felipe, à Empresa A e à versão 1 de um rascunho sintético. O navegador confirmou edição, aprovação e corte de acesso. O banco preservou valor e versão e registrou as duas ações, sem envio. [Contrato e evidência](contracts/PHASE_4_READ.md#delegação-temporária-de-propostas-no-staging).

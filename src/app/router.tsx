@@ -179,6 +179,14 @@ const clientChildren = [
   clientCatalogChild('relatorios'),
   createRoute({
     getParentRoute: () => clientRoute,
+    path: 'propostas',
+    component: lazyRouteComponent(
+      () => import('../features/project-workspace/ClientCommercialPage'),
+      'ClientCommercialPage',
+    ),
+  }),
+  createRoute({
+    getParentRoute: () => clientRoute,
     path: 'entregaveis',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(

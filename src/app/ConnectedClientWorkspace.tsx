@@ -14,6 +14,7 @@ const titles: Readonly<Record<string, string>> = {
   [clientAccountPaths.terms]: 'Termos e privacidade',
   [clientPaths.team]: 'Equipe',
   '/cliente/perfil': 'Perfil comportamental',
+  '/cliente/propostas': 'Propostas',
   [clientPaths.hours]: 'Horas',
   [clientPaths.calendar]: 'Calendário',
   [clientPaths.records]: 'Ocorrências',

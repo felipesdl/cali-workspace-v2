@@ -31,6 +31,9 @@ const auditLabels = {
   capacity_pause_recorded: 'Registrou pausa por capacidade',
   capacity_pause_resumed: 'Registrou retomada de capacidade',
   commercial_proposal_edited: 'Editou proposta comercial',
+  commercial_proposal_created: 'Criou rascunho de proposta comercial',
+  commercial_proposal_delivered: 'Enviou proposta pelo Workspace',
+  commercial_proposal_accepted: 'Aceitou proposta comercial',
   commercial_proposal_approved: 'Aprovou proposta internamente',
   form_draft_created: 'Criou rascunho de formulário',
   form_draft_edited: 'Editou rascunho de formulário',
@@ -90,10 +93,14 @@ export function AuditResults({
 
 export function CommercialResults({
   entries,
+  create,
   editor,
+  send,
 }: {
   entries: Awaited<ReturnType<AdminReadService['commercial']>>['entries'];
+  create?: (opportunity: string) => ReactNode;
   editor?: (proposal: string) => ReactNode;
+  send?: (proposal: string, expected: string) => ReactNode;
 }) {
   return (
     <ul className="tw:grid tw:gap-2">
@@ -111,6 +118,11 @@ export function CommercialResults({
           {entry.total !== null && <p>Valor registrado: {money.format(entry.total)}</p>}
           {entry.proposalId && entry.proposalStatus === 'rascunho' && editor?.(entry.proposalId)}
           {!entry.proposalId && <p>Sem proposta registrada.</p>}
+          {entry.canCreate && create?.(entry.opportunityId)}
+          {entry.canSend &&
+            entry.proposalId &&
+            entry.updatedAt &&
+            send?.(entry.proposalId, entry.updatedAt)}
           {entry.updatedAt && <p>Atualização: {formatServerInstant(entry.updatedAt)} (Brasília)</p>}
         </li>
       ))}

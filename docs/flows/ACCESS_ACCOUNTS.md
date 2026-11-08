@@ -148,7 +148,7 @@ Fonte exibe essas ações, mas não estabelece uma máquina SQL restrita de todo
 
 ## FLOW-03 — Proposta comercial e oportunidade
 
-A consulta Admin, a edição de condições e a aprovação interna foram homologadas com [delegação temporária por proposta e operador](../contracts/PHASE_4_READ.md#delegação-temporária-de-propostas-no-staging). Criação, cálculo, envio e aceite permanecem pendentes na V2.
+A V2 homologou a criação com preço sintético, edição, aprovação, envio autenticado no Workspace e aceite pelo destinatário inscrito. Cálculo comercial, PDF por e-mail e aceite por link externo permanecem pendentes. [Prova no staging](../contracts/PHASE_4_READ.md#criação-envio-no-workspace-e-aceite-no-staging).
 
 **Objetivo/atores:** Admin trata oportunidade, calcula/edita proposta, revisa e envia. Destinatário comercial não é automaticamente usuário Cliente. Fontes: [tipos/transporte Portal](SOURCES.md#portal), [editor](SOURCES.md#proposal-ui), [rotas](SOURCES.md#routes).
 

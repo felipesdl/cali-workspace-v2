@@ -7,8 +7,9 @@ create table public.cali_submissions (
   contact_email text,internal_notes text
 );
 create table public.cali_proposals (
-  id uuid primary key,submission_id uuid references public.cali_submissions(id),status text,
-  version integer,total_value numeric,package_code text,updated_at timestamptz,
+  id uuid primary key default gen_random_uuid(),submission_id uuid references public.cali_submissions(id),status text,
+  version integer,total_value numeric,package_code text,updated_at timestamptz default clock_timestamp(),
+  service_slug text,base_price numeric,subtotal numeric,final_unit numeric,
   pdf_path text,calculator_data jsonb
 );
 

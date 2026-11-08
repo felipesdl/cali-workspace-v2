@@ -2,7 +2,11 @@ import { Fragment } from 'react';
 import { ProjectJournalPanel } from './ProjectJournalPanel';
 import { workspaceLabel as label } from './workspace-labels';
 import { WorkspacePagination } from './WorkspacePagination';
-import { CommercialDraftEditor } from './CommercialDraftEditor';
+import {
+  CommercialDraftEditor,
+  CreateCommercialDraft,
+  SendCommercialOffer,
+} from './CommercialDraftEditor';
 import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { AdminDailyPreview } from './AdminDailyPreview';
@@ -959,6 +963,31 @@ function AdminCommercial({ search, update }: Props) {
           {result.data.entries.length ? (
             <CommercialResults
               entries={result.data.entries}
+              send={
+                domainOperations
+                  ? (proposal, expected) => (
+                      <SendCommercialOffer
+                        company={companyId}
+                        actor={actor}
+                        proposal={proposal}
+                        expected={expected}
+                        service={adminRead}
+                      />
+                    )
+                  : undefined
+              }
+              create={
+                domainOperations
+                  ? (opportunity) => (
+                      <CreateCommercialDraft
+                        company={companyId}
+                        actor={actor}
+                        opportunity={opportunity}
+                        service={adminRead}
+                      />
+                    )
+                  : undefined
+              }
               editor={
                 domainOperations
                   ? (proposal) => (
@@ -986,7 +1015,7 @@ function AdminCommercial({ search, update }: Props) {
 
 const staffInvitationLabels = {
   not_invited: 'Convite pendente de envio',
-  invited: 'Convite enviado',
+  invited: 'Convite registrado',
   accepted: 'Convite aceito',
 };
 

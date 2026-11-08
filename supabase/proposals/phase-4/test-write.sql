@@ -36,6 +36,8 @@
 \ir report-release-operations.sql
 \ir commercial-read.sql
 \ir commercial-draft.sql
+\ir commercial-create.sql
+\ir commercial-delivery.sql
 \ir satisfaction-operations.sql
 
 begin;
@@ -209,6 +211,8 @@ grant usage on schema cali_workspace to service_role;
 \ir test-admin-read.sql
 \ir test-staff-roster.sql
 \ir test-commercial-draft.sql
+\ir test-commercial-create.sql
+\ir test-commercial-delivery.sql
 \ir test-satisfaction.sql
 \ir test-data-lifecycle-read.sql
 \ir test-hour-corrections.sql

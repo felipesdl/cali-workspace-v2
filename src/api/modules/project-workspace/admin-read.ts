@@ -27,6 +27,9 @@ const auditEvents = [
   'capacity_pause_resumed',
   'satisfaction_followup_saved',
   'commercial_proposal_edited',
+  'commercial_proposal_created',
+  'commercial_proposal_delivered',
+  'commercial_proposal_accepted',
   'commercial_proposal_approved',
   'form_draft_created',
   'form_draft_edited',
@@ -124,6 +127,8 @@ const commercial = page.extend({
   entries: z.array(
     z.object({
       opportunityId: z.uuid(),
+      canCreate: z.boolean().default(false),
+      canSend: z.boolean().default(false),
       protocol: z.string().nullable(),
       opportunityStatus,
       service: z.string(),
@@ -136,6 +141,20 @@ const commercial = page.extend({
     }),
   ),
 });
+const receivedOffers = z.array(
+  z.object({
+    id: z.uuid(),
+    protocol: z.string(),
+    version: z.number().int().positive(),
+    total: z.number(),
+    package: z.string(),
+    paymentTerms: z.string().nullable(),
+    publicNotes: z.string().nullable(),
+    acceptBy: z.iso.datetime({ offset: true }),
+    acceptedAt: z.iso.datetime({ offset: true }).nullable(),
+    canAccept: z.boolean(),
+  }),
+);
 
 const satisfactionSource = z.enum(['record', 'deliverable']);
 const theme = z.enum(['prazo', 'qualidade', 'comunicacao', 'atendimento', 'outro']);
@@ -236,6 +255,42 @@ export function createAdminRead(client: WorkspaceClient) {
       const draft = commercialDraft.nullable().parse(data);
       if (draft && draft.id !== proposal) throw new Error('Proposta divergente.');
       return draft;
+    },
+    async createCommercialDraft(company: string, opportunity: string) {
+      const { data, error } = await client.rpc('v2_create_pilot_commercial_draft', {
+        p_company_id: company,
+        p_submission_id: opportunity,
+      });
+      if (error?.code === '40001') throw new Error('A oportunidade mudou. Atualize a consulta.');
+      if (error) throw new Error('Não foi possível criar o rascunho.');
+      return z.uuid().parse(data);
+    },
+    async sendCommercialOffer(company: string, proposal: string, expected: string) {
+      const { data, error } = await client.rpc('v2_send_pilot_commercial_offer', {
+        p_company_id: company,
+        p_proposal_id: proposal,
+        p_expected: expected,
+      });
+      if (error?.code === '40001') throw new Error('A proposta mudou. Atualize a consulta.');
+      if (error) throw new Error('Não foi possível enviar a proposta no Workspace.');
+      return z.literal(proposal).parse(data);
+    },
+    async receivedOffers(company: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_received_offers', { p_company_id: company })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar suas propostas.');
+      return receivedOffers.parse(data);
+    },
+    async acceptCommercialOffer(company: string, proposal: string, version: number) {
+      const { data, error } = await client.rpc('v2_accept_pilot_commercial_offer', {
+        p_company_id: company,
+        p_proposal_id: proposal,
+        p_version: version,
+      });
+      if (error?.code === '40001') throw new Error('Confira a versão e a validade da proposta.');
+      if (error) throw new Error('Não foi possível aceitar a proposta.');
+      return z.literal(proposal).parse(data);
     },
     async saveCommercialDraft(
       company: string,

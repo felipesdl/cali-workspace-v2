@@ -359,6 +359,14 @@ No navegador integrado, a sessão do Felipe salvou condições e validade de 25 
 
 A suíte SQL descartável confirmou a recusa para outro Admin com MFA, falta de MFA, empresa divergente, outra versão, autorização expirada e versão obsoleta. `rollback-commercial.sql` retira as RPCs e a guarda privada. Propostas, inscrições e auditoria ficam preservadas.
 
+## Criação, envio no Workspace e aceite no staging
+
+`commercial-create.sql` cria uma única versão para oportunidade sintética inscrita, com pacote e preço previamente fixados no servidor. O mesmo pedido devolve o rascunho existente. `commercial-delivery.sql` publica no Workspace uma cópia das condições aprovadas para um destinatário sintético inscrito. O Cliente vê a proposta em `/cliente/propostas` e aceita a versão recebida dentro do prazo. Criação, envio e aceite registram os atores na auditoria. A proposta e o histórico permanecem após revogar a delegação e o destinatário.
+
+Em 07/11/2026, o Admin criou, editou, aprovou e enviou a versão 1 de `CALI-QA-V2-PROPOSTA-02` no navegador. Cliente A conferiu as condições e aceitou. O banco confirmou cinco eventos, versão 1, R$ 175,50, estado aceito e nenhum envio de e-mail. As duas autorizações temporárias foram encerradas. Uma nova consulta Cliente mostrou a caixa vazia.
+
+O PostgreSQL descartável comprovou reexecução sem duplicar, MFA Admin, empresa divergente, versão divergente, prazo e revogação do destinatário. O recorte usa preço sintético e entrega autenticada no Workspace. Calculadora comercial, PDF enviado por e-mail e aceite por link externo continuam pendentes. `rollback-commercial.sql` retira as RPCs e mantém propostas, delegações e auditoria.
+
 ## Lote de pedido de privacidade no CALI MAPA
 
 A rotina legada de abertura avisa todos os Admins ativos e a de resposta notifica o solicitante. `privacy-qa-transport.sql` suprime os dois avisos apenas para empresa e descrição sintéticas inscritas. O PostgreSQL descartável comprovou que outra solicitação ou outra empresa mantém o transporte anterior.
@@ -443,7 +451,9 @@ O PostgreSQL descartável comprovou empresa divergente, horário passado, reenvi
 
 ## Equipe CALI por empresa
 
-`/admin/equipe-cali` consulta a equipe atribuída à empresa piloto selecionada. O servidor exige Admin com MFA, pagina a resposta e retorna nome, situação, convite, módulos e data de atribuição. A consulta omite e-mails e identidade do Auth. O PostgreSQL descartável comprovou a fronteira de empresa e a recusa para Cliente e Admin sem MFA. O preflight em leitura encontrou zero atribuições nas duas empresas piloto. A homologação hospedada precisa de uma atribuição sintética. A reversão remove a consulta; cadastro, atribuição, convite, revogação e decisão de submissões continuam em recortes próprios.
+`/admin/equipe-cali` consulta a equipe atribuída à empresa piloto selecionada. O servidor exige Admin com MFA, pagina a resposta e retorna nome, situação, convite, módulos e data de atribuição. A consulta omite e-mails e identidade do Auth. O PostgreSQL descartável comprovou a fronteira de empresa e a recusa para Cliente e Admin sem MFA.
+
+Em 07/11/2026, a consulta foi instalada no CALI MAPA. No navegador, o Admin viu uma atribuição sintética inativa em A e lista vazia em B. O catálogo grava data de convite ao cadastrar um membro. A interface indica convite registrado, pois a data sozinha não comprova envio. A atribuição de teste foi removida após a consulta. Cadastro, atribuição, convite, revogação e decisão de submissões pela V2 continuam em recortes próprios.
 
 ## Acervo legado de entregáveis
 
