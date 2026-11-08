@@ -367,6 +367,8 @@ Em 07/11/2026, o Admin criou, editou, aprovou e enviou a versão 1 de `CALI-QA-V
 
 O PostgreSQL descartável comprovou reexecução sem duplicar, MFA Admin, empresa divergente, versão divergente, prazo e revogação do destinatário. O recorte usa preço sintético e entrega autenticada no Workspace. Calculadora comercial, PDF enviado por e-mail e aceite por link externo continuam pendentes. `rollback-commercial.sql` retira as RPCs e mantém propostas, delegações e auditoria.
 
+A leitura da Edge legada confirmou que ela recebe PDF e destinatário no payload, grava o arquivo e chama o Resend antes de atualizar os registros comerciais. A chave de idempotência usa proposta e data da revisão. A integração da V2 precisa vincular o PDF e o destinatário à versão aprovada e registrar a entrega externa separadamente do aceite no Workspace. A Edge legada não foi executada nesta homologação.
+
 ## Lote de pedido de privacidade no CALI MAPA
 
 A rotina legada de abertura avisa todos os Admins ativos e a de resposta notifica o solicitante. `privacy-qa-transport.sql` suprime os dois avisos apenas para empresa e descrição sintéticas inscritas. O PostgreSQL descartável comprovou que outra solicitação ou outra empresa mantém o transporte anterior.
@@ -418,6 +420,10 @@ Admin com MFA e Cliente admitido leem e publicam comentários da empresa em avis
 Em 07/11/2026, três RPCs V2 foram instaladas sem alteração das tabelas ou policies legadas. Admin restaurou somente o aviso sintético dirigido a A. Cliente comentou, reagiu, trocou a reação e recebeu a resposta Admin depois da recarga. B ficou sem acesso. Cliente retirou a reação e Admin arquivou novamente; aviso saiu da listagem de A. Banco confirmou dois comentários, zero reações e zero marcações de e-mail. A prova descartável também cobriu aviso geral com isolamento, conflito, reenvio e recusa após arquivamento.
 
 `rollback-notice-interactions.sql` retira as operações e preserva o histórico. Moderação de comentários e capa permanecem em recortes próprios.
+
+## Moderação de comentários no staging
+
+Em 07/11/2026, o CALI MAPA recebeu a RPC de moderação, a atualização do leitor e a policy restritiva para a leitura direta de comentários. O Admin restaurou temporariamente o aviso sintético da Empresa A, ocultou um comentário com motivo e confirmou que o Cliente A ainda via a outra resposta. Depois restaurou o comentário, o Cliente A voltou a vê-lo e o aviso foi arquivado novamente. As duas ações ficaram na auditoria. A reversão operacional retira a RPC de moderação e preserva o filtro enquanto houver comentários ocultos.
 
 ## Prévia do resumo diário Admin no CALI MAPA
 

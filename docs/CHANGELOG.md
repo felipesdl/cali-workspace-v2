@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Moderação de comentários no staging
+
+- Admin ocultou e restaurou um comentário sintético com motivo. O Cliente A observou as duas mudanças e o aviso voltou ao arquivo. [Prova e reversão](contracts/PHASE_4_READ.md#moderação-de-comentários-no-staging).
+
 ## Proposta sintética da criação ao aceite
 
 - O Admin criou, editou, aprovou e enviou a versão 1 no Workspace de staging. Cliente A aceitou pelo navegador. O banco confirmou valor, versão, cinco eventos de auditoria e retirada das permissões temporárias. [Contrato e prova](contracts/PHASE_4_READ.md#criação-envio-no-workspace-e-aceite-no-staging).
