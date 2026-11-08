@@ -24,10 +24,14 @@
 \ir delivery-operations.sql
 \ir repair-project-forecast.sql
 \ir agenda-operations.sql
+\ir agenda-qa-transport.sql
 \ir agenda-extras-read.sql
 \ir test-agenda-extras-read.sql
 \ir agenda-change-operations.sql
 \ir agenda-followup.sql
+\ir agenda-material.sql
+\ir agenda-guests.sql
+\ir agenda-extra-actions.sql
 \ir hours-operations.sql
 \ir record-operations.sql
 \ir record-review-operations.sql
@@ -202,6 +206,7 @@ rollback;
 \ir test-delivery-agenda.sql
 \ir test-agenda-changes.sql
 \ir test-agenda-followup.sql
+\ir test-agenda-material-guests.sql
 \ir test-agenda-qa-transport.sql
 \ir test-record-reviews.sql
 \ir test-record-qa-transport.sql

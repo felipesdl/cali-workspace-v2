@@ -36,6 +36,11 @@ it('envia a opção de remarcação escolhida pelo Admin e mantém o pedido pend
         agenda={{
           decideChange,
           saveMinutes: unexpected,
+          material: unexpected,
+          saveMaterial: unexpected,
+          downloadMaterial: unexpected,
+          changeGuest: unexpected,
+          actOnExtra: unexpected,
           acceptOnlineQuote: unexpected,
           requestChange: unexpected,
           complete: unexpected,

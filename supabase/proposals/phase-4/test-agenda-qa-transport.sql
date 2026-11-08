@@ -1,5 +1,4 @@
 -- Fixture sem fila de envio: valida a marca que o dispatcher leria.
-\ir agenda-qa-transport.sql
 begin;
 do $$
 declare

@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Materiais da ata, convidados locais e encontros adicionais
+
+- Admin publicou e retirou link e PDF de uma ata e adicionou e retirou um convidado externo em reunião local. Cliente A consultou o link, baixou o PDF e viu o convidado sem o e-mail.
+- As visitas sintéticas cobriram oferta, confirmação pelo Cliente e pela CALI, contraproposta, reagendamento, cancelamento e isenção. O encontro online passou por oferta, aceite e confirmação. Os pedidos mantiveram o preço e foram encerrados sem e-mail ou vínculo Google. [Prova e reversão](contracts/PHASE_4_READ.md#materiais-da-ata-convidados-locais-e-encontros-adicionais).
+
 ## Ata em texto e aceite de orçamento online
 
 - Admin salvou a ata de reunião realizada e Cliente A consultou o texto no staging. Cliente A aceitou o orçamento sintético de R$ 250,00. O teste preservou valor, aceite e auditoria, sem disparo de e-mail. [Prova e reversão](contracts/PHASE_4_READ.md#ata-em-texto-e-aceite-de-orçamento-online).

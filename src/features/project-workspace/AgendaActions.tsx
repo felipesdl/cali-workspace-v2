@@ -8,6 +8,7 @@ import { ActionForm } from './ActionForm';
 import { AgendaChangeActions } from './AgendaChangeActions';
 import { AgendaExtras } from './AgendaExtras';
 import { AgendaParticipants } from './AgendaParticipants';
+import { AgendaMaterials } from './AgendaMaterials';
 import { appointmentStatusLabel } from './workspace-labels';
 import { absenceCategory } from '../../api/modules/project-workspace/agenda';
 import { Checkbox } from '../../components/ds/checkbox/Checkbox';
@@ -140,7 +141,24 @@ export function AgendaActions({
                 {formatServerInstant(item.meetingAt)} (Brasília)
               </p>
             )}
-            <AgendaParticipants people={item.participants} />
+            <AgendaParticipants
+              people={item.participants}
+              changeGuest={
+                item.canManageGuests
+                  ? async (request, guest) =>
+                      refresh(await agenda.changeGuest(company, item.id, request, guest))
+                  : undefined
+              }
+            />
+            {item.canReadMaterial && (
+              <AgendaMaterials
+                agenda={agenda}
+                company={company}
+                actor={actor}
+                appointment={item.id}
+                admin={admin}
+              />
+            )}
             {item.minutes && (
               <div>
                 <h4 className="tw:font-semibold">Ata da reunião</h4>

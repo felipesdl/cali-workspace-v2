@@ -9,6 +9,11 @@ drop function if exists cali_session_guard.phase4_record_appointment_outcome(uui
 drop function if exists cali_workspace.v2_request_pilot_agenda_change(uuid,uuid,uuid,text,text,jsonb);
 drop function if exists cali_workspace.v2_list_pilot_appointments(uuid,integer);
 drop function if exists cali_workspace.v2_list_pilot_agenda_extras(uuid,integer);
+drop function if exists cali_workspace.v2_read_pilot_agenda_material(uuid,uuid,uuid);
+drop function if exists cali_workspace.v2_save_pilot_agenda_material(uuid,uuid,uuid,text,uuid,text,text);
+drop function if exists cali_session_guard.phase4_agenda_material_event(uuid,uuid);
+drop function if exists cali_workspace.v2_change_pilot_agenda_guest(uuid,uuid,uuid,uuid,text,text);
+drop function if exists cali_workspace.v2_act_pilot_extra_appointment(uuid,uuid,uuid,timestamptz,text,integer,text,jsonb,boolean);
 drop function if exists cali_workspace.v2_save_pilot_meeting_minutes(uuid,uuid,uuid,text,text);
 drop function if exists cali_workspace.v2_accept_pilot_online_extra_quote(uuid,uuid,text);
 drop function if exists cali_workspace.v2_request_pilot_appointment(uuid,uuid,text,text,text,text,jsonb);

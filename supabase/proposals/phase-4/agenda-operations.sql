@@ -18,6 +18,17 @@ begin
         r.request_mode,r.created_at,r.admin_note,r.requested_slots,r.admin_proposed_slots,
         case when e.cancelled_at is null then e.sync_status end as sync_status,
         e.starts_at as "meetingAt",
+        coalesce(r.status='completed' and e.event_type='meeting' and e.visibility='client'
+          and e.cancelled_at is null and e.schedule_class='contractual'
+          and e.source_type='scheduling_request' and e.source_entity_id=r.id
+          and e.ends_at<=now() and outcome.outcome='occurred'
+          and to_regprocedure('cali_workspace.v2_read_pilot_agenda_material(uuid,uuid,uuid)') is not null,false)
+          as "canReadMaterial",
+        coalesce(admin and r.status='confirmed' and e.event_type='meeting' and e.visibility='client'
+          and e.cancelled_at is null and e.starts_at>now() and e.sync_status='local' and e.google_event_id is null
+          and e.schedule_class='contractual' and e.source_type='scheduling_request' and e.source_entity_id=r.id
+          and to_regprocedure('cali_workspace.v2_change_pilot_agenda_guest(uuid,uuid,uuid,uuid,text,text)') is not null,false)
+          as "canManageGuests",
         case when r.status='completed' and e.event_type='meeting' and e.visibility='client' and e.cancelled_at is null
           and outcome.outcome='occurred' then outcome.transcription_note end as minutes,
         case when admin and r.status='completed' and e.event_type='meeting' and e.visibility='client' and e.cancelled_at is null
@@ -34,7 +45,8 @@ begin
           and to_regprocedure('cali_workspace.v2_offer_pilot_appointment_replacement(uuid,uuid,uuid,uuid,timestamp without time zone,text)') is not null
           then e.id end as "replacementEventId",
         coalesce((select jsonb_agg(jsonb_build_object('id',a.id,'name',a.name,
-            'role',a.attendee_type,'status',a.status) order by a.created_at,a.id)
+            'role',a.attendee_type,'status',a.status,
+            'canRemove',admin and a.attendee_type='external' and a.user_id is null and a.status='pending') order by a.created_at,a.id)
           from cali_workspace.event_attendees a where a.event_id=e.id and a.company_id=r.company_id
             and (admin or (e.visibility='client' and e.cancelled_at is null))),'[]'::jsonb) as participants,
         coalesce(r.status='confirmed' and e.visibility='client' and e.event_type='meeting'

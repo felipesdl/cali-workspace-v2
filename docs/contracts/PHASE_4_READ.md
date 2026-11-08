@@ -491,7 +491,19 @@ O solicitante pode aceitar um orçamento online pendente na lista de encontros a
 
 No CALI MAPA, Admin salvou a ata da reunião sintética realizada da Empresa A e o Cliente leu a mesma ata sem controle de edição. O Cliente aceitou o orçamento sintético de R$ 250,00. O banco confirmou um evento de auditoria por ação, zero notificações destinadas a e-mail e nenhuma criação de reunião a partir do orçamento. O pedido de teste foi encerrado com preço e aceite preservados. O PostgreSQL descartável confirmou recusa de versão antiga, isolamento e repetição.
 
-A reversão do lote restaura os leitores anteriores e retira as duas ações. A captura está em `output/runtime/phase4b/followup-rollback.sql`. Ata e aceite permanecem no histórico. Anexos e links de ata, gestão de participantes, demais transições dos encontros adicionais e sincronização Google/Meet seguem pendentes.
+A reversão do lote restaura os leitores anteriores e retira as duas ações. A captura está em `output/runtime/phase4b/followup-rollback.sql`. Ata e aceite permanecem no histórico.
+
+### Materiais da ata, convidados locais e encontros adicionais
+
+Em reunião ordinária realizada, o Admin publica ou retira um link HTTPS e um PDF de até 2 MiB. O Cliente consulta os materiais das reuniões visíveis da própria empresa. O PDF exige sessão, é entregue sem cache e tem o digest conferido pelo navegador. Uma retirada invalida a versão anterior para download e mantém o histórico privado. O Workspace abre links por ação do usuário. A autorização no destino externo depende do serviço que hospeda o link.
+
+O Admin adiciona convidados externos e retira convidados externos com resposta pendente em reunião futura local. Participantes vinculados e reuniões sincronizadas preservam o fluxo existente. O Cliente vê nome, papel e resposta, sem e-mail. A operação local registra a mudança sem disparar convite externo.
+
+Pedidos adicionais inscritos no piloto exibem decisões conforme papel, versão e estado. Admin pode oferecer ou recusar horário, confirmar visita e registrar decisão de taxa. Cliente solicitante pode confirmar horário, contrapropor, cancelar ou reagendar visita conforme as regras legadas. A visita oferece duas opções de quatro horas. O online exige orçamento aceito e horário fora da cobertura ordinária antes da confirmação. O preço registrado permanece no pedido e as reuniões do piloto ficam locais.
+
+No CALI MAPA, o Cliente A viu o link, baixou o PDF e consultou o convidado sem e-mail. Admin retirou o convidado e os materiais. A visita sintética de R$ 800,00 passou por oferta, confirmação, cancelamento e isenção. A primeira oferta de visita foi recusada pelo legado por trazer um único horário. A operação passou a encaminhar as duas opções do pedido e funcionou no navegador. Uma segunda visita comprovou contraproposta, confirmação direta pela CALI e reagendamento, com o evento anterior cancelado. O online sintético passou por oferta, aceite de R$ 250,00 e confirmação como adicional. Os eventos de teste foram encerrados. O banco confirmou zero notificações destinadas a e-mail ou vínculos com o Google nessas fixtures. A abertura de novos pedidos, a edição de orçamento e o registro de despesas ficam em recortes próprios. A visita com taxa aplicada e a recusa de pedido ainda não foram exercitadas no navegador.
+
+O rollback em `output/runtime/phase4b/materials-guests-extras-rollback.sql` restaura os leitores e retira as novas funções, preservando os dados. Google/Meet exige calendário de teste dedicado. A conexão Google encontrada é global e não tem vínculo com as empresas sintéticas.
 
 ## Equipe CALI por empresa
 

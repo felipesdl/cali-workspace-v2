@@ -7,6 +7,7 @@ import { WorkspacePagination } from './WorkspacePagination';
 import { appointmentStatusLabel } from './workspace-labels';
 import { ActionForm } from './ActionForm';
 import { Checkbox } from '../../components/ds/checkbox/Checkbox';
+import { AgendaExtraActions } from './AgendaExtraActions';
 
 const reais = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -89,6 +90,14 @@ export function AgendaExtras({
                     )}
                   </ActionForm>
                 )}
+                <AgendaExtraActions
+                  item={item}
+                  company={company}
+                  agenda={agenda}
+                  refresh={async () => {
+                    await result.refetch();
+                  }}
+                />
               </li>
             ))}
           </ul>

@@ -1,5 +1,6 @@
 -- Dependências sintéticas do contrato legado. Nenhuma comunicação externa.
-alter table cali_workspace.events add column source_type text,add column source_entity_id uuid,
+alter table cali_workspace.events add primary key(id);
+alter table cali_workspace.events add column source_type text,add column source_entity_id uuid,add column google_event_id text,
   add column schedule_class text not null default 'contractual',add column contract_session_number integer;
 create function cali_workspace.admin_mark_scheduling_event_outcome_v1(uuid,text,text,boolean,text,boolean)
 returns jsonb language sql as $$
@@ -13,6 +14,7 @@ $$;
 
 alter table cali_workspace.scheduling_requests add column online_extra_requested boolean not null default false,
   add column requested_by uuid,add column billing_notice text,
+  add column updated_at timestamptz not null default clock_timestamp(),add column extra_visit_change_kind text,
   add column extra_visit_fee_cents integer,add column online_extra_quote_cents integer,
   add column billing_acknowledged_at timestamptz,add column online_extra_quote_accepted_at timestamptz,
   add column extra_visit_cancellation_fee_cents integer,
@@ -24,7 +26,7 @@ returns void language sql as $$
   update cali_workspace.scheduling_requests set online_extra_quote_accepted_at=clock_timestamp() where id=$1;
 $$;
 create table cali_workspace.event_attendees(
-  id uuid primary key default gen_random_uuid(),event_id uuid,company_id uuid,name text,email text,
+  id uuid primary key default gen_random_uuid(),event_id uuid,company_id uuid,user_id uuid,name text,email text,
   attendee_type text,status text,created_at timestamptz not null default clock_timestamp()
 );
 create table cali_workspace.agenda_change_requests (

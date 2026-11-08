@@ -7,6 +7,7 @@ returns jsonb language plpgsql stable security definer set search_path=''
 as $$
 declare
   actor uuid := cali_session_guard.require_pilot_team_actor(p_company_id);
+  admin boolean := exists(select 1 from cali_workspace.profiles where id=actor and role::text='admin');
 begin
   if p_page is null or p_page not between 1 and 10000 then
     raise exception using errcode='22023',message='Página inválida.';
@@ -21,12 +22,32 @@ begin
         case when r.extra_visit then r.extra_visit_cancellation_fee_cents end as "cancellationCents",
         case when eligibility.allowed then r.billing_notice end as "quoteTerms",
         case when eligibility.allowed then encode(sha256(convert_to(
-          jsonb_build_array(r.online_extra_quote_cents,r.billing_notice)::text,'UTF8')),'hex') end as "quoteVersion"
+          jsonb_build_array(r.online_extra_quote_cents,r.billing_notice)::text,'UTF8')),'hex') end as "quoteVersion",
+        case when actions.enabled then r.updated_at end as version,
+        case when actions.enabled and admin then r.requested_slots end as "requestedSlots",
+        case when actions.enabled and not admin then r.admin_proposed_slots end as "offeredSlots",
+        case when actions.enabled then array_remove(array[
+          case when admin and r.extra_visit and r.status in ('submitted','reschedule_review') then 'book-visit' end,
+          case when admin and r.status in ('submitted','reschedule_review') then 'offer' end,
+          case when admin and r.status in ('submitted','reschedule_review') then 'decline' end,
+          case when admin and r.extra_visit and r.extra_visit_change_kind is not null
+            and r.extra_visit_cancellation_fee_cents is null
+            and r.status in ('cancelled','reschedule_review','confirmed','completed') then 'fee' end,
+          case when not admin and r.status='client_review'
+            and (r.extra_visit or r.online_extra_quote_accepted_at is not null) then 'confirm' end,
+          case when not admin and r.extra_visit and r.status='client_review' then 'counter' end,
+          case when not admin and r.extra_visit and r.status in ('submitted','client_review','reschedule_review','confirmed') then 'cancel' end,
+          case when not admin and r.extra_visit and r.status in ('submitted','client_review','reschedule_review','confirmed') then 'reschedule' end
+        ],null) end as actions
       from cali_workspace.scheduling_requests r
       cross join lateral (select r.requested_by=actor and r.online_extra_requested and not r.extra_visit
           and r.request_mode='remote' and r.online_extra_quote_cents>0 and r.online_extra_quote_accepted_at is null
           and r.status in ('submitted','client_review')
           and to_regprocedure('cali_workspace.v2_accept_pilot_online_extra_quote(uuid,uuid,text)') is not null as allowed) eligibility
+      cross join lateral (select r.extra_visit<>r.online_extra_requested and (admin or r.requested_by=actor)
+        and to_regprocedure('cali_workspace.v2_act_pilot_extra_appointment(uuid,uuid,uuid,timestamptz,text,integer,text,jsonb,boolean)') is not null
+        and exists(select 1 from cali_session_guard.phase4_agenda_qa q
+          where q.company_id=r.company_id and q.title=r.title) as enabled) actions
       where r.company_id=p_company_id and (r.extra_visit or r.online_extra_requested)
     ), page as (
       select * from matched order by "requestedAt" desc,id limit 25 offset (p_page-1)*25

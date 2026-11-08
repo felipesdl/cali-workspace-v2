@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
+import { decodePdf, encodePdf, pdfPayload } from './pdf-payload';
 
 const slot = z.object({ startsAt: z.string(), endsAt: z.string() });
 export const absenceCategory = z.enum([
@@ -36,6 +37,8 @@ const appointments = z.array(
     admin_proposed_slots: z.array(slot),
     sync_status: z.string().nullable(),
     meetingAt: z.string().nullable().optional(),
+    canReadMaterial: z.boolean().optional(),
+    canManageGuests: z.boolean().optional(),
     minutes: z.string().nullish(),
     minutesVersion: z.string().nullish(),
     participants: z
@@ -45,6 +48,7 @@ const appointments = z.array(
           name: z.string().nullable(),
           role: z.enum(['admin', 'client', 'external']),
           status: z.enum(['pending', 'accepted', 'declined', 'tentative']),
+          canRemove: z.boolean().optional(),
         }),
       )
       .optional(),
@@ -59,6 +63,16 @@ const appointments = z.array(
 export type AppointmentParticipant = NonNullable<
   z.infer<typeof appointments>[number]['participants']
 >[number];
+const materialItem = z.object({
+  id: z.uuid(),
+  label: z.string().nullable(),
+  url: z.url({ protocol: /^https$/ }).nullable(),
+});
+const agendaMaterial = z.object({ link: materialItem.optional(), pdf: materialItem.optional() });
+type MaterialChange =
+  | { kind: 'link'; label: string; url: string }
+  | { kind: 'pdf'; file: File }
+  | { kind: 'link' | 'pdf'; remove: true };
 const request = z.object({
   mode: z.enum(['remote', 'in_person']),
   title: z.string().trim().min(2).max(160),
@@ -69,6 +83,17 @@ const request = z.object({
 export type AppointmentRequest = z.infer<typeof request>;
 
 const cents = z.number().int().nonnegative().nullable();
+const extraAction = z.enum([
+  'book-visit',
+  'offer',
+  'decline',
+  'fee',
+  'confirm',
+  'counter',
+  'cancel',
+  'reschedule',
+]);
+export type ExtraAgendaAction = z.infer<typeof extraAction>;
 const extras = z.object({
   total: z.number().int().nonnegative(),
   entries: z.array(
@@ -83,12 +108,118 @@ const extras = z.object({
       cancellationCents: cents,
       quoteTerms: z.string().nullish(),
       quoteVersion: z.string().nullish(),
+      version: z.string().nullish(),
+      requestedSlots: z.array(slot).nullish(),
+      offeredSlots: z.array(slot).nullish(),
+      actions: z.array(extraAction).nullish(),
     }),
   ),
 });
+export type AgendaExtra = z.infer<typeof extras>['entries'][number];
 
 export function createAgendaOperations(client: WorkspaceClient) {
   return {
+    async actOnExtra(
+      company: string,
+      id: string,
+      requestId: string,
+      version: string,
+      action: ExtraAgendaAction,
+      input: {
+        index: number | null;
+        note: string;
+        slots: z.infer<typeof localSlot>[];
+        charge: boolean | null;
+      },
+    ) {
+      const { data, error } = await client.rpc('v2_act_pilot_extra_appointment', {
+        p_company_id: company,
+        p_appointment_id: id,
+        p_request_id: requestId,
+        p_expected: version,
+        p_action: action,
+        p_index: input.index,
+        p_note: z.string().trim().max(2000).parse(input.note),
+        p_slots: z.array(localSlot).max(2).parse(input.slots),
+        p_charge: input.charge,
+      });
+      if (error?.code === '22023' || error?.code === 'P0001')
+        throw new Error('Confira o estado, o horário e as condições do pedido.');
+      if (error) throw new Error('Não foi possível registrar a decisão do encontro adicional.');
+      return z.literal(id).parse(data);
+    },
+    async material(company: string, id: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_agenda_material', {
+          p_company_id: company,
+          p_appointment_id: id,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar os materiais da ata.');
+      return agendaMaterial.parse(data);
+    },
+    async downloadMaterial(company: string, id: string, pdfId: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_agenda_material', {
+          p_company_id: company,
+          p_appointment_id: id,
+          p_pdf_id: pdfId,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível baixar o PDF da ata.');
+      return decodePdf(pdfPayload.parse(data));
+    },
+    async saveMaterial(
+      company: string,
+      id: string,
+      requestId: string,
+      version: string | null,
+      input: MaterialChange,
+    ) {
+      let label = null;
+      let value = null;
+      if (!('remove' in input)) {
+        if (input.kind === 'link') {
+          label = input.label.trim();
+          value = z.url({ protocol: /^https$/ }).parse(input.url.trim());
+        } else {
+          label = input.file.name;
+          value = await encodePdf(input.file);
+        }
+      }
+      const { data, error } = await client.rpc('v2_save_pilot_agenda_material', {
+        p_company_id: company,
+        p_appointment_id: id,
+        p_request_id: requestId,
+        p_kind: input.kind,
+        p_expected: version,
+        p_label: label,
+        p_value: value,
+      });
+      if (error?.code === '22023')
+        throw new Error('Confira o arquivo, o link e a versão atual da ata.');
+      if (error) throw new Error('Não foi possível salvar o material da ata.');
+      return z.uuid().parse(data);
+    },
+    async changeGuest(
+      company: string,
+      id: string,
+      requestId: string,
+      guest: { id: string } | { name: string; email: string },
+    ) {
+      const { data, error } = await client.rpc('v2_change_pilot_agenda_guest', {
+        p_company_id: company,
+        p_appointment_id: id,
+        p_request_id: requestId,
+        p_guest_id: 'id' in guest ? guest.id : null,
+        p_name: 'name' in guest ? guest.name.trim() : null,
+        p_email: 'email' in guest ? z.email().parse(guest.email.trim()) : null,
+      });
+      if (error?.code === '22023')
+        throw new Error('Confira os dados. Este e-mail pode já estar na reunião.');
+      if (error) throw new Error('Não foi possível alterar os convidados.');
+      return z.uuid().parse(data);
+    },
     async saveMinutes(
       company: string,
       id: string,
