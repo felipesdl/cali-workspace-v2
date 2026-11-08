@@ -94,7 +94,24 @@ const extraAction = z.enum([
   'reschedule',
 ]);
 export type ExtraAgendaAction = z.infer<typeof extraAction>;
+export const extraExpenseKind = z.enum(['transport', 'parking', 'food', 'extra_hours']);
+const extraRequest = request.omit({ slots: true }).extend({
+  title: z.string().trim().min(2).max(149),
+  starts: z.tuple([z.iso.datetime({ local: true }), z.iso.datetime({ local: true })]),
+  minutes: z.union([z.literal(60), z.literal(90), z.literal(240)]),
+  ackName: z.string().trim().min(5).max(160),
+  acknowledged: z.literal(true),
+});
+type ExtraRequest = z.infer<typeof extraRequest>;
+const expenseInput = z.object({
+  kind: extraExpenseKind,
+  cents: z.number().int().min(1).max(100000000),
+  note: z.string().trim().max(2000),
+  hours: z.number().min(0.01).max(999.99).nullable(),
+  approval: z.string().trim().max(2000),
+});
 const extras = z.object({
+  canRequest: z.boolean().optional(),
   total: z.number().int().nonnegative(),
   entries: z.array(
     z.object({
@@ -112,6 +129,8 @@ const extras = z.object({
       requestedSlots: z.array(slot).nullish(),
       offeredSlots: z.array(slot).nullish(),
       actions: z.array(extraAction).nullish(),
+      canQuote: z.boolean().optional(),
+      canRecordExpense: z.boolean().optional(),
     }),
   ),
 });
@@ -119,6 +138,68 @@ export type AgendaExtra = z.infer<typeof extras>['entries'][number];
 
 export function createAgendaOperations(client: WorkspaceClient) {
   return {
+    async requestExtra(company: string, requestId: string, input: ExtraRequest) {
+      const values = extraRequest.parse(input);
+      const { data, error } = await client.rpc('v2_request_pilot_extra_appointment', {
+        p_company_id: company,
+        p_request_id: requestId,
+        p_mode: values.mode,
+        p_title: values.title,
+        p_purpose: values.purpose,
+        p_location: values.location,
+        p_starts: values.starts,
+        p_minutes: values.minutes,
+        p_ack_name: values.ackName,
+        p_acknowledged: values.acknowledged,
+      });
+      if (error?.code === '22023' || error?.code === 'P0001')
+        throw new Error('Confira o nome cadastrado, as condições e as duas opções de horário.');
+      if (error) throw new Error('Não foi possível abrir o pedido adicional.');
+      return z.uuid().parse(data);
+    },
+    async quoteExtra(
+      company: string,
+      id: string,
+      requestId: string,
+      version: string,
+      amount: number,
+      note: string,
+    ) {
+      const { data, error } = await client.rpc('v2_quote_pilot_extra', {
+        p_company_id: company,
+        p_appointment_id: id,
+        p_request_id: requestId,
+        p_expected: version,
+        p_amount_cents: amount,
+        p_note: note,
+      });
+      if (error?.code === '22023' || error?.code === 'P0001')
+        throw new Error('Confira o valor e as condições. Atualize a agenda se o pedido mudou.');
+      if (error) throw new Error('Não foi possível salvar o orçamento.');
+      return z.literal(id).parse(data);
+    },
+    async recordExtraExpense(
+      company: string,
+      id: string,
+      requestId: string,
+      input: z.infer<typeof expenseInput>,
+    ) {
+      const values = expenseInput.parse(input);
+      const { data, error } = await client.rpc('v2_record_pilot_extra_expense', {
+        p_company_id: company,
+        p_appointment_id: id,
+        p_request_id: requestId,
+        p_kind: values.kind,
+        p_amount_cents: values.cents,
+        p_note: values.note,
+        p_hours: values.hours,
+        p_approval: values.approval,
+      });
+      if (error?.code === '22023' || error?.code === 'P0001')
+        throw new Error('Confira a realização da visita e os dados da despesa.');
+      if (error) throw new Error('Não foi possível registrar a despesa.');
+      return z.string().min(1).parse(data);
+    },
     async actOnExtra(
       company: string,
       id: string,

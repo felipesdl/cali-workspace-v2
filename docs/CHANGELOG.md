@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Pedidos adicionais, orçamento e despesas
+
+- Cliente abre visita ou encontro online adicional. Admin edita orçamento pendente e registra despesa em visita já realizada. O piloto também comprovou a recusa e o registro da taxa após cancelamento. Google Calendar/Meet fica para revisão pré-rollout. [Escopo e validação](contracts/PHASE_4_READ.md#abertura-de-extras-revisão-de-orçamento-e-despesas).
+
 ## Materiais da ata, convidados locais e encontros adicionais
 
 - Admin publicou e retirou link e PDF de uma ata e adicionou e retirou um convidado externo em reunião local. Cliente A consultou o link, baixou o PDF e viu o convidado sem o e-mail.

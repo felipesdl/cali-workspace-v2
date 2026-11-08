@@ -8,6 +8,8 @@ import { appointmentStatusLabel } from './workspace-labels';
 import { ActionForm } from './ActionForm';
 import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { AgendaExtraActions } from './AgendaExtraActions';
+import { AgendaExtraAdmin } from './AgendaExtraAdmin';
+import { AgendaExtraRequest } from './AgendaExtraRequest';
 
 const reais = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -43,6 +45,16 @@ export function AgendaExtras({
       )}
       {result.data && (
         <>
+          {result.data.canRequest && (
+            <AgendaExtraRequest
+              company={company}
+              agenda={agenda}
+              refresh={async () => {
+                setPage(1);
+                await result.refetch();
+              }}
+            />
+          )}
           <ul className="tw:my-3 tw:grid tw:gap-3">
             {result.data.entries.map((item) => (
               <li
@@ -90,6 +102,14 @@ export function AgendaExtras({
                     )}
                   </ActionForm>
                 )}
+                <AgendaExtraAdmin
+                  item={item}
+                  company={company}
+                  agenda={agenda}
+                  refresh={async () => {
+                    await result.refetch();
+                  }}
+                />
                 <AgendaExtraActions
                   item={item}
                   company={company}

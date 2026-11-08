@@ -32,6 +32,7 @@
 \ir agenda-material.sql
 \ir agenda-guests.sql
 \ir agenda-extra-actions.sql
+\ir agenda-extra-intake.sql
 \ir hours-operations.sql
 \ir record-operations.sql
 \ir record-review-operations.sql

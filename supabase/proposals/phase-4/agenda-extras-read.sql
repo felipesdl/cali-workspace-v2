@@ -24,6 +24,14 @@ begin
         case when eligibility.allowed then encode(sha256(convert_to(
           jsonb_build_array(r.online_extra_quote_cents,r.billing_notice)::text,'UTF8')),'hex') end as "quoteVersion",
         case when actions.enabled then r.updated_at end as version,
+        (actions.enabled and admin and not r.extra_visit and r.online_extra_requested
+          and r.request_mode='remote' and r.online_extra_quote_accepted_at is null
+          and r.status in ('submitted','client_review')
+          and to_regprocedure('cali_workspace.v2_quote_pilot_extra(uuid,uuid,uuid,timestamptz,integer,text)') is not null) as "canQuote",
+        (actions.enabled and admin and r.extra_visit and r.status='completed'
+          and exists(select 1 from cali_workspace.event_outcomes o
+            where o.event_id=r.confirmed_event_id and o.outcome='occurred')
+          and to_regprocedure('cali_workspace.v2_record_pilot_extra_expense(uuid,uuid,uuid,text,integer,text,numeric,text)') is not null) as "canRecordExpense",
         case when actions.enabled and admin then r.requested_slots end as "requestedSlots",
         case when actions.enabled and not admin then r.admin_proposed_slots end as "offeredSlots",
         case when actions.enabled then array_remove(array[
@@ -52,7 +60,10 @@ begin
     ), page as (
       select * from matched order by "requestedAt" desc,id limit 25 offset (p_page-1)*25
     )
-    select jsonb_build_object('total',(select count(*) from matched),'entries',coalesce(
+    select jsonb_build_object('total',(select count(*) from matched),
+      'canRequest',not admin and to_regprocedure(
+        'cali_workspace.v2_request_pilot_extra_appointment(uuid,uuid,text,text,text,text,jsonb,integer,text,boolean)') is not null,
+      'entries',coalesce(
       (select jsonb_agg(to_jsonb(page) order by "requestedAt" desc,id) from page),'[]'::jsonb))
   );
 end;

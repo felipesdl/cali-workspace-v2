@@ -47,6 +47,9 @@ drop function if exists cali_workspace.v2_pilot_delivery_action(uuid,uuid,uuid,t
 drop function if exists cali_workspace.v2_pilot_project_lifecycle(uuid,uuid,text,text,text,date);
 drop function if exists cali_workspace.v2_list_pilot_appointments(uuid,integer);
 drop function if exists cali_workspace.v2_list_pilot_agenda_extras(uuid,integer);
+drop function if exists cali_workspace.v2_request_pilot_extra_appointment(uuid,uuid,text,text,text,text,jsonb,integer,text,boolean);
+drop function if exists cali_workspace.v2_quote_pilot_extra(uuid,uuid,uuid,timestamptz,integer,text);
+drop function if exists cali_workspace.v2_record_pilot_extra_expense(uuid,uuid,uuid,text,integer,text,numeric,text);
 drop function if exists cali_workspace.v2_read_pilot_agenda_material(uuid,uuid,uuid);
 drop function if exists cali_workspace.v2_save_pilot_agenda_material(uuid,uuid,uuid,text,uuid,text,text);
 drop function if exists cali_session_guard.phase4_agenda_material_event(uuid,uuid);

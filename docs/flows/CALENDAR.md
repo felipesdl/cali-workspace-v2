@@ -54,3 +54,9 @@ A V2 inclui o registro de realização de reunião ordinária após o fim do com
 Quando o resultado admite reposição, Admin oferece horário e Cliente confirma. O horário mantém a duração e precisa ter sessão contratual disponível no mês de destino. A reunião anterior fica no histórico. [Contrato e prova local](../contracts/PHASE_4_READ.md#reposição-de-reunião-ordinária).
 
 O piloto consulta os participantes da reunião ordinária com a visibilidade do evento e mostra os pedidos extras em uma lista separada. Admin gerencia convidados externos em reunião local e publica link e PDF na ata da reunião realizada. O solicitante aceita o orçamento online com o valor e as condições exibidas. Os pedidos adicionais inscritos têm ações por papel e estado. [Homologação e limites](../contracts/PHASE_4_READ.md#materiais-da-ata-convidados-locais-e-encontros-adicionais).
+
+O [lote de abertura de extras e despesas](../contracts/PHASE_4_READ.md#abertura-de-extras-revisão-de-orçamento-e-despesas) validou pedidos novos, orçamento pendente, recusa, taxa de cancelamento e registro de despesa. A confirmação direta ainda herda a colisão com evento cancelado do legado.
+
+## Revisão pré-rollout
+
+A Agenda funciona localmente na V2. Google Calendar/Meet fica para revisão antes do rollout. A homologação externa requer calendário de teste dedicado e autorização dos escopos. Verificar criação de evento e link Meet, remarcação, cancelamento, destinatários e ausência de convites duplicados antes de ativar. A conexão global existente não comprova integração da V2.
