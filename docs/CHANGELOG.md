@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Inventário de arquivos V2 para eliminação
+
+- A prévia Admin inclui sete grupos adicionais de arquivos V2. O PostgreSQL descartável validou isolamento e tratamento de capas compartilhadas. Admin conferiu os grupos no CALI MAPA com uma empresa descartável. [Escopo e rollback](contracts/PHASE_4_READ.md#inventário-ampliado-de-arquivos-para-eliminação).
+
 ## Diagnóstico do Mapa e exportação de Privacidade
 
 - O Admin baixou o PDF de um diagnóstico sintético do Mapa em A. B ficou isolada. Em Privacidade, o Admin conferiu o JSON e a prévia de eliminação de uma empresa descartável. As fixtures temporárias foram removidas. [Mapa](contracts/PHASE_4_READ.md#jornada-e-relatório-detalhado-do-mapa) · [Privacidade](contracts/PHASE_4_READ.md#exportação-estruturada-e-prévia-de-eliminação).

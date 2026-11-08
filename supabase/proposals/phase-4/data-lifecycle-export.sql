@@ -59,7 +59,26 @@ begin
     'forms',(select count(*) from cali_workspace.forms f where f.company_id=p_company_id),
     'formsPdfs',(select count(*) from cali_session_guard.phase4_form_pdfs p
       join cali_workspace.form_responses r on r.id=p.response_id
-      join cali_workspace.forms f on f.id=r.form_id where f.company_id=p_company_id));
+      join cali_workspace.forms f on f.id=r.form_id where f.company_id=p_company_id),
+    'workspaceFiles',jsonb_build_object(
+      'documentRevisions',(select count(*) from cali_session_guard.phase4_document_revisions v
+        join cali_session_guard.phase4_documents d on d.id=v.document_id where d.company_id=p_company_id),
+      'recordAttachments',(select count(*) from cali_session_guard.phase4_record_attachments a
+        join cali_workspace.account_record_messages m on m.id=a.message_id where m.company_id=p_company_id),
+      'reportPdfs',(select count(*) from cali_session_guard.phase4_report_pdfs p
+        join cali_workspace.reports r on r.id=p.report_id where r.company_id=p_company_id),
+      'agendaPdfs',(select count(*) from cali_session_guard.phase4_agenda_material m
+        join cali_workspace.events e on e.id=m.event_id where e.company_id=p_company_id and m.content is not null),
+      'expenseReceipts',(select count(*) from cali_session_guard.phase4_extra_expense_pdf p
+        join cali_workspace.extra_visit_expenses e on e.id=p.expense_id where e.company_id=p_company_id),
+      'proposalPdfs',(select count(*) from cali_session_guard.phase4_commercial_email e
+        join cali_session_guard.phase4_commercial_scope s on s.proposal_id=e.proposal_id
+        where s.company_id=p_company_id and e.pdf is not null),
+      'exclusiveNoticeCovers',(select count(*) from cali_session_guard.phase4_notice_cover c
+        join cali_workspace.notices n on n.id=c.notice_id
+        where c.content is not null and n.audience='selected'
+          and exists(select 1 from cali_workspace.notice_targets t where t.notice_id=n.id and t.company_id=p_company_id)
+          and not exists(select 1 from cali_workspace.notice_targets t where t.notice_id=n.id and t.company_id is distinct from p_company_id))));
 end;
 $$;
 

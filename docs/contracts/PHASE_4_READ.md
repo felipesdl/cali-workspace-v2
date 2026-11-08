@@ -648,6 +648,12 @@ A exportação reaproveita os dados estruturados e o registro de destinatário d
 
 A prévia de eliminação aplica a elegibilidade vigente e exibe contagens do Storage legado, Forms e PDFs V2. As duas consultas foram instaladas no CALI MAPA, com verificação de permissões. A suíte isolada cobriu o retorno estruturado e a elegibilidade. Em 08/11, Admin com MFA baixou o JSON no navegador para uma empresa descartável sem usuários. Uma cópia local isolada incluiu somente essa empresa adicional no seletor. O JSON continha o rascunho esperado, separava dados restritos e não continha os IDs de A/B. Após simular 46 dias de encerramento na fixture, a prévia mostrou zero objetos legados, um formulário e zero PDFs de Forms. Empresa, inscrição e rascunho foram removidos, com a auditoria preservada. A execução do fluxo de eliminação permanece pendente. Falta reconciliar as superfícies V2, arquivos externos e a retomada após falha parcial antes de habilitar a exclusão. [Rollback](../../supabase/proposals/phase-4/rollback-data-lifecycle-export.sql).
 
+### Inventário ampliado de arquivos para eliminação
+
+A prévia inclui revisões de documentos, anexos de ocorrências, PDFs de relatórios, PDFs de encontros, comprovantes de despesas, PDFs de propostas vinculadas e capas com bytes de avisos exclusivos da empresa. A contagem abrange versões históricas. Capas de avisos gerais ou com mais de um destinatário empresarial ficam fora da contagem. Se a versão anterior da RPC estiver instalada, a interface indica que o inventário ampliado está indisponível.
+
+O PostgreSQL descartável confirmou contagens distintas para A/B e exclusão de capas compartilhadas e gerais. No CALI MAPA, a consulta foi atualizada mantendo os GRANTs. Admin viu as sete categorias na prévia da empresa descartável, que não possuía esses arquivos. A fixture foi removida após o ensaio. Para reverter apenas esta ampliação, reaplicar a definição capturada em `output/runtime/phase4e/privacy-inventory-rollback.sql`. Permanecem pendentes o inventário dos sistemas externos e a execução retomável da eliminação.
+
 ## Jornada e relatório detalhado do Mapa
 
 A jornada consulta sessões sintéticas delegadas explicitamente à empresa e ao operador. O Admin vê etapa, horários, dispositivo, origem, cópias e situação. O estado Abandonou usa o limite de 15 minutos da publicação 83. A projeção pagina e não entrega a chave da sessão original.

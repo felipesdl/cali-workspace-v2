@@ -894,6 +894,17 @@ export function createDomainOperations(client: WorkspaceClient) {
             legacyStorageObjects: z.number().int().nonnegative(),
             forms: z.number().int().nonnegative(),
             formsPdfs: z.number().int().nonnegative(),
+            workspaceFiles: z
+              .object({
+                documentRevisions: z.number().int().nonnegative(),
+                recordAttachments: z.number().int().nonnegative(),
+                reportPdfs: z.number().int().nonnegative(),
+                agendaPdfs: z.number().int().nonnegative(),
+                expenseReceipts: z.number().int().nonnegative(),
+                proposalPdfs: z.number().int().nonnegative(),
+                exclusiveNoticeCovers: z.number().int().nonnegative(),
+              })
+              .optional(),
           }),
         ])
         .parse(data);

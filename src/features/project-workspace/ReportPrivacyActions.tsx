@@ -146,10 +146,34 @@ function CompanyDataActions({
             </FeedbackState>
           )}
           {review && inventory.data?.eligible && (
-            <p>
-              {inventory.data.legacyStorageObjects} arquivo(s) no inventário legado ·{' '}
-              {inventory.data.forms} formulário(s) · {inventory.data.formsPdfs} anexo(s) V2
-            </p>
+            <>
+              <p>
+                {inventory.data.legacyStorageObjects} arquivo(s) no inventário legado ·{' '}
+                {inventory.data.forms} formulário(s) · {inventory.data.formsPdfs} PDF(s) de Forms
+              </p>
+              {inventory.data.workspaceFiles ? (
+                <ul aria-label="Arquivos do Workspace V2">
+                  <li>
+                    {inventory.data.workspaceFiles.documentRevisions} revisão(ões) de documentos
+                  </li>
+                  <li>{inventory.data.workspaceFiles.recordAttachments} anexo(s) de ocorrências</li>
+                  <li>{inventory.data.workspaceFiles.reportPdfs} PDF(s) de relatórios</li>
+                  <li>{inventory.data.workspaceFiles.agendaPdfs} PDF(s) de encontros</li>
+                  <li>
+                    {inventory.data.workspaceFiles.expenseReceipts} comprovante(s) de despesas
+                  </li>
+                  <li>
+                    {inventory.data.workspaceFiles.proposalPdfs} PDF(s) de propostas vinculadas
+                  </li>
+                  <li>
+                    {inventory.data.workspaceFiles.exclusiveNoticeCovers} capa(s) de avisos
+                    exclusivos
+                  </li>
+                </ul>
+              ) : (
+                <p>O inventário ampliado de arquivos V2 está indisponível neste ambiente.</p>
+              )}
+            </>
           )}
           {review && inventory.data?.eligible === false && (
             <p>A empresa ainda não atende ao intervalo para eliminação.</p>
