@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Abertura de Forms compatíveis
+
+- A V2 só oferece abertura para coletas que seu leitor consegue exibir. Admin conferiu no staging o formulário apto e o legado sem opção de abrir. Todas as coletas de teste permaneceram fechadas. [Evidência e reversão](contracts/PHASE_4_READ.md#compatibilidade-da-abertura-de-forms).
+
 ## Portfólio comercial, Equipe CALI, Forms, Mapa e resumo Admin
 
 - Admin criou, editou e retirou um vínculo de equipe inativo no staging. B ficou isolada. Forms aceitou número, data e alternativas em ensaios transacionais revertidos. A calculadora conferiu 15 combinações com o Portal; Admin salvou uma proposta sintética de R$ 1.995 no navegador. O resumo do Mapa ganhou consulta de notas com guarda de empresa e operador. A fila de e-mail do Admin passou por reserva, repetição e recibo fictício no CALI MAPA. [Contratos e evidências](contracts/PHASE_4_READ.md#rascunhos-administrativos-da-equipe-cali).

@@ -29,10 +29,21 @@ begin
  begin
   perform cali_workspace.v2_open_pilot_public_form(a,form_id,'draft',true);
   raise exception 'Coleta com confirmação por e-mail foi aberta';
- exception when serialization_failure then null; end;
+ exception when sqlstate 'P4F02' then null; end;
  reset role;
- update cali_workspace.forms set confirm_email=false where id=form_id;
+ update cali_workspace.forms set confirm_email=false,audience='client' where id=form_id;
  set local role authenticated;
+ begin
+  perform cali_workspace.v2_open_pilot_public_form(a,form_id,'draft',true);
+  raise exception 'Coleta legada incompatível foi aberta';
+ exception when sqlstate 'P4F02' then null; end;
+ assert cali_workspace.v2_list_pilot_forms(a,1)#>>'{0,publicOpeningAvailable}'='false';
+ reset role;
+ update cali_workspace.forms set questions='[{"id":"40000000-0000-4000-8000-000000000009","kind":"short_text","label":"Pergunta","required":true}]' where id=form_id;
+ insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
+ values(a,auth.uid(),'form_draft_created','form',form_id,'{}');
+ set local role authenticated;
+ assert cali_workspace.v2_list_pilot_forms(a,1)#>>'{0,publicOpeningAvailable}'='true';
  perform cali_workspace.v2_open_pilot_public_form(a,form_id,'draft',true);
  begin
   perform cali_workspace.v2_open_pilot_public_form(a,form_id,'draft',true);

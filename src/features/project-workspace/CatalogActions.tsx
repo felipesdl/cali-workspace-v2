@@ -422,31 +422,38 @@ export function FormAdministration({ company, actor }: Scope) {
           {selectedForm === form.id && (
             <FormTriage company={company} actor={actor} form={form.id} operations={operations} />
           )}
-          <ActionForm
-            key={form.status}
-            label={form.status === 'open' ? 'Encerrar formulário' : 'Abrir coleta por link público'}
-            submit={async (fields) => {
-              const id =
-                form.status === 'open'
-                  ? await operations.closeForm(company, form.id)
-                  : await operations.openPublicForm(
-                      company,
-                      form.id,
-                      form.status,
-                      fields.get('publicLinkConfirmed') === 'on',
-                    );
-              await cache.invalidateQueries({ queryKey: key });
-              return id;
-            }}
-          >
-            {form.status !== 'open'
-              ? (prefix) => (
-                  <Checkbox id={prefix + 'public'} name="publicLinkConfirmed" required>
-                    Entendo que qualquer pessoa com o link poderá responder sem entrar no Workspace.
-                  </Checkbox>
-                )
-              : undefined}
-          </ActionForm>
+          {form.status === 'open' || form.publicOpeningAvailable ? (
+            <ActionForm
+              key={form.status}
+              label={
+                form.status === 'open' ? 'Encerrar formulário' : 'Abrir coleta por link público'
+              }
+              submit={async (fields) => {
+                const id =
+                  form.status === 'open'
+                    ? await operations.closeForm(company, form.id)
+                    : await operations.openPublicForm(
+                        company,
+                        form.id,
+                        form.status,
+                        fields.get('publicLinkConfirmed') === 'on',
+                      );
+                await cache.invalidateQueries({ queryKey: key });
+                return id;
+              }}
+            >
+              {form.status !== 'open'
+                ? (prefix) => (
+                    <Checkbox id={prefix + 'public'} name="publicLinkConfirmed" required>
+                      Entendo que qualquer pessoa com o link poderá responder sem entrar no
+                      Workspace.
+                    </Checkbox>
+                  )
+                : undefined}
+            </ActionForm>
+          ) : (
+            <p>Este formulário ainda não atende aos requisitos da coleta pública da V2.</p>
+          )}
         </article>
       ))}
       {forms.isSuccess && (page > 1 || forms.data.length === 25) && (

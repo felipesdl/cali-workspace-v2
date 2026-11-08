@@ -574,6 +574,7 @@ export function createDomainOperations(client: WorkspaceClient) {
             status: z.enum(['draft', 'open', 'closed']),
             responses: z.number().int().nonnegative(),
             publicTextLink: z.boolean().optional(),
+            publicOpeningAvailable: z.boolean().optional(),
             textExportAvailable: z.boolean().optional(),
           }),
         )
@@ -700,8 +701,9 @@ export function createDomainOperations(client: WorkspaceClient) {
         p_expected: current,
         p_confirm_public: confirmed,
       });
-      if (error?.code === '40001')
-        throw new Error('O formulário mudou, está sem perguntas ou tem confirmação por e-mail.');
+      if (error?.code === '40001') throw new Error('O formulário mudou. Recarregue a lista.');
+      if (error?.code === 'P4F02')
+        throw new Error('Este formulário não é compatível com a coleta da V2.');
       if (error) throw rejected(error.code);
       return z.literal(id).parse(data);
     },
