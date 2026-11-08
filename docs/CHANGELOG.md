@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Aceite do simulador para a devolutiva do Mapa
+
+- Admin confirmou o envio de um PDF sintético pelo navegador. O CALI MAPA registrou um recibo e um evento de auditoria. A Edge temporária, a flag, as RPCs e a fixture foram retiradas após a prova. [Evidência](contracts/PHASE_4_READ.md#devolutiva-sintética-do-mapa).
+
 ## Devolutiva sintética do Mapa
 
 - A confirmação Admin prepara a revisão conferida, gera o mesmo PDF do download e restringe o destino ao simulador. A suíte PostgreSQL e o teste de transporte local validaram escopo, revisão e repetição após falha. A instalação e a prova externa estão pendentes. [Contrato e rollback](contracts/PHASE_4_READ.md#devolutiva-sintética-do-mapa).
