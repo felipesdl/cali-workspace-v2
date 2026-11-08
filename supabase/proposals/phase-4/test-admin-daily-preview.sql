@@ -2,6 +2,7 @@ alter table cali_workspace.notifications add column id uuid not null default gen
   add column created_at timestamptz not null default now();
 \ir admin-daily-preview.sql
 \ir admin-daily-queue.sql
+\ir admin-daily-dispatch.sql
 begin;
 alter table cali_workspace.profiles add column email text;
 do $$
@@ -16,6 +17,11 @@ declare
   visible_report uuid := gen_random_uuid();
   withdrawn_report uuid := gen_random_uuid();
   later_report uuid := gen_random_uuid();
+  job jsonb;
+  retry jsonb;
+  provider_id uuid := gen_random_uuid();
+  first_claim uuid;
+  retry_claim uuid;
   inactive uuid := gen_random_uuid();
   missing_email uuid := gen_random_uuid();
   staff uuid := gen_random_uuid();
@@ -91,6 +97,25 @@ begin
   assert (select as_of from cali_session_guard.phase4_admin_digest_queue)=instant;
   assert (select q.payload->>'clientTotal' from cali_session_guard.phase4_admin_digest_queue q)='13';
   assert not has_function_privilege('authenticated','cali_session_guard.phase4_enqueue_admin_digest(timestamptz)','execute');
+  assert cali_workspace.v2_claim_pilot_admin_digest() is null;
+  update cali_session_guard.phase4_admin_digest_queue q set as_of=statement_timestamp() where q.profile_id=receiver;
+  job:=cali_workspace.v2_claim_pilot_admin_digest();
+  first_claim:=(job->>'claimId')::uuid;
+  assert first_claim is not null;
+  assert cali_workspace.v2_claim_pilot_admin_digest() is null;
+  update cali_session_guard.phase4_admin_digest_queue q set claimed_until=statement_timestamp()-interval '1 second'
+    where q.profile_id=receiver;
+  retry:=cali_workspace.v2_claim_pilot_admin_digest();
+  retry_claim:=(retry->>'claimId')::uuid;
+  assert retry_claim<>first_claim and retry->>'idempotencyKey'=job->>'idempotencyKey';
+  assert retry->'summary'=job->'summary';
+  assert not cali_workspace.v2_ack_pilot_admin_digest(first_claim,provider_id);
+  assert cali_workspace.v2_ack_pilot_admin_digest(retry_claim,provider_id);
+  assert cali_workspace.v2_ack_pilot_admin_digest(retry_claim,provider_id);
+  assert not cali_workspace.v2_ack_pilot_admin_digest(retry_claim,gen_random_uuid());
+  assert cali_workspace.v2_claim_pilot_admin_digest() is null;
+  assert not has_function_privilege('authenticated','cali_workspace.v2_claim_pilot_admin_digest()','execute');
+  assert has_function_privilege('service_role','cali_workspace.v2_claim_pilot_admin_digest()','execute');
   set local role authenticated;
   perform cali_workspace.fixture_as('clientA');
   begin
@@ -108,6 +133,7 @@ begin
   assert not has_function_privilege('anon','cali_workspace.v2_read_pilot_admin_daily_preview()','execute');
 end $$;
 rollback;
+\ir rollback-admin-daily-dispatch.sql
 \ir rollback-admin-daily-queue.sql
 \ir rollback-admin-daily-preview.sql
 \echo Fase 4C: resumo Admin com corte Brasília, exclusões, totais e limite visual.

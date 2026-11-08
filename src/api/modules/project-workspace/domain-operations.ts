@@ -140,7 +140,15 @@ function rejected(code?: string) {
   return new Error('Não foi possível concluir a operação.');
 }
 
-const formQuestionKind = z.enum(['short_text', 'long_text']);
+export const formQuestionKind = z.enum([
+  'short_text',
+  'long_text',
+  'number',
+  'date',
+  'single_choice',
+  'multi_choice',
+  'yes_no',
+]);
 const publicTextForm = z.discriminatedUnion('status', [
   z.object({ status: z.literal('closed') }),
   z.object({
@@ -152,6 +160,7 @@ const publicTextForm = z.discriminatedUnion('status', [
         z.object({
           id: z.uuid(),
           kind: formQuestionKind,
+          options: z.array(z.string()).max(26).optional(),
           label: z.string(),
           required: z.boolean(),
         }),
@@ -170,6 +179,7 @@ const formDraft = z.object({
       id: z.string(),
       label: z.string(),
       kind: z.string(),
+      options: z.array(z.string()).nullish(),
       required: z.boolean(),
     }),
   ),
@@ -184,12 +194,14 @@ const formDraftChange = z.discriminatedUnion('action', [
   }),
   z.object({
     action: z.literal('add_question'),
+    options: z.array(z.string().min(1).max(300)).max(26).optional(),
     kind: formQuestionKind,
     label: z.string().trim().min(1).max(400),
     required: z.boolean(),
   }),
   z.object({
     action: z.literal('edit_question'),
+    options: z.array(z.string().min(1).max(300)).max(26).optional(),
     id: z.string().min(1),
     label: z.string().trim().min(1).max(400),
     required: z.boolean(),
@@ -205,10 +217,39 @@ const formTriageResponse = z.object({
   owner: z.string().nullable(),
 });
 export type FormTriageResponse = z.infer<typeof formTriageResponse>;
+export const staffDraftModule = z.enum([
+  'records',
+  'projects',
+  'hours',
+  'calendar',
+  'documents',
+  'reports',
+  'notices',
+  'team',
+  'people_map',
+]);
 export const mapaReviewStatus = z.enum(['novo', 'em_andamento', 'cancelado']);
 
 export function createDomainOperations(client: WorkspaceClient) {
   return {
+    async saveStaffDraft(
+      company: string,
+      request: string,
+      member: { id: string; revision: string } | null,
+      details: { name: string; modules: z.infer<typeof staffDraftModule>[] } | null,
+    ) {
+      const { data, error } = await client.rpc('v2_save_pilot_staff_draft', {
+        p_company_id: company,
+        p_request_id: request,
+        p_member_id: member?.id ?? null,
+        p_expected: member?.revision ?? null,
+        p_name: details?.name ?? null,
+        p_modules: details?.modules ?? null,
+        p_remove: details === null,
+      });
+      if (error) throw rejected(error.code);
+      return z.uuid().parse(data);
+    },
     async reviewMapa(
       company: string,
       id: string,
@@ -309,7 +350,11 @@ export function createDomainOperations(client: WorkspaceClient) {
       if (error) throw rejected(error.code);
       return publicTextForm.nullable().parse(data);
     },
-    async submitPublicTextForm(slug: string, request: string, answers: Record<string, string>) {
+    async submitPublicTextForm(
+      slug: string,
+      request: string,
+      answers: Record<string, string | number | string[]>,
+    ) {
       const { data, error } = await client
         .schema('public')
         .rpc('v2_submit_pilot_public_text_form', {
@@ -318,7 +363,8 @@ export function createDomainOperations(client: WorkspaceClient) {
           p_answers: answers,
         });
       if (error?.code === '42501') throw new Error('Este formulário não está recebendo respostas.');
-      if (error?.code === 'P0001') throw new Error('Confira as respostas e tente novamente.');
+      if (error?.code === 'P0001' || error?.code === '22023')
+        throw new Error('Confira as respostas e tente novamente.');
       if (error) throw rejected(error.code);
       return z.literal(true).parse(data);
     },

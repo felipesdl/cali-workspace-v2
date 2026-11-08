@@ -2,6 +2,21 @@
 begin;
 set local lock_timeout = '5s';
 
+create or replace function cali_session_guard.phase4_form_options_valid(p_kind text,p_options jsonb)
+returns boolean language sql immutable set search_path='' as $$
+  select case
+    when p_kind not in ('single_choice','multi_choice') then p_options is null
+    when jsonb_typeof(p_options) is distinct from 'array' then false
+    else jsonb_array_length(p_options) between (case when p_kind='multi_choice' then 2 else 1 end) and 26
+      and not exists(select 1 from jsonb_array_elements(p_options) item
+        where jsonb_typeof(item)<>'string' or length(item#>>'{}') not between 1 and 300
+          or item#>>'{}'<>btrim(item#>>'{}'))
+      and (select count(distinct item) from jsonb_array_elements(p_options) item)=jsonb_array_length(p_options)
+  end;
+$$;
+revoke all on function cali_session_guard.phase4_form_options_valid(text,jsonb)
+  from public,anon,authenticated,service_role;
+
 create or replace function cali_workspace.v2_create_pilot_form_draft(
   p_company_id uuid,p_form_id uuid,p_slug text,p_title text
 )
@@ -39,7 +54,7 @@ begin
   return (
     select jsonb_build_object('id',f.id,'title',f.title,'description',f.description,'updatedAt',f.updated_at,
       'questions',coalesce((select jsonb_agg(jsonb_build_object(
-        'id',q.item->>'id','label',q.item->>'label','kind',q.item->>'kind',
+        'id',q.item->>'id','label',q.item->>'label','kind',q.item->>'kind','options',q.item->'options',
         'required',coalesce(q.item->'required'='true'::jsonb,false)) order by q.position)
         from jsonb_array_elements(f.questions) with ordinality q(item,position)
         where nullif(q.item->>'id','') is not null and q.item->>'kind' is not null
@@ -64,6 +79,7 @@ declare
   label text;
   question_kind text;
   question_id text;
+  new_question jsonb;
 begin
   if p_action is null or p_action not in ('details','add_question','edit_question')
     or p_expected is null or jsonb_typeof(p_fields) is distinct from 'object' then
@@ -94,22 +110,34 @@ begin
     end if;
     if p_action='add_question' then
       question_kind := p_fields->>'kind';
-      if question_kind is null or question_kind not in ('short_text','long_text')
+      if question_kind is null or question_kind not in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no')
         or jsonb_array_length(next_questions)>=40 then
         raise exception using errcode='22023',message='Tipo ou limite de perguntas indisponível.';
       end if;
       question_id := gen_random_uuid()::text;
-      next_questions := next_questions||jsonb_build_array(jsonb_build_object(
-        'id',question_id,'kind',question_kind,'label',label,'required',p_fields->'required'));
+      new_question:=jsonb_build_object('id',question_id,'kind',question_kind,'label',label,'required',p_fields->'required');
+      if not cali_session_guard.phase4_form_options_valid(question_kind,p_fields->'options') then
+        raise exception using errcode='22023',message='Confira as opções da pergunta.';
+      end if;
+      if p_fields?'options' then new_question:=new_question||jsonb_build_object('options',p_fields->'options'); end if;
+      next_questions:=next_questions||jsonb_build_array(new_question);
     else
       question_id := p_fields->>'id';
       if (select count(*) from jsonb_array_elements(next_questions) q where q->>'id'=question_id)<>1
         or not exists(select 1 from jsonb_array_elements(next_questions) q
-          where q->>'id'=question_id and q->>'kind' in ('short_text','long_text')) then
+          where q->>'id'=question_id and q->>'kind' in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no')) then
         raise exception using errcode='22023',message='Pergunta indisponível para editar.';
       end if;
-      select jsonb_agg(case when q.item->>'id'=question_id then q.item||jsonb_build_object(
-        'label',label,'required',p_fields->'required') else q.item end order by q.position)
+      select q->>'kind' into question_kind from jsonb_array_elements(next_questions) q where q->>'id'=question_id;
+      new_question:=jsonb_build_object('label',label,'required',p_fields->'required');
+      if p_fields?'options' then
+        if not cali_session_guard.phase4_form_options_valid(question_kind,p_fields->'options') then
+          raise exception using errcode='22023',message='Confira as opções da pergunta.';
+        end if;
+        new_question:=new_question||jsonb_build_object('options',p_fields->'options');
+      end if;
+      select jsonb_agg(case when q.item->>'id'=question_id then q.item||new_question
+        else q.item end order by q.position)
       into next_questions from jsonb_array_elements(next_questions) with ordinality q(item,position);
     end if;
   end if;

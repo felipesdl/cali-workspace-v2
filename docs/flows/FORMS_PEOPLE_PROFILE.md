@@ -75,3 +75,5 @@ O piloto V2 precisa de associação explícita por identificador, projeção por
 Em 07/11, o catálogo hospedado confirmou que o leitor público por slug não exige vínculo mesmo com audiência Cliente. A coleta da fixture ficou fechada. [Evidência](../contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).
 
 A V2 exige [confirmação explícita de coleta pública](../contracts/PHASE_4_READ.md#confirmação-de-coleta-pública-em-forms). Abertura privada por vínculo não faz parte do leitor legado.
+
+Em 08/11, o piloto V2 ampliou o editor, a coleta e o Excel para [número e data](../contracts/PHASE_4_READ.md#tipos-numérico-e-data-em-forms) e [alternativas](../contracts/PHASE_4_READ.md#alternativas-em-forms). O ensaio no CALI MAPA reverteu as fixtures. Condições e anexos não passam pelo contrato de coleta destes tipos.

@@ -26,11 +26,12 @@ as $$
         and l.event_type='form_open' and l.metadata->>'collection'='public_link')
     and jsonb_array_length(f.questions) between 1 and 40
     and not exists(select 1 from jsonb_array_elements(f.questions) q
-      where coalesce(q->>'kind','') not in ('short_text','long_text')
+      where coalesce(q->>'kind','') not in ('short_text','long_text','number','date','single_choice','multi_choice','yes_no')
         or coalesce(q->>'id','') !~ '^[0-9a-f-]{36}$'
         or coalesce(length(q->>'label'),0) not between 1 and 400
         or jsonb_typeof(q->'required') is distinct from 'boolean'
-        or q-'id'-'kind'-'label'-'required'<>'{}'::jsonb);
+        or not cali_session_guard.phase4_form_options_valid(q->>'kind',q->'options')
+        or q-'id'-'kind'-'label'-'required'-'options'<>'{}'::jsonb);
 $$;
 revoke all on function cali_session_guard.phase4_public_text_form(text) from public,anon,authenticated,service_role;
 
@@ -73,10 +74,31 @@ begin
   end if;
   if form.status<>'open' then raise exception using errcode='42501',message='Coleta encerrada.'; end if;
   if exists(select 1 from jsonb_each(p_answers) as a(key,value)
-    where jsonb_typeof(a.value)<>'string' or length(a.value#>>'{}')>5000
-      or not exists(select 1 from jsonb_array_elements(form.questions) q where q->>'id'=a.key)) then
+    where not exists(select 1 from jsonb_array_elements(form.questions) q where q->>'id'=a.key)) then
     raise exception using errcode='22023',message='Confira as respostas.';
   end if;
+  if exists(
+    select 1 from jsonb_array_elements(form.questions) q
+    cross join lateral (select p_answers->(q->>'id') as value) a
+    where case
+      when a.value is null or a.value='""'::jsonb
+        then q->'required'='true'::jsonb
+      when q->>'kind'='number' then jsonb_typeof(a.value)<>'number'
+      when q->>'kind'='yes_no' then a.value not in ('"Sim"'::jsonb,'"Não"'::jsonb)
+      when q->>'kind'='single_choice' then not (q->'options' @> jsonb_build_array(a.value))
+      when q->>'kind'='multi_choice' then case
+        when jsonb_typeof(a.value)<>'array' then true
+        else not (q->'options' @> a.value)
+          or (jsonb_array_length(a.value)=0 and q->'required'='true'::jsonb)
+          or jsonb_array_length(a.value)<>(select count(distinct choice) from jsonb_array_elements(a.value) choice)
+      end
+      when q->>'kind'='date' then jsonb_typeof(a.value)<>'string'
+        or (a.value#>>'{}') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+        or not pg_input_is_valid(a.value#>>'{}','date')
+      else jsonb_typeof(a.value)<>'string' or length(a.value#>>'{}')>5000
+        or (q->'required'='true'::jsonb and btrim(a.value#>>'{}')='')
+    end
+  ) then raise exception using errcode='22023',message='Confira as respostas.'; end if;
   result:=public.cali_form_submit(form.slug,p_answers);
   if result->>'ok' is distinct from 'true' then
     raise exception using errcode='22023',message='Não foi possível salvar as respostas.';

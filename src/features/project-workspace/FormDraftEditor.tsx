@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  formQuestionKind,
   type DomainOperations,
   type FormDraft,
   type FormDraftChange,
+  type FormQuestionKind,
 } from '../../api/modules/project-workspace/domain-operations';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
@@ -12,7 +14,25 @@ import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { ActionForm } from './ActionForm';
 
 type Scope = { company: string; actor?: string; operations: DomainOperations };
+const questionLabels = {
+  short_text: 'Resposta curta',
+  long_text: 'Resposta longa',
+  number: 'Número',
+  date: 'Data',
+  single_choice: 'Escolha única',
+  multi_choice: 'Escolha múltipla',
+  yes_no: 'Sim ou não',
+};
+
 const text = (fields: FormData, name: string) => String(fields.get(name) ?? '');
+const hasChoices = (kind: string) => kind === 'single_choice' || kind === 'multi_choice';
+const choices = (fields: FormData, kind: string) =>
+  hasChoices(kind)
+    ? text(fields, 'options')
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+    : undefined;
 
 export function NewFormDraft({ company, actor, operations, saved }: Scope & { saved: () => void }) {
   const cache = useQueryClient();
@@ -97,10 +117,14 @@ function QuestionFields({
   prefix,
   label,
   required,
+  kind,
+  options,
 }: {
   prefix: string;
   label?: string;
   required?: boolean;
+  kind: string;
+  options?: string[] | null;
 }) {
   return (
     <>
@@ -113,6 +137,16 @@ function QuestionFields({
           required
         />
       </Field>
+      {hasChoices(kind) && (
+        <Field id={prefix + 'options'} label="Opções, uma por linha">
+          <textarea
+            id={prefix + 'options'}
+            name="options"
+            required
+            defaultValue={options?.join('\n')}
+          />
+        </Field>
+      )}
       <Checkbox name="required" defaultChecked={required}>
         Resposta obrigatória
       </Checkbox>
@@ -127,6 +161,7 @@ function DraftContent({
   draft: FormDraft;
   save: (draft: FormDraft, change: FormDraftChange) => Promise<string>;
 }) {
+  const [kind, setKind] = useState<FormQuestionKind>('short_text');
   return (
     <div className="tw:grid tw:gap-3">
       <ActionForm
@@ -165,15 +200,16 @@ function DraftContent({
         {draft.questions.map((question) => (
           <li key={question.id}>
             <p>{question.label}</p>
-            {(question.kind === 'short_text' || question.kind === 'long_text') && (
+            {formQuestionKind.safeParse(question.kind).success && (
               <details>
-                <summary>Editar pergunta de texto</summary>
+                <summary>Editar pergunta</summary>
                 <ActionForm
                   label="Salvar pergunta"
                   submit={(fields) =>
                     save(draft, {
                       action: 'edit_question',
                       id: question.id,
+                      options: choices(fields, question.kind),
                       label: text(fields, 'label'),
                       required: fields.has('required'),
                     })
@@ -184,6 +220,8 @@ function DraftContent({
                       prefix={prefix}
                       label={question.label}
                       required={question.required}
+                      kind={question.kind}
+                      options={question.options}
                     />
                   )}
                 </ActionForm>
@@ -194,11 +232,12 @@ function DraftContent({
       </ol>
       {draft.questions.length < 40 && (
         <ActionForm
-          label="Adicionar pergunta de texto"
+          label="Adicionar pergunta"
           submit={(fields) =>
             save(draft, {
               action: 'add_question',
-              kind: fields.get('kind') === 'long_text' ? 'long_text' : 'short_text',
+              kind,
+              options: choices(fields, kind),
               label: text(fields, 'label'),
               required: fields.has('required'),
             })
@@ -207,12 +246,20 @@ function DraftContent({
           {(prefix) => (
             <>
               <Field id={prefix + 'kind'} label="Tipo de resposta">
-                <select id={prefix + 'kind'} name="kind">
-                  <option value="short_text">Resposta curta</option>
-                  <option value="long_text">Resposta longa</option>
+                <select
+                  id={prefix + 'kind'}
+                  name="kind"
+                  value={kind}
+                  onChange={(event) => setKind(formQuestionKind.parse(event.currentTarget.value))}
+                >
+                  {formQuestionKind.options.map((kind) => (
+                    <option key={kind} value={kind}>
+                      {questionLabels[kind]}
+                    </option>
+                  ))}
                 </select>
               </Field>
-              <QuestionFields prefix={prefix} required />
+              <QuestionFields prefix={prefix} kind={kind} required />
             </>
           )}
         </ActionForm>

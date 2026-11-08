@@ -33,12 +33,18 @@ begin
   if not found then return null; end if;
   return jsonb_build_object('id',draft.id,'updatedAt',draft.updated_at,'paymentTerms',draft.payment_terms,
     'publicNotes',draft.public_notes,'validityDays',draft.validity_days,
-    'pricing',case when draft.service_slug='cali-build' and draft.package_code in ('ESSENCIAL','COMPLETO')
-      and to_regprocedure('cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid,timestamptz,numeric,numeric,integer)') is not null
-      and exists(select 1 from cali_session_guard.phase4_commercial_scope g where g.proposal_id=draft.id
-        and g.pilot_price between 50 and 100000)
-      then jsonb_build_object('extras',draft.extras,'discount',coalesce(draft.calculator_data#>'{pilotBuild,discount}',to_jsonb(draft.discount_pct)),
-        'months',draft.contract_months,'subtotal',draft.subtotal,'monthly',draft.final_unit) end);
+    'pricing',(
+      select jsonb_build_object(
+        'extras',coalesce(draft.calculator_data#>'{pilotPortfolio,manualExtras}',to_jsonb(draft.extras)),
+        'discount',coalesce(draft.calculator_data#>'{pilotPortfolio,discount}',draft.calculator_data#>'{pilotBuild,discount}',to_jsonb(draft.discount_pct)),
+        'months',draft.contract_months,'subtotal',draft.subtotal,'monthly',draft.final_unit,'recurring',band.recurring)
+      from cali_session_guard.phase4_commercial_price_band(draft.service_slug,draft.package_code) band
+      join cali_session_guard.phase4_commercial_scope g on g.proposal_id=draft.id
+      join public.cali_submissions s on s.id=g.submission_id
+      where g.pilot_price between 50 and 100000 and s.service_slug=draft.service_slug
+        and (draft.service_slug='cali-build' or g.pilot_package=draft.package_code)
+        and left(s.protocol,11)='CALI-QA-V2-' and s.contact_email like '%@example.invalid'
+    ));
 end;
 $$;
 

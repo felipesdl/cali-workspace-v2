@@ -233,6 +233,7 @@ grant usage on schema cali_workspace to service_role;
 \ir test-commercial-create.sql
 \ir test-commercial-delivery.sql
 \ir test-commercial-email.sql
+\ir test-commercial-portfolio.sql
 \ir test-satisfaction.sql
 \ir test-data-lifecycle-read.sql
 \ir test-hour-corrections.sql

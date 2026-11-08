@@ -30,8 +30,13 @@ begin
     'questions',form.questions,
     'responses',coalesce(jsonb_agg(jsonb_build_object(
       'submittedAt',r.submitted_at,'stage',r.stage,'owner',r.owner,'values',
-      (select jsonb_agg(case when jsonb_typeof(r.answers->(q->>'id'))='string'
-        then r.answers->>(q->>'id') else '' end order by pos)
+      (select jsonb_agg(case jsonb_typeof(r.answers->(q->>'id'))
+        when 'array' then coalesce((select string_agg(choice#>>'{}',', ' order by position)
+          from jsonb_array_elements(r.answers->(q->>'id')) with ordinality as choices(choice,position)
+          where jsonb_typeof(choice)='string'),'')
+        when 'number' then r.answers->>(q->>'id')
+        when 'string' then r.answers->>(q->>'id')
+        else '' end order by pos)
        from jsonb_array_elements(form.questions) with ordinality as questions(q,pos))
     ) order by r.submitted_at,r.id),'[]'::jsonb)
   ) into result

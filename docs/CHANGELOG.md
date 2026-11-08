@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Portfólio comercial, Equipe CALI, Forms, Mapa e resumo Admin
+
+- Admin criou, editou e retirou um vínculo de equipe inativo no staging. B ficou isolada. Forms aceitou número, data e alternativas em ensaios transacionais revertidos. A calculadora conferiu 15 combinações com o Portal; Admin salvou uma proposta sintética de R$ 1.995 no navegador. O resumo do Mapa ganhou consulta de notas com guarda de empresa e operador. A fila de e-mail do Admin passou por reserva, repetição e recibo fictício no CALI MAPA. [Contratos e evidências](contracts/PHASE_4_READ.md#rascunhos-administrativos-da-equipe-cali).
+
 ## Fila do resumo e triagem do Mapa
 
 - O ensaio da fila no CALI MAPA comprovou seleção do Admin do piloto, corte às 19h, reexecução sem duplicar e rollback. Cron e envio desligados. [Contrato](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).

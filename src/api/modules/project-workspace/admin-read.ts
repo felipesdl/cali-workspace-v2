@@ -54,6 +54,16 @@ const mapaRoster = page.extend({
   ),
 });
 export type MapaEntry = z.infer<typeof mapaRoster>['entries'][number];
+const mapaScore = z.number().min(0).max(10);
+const mapaReport = z.object({
+  companyId: z.uuid(),
+  recordId: z.uuid(),
+  version: z.union([z.literal(1), z.literal(2)]),
+  dimensions: z.tuple([mapaScore, mapaScore, mapaScore, mapaScore]),
+  subscores: z.array(mapaScore).length(12).nullable(),
+  score: mapaScore,
+});
+
 const staffRoster = page.extend({
   entries: z.array(
     z.object({
@@ -63,6 +73,7 @@ const staffRoster = page.extend({
       modules: z.array(z.string()).nullable(),
       invitation: z.enum(['not_invited', 'invited', 'accepted']),
       assignedAt: z.iso.datetime({ offset: true }).nullable(),
+      draftRevision: z.iso.datetime({ offset: true }).nullish(),
     }),
   ),
 });
@@ -216,6 +227,7 @@ const commercialDraft = z.object({
       months: z.number().int().min(1).max(60),
       subtotal: z.number().nonnegative(),
       monthly: z.number().nonnegative(),
+      recurring: z.boolean().optional(),
     })
     .nullish(),
 });
@@ -230,6 +242,17 @@ export function createAdminRead(client: WorkspaceClient) {
       const result = mapaRoster.parse(data);
       if (result.companyId !== company) throw new Error('Contexto divergente.');
       return result;
+    },
+    async mapaReport(company: string, record: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_mapa_report', { p_company_id: company, p_record_id: record })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar o diagnóstico.');
+      const report = mapaReport.nullable().parse(data);
+      if (report && (report.companyId !== company || report.recordId !== record)) {
+        throw new Error('Contexto divergente.');
+      }
+      return report;
     },
     async staffRoster(company: string, page: number, signal: AbortSignal) {
       const { data, error } = await client

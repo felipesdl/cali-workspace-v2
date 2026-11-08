@@ -1,6 +1,10 @@
 create table public.mapa_respostas(id uuid primary key,protocolo text,status text,created_at timestamptz default now(),
-  c_email text,observacoes jsonb not null default '{}');
+  c_email text,observacoes jsonb not null default '{}',diagnostico_v2 jsonb,
+  d1_rh_hoje integer,d1_processos integer,d1_cargos_salarios integer,d2_valores integer,
+  d2_lideres_preparo integer,d2_comportamento_dono integer,d2_sucessao integer,d3_indicadores integer,
+  d3_decisao integer,d3_custo integer,d4_colaboradores integer,d4_unidades integer,d4_turnover integer);
 \ir mapa-operations.sql
+\ir mapa-report-read.sql
 begin;
 do $$
 declare
@@ -23,7 +27,28 @@ begin
     values(record_id,a,actor,now()+interval '1 day'),(outside,a,actor,now()+interval '1 day'),
       (expired,a,actor,now()-interval '1 day');
   insert into cali_workspace.profiles(id,role,active) values(other_admin,'admin',true);
+  update public.mapa_respostas set d1_rh_hoje=2,d1_processos=4,
+    d2_valores=5,d3_indicadores=1,d4_colaboradores=3 where id=record_id;
   set local role authenticated;
+  result:=cali_workspace.v2_read_pilot_mapa_report(a,record_id);
+  assert result->'dimensions'='[6,10,2,6]'::jsonb and (result->>'score')::numeric=6.4;
+  assert result->'subscores'='null'::jsonb and result->>'version'='1';
+  assert result::text not like '%@example.invalid%';
+  assert cali_workspace.v2_read_pilot_mapa_report(b,record_id) is null;
+  assert cali_workspace.v2_read_pilot_mapa_report(a,expired) is null;
+  assert cali_workspace.v2_read_pilot_mapa_report(a,outside) is null;
+  reset role;
+  update public.mapa_respostas set diagnostico_v2='{
+    "version":2,
+    "d1":{"processos":[1,3],"estrutura":[3],"governanca":[4]},
+    "d2":{"comportamento":[5],"valores":{"cultura_decisao":4},"desenvolvimento":[3]},
+    "d3":{"indicadores":[2],"decisao":[3],"tecnologia":[1]},
+    "d4":{"tamanho":[5],"vinculos":{"gestao":4},"rotatividade":[3]}
+  }' where id=record_id;
+  set local role authenticated;
+  result:=cali_workspace.v2_read_pilot_mapa_report(a,record_id);
+  assert result->'dimensions'='[6,8,4,8]'::jsonb and (result->>'score')::numeric=6.7;
+  assert result->'subscores'='[4,6,8,10,8,6,4,6,2,10,8,6]'::jsonb and result->>'version'='2';
   result:=cali_workspace.v2_list_pilot_mapa(a,1);
   assert result->>'total'='1' and result#>>'{entries,0,id}'=record_id::text;
   assert result::text not like '%@example.invalid%';
@@ -40,25 +65,33 @@ begin
   exception when insufficient_privilege then null; end;
   perform set_config('test.jwt',jsonb_build_object('sub',other_admin,'aal','aal2')::text,true);
   assert cali_workspace.v2_list_pilot_mapa(a,1)->>'total'='0';
+  assert cali_workspace.v2_read_pilot_mapa_report(a,record_id) is null;
   begin
     perform cali_workspace.v2_review_pilot_mapa(a,record_id,1,'cancelado',null);
     raise exception 'Admin sem inscrição escreveu no Mapa';
   exception when insufficient_privilege then null; end;
   perform cali_workspace.fixture_as('clientA');
   begin
-    perform cali_workspace.v2_list_pilot_mapa(a,1);
-    raise exception 'Cliente leu triagem Mapa';
+    perform cali_workspace.v2_read_pilot_mapa_report(a,record_id);
+    raise exception 'Cliente leu relatório Mapa';
   exception when insufficient_privilege then null; end;
   perform cali_workspace.fixture_as('admin1');
   begin
-    perform cali_workspace.v2_list_pilot_mapa(a,1);
-    raise exception 'Admin sem MFA leu triagem Mapa';
+    perform cali_workspace.v2_read_pilot_mapa_report(a,record_id);
+    raise exception 'Admin sem MFA leu relatório Mapa';
   exception when insufficient_privilege then null; end;
+  reset role;
+  assert not has_function_privilege('anon','cali_workspace.v2_read_pilot_mapa_report(uuid,uuid)','execute');
+  update public.mapa_respostas set diagnostico_v2='{"version":2}' where id=record_id;
+  perform cali_workspace.fixture_as('admin');
+  set local role authenticated;
+  assert cali_workspace.v2_read_pilot_mapa_report(a,record_id) is null;
   reset role;
   assert (select observacoes from public.mapa_respostas where id=record_id)
     ='{"d1_obs":"preservar","parecer":"Parecer de teste"}'::jsonb;
   assert (select count(*) from cali_workspace.activity_log where entity_id=record_id and event_type='mapa_review_saved')=1;
 end $$;
 rollback;
+\ir rollback-mapa-report-read.sql
 \ir rollback-mapa-operations.sql
 \echo Fase 4E: Mapa com triagem, operador, MFA, escopo e concorrência validados.

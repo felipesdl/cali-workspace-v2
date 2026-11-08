@@ -166,7 +166,11 @@ function DraftFields({
     <div className="tw:grid tw:gap-2">
       {pricing && !dirty && (
         <ActionForm
-          label="Calcular e salvar mensalidade"
+          label={
+            pricing.recurring === false
+              ? 'Calcular e salvar investimento'
+              : 'Calcular e salvar mensalidade'
+          }
           submit={async (fields) => {
             const result = await service.priceCommercialDraft(company, value.id, value.updatedAt, {
               extras: Number(fields.get('extras')),
@@ -179,7 +183,10 @@ function DraftFields({
         >
           {(prefix) => (
             <>
-              <p>CALI Build · Mensalidade atual de {money.format(pricing.monthly)}</p>
+              <p>
+                {pricing.recurring === false ? 'Investimento atual' : 'Mensalidade atual'} ·{' '}
+                {money.format(pricing.monthly)}
+              </p>
               <Field id={prefix + 'extras'} label="Adicionais em reais">
                 <input
                   id={prefix + 'extras'}

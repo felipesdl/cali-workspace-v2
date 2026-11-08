@@ -12,6 +12,8 @@ import { SatisfactionResults } from './SatisfactionResults';
 import { AuditResults, CommercialResults } from './AdminReadResults';
 import { AdminDailyPreview } from './AdminDailyPreview';
 import { MapaReview } from './MapaReview';
+import { MapaReportSummary } from './MapaReportSummary';
+import { StaffDraftEditor } from './StaffDraftEditor';
 import { ReportCurationSections, ReportIndicators, ReportSources } from './ReportCuration';
 import {
   ActivateContractedFront,
@@ -1081,13 +1083,21 @@ export function AdminMapaPage() {
             <FeedbackState kind="empty">Nenhum registro vinculado nesta página.</FeedbackState>
           )}
           {result.data.entries.map((entry) => (
-            <MapaReview
-              key={JSON.stringify([entry.id, entry.revision])}
-              entry={entry}
-              company={companyId}
-              operations={domainOperations}
-              saved={() => cache.invalidateQueries({ queryKey: key })}
-            />
+            <div key={entry.id} className="tw:grid tw:gap-2">
+              <MapaReview
+                key={entry.revision}
+                entry={entry}
+                company={companyId}
+                operations={domainOperations}
+                saved={() => cache.invalidateQueries({ queryKey: key })}
+              />
+              <MapaReportSummary
+                record={entry.id}
+                company={companyId}
+                actor={actor}
+                service={adminRead}
+              />
+            </div>
           ))}
           <Pages total={result.data.total} search={search} update={update} />
         </>
@@ -1103,13 +1113,16 @@ const staffInvitationLabels = {
 };
 
 export function AdminStaffRosterPage() {
-  const { adminRead } = useRouteContext({ from: '__root__' });
+  const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
   const search = adminStaffRoster.useSearch();
   const navigate = adminStaffRoster.useNavigate();
   const { companyId, actor, admin } = useScope(search);
   const update: Props['update'] = (change) => void navigate({ search: { ...search, ...change } });
+  const cache = useQueryClient();
+  const key = ['phase4-staff-roster', actor, companyId];
+  const refresh = () => cache.invalidateQueries({ queryKey: key });
   const result = useQuery({
-    queryKey: ['phase4-staff-roster', actor, companyId, search.page],
+    queryKey: [...key, search.page],
     queryFn:
       admin && adminRead && companyId
         ? ({ signal }) => adminRead.staffRoster(companyId, search.page, signal)
@@ -1120,6 +1133,14 @@ export function AdminStaffRosterPage() {
   return (
     <section className="tw:grid tw:gap-4" aria-label="Equipe CALI vinculada à empresa">
       <CompanySelect search={search} update={update} />
+      {companyId && domainOperations && (
+        <StaffDraftEditor
+          key={companyId}
+          company={companyId}
+          operations={domainOperations}
+          saved={refresh}
+        />
+      )}
       {!companyId ? (
         <FeedbackState kind="empty">Selecione uma empresa.</FeedbackState>
       ) : result.isPending ? (
@@ -1142,6 +1163,20 @@ export function AdminStaffRosterPage() {
                   <p>Módulos · {member.modules?.join(', ') || 'Sem módulos atribuídos'}</p>
                   {member.assignedAt && (
                     <p>Vínculo desde {formatServerInstant(member.assignedAt)} (Brasília)</p>
+                  )}
+                  {domainOperations && member.draftRevision && (
+                    <StaffDraftEditor
+                      key={member.draftRevision}
+                      company={companyId}
+                      operations={domainOperations}
+                      saved={refresh}
+                      draft={{
+                        id: member.id,
+                        revision: member.draftRevision,
+                        name: member.name?.replace(/^\[TESTE V2\] /, '') ?? '',
+                        modules: member.modules ?? [],
+                      }}
+                    />
                   )}
                 </li>
               ))}
