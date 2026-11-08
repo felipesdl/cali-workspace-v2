@@ -36,7 +36,8 @@ revoke all on function cali_session_guard.phase4_commercial_price_band(text,text
   cali_session_guard.phase4_price_number(text,numeric) from public,anon,authenticated,service_role;
 
 create or replace function cali_workspace.v2_price_pilot_commercial_draft(
-  p_company_id uuid,p_proposal_id uuid,p_expected timestamptz,p_extras numeric,p_discount numeric,p_months integer
+  p_company_id uuid,p_proposal_id uuid,p_expected timestamptz,p_extras numeric,p_discount numeric,p_months integer,
+  p_scope_mode text,p_manual_final numeric
 )
 returns uuid language plpgsql security definer set search_path=''
 as $$
@@ -66,7 +67,10 @@ declare
 begin
   if p_expected is null or p_extras is null or p_extras not between 0 and 100000
     or p_discount is null or p_discount not between 0 and 50 or p_months is null or p_months not between 1 and 60
-    or p_extras<>round(p_extras,2) or p_discount<>round(p_discount,2) then
+    or p_extras<>round(p_extras,2) or p_discount<>round(p_discount,2)
+    or p_scope_mode is null or p_scope_mode not in ('integral','prioritized')
+    or (p_manual_final is not null and (p_manual_final not between 0.01 and 100000
+      or p_manual_final<>round(p_manual_final,2))) then
     raise exception using errcode='22023',message='Confira adicionais, desconto e duração.';
   end if;
   select p.* into draft from public.cali_proposals p
@@ -146,28 +150,50 @@ begin
       factor:=(1+greatest(0,units-1)*.08)*(1+greatest(0,participants-2)*.05)*(1+greatest(0,fronts-3)*.06);
     else null; -- Solução personalizada usa a base e os adicionais.
   end case;
+  if p_scope_mode='prioritized' then
+    factor:=least(factor,1);
+    effective_extras:=0;
+  end if;
   subtotal_value:=round((base*factor+effective_extras)/50)*50;
   if band.minimum is not null then subtotal_value:=greatest(band.minimum,subtotal_value); end if;
   if band.maximum is not null then subtotal_value:=least(band.maximum,subtotal_value); end if;
-  final_value:=subtotal_value-round(subtotal_value*p_discount/100);
+  final_value:=coalesce(p_manual_final,subtotal_value-round(subtotal_value*p_discount/100));
   if band.minimum is not null then final_value:=greatest(band.minimum,final_value); end if;
+  if band.maximum is not null then final_value:=least(band.maximum,final_value); end if;
+  if final_value<subtotal_value/2 then
+    raise exception using errcode='22023',message='O valor final implica desconto acima de 50%.';
+  end if;
   months:=greatest(p_months,band.min_months);
-  calculation:=jsonb_build_object('factor',factor,'discount',p_discount,'manualExtras',p_extras);
+  calculation:=jsonb_build_object('factor',factor,'discount',p_discount,
+    'manualExtras',case when p_scope_mode='prioritized' then 0 else p_extras end,
+    'scopeMode',p_scope_mode,'manualFinalAmount',p_manual_final);
 
-  update public.cali_proposals set base_price=base,extras=effective_extras,discount_pct=round(100*(subtotal_value-final_value)/subtotal_value,2),
+  update public.cali_proposals set base_price=base,extras=effective_extras,
+    discount_pct=round(100*greatest(0,subtotal_value-final_value)/subtotal_value,2),
     subtotal=subtotal_value,final_unit=final_value,total_value=final_value,contract_months=months,
     calculator_data=coalesce(draft.calculator_data,'{}'::jsonb)
       ||jsonb_build_object(case when draft.service_slug='cali-build' then 'pilotBuild' else 'pilotPortfolio' end,calculation),
     updated_at=clock_timestamp() where id=draft.id;
   insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
   values(p_company_id,actor,'commercial_proposal_edited','commercial_proposal',draft.id,
-    jsonb_build_object('version',draft.version,'section','pricing'));
+    jsonb_build_object('version',draft.version,'section','pricing',
+      'scopeMode',p_scope_mode,'manualPrice',p_manual_final is not null));
   return draft.id;
 end;
 $$;
-revoke all on function cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid,timestamptz,numeric,numeric,integer)
+-- Preserva clientes que ainda enviam somente a composição integral.
+create or replace function cali_workspace.v2_price_pilot_commercial_draft(
+  p_company_id uuid,p_proposal_id uuid,p_expected timestamptz,p_extras numeric,p_discount numeric,p_months integer
+)
+returns uuid language sql security definer set search_path='' as $$
+  select cali_workspace.v2_price_pilot_commercial_draft(
+    p_company_id,p_proposal_id,p_expected,p_extras,p_discount,p_months,'integral',null::numeric);
+$$;
+revoke all on function cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid,timestamptz,numeric,numeric,integer),
+  cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid,timestamptz,numeric,numeric,integer,text,numeric)
   from public,anon,authenticated,service_role;
-grant execute on function cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid,timestamptz,numeric,numeric,integer)
+grant execute on function cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid,timestamptz,numeric,numeric,integer),
+  cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid,timestamptz,numeric,numeric,integer,text,numeric)
   to authenticated;
 notify pgrst,'reload schema';
 commit;

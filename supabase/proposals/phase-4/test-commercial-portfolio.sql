@@ -49,6 +49,35 @@ begin
     assert (quote->>'extras')::numeric=75;
     reset role;
     assert (select extras from public.cali_proposals where id=proposal)=scenario.extras;
+    if scenario.package='PALESTRA' then
+      set local role authenticated;
+      perform cali_workspace.fixture_as('admin');
+      begin
+        perform cali_workspace.v2_price_pilot_commercial_draft(company,proposal,expected,75,5,3,'prioritized',2000);
+        raise exception 'Revisão antiga aceitou alteração do preço';
+      exception when serialization_failure then null; end;
+      expected:=(cali_workspace.v2_read_pilot_commercial_draft(company,proposal)->>'updatedAt')::timestamptz;
+      assert cali_workspace.v2_price_pilot_commercial_draft(company,proposal,expected,75,5,3,'prioritized',2600)=proposal;
+      quote:=cali_workspace.v2_read_pilot_commercial_draft(company,proposal)->'pricing';
+      assert quote->>'scopeMode'='prioritized' and (quote->>'extras')::numeric=0;
+      assert (quote->>'subtotal')::numeric=1800 and (quote->>'monthly')::numeric=2500;
+      assert (quote->>'manualFinalAmount')::numeric=2600;
+      expected:=(cali_workspace.v2_read_pilot_commercial_draft(company,proposal)->>'updatedAt')::timestamptz;
+      assert cali_workspace.v2_price_pilot_commercial_draft(company,proposal,expected,75,5,3,'integral',null)=proposal;
+      quote:=cali_workspace.v2_read_pilot_commercial_draft(company,proposal)->'pricing';
+      assert quote->>'scopeMode'='integral' and quote->'manualFinalAmount'='null'::jsonb;
+      assert (quote->>'monthly')::numeric=1995;
+      reset role;
+    elsif scenario.package='PROGRAMA' then
+      set local role authenticated;
+      perform cali_workspace.fixture_as('admin');
+      expected:=(cali_workspace.v2_read_pilot_commercial_draft(company,proposal)->>'updatedAt')::timestamptz;
+      begin
+        perform cali_workspace.v2_price_pilot_commercial_draft(company,proposal,expected,75,5,3,'integral',1);
+        raise exception 'Valor abaixo do limite efetivo de desconto aceito';
+      exception when invalid_parameter_value then null; end;
+      reset role;
+    end if;
   end loop;
 end $$;
 rollback;

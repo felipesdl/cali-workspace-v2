@@ -148,7 +148,7 @@ Fonte exibe essas ações, mas não estabelece uma máquina SQL restrita de todo
 
 ## FLOW-03 — Proposta comercial e oportunidade
 
-A V2 homologou a criação com preço sintético, edição, aprovação, envio autenticado no Workspace e aceite pelo destinatário inscrito. No staging, também homologou a calculadora CALI Build, o envio do PDF ao simulador e o aceite pelo link local. A calculadora dos demais serviços continua pendente. [Fluxo autenticado](../contracts/PHASE_4_READ.md#criação-envio-no-workspace-e-aceite-no-staging) e [calculadora e e-mail sintético](../contracts/PHASE_4_READ.md#calculadora-cali-build-e-e-mail-sintético).
+A V2 homologou a criação com preço sintético, edição, aprovação, envio autenticado no Workspace e aceite pelo destinatário inscrito. No staging, também homologou a calculadora CALI Build, o envio do PDF ao simulador e o aceite pelo link local. A calculadora do portfólio passou no piloto, incluindo [escopo priorizado e preço manual](../contracts/PHASE_4_READ.md#escopo-priorizado-e-preço-manual). [Fluxo autenticado](../contracts/PHASE_4_READ.md#criação-envio-no-workspace-e-aceite-no-staging) e [calculadora e e-mail sintético](../contracts/PHASE_4_READ.md#calculadora-cali-build-e-e-mail-sintético).
 
 **Objetivo/atores:** Admin trata oportunidade, calcula/edita proposta, revisa e envia. Destinatário comercial não é automaticamente usuário Cliente. Fontes: [tipos/transporte Portal](SOURCES.md#portal), [editor](SOURCES.md#proposal-ui), [rotas](SOURCES.md#routes).
 

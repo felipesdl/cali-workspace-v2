@@ -614,7 +614,13 @@ No CALI MAPA, a transação recusou uma opção fora da lista e uma seleção du
 
 Os [contratos de preço do piloto](../../supabase/proposals/phase-4/commercial-pricing.sql) cobrem 15 combinações de pacote e serviço além de CALI Build. A referência de cálculo foi [o Portal Comercial na revisão bd2e965](https://github.com/patricia258/cali-portal/blob/bd2e965e9dcc0bc2d8163d62422b03cdd2cb3128/js/services.js). As fórmulas preservam a distinção entre mensal e avulso, faixas, tetos, desconto, materiais e duração mínima. A operação continua limitada ao rascunho, pacote e operador delegados. A prova não libera catálogo, aprovação ou envio.
 
-Os 15 resultados da suíte descartável coincidiram com a execução das fórmulas do Portal. No navegador do CALI MAPA, Admin calculou a proposta sintética de Palestra com cinco participantes, materiais, R$ 75 de adicionais e 5% de desconto. A tela e o banco confirmaram subtotal de R$ 2.100 e total de R$ 1.995; a delegação foi encerrada e o rascunho ficou sem envio. As definições anteriores estão em `output/runtime/phase4e/commercial-portfolio-rollback.sql`. Ativação comercial e parâmetros de priorização ou substituição manual de preço ainda exigem recorte próprio.
+Os 15 resultados da suíte descartável coincidiram com a execução das fórmulas do Portal. No navegador do CALI MAPA, Admin calculou a proposta sintética de Palestra com cinco participantes, materiais, R$ 75 de adicionais e 5% de desconto. A tela e o banco confirmaram subtotal de R$ 2.100 e total de R$ 1.995; a delegação foi encerrada e o rascunho ficou sem envio. As definições anteriores estão em `output/runtime/phase4e/commercial-portfolio-rollback.sql`.
+
+### Escopo priorizado e preço manual
+
+No rascunho inscrito, Admin escolhe entre integral e priorizado. Priorizado limita o fator a 1 e não aplica adicionais nem materiais. Preço manual opcional substitui o valor calculado, respeita a faixa do pacote e recusa desconto efetivo acima do limite de 50% do banco. Limpar o campo volta ao cálculo automático. A operação conserva revisão concorrente, pacote, prazo mínimo, delegação e auditoria. O contrato anterior de seis argumentos continua disponível para cálculo integral.
+
+No CALI MAPA, o Admin reabriu o rascunho fictício de Palestra. Com escopo priorizado, o banco confirmou base de R$ 1.800, sem adicionais. O preço manual de R$ 2.600 foi limitado a R$ 2.500, confirmado na tela após recarga. A seguir, o Admin voltou ao cálculo integral de R$ 1.995 e a delegação foi encerrada. A proposta permaneceu em rascunho, sem destinatário nem envio. O PostgreSQL descartável confirmou os 15 cenários anteriores e as novas guardas. A reversão em `output/runtime/phase4e/commercial-pricing-options-rollback.sql` restaura o leitor e a calculadora de seis argumentos, removendo somente a nova sobrecarga. Ativação comercial real segue separada.
 
 ## Resumo do diagnóstico do Mapa de People
 

@@ -244,6 +244,11 @@ const satisfactionEntry = z.object({
 export type SatisfactionEntry = z.infer<typeof satisfactionEntry>;
 const satisfaction = page.extend({ entries: z.array(satisfactionEntry) });
 
+export const commercialScopeMode = z.enum(['integral', 'prioritized']);
+type CommercialPricingOptions = {
+  scopeMode: z.infer<typeof commercialScopeMode>;
+  manualFinalAmount: number | null;
+};
 const commercialDraft = z.object({
   id: z.uuid(),
   updatedAt: z.iso.datetime({ offset: true }),
@@ -258,6 +263,8 @@ const commercialDraft = z.object({
       subtotal: z.number().nonnegative(),
       monthly: z.number().nonnegative(),
       recurring: z.boolean().optional(),
+      scopeMode: commercialScopeMode.optional(),
+      manualFinalAmount: z.number().positive().nullish(),
     })
     .nullish(),
 });
@@ -382,7 +389,12 @@ export function createAdminRead(client: WorkspaceClient) {
       company: string,
       proposal: string,
       expected: string,
-      pricing: { extras: number; discount: number; months: number },
+      pricing: {
+        extras: number;
+        discount: number;
+        months: number;
+        options?: CommercialPricingOptions;
+      },
     ) {
       const { data, error } = await client.rpc('v2_price_pilot_commercial_draft', {
         p_company_id: company,
@@ -391,8 +403,14 @@ export function createAdminRead(client: WorkspaceClient) {
         p_extras: pricing.extras,
         p_discount: pricing.discount,
         p_months: pricing.months,
+        ...(pricing.options && {
+          p_scope_mode: pricing.options.scopeMode,
+          p_manual_final: pricing.options.manualFinalAmount,
+        }),
       });
       if (error?.code === '40001') throw new Error('A proposta mudou. Atualize a consulta.');
+      if (error?.code === '22023')
+        throw new Error('Confira escopo, adicionais, prazo e o limite de 50% de desconto.');
       if (error) throw new Error('Não foi possível calcular o valor.');
       return z.literal(proposal).parse(data);
     },

@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Escopo priorizado e preço manual de Propostas
+
+- Admin ajusta escopo e valor final no rascunho delegado. A prova no CALI MAPA confirmou teto do pacote, persistência após recarga e retorno ao cálculo integral. Proposta fictícia sem envio e delegação encerrada. [Contrato e rollback](contracts/PHASE_4_READ.md#escopo-priorizado-e-preço-manual).
+
 ## Documentos e solicitações no resumo Admin
 
 - O resumo inclui avisos de documento e nova solicitação do Cliente, com atalhos por empresa. PostgreSQL descartável e CALI MAPA confirmaram corte, exclusões e deduplicação. Os avisos sintéticos foram revertidos, sem despacho. [Evidência e rollback](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).

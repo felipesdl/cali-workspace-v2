@@ -35,8 +35,10 @@ begin
     'publicNotes',draft.public_notes,'validityDays',draft.validity_days,
     'pricing',(
       select jsonb_build_object(
-        'extras',coalesce(draft.calculator_data#>'{pilotPortfolio,manualExtras}',to_jsonb(draft.extras)),
+        'extras',coalesce(draft.calculator_data#>'{pilotPortfolio,manualExtras}',draft.calculator_data#>'{pilotBuild,manualExtras}',to_jsonb(draft.extras)),
         'discount',coalesce(draft.calculator_data#>'{pilotPortfolio,discount}',draft.calculator_data#>'{pilotBuild,discount}',to_jsonb(draft.discount_pct)),
+        'scopeMode',coalesce(draft.calculator_data#>>'{pilotPortfolio,scopeMode}',draft.calculator_data#>>'{pilotBuild,scopeMode}','integral'),
+        'manualFinalAmount',coalesce(draft.calculator_data#>'{pilotPortfolio,manualFinalAmount}',draft.calculator_data#>'{pilotBuild,manualFinalAmount}'),
         'months',draft.contract_months,'subtotal',draft.subtotal,'monthly',draft.final_unit,'recurring',band.recurring)
       from cali_session_guard.phase4_commercial_price_band(draft.service_slug,draft.package_code) band
       join cali_session_guard.phase4_commercial_scope g on g.proposal_id=draft.id

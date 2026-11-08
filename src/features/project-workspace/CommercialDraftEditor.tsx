@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
-import { type AdminReadService } from '../../api/modules/project-workspace/admin-read';
+import {
+  commercialScopeMode,
+  type AdminReadService,
+} from '../../api/modules/project-workspace/admin-read';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
@@ -162,6 +165,10 @@ function DraftFields({
   const [dirty, setDirty] = useState(false);
   const [pricingDirty, setPricingDirty] = useState(false);
   const pricing = value.pricing;
+  const [scopeMode, setScopeMode] = useState(
+    pricing?.scopeMode ?? commercialScopeMode.enum.integral,
+  );
+  const prioritized = scopeMode === commercialScopeMode.enum.prioritized;
   return (
     <div className="tw:grid tw:gap-2">
       {pricing && !dirty && (
@@ -172,10 +179,14 @@ function DraftFields({
               : 'Calcular e salvar mensalidade'
           }
           submit={async (fields) => {
+            const manual = String(fields.get('manualFinalAmount') ?? '').trim();
             const result = await service.priceCommercialDraft(company, value.id, value.updatedAt, {
               extras: Number(fields.get('extras')),
               discount: Number(fields.get('discount')),
               months: Number(fields.get('months')),
+              options: pricing.scopeMode
+                ? { scopeMode, manualFinalAmount: manual ? Number(manual) : null }
+                : undefined,
             });
             await refresh();
             return result;
@@ -187,6 +198,22 @@ function DraftFields({
                 {pricing.recurring === false ? 'Investimento atual' : 'Mensalidade atual'} ·{' '}
                 {money.format(pricing.monthly)}
               </p>
+              {pricing.scopeMode && (
+                <Field id={prefix + 'scopeMode'} label="Escopo do cálculo">
+                  <select
+                    id={prefix + 'scopeMode'}
+                    value={scopeMode}
+                    onChange={(event) => {
+                      setScopeMode(commercialScopeMode.parse(event.currentTarget.value));
+                      setPricingDirty(true);
+                    }}
+                  >
+                    <option value={commercialScopeMode.enum.integral}>Integral</option>
+                    <option value={commercialScopeMode.enum.prioritized}>Priorizado</option>
+                  </select>
+                  {prioritized && <span>Usa a base do pacote sem adicionais.</span>}
+                </Field>
+              )}
               <Field id={prefix + 'extras'} label="Adicionais em reais">
                 <input
                   id={prefix + 'extras'}
@@ -196,10 +223,28 @@ function DraftFields({
                   max={100000}
                   step="0.01"
                   required
+                  disabled={prioritized}
                   defaultValue={pricing.extras}
                   onChange={() => setPricingDirty(true)}
                 />
               </Field>
+              {pricing.scopeMode && (
+                <Field id={prefix + 'manualFinalAmount'} label="Valor final manual em reais">
+                  <input
+                    id={prefix + 'manualFinalAmount'}
+                    name="manualFinalAmount"
+                    type="number"
+                    min={0.01}
+                    max={100000}
+                    step="0.01"
+                    defaultValue={pricing.manualFinalAmount ?? ''}
+                    onChange={() => setPricingDirty(true)}
+                  />
+                  <span>
+                    Deixe em branco para calcular pelo desconto. A faixa do pacote continua válida.
+                  </span>
+                </Field>
+              )}
               <Field id={prefix + 'discount'} label="Desconto em porcentagem">
                 <input
                   id={prefix + 'discount'}
