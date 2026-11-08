@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## Aceite por link e contenção do resumo de teste
+
+- A proposta sintética 03 foi enviada ao simulador do Resend e aceita pelo link local. O banco confirmou PDF, recibo e auditoria. A função temporária foi removida e o link foi revogado. [Prova no staging](contracts/PHASE_4_READ.md#calculadora-cali-build-e-e-mail-sintético).
+- O job legado do resumo diário foi pausado no CALI MAPA após incluir atividades sintéticas em um e-mail recebido às 19h. [Evidência e reversão](contracts/PHASE_4_READ.md#contenção-do-resumo-legado-no-staging).
+- O preflight de Horas e Agenda confirmou que falta instalar a pausa por capacidade e preparar uma reunião sintética passada para homologar resultado e reposição. [Próximo recorte](contracts/PHASE_4_READ.md#reposição-de-reunião-ordinária).
+
 ## Calculadora CALI Build e e-mail de Propostas
 
 - A proposta sintética 03 foi calculada e aprovada no staging por R$ 1.395,00 mensais em quatro meses. O PDF, o reenvio e o aceite por link foram validados localmente. A prova hospedada de e-mail aguarda a Edge. [Contrato e reversão](contracts/PHASE_4_READ.md#calculadora-cali-build-e-e-mail-sintético).

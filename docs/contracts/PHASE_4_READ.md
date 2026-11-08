@@ -373,9 +373,11 @@ A leitura da Edge legada confirmou que ela recebe PDF e destinatário no payload
 
 O piloto aplica no servidor os fatores do CALI Build, arredonda o subtotal em múltiplos de R$ 50, aplica adicionais, desconto de até 50% e o prazo mínimo de quatro ou seis meses conforme o pacote. A base sintética vem da inscrição da oportunidade. Na proposta `CALI-QA-V2-PROPOSTA-03`, o navegador conferiu a versão 1 aprovada a R$ 1.395,00 por mês durante quatro meses. O banco confirmou base de R$ 1.000,00, subtotal de R$ 1.550,00 e desconto de 10%. A calculadora dos demais serviços e o catálogo de preços comerciais ficam em recorte próprio.
 
-O envio preparado para staging lê a revisão aprovada do banco, gera e persiste o PDF e usa apenas `delivered@resend.dev`. O mesmo pedido reutiliza o PDF, o token e a chave de idempotência. O aceite externo usa um token com prazo, guarda somente seu hash e exige confirmação. A abertura do link apenas consulta a proposta. A auditoria identifica o canal de teste. O link aponta para o frontend local na porta 5173 e o pacote local foi validado com transporte simulado, incluindo falha e nova tentativa. A revisão automática recusou a publicação da Edge hospedada. O Resend e o aceite externo ainda aguardam a prova hospedada.
+O envio de staging lê a revisão aprovada do banco, gera e persiste o PDF e usa apenas `delivered@resend.dev`. O mesmo pedido reutiliza o PDF, o token e a chave de idempotência. O aceite externo usa um token com prazo, guarda somente seu hash e exige confirmação. A abertura do link apenas consulta a proposta. O pacote local também foi validado com transporte simulado, incluindo falha e nova tentativa.
 
-Depois de autorizar a prova da Edge, reabrir temporariamente apenas a delegação da proposta sintética 03, publicar `workspace-commercial-email` com JWT obrigatório no CALI MAPA e ativar `VITE_CALI_PHASE4_COMMERCIAL_EMAIL=true` no loopback. Ao final, revogar o link e a delegação, remover apenas essa Edge do staging e conferir a remoção no catálogo. Para retirar também as operações de banco deste lote, usar `rollback-commercial-email.sql`. Propostas, PDFs e auditoria ficam preservados.
+Após autorização explícita, a Edge temporária `workspace-commercial-email` v1 foi publicada no CALI MAPA com JWT obrigatório. Admin enviou o PDF da proposta 03 ao simulador do Resend. O navegador abriu o link de teste no frontend local, mostrou a versão 1 a R$ 1.395,00 mensais durante quatro meses e registrou o aceite após confirmação. O banco registrou o recibo do simulador, PDF de 939 bytes, status `aceita` e os eventos `resend_test` e `external_test`. A homologação cobre o simulador e o link local.
+
+Ao final, o link foi revogado, a delegação expirou e a Edge foi removida. O navegador confirmou a recusa do link após recarregar e o catálogo confirmou a remoção da função. Para retirar também as operações de banco, usar `rollback-commercial-email.sql`. Propostas, PDFs e auditoria ficam preservados.
 
 ## Lote de pedido de privacidade no CALI MAPA
 
@@ -441,6 +443,10 @@ Em 07/11/2026, instalou-se apenas o leitor para Admin com MFA e A/B. No navegado
 
 `rollback-admin-daily-preview.sql` remove só a consulta. Não houve configuração de cron, ativação do digest de chat, seleção de destinatários ou envio de e-mail. Despacho das 19h, destinatários ativos com e-mail, idempotência por destinatário/dia e integração de fontes restantes continuam pendentes.
 
+### Contenção do resumo legado no staging
+
+Em 07/11/2026, um e-mail recebido às 19h de Brasília incluiu as atividades da Empresa A sintética. O catálogo do CALI MAPA confirmou que o job legado `workspace-admin-daily-summary` (7) executou às 19h e chamava o resumo do próprio staging. A Edge de propostas ainda estava ausente no momento da verificação. O job legado foi pausado com `cron.alter_job` e o catálogo confirmou `active=false`, com o horário e o histórico preservados. A reversão reativa apenas o mesmo job com `cron.alter_job(7, active := true)`. Antes de reativar, separar as empresas e os destinatários de teste do despacho real.
+
 
 ## Complementos locais da fase 4
 
@@ -466,6 +472,8 @@ Foi atualizada somente a definição de `v2_read_pilot_report_catalog`, preserva
 Na V2, Admin com MFA oferece reposição para reunião contratual marcada como não realizada, quando a regra de resultado permite reposição. O horário é informado em Brasília. A operação mantém duração e condições contratuais, recusa conflito e registra a oferta no pedido existente. Cliente confirma pelo fluxo de Agenda. Na confirmação, o servidor confere se a sessão contratual já está reservada no mês de destino. O novo evento é separado e o anterior permanece no calendário e no histórico como não realizado. O motivo interno fica restrito.
 
 O PostgreSQL descartável comprovou empresa divergente, horário passado, reenvio do mesmo pedido, duração preservada, confirmação do Cliente, recusa por sessão já reservada e histórico preservado. A reversão retira a operação da V2 e preserva os registros. Instalação, prova A/B no navegador e sincronização externa seguem pendentes.
+
+O preflight seguinte no CALI MAPA confirmou duas empresas sintéticas e zero reuniões passadas e confirmadas elegíveis para registrar resultado. As RPCs de solicitação, resposta e remarcação já estão presentes. A RPC V2 de pausa por capacidade ainda está ausente. A sessão de inventário não pode executar a função de cálculo de capacidade. A prova segue com reunião sintética passada e consulta de capacidade por Admin autorizado.
 
 ## Equipe CALI por empresa
 
