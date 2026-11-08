@@ -36,6 +36,8 @@ const appointments = z.array(
     admin_proposed_slots: z.array(slot),
     sync_status: z.string().nullable(),
     meetingAt: z.string().nullable().optional(),
+    minutes: z.string().nullish(),
+    minutesVersion: z.string().nullish(),
     participants: z
       .array(
         z.object({
@@ -79,12 +81,44 @@ const extras = z.object({
       amountCents: cents,
       acceptedAt: z.string().nullable(),
       cancellationCents: cents,
+      quoteTerms: z.string().nullish(),
+      quoteVersion: z.string().nullish(),
     }),
   ),
 });
 
 export function createAgendaOperations(client: WorkspaceClient) {
   return {
+    async saveMinutes(
+      company: string,
+      id: string,
+      requestId: string,
+      version: string,
+      text: string,
+    ) {
+      const { data, error } = await client.rpc('v2_save_pilot_meeting_minutes', {
+        p_company_id: company,
+        p_appointment_id: id,
+        p_request_id: requestId,
+        p_expected: version,
+        p_minutes: z.string().trim().min(1).max(6000).parse(text),
+      });
+      if (error?.code === '40001')
+        throw new Error('A ata mudou. Atualize a agenda e revise o texto.');
+      if (error) throw new Error('Não foi possível salvar a ata.');
+      return z.literal(id).parse(data);
+    },
+    async acceptOnlineQuote(company: string, id: string, version: string) {
+      const { data, error } = await client.rpc('v2_accept_pilot_online_extra_quote', {
+        p_company_id: company,
+        p_appointment_id: id,
+        p_expected: version,
+      });
+      if (error?.code === '22023')
+        throw new Error('O orçamento mudou ou deixou de estar disponível. Atualize a agenda.');
+      if (error) throw new Error('Não foi possível aceitar o orçamento.');
+      return z.literal(id).parse(data);
+    },
     async listExtras(company: string, page: number, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_list_pilot_agenda_extras', { p_company_id: company, p_page: page })

@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Ata em texto e aceite de orçamento online
+
+- Admin salvou a ata de reunião realizada e Cliente A consultou o texto no staging. Cliente A aceitou o orçamento sintético de R$ 250,00. O teste preservou valor, aceite e auditoria, sem disparo de e-mail. [Prova e reversão](contracts/PHASE_4_READ.md#ata-em-texto-e-aceite-de-orçamento-online).
+
 ## Resultado, reposição e capacidade no staging
 
 - Admin registrou realização e não realização em duas reuniões sintéticas. Cliente A confirmou a reposição de uma hora sem acesso à justificativa interna. A falta de cobertura passou a receber mensagem de validação. A reposição sintética foi encerrada sem sincronização externa ou e-mail.

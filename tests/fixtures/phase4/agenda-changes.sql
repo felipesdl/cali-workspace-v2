@@ -12,12 +12,17 @@ returns jsonb language sql as $$
 $$;
 
 alter table cali_workspace.scheduling_requests add column online_extra_requested boolean not null default false,
+  add column requested_by uuid,add column billing_notice text,
   add column extra_visit_fee_cents integer,add column online_extra_quote_cents integer,
   add column billing_acknowledged_at timestamptz,add column online_extra_quote_accepted_at timestamptz,
   add column extra_visit_cancellation_fee_cents integer,
   add column meeting_entitlement text,add column contract_session_number integer,add column selected_slot jsonb;
 create or replace function cali_workspace.resolve_meeting_entitlement_v66(uuid,text,timestamptz,uuid)
 returns jsonb language sql as $$ select '{"billable":false,"sessionNumber":1}'::jsonb $$;
+create function cali_workspace.client_accept_online_extra_quote_v1(uuid)
+returns void language sql as $$
+  update cali_workspace.scheduling_requests set online_extra_quote_accepted_at=clock_timestamp() where id=$1;
+$$;
 create table cali_workspace.event_attendees(
   id uuid primary key default gen_random_uuid(),event_id uuid,company_id uuid,name text,email text,
   attendee_type text,status text,created_at timestamptz not null default clock_timestamp()

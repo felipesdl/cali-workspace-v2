@@ -18,8 +18,15 @@ begin
         case when r.extra_visit then r.extra_visit_fee_cents else r.online_extra_quote_cents end as "amountCents",
         case when r.extra_visit then r.billing_acknowledged_at
           else r.online_extra_quote_accepted_at end as "acceptedAt",
-        case when r.extra_visit then r.extra_visit_cancellation_fee_cents end as "cancellationCents"
+        case when r.extra_visit then r.extra_visit_cancellation_fee_cents end as "cancellationCents",
+        case when eligibility.allowed then r.billing_notice end as "quoteTerms",
+        case when eligibility.allowed then encode(sha256(convert_to(
+          jsonb_build_array(r.online_extra_quote_cents,r.billing_notice)::text,'UTF8')),'hex') end as "quoteVersion"
       from cali_workspace.scheduling_requests r
+      cross join lateral (select r.requested_by=actor and r.online_extra_requested and not r.extra_visit
+          and r.request_mode='remote' and r.online_extra_quote_cents>0 and r.online_extra_quote_accepted_at is null
+          and r.status in ('submitted','client_review')
+          and to_regprocedure('cali_workspace.v2_accept_pilot_online_extra_quote(uuid,uuid,text)') is not null as allowed) eligibility
       where r.company_id=p_company_id and (r.extra_visit or r.online_extra_requested)
     ), page as (
       select * from matched order by "requestedAt" desc,id limit 25 offset (p_page-1)*25

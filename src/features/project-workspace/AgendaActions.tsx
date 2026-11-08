@@ -141,6 +141,41 @@ export function AgendaActions({
               </p>
             )}
             <AgendaParticipants people={item.participants} />
+            {item.minutes && (
+              <div>
+                <h4 className="tw:font-semibold">Ata da reunião</h4>
+                <p className="tw:wrap-anywhere tw:whitespace-pre-wrap">{item.minutes}</p>
+              </div>
+            )}
+            {item.minutesVersion && (
+              <ActionForm
+                label="Salvar ata"
+                submit={async (fields, id) =>
+                  refresh(
+                    await agenda.saveMinutes(
+                      company,
+                      item.id,
+                      id,
+                      item.minutesVersion ?? '',
+                      read(fields, 'minutes'),
+                    ),
+                  )
+                }
+              >
+                {(prefix) => (
+                  <Field id={prefix + 'minutes'} label="Texto da ata">
+                    <textarea
+                      id={prefix + 'minutes'}
+                      name="minutes"
+                      defaultValue={item.minutes ?? ''}
+                      maxLength={6000}
+                      required
+                    />
+                    <p>Visível ao Cliente na agenda da empresa.</p>
+                  </Field>
+                )}
+              </ActionForm>
+            )}
             {replacementEventId && (
               <ActionForm
                 label="Oferecer horário de reposição"

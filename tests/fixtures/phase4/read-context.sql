@@ -13,7 +13,8 @@ create table cali_workspace.hour_entries(id uuid,company_id uuid,project_id uuid
 create table cali_workspace.events(id uuid,company_id uuid,title text,protocol text,event_type text,
  starts_at timestamptz,ends_at timestamptz,cancelled_at timestamptz,visibility text);
 create table cali_workspace.event_outcomes(
-  event_id uuid primary key,company_id uuid,outcome text,reason_category text,justified boolean,note text,replacement_allowed boolean
+  event_id uuid primary key,company_id uuid,outcome text,reason_category text,justified boolean,note text,replacement_allowed boolean,
+  transcription_note text
 );
 create table cali_workspace.account_records(id uuid,company_id uuid,title text,protocol text,
  workflow_status text,occurred_at timestamptz,visibility text);

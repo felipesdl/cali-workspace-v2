@@ -5,6 +5,8 @@ import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { formatServerInstant } from '../../lib/dates';
 import { WorkspacePagination } from './WorkspacePagination';
 import { appointmentStatusLabel } from './workspace-labels';
+import { ActionForm } from './ActionForm';
+import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 
 const reais = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -62,6 +64,30 @@ export function AgendaExtras({
                   <p>
                     Taxa de cancelamento registrada {reais.format(item.cancellationCents / 100)}
                   </p>
+                )}
+                {item.quoteVersion && (
+                  <ActionForm
+                    label="Aceitar orçamento"
+                    submit={async (fields) => {
+                      if (!fields.has('confirmed')) throw new Error('Confirme o aceite do valor.');
+                      const saved = await agenda.acceptOnlineQuote(
+                        company,
+                        item.id,
+                        item.quoteVersion ?? '',
+                      );
+                      await result.refetch();
+                      return saved;
+                    }}
+                  >
+                    {() => (
+                      <>
+                        {item.quoteTerms && <p>{item.quoteTerms}</p>}
+                        <Checkbox name="confirmed" required>
+                          Confirmo o valor e as condições deste orçamento.
+                        </Checkbox>
+                      </>
+                    )}
+                  </ActionForm>
                 )}
               </li>
             ))}

@@ -27,6 +27,7 @@
 \ir agenda-extras-read.sql
 \ir test-agenda-extras-read.sql
 \ir agenda-change-operations.sql
+\ir agenda-followup.sql
 \ir hours-operations.sql
 \ir record-operations.sql
 \ir record-review-operations.sql
@@ -200,6 +201,7 @@ rollback;
 \ir test-project-journal.sql
 \ir test-delivery-agenda.sql
 \ir test-agenda-changes.sql
+\ir test-agenda-followup.sql
 \ir test-agenda-qa-transport.sql
 \ir test-record-reviews.sql
 \ir test-record-qa-transport.sql

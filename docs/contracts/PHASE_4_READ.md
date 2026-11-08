@@ -481,7 +481,17 @@ A primeira oferta sem cobertura terminou em timeout. A RPC passou a tratar a fal
 
 Em Horas, a franquia de novembro da Empresa A foi reduzida de 12,5 h para 0,25 h durante o teste, usando os 27 minutos sintéticos já registrados. O Admin pausou e retomou as atividades pelo navegador. O banco confirmou os dois eventos de auditoria, a retomada e a restauração de 12,5 h.
 
-A reversão específica restaura as três definições capturadas antes do lote e retira as cinco rotinas novas, incluindo o auxiliar privado, sem apagar histórico. O SQL de reversão está em `output/runtime/phase4b/rollback.sql` no workspace de operação. A guarda de e-mail permanece para as fixtures inscritas. Sincronização Google/Meet, ata, participantes e transições de encontros adicionais seguem pendentes.
+A reversão específica restaura as três definições capturadas antes do lote e retira as cinco rotinas novas, incluindo o auxiliar privado, sem apagar histórico. O SQL de reversão está em `output/runtime/phase4b/rollback.sql` no workspace de operação. A guarda de e-mail permanece para as fixtures inscritas.
+
+### Ata em texto e aceite de orçamento online
+
+O Admin com MFA salva a ata de uma reunião ordinária já realizada. A operação usa o campo textual do resultado existente e mantém a data, autoria, justificativa e anexos do resultado. O Cliente da empresa lê a ata em reunião visível e ativa. A versão do texto impede sobrescrita por formulário desatualizado, e a auditoria registra a ação sem copiar o texto.
+
+O solicitante pode aceitar um orçamento online pendente na lista de encontros adicionais. O servidor confere a versão do valor e das condições, usa a rotina legada para registrar o aceite e preserva o preço e o instante do primeiro aceite em repetição. Aceitar o orçamento não confirma um horário.
+
+No CALI MAPA, Admin salvou a ata da reunião sintética realizada da Empresa A e o Cliente leu a mesma ata sem controle de edição. O Cliente aceitou o orçamento sintético de R$ 250,00. O banco confirmou um evento de auditoria por ação, zero notificações destinadas a e-mail e nenhuma criação de reunião a partir do orçamento. O pedido de teste foi encerrado com preço e aceite preservados. O PostgreSQL descartável confirmou recusa de versão antiga, isolamento e repetição.
+
+A reversão do lote restaura os leitores anteriores e retira as duas ações. A captura está em `output/runtime/phase4b/followup-rollback.sql`. Ata e aceite permanecem no histórico. Anexos e links de ata, gestão de participantes, demais transições dos encontros adicionais e sincronização Google/Meet seguem pendentes.
 
 ## Equipe CALI por empresa
 

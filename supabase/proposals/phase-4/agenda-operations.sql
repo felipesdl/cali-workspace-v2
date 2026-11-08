@@ -18,6 +18,14 @@ begin
         r.request_mode,r.created_at,r.admin_note,r.requested_slots,r.admin_proposed_slots,
         case when e.cancelled_at is null then e.sync_status end as sync_status,
         e.starts_at as "meetingAt",
+        case when r.status='completed' and e.event_type='meeting' and e.visibility='client' and e.cancelled_at is null
+          and outcome.outcome='occurred' then outcome.transcription_note end as minutes,
+        case when admin and r.status='completed' and e.event_type='meeting' and e.visibility='client' and e.cancelled_at is null
+          and e.schedule_class='contractual' and e.source_type='scheduling_request' and e.source_entity_id=r.id
+          and e.ends_at<=now() and outcome.outcome='occurred'
+          and to_regprocedure('cali_workspace.v2_save_pilot_meeting_minutes(uuid,uuid,uuid,text,text)') is not null
+          then encode(sha256(convert_to(jsonb_build_array(outcome.transcription_note)::text,'UTF8')),'hex')
+        end as "minutesVersion",
         coalesce(outcome.outcome='not_occurred' and outcome.replacement_allowed
           and r.status in ('reschedule_review','client_review'),false) as "replacementPending",
         case when admin and r.status='reschedule_review' and outcome.outcome='not_occurred'
