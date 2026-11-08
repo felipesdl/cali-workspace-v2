@@ -111,7 +111,9 @@ function reachableQuestions(questions: PublicFormQuestion[], choices: Record<str
   while (index < questions.length) {
     const question = questions[index];
     reachable.push(question);
-    const destination = question.logic?.find((rule) => rule.when === choices[question.id])?.goTo;
+    const choice = choices[question.id];
+    if (question.required && question.logic?.length && !choice) break;
+    const destination = question.logic?.find((rule) => rule.when === choice)?.goTo;
     if (destination === FORM_BRANCH_END) break;
     const target = questions.findIndex((candidate) => candidate.id === destination);
     index = target > index ? target : index + 1;

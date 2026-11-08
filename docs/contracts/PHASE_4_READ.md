@@ -634,6 +634,8 @@ A coleta aceita uma pergunta de anexo PDF, com até 2 MiB por resposta. O arquiv
 
 A suíte isolada comprovou salto, encerramento, bloqueio de respostas fora do caminho, obrigatoriedade, reenvio, tentativa legada com referência a PDF inexistente e download negado a Cliente e outra empresa. No CALI MAPA, as coletas sintéticas, duas respostas condicionais e um anexo foram revertidos antes do commit das funções. O banco confirmou zero PDFs retidos no ensaio. O rollback exato está em `output/runtime/phase4e/forms-branch-pdf-rollback.sql` e recusa execução se já houver PDFs coletados.
 
+Em 08/11, o formulário sintético de A `teste-v2-qa-condicional-pdf-0811` passou no navegador do CALI MAPA. O caminho “Não” registrou uma resposta sem anexo. O caminho “Sim” registrou a segunda resposta com PDF. O download pela triagem Admin retornou um arquivo idêntico ao original, byte a byte. O teste encontrou exibição antecipada do campo de PDF antes de responder à pergunta condicional obrigatória. A interface passou a aguardar a escolha, com as três situações verificadas no navegador. A coleta terminou fechada com duas respostas sintéticas e um PDF privado. Nenhuma configuração de envio foi alterada. A reversão de UI é independente do contrato de banco e preserva o anexo registrado.
+
 ## Ativação sintética da Equipe CALI
 
 Admin com MFA alterna a situação de membros fictícios com módulos e vínculo exclusivo à empresa selecionada. A operação usa revisão e recibo. Exige endereço reservado, ausência de conta, autor de convite e aceite. O catálogo hospedado preenche a data de convite no cadastro inicial, por isso a data isolada não determina elegibilidade.

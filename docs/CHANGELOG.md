@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Coleta condicional com PDF
+
+- Homologou dois caminhos no navegador do CALI MAPA, conferiu o download Admin byte a byte e encerrou a coleta sintética. A interface passou a aguardar a resposta à pergunta condicional obrigatória antes de mostrar o anexo. [Evidência e reversão](contracts/PHASE_4_READ.md#caminhos-condicionais-e-pdf-de-resposta-em-forms).
+
 ## Envio sintético do resumo Admin
 
 - O worker temporário do CALI MAPA registrou um único recibo para o resumo fictício enviado ao simulador do Resend. Worker, chave e fila foram removidos. [Evidência do teste](contracts/PHASE_4_READ.md#envio-sintético-do-resumo-admin-pelo-resend).
