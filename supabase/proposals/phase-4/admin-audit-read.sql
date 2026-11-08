@@ -35,7 +35,7 @@ begin
           'satisfaction_followup_saved',
           'commercial_proposal_created','commercial_proposal_edited','commercial_proposal_approved',
           'commercial_proposal_delivered','commercial_proposal_accepted',
-          'form_draft_created','form_draft_edited','form_open','form_closed','form_response_triaged'
+          'form_draft_created','form_draft_edited','form_open','form_closed','form_response_triaged','form_responses_exported'
         )
     ), selected as (
       select * from filtered order by created_at desc,id desc limit 25 offset (p_page-1)*25

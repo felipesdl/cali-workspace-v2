@@ -510,6 +510,7 @@ export function createDomainOperations(client: WorkspaceClient) {
             status: z.enum(['draft', 'open', 'closed']),
             responses: z.number().int().nonnegative(),
             publicTextLink: z.boolean().optional(),
+            textExportAvailable: z.boolean().optional(),
           }),
         )
         .parse(data);
@@ -564,6 +565,32 @@ export function createDomainOperations(client: WorkspaceClient) {
           responses: z.array(formTriageResponse),
         })
         .nullable()
+        .parse(data);
+    },
+    async formExport(company: string, form: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_export_pilot_form_responses', { p_company_id: company, p_form_id: form })
+        .abortSignal(signal);
+      if (error?.code === 'P4F01') throw new Error('A coleta excede o limite da exportação.');
+      if (error) throw rejected(error.code);
+      return z
+        .object({
+          slug: z.string().regex(/^[a-z0-9-]{1,100}$/),
+          questions: z
+            .array(z.object({ label: z.string() }))
+            .min(1)
+            .max(40),
+          responses: z
+            .array(
+              z.object({
+                submittedAt: z.iso.datetime({ offset: true }),
+                stage: z.string().nullable(),
+                owner: z.string().nullable(),
+                values: z.array(z.string()).max(40),
+              }),
+            )
+            .max(500),
+        })
         .parse(data);
     },
     async saveFormTriage(

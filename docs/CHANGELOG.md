@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Exportação Excel de Forms
+
+- Admin baixou o XLSX da coleta de texto encerrada de A no CALI MAPA. Arquivo e auditoria conferidos. B ficou sem a coleta, que seguiu encerrada e sem e-mail. [Contrato e rollback](contracts/PHASE_4_READ.md#exportação-excel-de-forms).
+
 ## Relatórios liberados na prévia do resumo Admin
 
 - O CALI MAPA inclui relatórios V2 vigentes no instante de corte no bloco “A CALI fez”. O teste consultou a revisão sintética 4 antes e depois da retirada. Cron legado desligado. [Contrato e reversão](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).

@@ -1,5 +1,6 @@
 import { FormDraftEditor, NewFormDraft } from './FormDraftEditor';
 import { FormTriage } from './FormTriage';
+import { FileDownload } from './FileDownload';
 import { PdfDownload } from './PdfDownload';
 import { formatServerInstant } from '../../lib/dates';
 import { useState } from 'react';
@@ -407,6 +408,16 @@ export function FormAdministration({ company, actor }: Scope) {
             >
               {selectedForm === form.id ? 'Fechar triagem' : 'Acompanhar respostas'}
             </Button>
+          )}
+          {form.textExportAvailable && form.responses > 0 && (
+            <FileDownload
+              label="Exportar Excel"
+              download={async (signal) => {
+                const result = await operations.formExport(company, form.id, signal);
+                const { formSpreadsheet } = await import('./form-spreadsheet');
+                return formSpreadsheet(result);
+              }}
+            />
           )}
           {selectedForm === form.id && (
             <FormTriage company={company} actor={actor} form={form.id} operations={operations} />

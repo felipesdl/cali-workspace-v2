@@ -36,6 +36,7 @@ const auditEvents = [
   'form_open',
   'form_closed',
   'form_response_triaged',
+  'form_responses_exported',
 ] as const;
 export type AuditEvent = (typeof auditEvents)[number];
 

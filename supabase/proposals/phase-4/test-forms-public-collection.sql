@@ -8,6 +8,7 @@ as $$
   returning '{"ok":true}'::jsonb;
 $$;
 \ir forms-public-collection.sql
+\ir forms-export.sql
 begin;
 do $$
 declare
@@ -18,6 +19,8 @@ declare
   question text;
   version timestamptz;
   answers jsonb;
+  exported jsonb;
+  b constant uuid:='6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76';
 begin
   set local role authenticated;
   perform cali_workspace.fixture_as('admin');
@@ -44,7 +47,29 @@ begin
   exception when serialization_failure then null; end;
   set local role authenticated;
   perform cali_workspace.fixture_as('admin');
+  begin
+    perform cali_workspace.v2_export_pilot_form_responses(a,form);
+    raise exception 'Coleta aberta exportada';
+  exception when insufficient_privilege then null; end;
   perform cali_workspace.v2_set_pilot_form_state(a,form,'open','closed');
+  exported:=cali_workspace.v2_export_pilot_form_responses(a,form);
+  assert exported#>>'{responses,0,values,0}'='Resposta sintética';
+  assert exported#>>'{questions,0,label}'='Pergunta QA';
+  assert exported::text not like '%respondent_email%';
+  begin
+    perform cali_workspace.v2_export_pilot_form_responses(b,form);
+    raise exception 'Exportação cruzada aceita';
+  exception when insufficient_privilege then null; end;
+  perform cali_workspace.fixture_as('clientA');
+  begin
+    perform cali_workspace.v2_export_pilot_form_responses(a,form);
+    raise exception 'Cliente exportou Forms';
+  exception when insufficient_privilege then null; end;
+  perform cali_workspace.fixture_as('admin1');
+  begin
+    perform cali_workspace.v2_export_pilot_form_responses(a,form);
+    raise exception 'Admin sem MFA exportou Forms';
+  exception when insufficient_privilege then null; end;
   set local role anon;
   assert public.v2_read_pilot_public_text_form(slug)='{"status":"closed"}'::jsonb;
   begin
@@ -52,7 +77,11 @@ begin
     raise exception 'Coleta encerrada aceitou nova resposta';
   exception when insufficient_privilege then null; end;
   reset role;
+  assert not has_function_privilege('anon','cali_workspace.v2_export_pilot_form_responses(uuid,uuid)','execute');
+  assert (select count(*) from cali_workspace.activity_log where entity_id=form and event_type='form_responses_exported')=1;
   assert (select count(*) from cali_workspace.form_responses where form_id=form)=1;
 end;
 $$;
 rollback;
+\echo Fase 4E: exportação Excel de Forms autorizada, auditada e protegida contra acesso cruzado.
+\ir rollback-forms-export.sql

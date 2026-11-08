@@ -40,6 +40,7 @@ const auditLabels = {
   form_open: 'Abriu formulário para respostas',
   form_closed: 'Encerrou formulário',
   form_response_triaged: 'Registrou triagem de formulário',
+  form_responses_exported: 'Preparou exportação de respostas',
   satisfaction_followup_saved: 'Registrou acompanhamento de avaliação',
   agenda_change_decided: 'Decidiu alteração de agenda',
 } as const satisfies Record<AuditEvent, string>;
