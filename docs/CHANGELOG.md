@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Ensaio de convite e corte da Equipe CALI
+
+- Convite, aceite e revogação de vínculo fictício testados no PostgreSQL descartável. CALI MAPA confirmou aceite e corte do destinatário com a mesma sessão; transação revertida, sem e-mail e sem perfil Partner. [Provas e limites](contracts/PHASE_4_READ.md#convite-admissão-e-corte-sintéticos-da-equipe-cali).
+
 ## Office e lotes de anexos em ocorrências
 
 - DOCX, XLSX e PPTX homologados na mesma mensagem. CALI MAPA aceitou cinco arquivos e um arquivo de 10 MiB. O limite de 10 MiB é por mensagem. Os nove arquivos fictícios foram retirados com o histórico preservado. [Evidências, compatibilidade e rollback](contracts/PHASE_4_READ.md#office-e-múltiplos-anexos-em-ocorrências).

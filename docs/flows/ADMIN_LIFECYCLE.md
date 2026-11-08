@@ -32,7 +32,7 @@ No piloto, [comentários e reações](../contracts/PHASE_4_READ.md#interações-
 
 ## FLOW-15 — Administrar equipe CALI e decidir submissões
 
-O piloto V2 inclui consulta de atribuições por empresa, com Admin e MFA. [Projeção e prova local](../contracts/PHASE_4_READ.md#equipe-cali-por-empresa).
+O piloto V2 inclui consulta de atribuições por empresa, com Admin e MFA. [Projeção e prova local](../contracts/PHASE_4_READ.md#equipe-cali-por-empresa). O [ensaio de convite e corte](../contracts/PHASE_4_READ.md#convite-admissão-e-corte-sintéticos-da-equipe-cali) comprovou o predicado por identidade, sessão, empresa e módulo. No staging, foi revertido sem ativar o convite administrativo nem a área Partner.
 
 **Objetivo/atores/entrada:** Admin em `/admin/equipe-cali` cadastra Partner, atribui empresas/módulos, convida e decide itens enviados. Operação detalhada do papel Partner não integra a matriz Cliente/Admin solicitada; sua administração e efeitos em Cliente integram esta ficha.
 

@@ -688,6 +688,15 @@ No navegador do CALI MAPA, o membro fictício de A foi criado, ativado e devolvi
 
 O preflight seguinte confirmou três RPCs V2 instaladas para consulta, rascunho e ativação sintética. A [função de convite da publicação 83](../flows/SOURCES.md#staff-invite) envia o endereço do Workspace ao membro ativo. A admissão e o corte por atribuição precisam de prova própria. A camada de acesso V2 ainda bloqueia o perfil Partner. Convite, aceite e revogação devem ser ensaiados separadamente com identidade fictícia antes de habilitar a operação Admin.
 
+### Convite, admissão e corte sintéticos da Equipe CALI
+
+A [candidata SQL](../../supabase/proposals/phase-4/staff-pilot-admission.sql) mantém o convite em tabela privada, sem mudar o usuário do vínculo legado nem criar perfil Partner. Admin com MFA e aceite vigente pode emitir ou revogar para a empresa do piloto. A emissão vincula a identidade confirmada à revisão do membro. O destinatário aceita com sessão ativa. O predicado privado exige empresa, módulo, sessão, vínculo e convite aceito; revogação ou mudança de revisão invalida a permissão, inclusive com a mesma sessão. Um convite revogado não volta a valer. Não há entrega de e-mail ou liberação de rota.
+
+- **PostgreSQL descartável:** [ensaio](../../supabase/proposals/phase-4/test-staff-pilot-admission.sql) cobriu emissão e revogação pelo Admin, MFA, confirmação de endereço, expiração, idempotência, duplicidade, empresa e módulo, sessão expirada e reativação sem restaurar o convite anterior.
+- **CALI MAPA:** [prova do destinatário](../../supabase/proposals/phase-4/prove-staff-pilot-recipient.sql) criou somente identidades, sessões e vínculo fictícios na mesma transação da candidata. Aceite por outra identidade, empresa B e módulo não atribuído foram recusados. A mesma sessão perdeu a permissão após a fixture ser marcada como revogada. O ensaio não usou sessão Admin no staging: nenhuma disponível passou no preflight das guardas.
+- **Rollback:** as duas provas revertem a transação; no CALI MAPA, uma leitura posterior confirmou ausência da tabela, da RPC de aceite e do vínculo fictício. O lote não é migration instalada. Login pelo navegador, operação Admin hospedada e envio real permanecem sem homologação. A área Partner segue na fase 5.
+
+
 ## Exportação estruturada e prévia de eliminação
 
 A exportação reaproveita os dados estruturados e o registro de destinatário do contrato legado. Preserva o bloco separado de dados restritos e acrescenta perguntas e respostas estruturadas de Forms. Os bytes de anexos ficam fora do JSON. Admin com MFA confirma o destinatário autorizado e baixa o arquivo na interface, com limite de 8 MiB e resposta privada.
