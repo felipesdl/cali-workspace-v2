@@ -443,6 +443,8 @@ Em 07/11/2026, instalou-se apenas o leitor para Admin com MFA e A/B. No navegado
 
 `rollback-admin-daily-preview.sql` remove só a consulta. Não houve configuração de cron, ativação do digest de chat, seleção de destinatários ou envio de e-mail. Despacho das 19h, destinatários ativos com e-mail, idempotência por destinatário/dia e integração de fontes restantes continuam pendentes.
 
+Em 08/11, a prévia passou a incluir a liberação V2 de relatório em “A CALI fez”. Usa a revisão liberada no intervalo de Brasília que ainda estava disponível no instante de corte, com título e link para Relatórios da empresa. A prova no CALI MAPA usou a revisão sintética 4 de `CALI-RPT-2026-000012`: a linha apareceu no instante da liberação e sumiu no da retirada. O PostgreSQL descartável também excluiu a liberação posterior ao corte. O cron legado permaneceu desligado. A reversão em `output/runtime/phase4c/daily-preview-report-rollback.sql` restaura a definição privada anterior.
+
 ### Contenção do resumo legado no staging
 
 Em 07/11/2026, um e-mail recebido às 19h de Brasília incluiu as atividades da Empresa A sintética. O catálogo do CALI MAPA confirmou que o job legado `workspace-admin-daily-summary` (7) executou às 19h e chamava o resumo do próprio staging. A Edge de propostas ainda estava ausente no momento da verificação. O job legado foi pausado com `cron.alter_job` e o catálogo confirmou `active=false`, com o horário e o histórico preservados. A reversão reativa apenas o mesmo job com `cron.alter_job(7, active := true)`. Antes de reativar, separar as empresas e os destinatários de teste do despacho real.

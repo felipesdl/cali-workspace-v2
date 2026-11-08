@@ -11,6 +11,9 @@ declare
   receiver uuid;
   client uuid;
   payload jsonb;
+  visible_report uuid := gen_random_uuid();
+  withdrawn_report uuid := gen_random_uuid();
+  later_report uuid := gen_random_uuid();
 begin
   select id into receiver from cali_workspace.profiles where role='admin' limit 1;
   select id into client from cali_workspace.profiles where role='client' and company_id=a limit 1;
@@ -30,14 +33,32 @@ begin
   values(gen_random_uuid(),b,'2026-11-07',35,'Dia só com horas',false),
     (gen_random_uuid(),b,'2026-11-06',99,'Dia anterior',false),
     (gen_random_uuid(),old_company,'2026-11-07',99,'Fora do piloto',false);
+  insert into cali_workspace.reports(id,company_id,title,status,period_start)
+  values (visible_report,a,'Relatório sintético liberado','published','2026-10-01'),
+    (withdrawn_report,a,'Relatório retirado antes do corte','draft','2026-10-01'),
+    (later_report,a,'Relatório liberado depois do corte','published','2026-10-01');
+  insert into cali_session_guard.phase4_report_approvals(report_id,company_id,version,approved_by,approved_at,snapshot)
+  select id,company_id,1,receiver,instant,'{}'::jsonb from cali_workspace.reports
+  where id in (visible_report,withdrawn_report,later_report);
+  insert into cali_session_guard.phase4_report_pdfs(report_id,version,content)
+  select id,1,convert_to('%PDF-1.4 fixture','UTF8') from cali_workspace.reports
+  where id in (visible_report,withdrawn_report,later_report);
+  insert into cali_session_guard.phase4_report_releases(report_id,version,released_at,released_by,requires_ack,withdrawn_at)
+  values (visible_report,1,'2026-11-07 21:00Z',receiver,true,null),
+    (withdrawn_report,1,'2026-11-07 20:00Z',receiver,true,'2026-11-07 21:00Z'),
+    (later_report,1,'2026-11-07 22:01Z',receiver,true,null);
   payload:=cali_session_guard.phase4_build_admin_daily_preview(instant);
-  assert payload->>'day'='2026-11-07' and payload->>'clientTotal'='13' and payload->>'caliTotal'='1';
+  assert payload->>'day'='2026-11-07' and payload->>'clientTotal'='13' and payload->>'caliTotal'='2';
   assert payload->>'minutes'='35' and jsonb_array_length(payload->'companies')=2;
   assert payload#>>'{companies,0,id}'=a::text and payload#>>'{companies,1,id}'=b::text;
   assert jsonb_array_length(payload#>'{companies,0,client,items}')=12;
   assert length(payload#>>'{companies,0,client,items,0,excerpt}')=180;
   assert payload#>>'{companies,0,client,items,0,title}'='Ação 1';
   assert payload#>>'{companies,1,client,total}'='0';
+  assert payload#>>'{companies,0,cali,items,0,title}'='Relatório liberado';
+  assert payload#>>'{companies,0,cali,items,0,excerpt}'='Relatório sintético liberado';
+  assert payload#>>'{companies,0,cali,items,0,link}'='/admin/relatorios?companyId='||a::text;
+  assert payload::text not like '%Relatório retirado%' and payload::text not like '%depois do corte%';
   assert payload::text not like '%Chat excluído%' and payload::text not like '%Staff excluído%';
   assert cali_session_guard.phase4_build_admin_daily_preview('2026-11-08 22:00Z')->'companies'='[]'::jsonb;
   insert into cali_workspace.notifications(company_id,user_id,notification_type,title,body,created_at)

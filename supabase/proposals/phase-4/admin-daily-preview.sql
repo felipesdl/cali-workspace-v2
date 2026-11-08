@@ -2,7 +2,7 @@
 begin;
 set local lock_timeout='5s';
 
-create function cali_session_guard.phase4_build_admin_daily_preview(p_instant timestamptz)
+create or replace function cali_session_guard.phase4_build_admin_daily_preview(p_instant timestamptz)
 returns jsonb language sql stable set search_path=''
 as $$
 with period as (
@@ -30,6 +30,16 @@ with period as (
         'scheduling_response','task_client_review'
       ))
     )
+  union all
+  select md5('report-release:'||r.id::text||':'||release.version::text)::uuid,
+    r.company_id,release.released_at,'Relatório liberado',r.title,'report',r.id,
+    '/admin/relatorios?companyId='||r.company_id::text,'cali'
+  from cali_session_guard.phase4_report_releases release
+  join cali_workspace.reports r on r.id=release.report_id
+  join cali_session_guard.pilot_companies pilot on pilot.company_id=r.company_id
+  cross join bounds b
+  where release.released_at>=b.starts_at and release.released_at<b.ends_at and release.released_at<=p_instant
+    and (release.withdrawn_at is null or release.withdrawn_at>p_instant)
 ), deduplicated as (
   select distinct on (company_id,block,title,body,entity_type,entity_id) *
   from eligible
@@ -67,7 +77,7 @@ select jsonb_build_object('day',(select day from bounds),'asOf',p_instant,
 from companies;
 $$;
 
-create function cali_workspace.v2_read_pilot_admin_daily_preview()
+create or replace function cali_workspace.v2_read_pilot_admin_daily_preview()
 returns jsonb language plpgsql stable security definer set search_path=''
 as $$
 declare

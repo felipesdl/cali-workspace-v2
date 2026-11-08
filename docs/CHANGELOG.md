@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Relatórios liberados na prévia do resumo Admin
+
+- O CALI MAPA inclui relatórios V2 vigentes no instante de corte no bloco “A CALI fez”. O teste consultou a revisão sintética 4 antes e depois da retirada. Cron legado desligado. [Contrato e reversão](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+
 ## Coleta de texto por link em Forms
 
 - No CALI MAPA, uma resposta fictícia entrou pelo link público da Empresa A. Admin encerrou a coleta, o link passou a mostrar o estado fechado e o banco confirmou um recibo e zero e-mails. A primeira abertura havia falhado pela ausência das RPCs no catálogo, conferidas após a instalação. [Contrato e evidências](contracts/PHASE_4_READ.md#coleta-pública-de-texto-na-v2).
