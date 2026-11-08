@@ -8,6 +8,7 @@ as $$
 declare
   actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
   form cali_workspace.forms;
+  export_questions jsonb;
   result jsonb;
   response_count integer;
   response_bytes bigint;
@@ -25,9 +26,10 @@ begin
     raise exception using errcode='P4F01',message='A coleta excede o limite da exportação.';
   end if;
 
+  export_questions:=jsonb_path_query_array(form.questions,'$[*] ? (@.kind != "statement")');
   select jsonb_build_object(
     'slug',form.slug,
-    'questions',form.questions,
+    'questions',export_questions,
     'responses',coalesce(jsonb_agg(jsonb_build_object(
       'submittedAt',r.submitted_at,'stage',r.stage,'owner',r.owner,'values',
       (select jsonb_agg(case jsonb_typeof(r.answers->(q->>'id'))
@@ -37,7 +39,7 @@ begin
         when 'number' then r.answers->>(q->>'id')
         when 'string' then r.answers->>(q->>'id')
         else '' end order by pos)
-       from jsonb_array_elements(form.questions) with ordinality as questions(q,pos))
+       from jsonb_array_elements(export_questions) with ordinality as questions(q,pos))
     ) order by r.submitted_at,r.id),'[]'::jsonb)
   ) into result
   from cali_workspace.form_responses r where r.form_id=form.id;

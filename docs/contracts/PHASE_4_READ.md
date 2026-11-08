@@ -642,7 +642,13 @@ O editor piloto oferece Nome, E-mail e Telefone / WhatsApp conforme os tipos da 
 
 A coleta confere os formatos também no servidor, incluindo o caminho pelo endpoint legado quando a pergunta pertence a um Forms V2 elegível. Quando há PDF, a mesma gravação registra o nome e o e-mail das primeiras perguntas de contato respondidas no caminho. O e-mail fica em minúsculas. As três respostas seguem como texto nas colunas correspondentes do Excel. A triagem e a exportação continuam restritas a Admin com MFA e à empresa selecionada.
 
-A prova em PostgreSQL descartável cobriu publicação, formatos inválidos, o caminho legado, o caminho com PDF e a exportação. A atualização SQL ainda precisa de aplicação e homologação no CALI MAPA. Em um eventual rollback, encerrar primeiro as coletas que usam os novos tipos e restaurar as definições anteriores de edição, elegibilidade, validação e submissão, preservando as respostas.
+A prova em PostgreSQL descartável cobriu publicação, formatos inválidos, o caminho legado, o caminho com PDF e a exportação. Em 08/11, as cinco definições do lote de contato foram instaladas no CALI MAPA. No navegador, Admin criou e abriu a coleta sintética da Empresa A. A conferência confirmou os tipos `name`, `email` e `phone` no rascunho antes da abertura. Uma resposta foi registrada; nome, e-mail em minúsculas e telefone conferiram no banco e no Excel baixado. A coleta ficou fechada, com confirmação por e-mail desativada e zero envios. Um rascunho anterior usava resposta curta no lugar de e-mail e ficou fechado; não foi usado como prova. Em eventual rollback, encerrar primeiro as coletas que usam os novos tipos e restaurar as definições anteriores de edição, elegibilidade, validação e submissão, preservando as respostas.
+
+## Escala e bloco de texto no Forms V2
+
+O editor permite criar e editar uma escala de inteiros entre 0 e 10, com mínimo menor que máximo e rótulos opcionais nos extremos. O padrão é 0 a 10. A coleta pública grava o valor como número e o Excel mantém a nota na coluna da pergunta. O bloco de texto exibe instruções na posição do fluxo, sem campo de resposta nem coluna na planilha. A publicação exige pelo menos uma pergunta que aceite resposta.
+
+O PostgreSQL descartável valida edição, limites, rejeição de nota fracionária ou enviada como texto, bloqueio de resposta para o bloco e persistência e exportação da nota zero. Os contratos de rascunho, coleta e exportação são um lote só; aplicar nessa ordem. Instalação e prova pelo navegador do CALI MAPA seguem pendentes para esses dois tipos. Para reverter, encerrar primeiro as coletas que os usam e restaurar as funções anteriores de edição, coleta, guarda e exportação, preservando as respostas.
 
 ## Ativação sintética da Equipe CALI
 

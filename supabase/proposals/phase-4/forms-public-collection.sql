@@ -15,14 +15,17 @@ create or replace function cali_session_guard.phase4_form_public_questions_valid
 returns boolean language sql immutable set search_path='' as $$
   select case when jsonb_typeof(p_questions) is distinct from 'array' then false
   else jsonb_array_length(p_questions) between 1 and 40
+    and exists(select 1 from jsonb_array_elements(p_questions) q where q->>'kind'<>'statement')
     and not exists(select 1 from jsonb_array_elements(p_questions) q
       where case when jsonb_typeof(q) is distinct from 'object' then true else
-        coalesce(q->>'kind','') not in ('name','email','phone','short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')
+        coalesce(q->>'kind','') not in ('name','email','phone','short_text','long_text','number','date','single_choice','multi_choice','yes_no','scale','statement','file')
         or coalesce(q->>'id','') !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
         or coalesce(length(q->>'label'),0) not between 1 and 400
         or jsonb_typeof(q->'required') is distinct from 'boolean'
         or not cali_session_guard.phase4_form_options_valid(q->>'kind',q->'options')
-        or q-'id'-'kind'-'label'-'required'-'options'-'logic'<>'{}'::jsonb end)
+        or not cali_session_guard.phase4_form_scale_valid(q)
+        or (q->>'kind'='statement' and q->'required'<>'false'::jsonb)
+        or q-'id'-'kind'-'label'-'required'-'options'-'logic'-'scaleMin'-'scaleMax'-'minLabel'-'maxLabel'<>'{}'::jsonb end)
     and (select count(*) from jsonb_array_elements(p_questions) q where q->>'kind'='file')<=1
     and cali_session_guard.phase4_form_logic_valid(p_questions)
     and (select count(distinct q->>'id')=count(*) from jsonb_array_elements(p_questions) q)
@@ -132,10 +135,17 @@ returns boolean language sql immutable set search_path='' as $$
     select 1 from jsonb_array_elements(p_reached) q
     cross join lateral (select p_answers->(q->>'id') as value) a
     where case
+      when q->>'kind'='statement' then a.value is not null
       when a.value is null or a.value='""'::jsonb
         then q->'required'='true'::jsonb
       when q->>'kind'='file' then a.value<>'"[PDF anexado]"'::jsonb
       when q->>'kind'='number' then jsonb_typeof(a.value)<>'number'
+      when q->>'kind'='scale' then case
+        when jsonb_typeof(a.value)<>'number' then true
+        else trunc((a.value#>>'{}')::numeric)<>(a.value#>>'{}')::numeric
+          or (a.value#>>'{}')::numeric not between coalesce((q->>'scaleMin')::numeric,0)
+            and coalesce((q->>'scaleMax')::numeric,10)
+      end
       when q->>'kind'='name' then jsonb_typeof(a.value)<>'string'
         or length(btrim(a.value#>>'{}')) not between 1 and 160
       when q->>'kind'='email' then jsonb_typeof(a.value)<>'string'
@@ -172,7 +182,7 @@ declare
 begin
   select f.* into form from cali_workspace.forms f where f.id=new.form_id
     and (jsonb_path_exists(f.questions,'$[*].logic')
-      or jsonb_path_exists(f.questions,'$[*] ? (@.kind == "file" || @.kind == "name" || @.kind == "email" || @.kind == "phone")'))
+      or jsonb_path_exists(f.questions,'$[*] ? (@.kind == "file" || @.kind == "name" || @.kind == "email" || @.kind == "phone" || @.kind == "scale" || @.kind == "statement")'))
     and f.id=(cali_session_guard.phase4_public_text_form(f.slug)).id
     for share;
   if not found then return new; end if;
@@ -249,15 +259,17 @@ begin
   if octet_length(normalized::text)>100000 or not cali_session_guard.phase4_form_answers_valid(reached,normalized) then
     raise exception using errcode='22023',message='Confira as respostas.';
   end if;
-  if pdf is not null then
+  if pdf is not null or jsonb_path_exists(form.questions,'$[*] ? (@.kind == "scale" || @.kind == "statement")') then
     select count(*) into created_response_count from cali_workspace.form_responses r
       where r.form_id=form.id and r.submitted_at>statement_timestamp()-interval '1 minute';
     if created_response_count>=30 then
       raise exception using errcode='22023',message='Muitas respostas ao mesmo tempo. Tente de novo em instantes.';
     end if;
     response_id:=gen_random_uuid();
-    insert into cali_session_guard.phase4_form_pdfs(response_id,question_id,bytes)
-      values(response_id,attachment_question::uuid,pdf);
+    if pdf is not null then
+      insert into cali_session_guard.phase4_form_pdfs(response_id,question_id,bytes)
+        values(response_id,attachment_question::uuid,pdf);
+    end if;
     insert into cali_workspace.form_responses(id,form_id,answers,respondent_name,respondent_email)
     values(response_id,form.id,
       coalesce((select jsonb_object_agg(q->>'id',case

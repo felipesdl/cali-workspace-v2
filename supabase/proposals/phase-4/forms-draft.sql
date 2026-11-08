@@ -17,6 +17,28 @@ $$;
 revoke all on function cali_session_guard.phase4_form_options_valid(text,jsonb)
   from public,anon,authenticated,service_role;
 
+create or replace function cali_session_guard.phase4_form_scale_valid(p_question jsonb)
+returns boolean language sql immutable set search_path='' as $$
+  select case
+    when p_question->>'kind' is distinct from 'scale'
+      then not (p_question ?| array['scaleMin','scaleMax','minLabel','maxLabel'])
+    when (p_question?'scaleMin' and jsonb_typeof(p_question->'scaleMin') is distinct from 'number')
+      or (p_question?'scaleMax' and jsonb_typeof(p_question->'scaleMax') is distinct from 'number')
+      then false
+    else coalesce((p_question->>'scaleMin')::numeric,0)>=0
+      and coalesce((p_question->>'scaleMax')::numeric,10)<=10
+      and coalesce((p_question->>'scaleMin')::numeric,0)<coalesce((p_question->>'scaleMax')::numeric,10)
+      and trunc((p_question->>'scaleMin')::numeric) is not distinct from (p_question->>'scaleMin')::numeric
+      and trunc((p_question->>'scaleMax')::numeric) is not distinct from (p_question->>'scaleMax')::numeric
+      and (not p_question?'minLabel' or (jsonb_typeof(p_question->'minLabel')='string'
+        and length(p_question->>'minLabel')<=80 and p_question->>'minLabel' !~ '[<>]'))
+      and (not p_question?'maxLabel' or (jsonb_typeof(p_question->'maxLabel')='string'
+        and length(p_question->>'maxLabel')<=80 and p_question->>'maxLabel' !~ '[<>]'))
+  end;
+$$;
+revoke all on function cali_session_guard.phase4_form_scale_valid(jsonb)
+  from public,anon,authenticated,service_role;
+
 -- Regras do editor legado: por alternativa, avançar para uma pergunta posterior ou encerrar.
 create or replace function cali_session_guard.phase4_form_logic_valid(p_questions jsonb)
 returns boolean language sql immutable set search_path='' as $$
@@ -83,6 +105,7 @@ begin
     select jsonb_build_object('id',f.id,'title',f.title,'description',f.description,'updatedAt',f.updated_at,
       'questions',coalesce((select jsonb_agg(jsonb_build_object(
         'id',q.item->>'id','label',q.item->>'label','kind',q.item->>'kind','options',q.item->'options','logic',q.item->'logic',
+        'scaleMin',q.item->'scaleMin','scaleMax',q.item->'scaleMax','minLabel',q.item->'minLabel','maxLabel',q.item->'maxLabel',
         'required',coalesce(q.item->'required'='true'::jsonb,false)) order by q.position)
         from jsonb_array_elements(f.questions) with ordinality q(item,position)
         where nullif(q.item->>'id','') is not null and q.item->>'kind' is not null
@@ -108,6 +131,7 @@ declare
   question_kind text;
   question_id text;
   new_question jsonb;
+  scale_fields jsonb;
 begin
   if p_action is null or p_action not in ('details','add_question','edit_question','set_logic')
     or p_expected is null or jsonb_typeof(p_fields) is distinct from 'object' then
@@ -146,19 +170,22 @@ begin
     end if;
   else
     label := btrim(p_fields->>'label');
+    select coalesce(jsonb_object_agg(key,value),'{}'::jsonb) into scale_fields
+      from jsonb_each(p_fields) where key in ('scaleMin','scaleMax','minLabel','maxLabel');
     if coalesce(length(label),0) not between 1 and 400
       or label ~ '[<>]' or jsonb_typeof(p_fields->'required') is distinct from 'boolean' then
       raise exception using errcode='22023',message='Confira o texto e a obrigatoriedade da pergunta.';
     end if;
     if p_action='add_question' then
       question_kind := p_fields->>'kind';
-      if question_kind is null or question_kind not in ('name','email','phone','short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')
+      if question_kind is null or question_kind not in ('name','email','phone','short_text','long_text','number','date','single_choice','multi_choice','yes_no','scale','statement','file')
         or jsonb_array_length(next_questions)>=40
         or (question_kind='file' and jsonb_path_exists(next_questions,'$[*] ? (@.kind == "file")')) then
         raise exception using errcode='22023',message='Tipo ou limite de perguntas indisponível.';
       end if;
       question_id := gen_random_uuid()::text;
-      new_question:=jsonb_build_object('id',question_id,'kind',question_kind,'label',label,'required',p_fields->'required');
+      new_question:=jsonb_build_object('id',question_id,'kind',question_kind,'label',label,
+        'required',question_kind<>'statement' and p_fields->'required'='true'::jsonb)||scale_fields;
       if not cali_session_guard.phase4_form_options_valid(question_kind,p_fields->'options') then
         raise exception using errcode='22023',message='Confira as opções da pergunta.';
       end if;
@@ -168,11 +195,12 @@ begin
       question_id := p_fields->>'id';
       if (select count(*) from jsonb_array_elements(next_questions) q where q->>'id'=question_id)<>1
         or not exists(select 1 from jsonb_array_elements(next_questions) q
-          where q->>'id'=question_id and q->>'kind' in ('name','email','phone','short_text','long_text','number','date','single_choice','multi_choice','yes_no','file')) then
+          where q->>'id'=question_id and q->>'kind' in ('name','email','phone','short_text','long_text','number','date','single_choice','multi_choice','yes_no','scale','statement','file')) then
         raise exception using errcode='22023',message='Pergunta indisponível para editar.';
       end if;
       select q->>'kind' into question_kind from jsonb_array_elements(next_questions) q where q->>'id'=question_id;
-      new_question:=jsonb_build_object('label',label,'required',p_fields->'required');
+      new_question:=jsonb_build_object('label',label,
+        'required',question_kind<>'statement' and p_fields->'required'='true'::jsonb)||scale_fields;
       if p_fields?'options' then
         if not cali_session_guard.phase4_form_options_valid(question_kind,p_fields->'options') then
           raise exception using errcode='22023',message='Confira as opções da pergunta.';
@@ -188,6 +216,10 @@ begin
       select jsonb_agg(case when q.item->>'id'=question_id then q.item||new_question
         else q.item end order by q.position)
       into next_questions from jsonb_array_elements(next_questions) with ordinality q(item,position);
+    end if;
+    if exists(select 1 from jsonb_array_elements(next_questions) q
+      where q->>'id'=question_id and not cali_session_guard.phase4_form_scale_valid(q)) then
+      raise exception using errcode='22023',message='Confira os limites e os rótulos da escala.';
     end if;
   end if;
   update cali_workspace.forms set title=next_title,description=next_description,

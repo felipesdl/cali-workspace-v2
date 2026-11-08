@@ -151,14 +151,25 @@ export const formQuestionKind = z.enum([
   'single_choice',
   'multi_choice',
   'yes_no',
+  'scale',
+  'statement',
   'file',
 ]);
+const scaleBound = z.number().int().min(0).max(10);
+const scaleLabel = z.string().trim().max(80);
+const scaleSettings = {
+  scaleMin: scaleBound.optional(),
+  scaleMax: scaleBound.optional(),
+  minLabel: scaleLabel.optional(),
+  maxLabel: scaleLabel.optional(),
+};
 export const FORM_BRANCH_END = '__end';
 const formBranch = z.object({
   when: z.string().min(1).max(300),
   goTo: z.union([z.uuid(), z.literal(FORM_BRANCH_END)]),
 });
 const publicFormQuestion = z.object({
+  ...scaleSettings,
   id: z.uuid(),
   kind: formQuestionKind,
   options: z.array(z.string()).max(26).optional(),
@@ -189,6 +200,10 @@ const formDraft = z.object({
       options: z.array(z.string()).nullish(),
       logic: z.array(formBranch).nullish().catch(null),
       required: z.boolean(),
+      scaleMin: scaleBound.nullish(),
+      scaleMax: scaleBound.nullish(),
+      minLabel: scaleLabel.nullish(),
+      maxLabel: scaleLabel.nullish(),
     }),
   ),
 });
@@ -202,6 +217,7 @@ const formDraftChange = z.discriminatedUnion('action', [
   }),
   z.object({
     action: z.literal('add_question'),
+    ...scaleSettings,
     options: z.array(z.string().min(1).max(300)).max(26).optional(),
     kind: formQuestionKind,
     label: z.string().trim().min(1).max(400),
@@ -209,6 +225,7 @@ const formDraftChange = z.discriminatedUnion('action', [
   }),
   z.object({
     action: z.literal('edit_question'),
+    ...scaleSettings,
     options: z.array(z.string().min(1).max(300)).max(26).optional(),
     id: z.string().min(1),
     label: z.string().trim().min(1).max(400),

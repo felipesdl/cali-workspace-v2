@@ -95,6 +95,7 @@ function PublicTextForm({ slug }: { slug: string }) {
 function readAnswers(questions: PublicFormQuestion[], fields: FormData) {
   const answers: Record<string, string | number | string[] | File> = {};
   for (const { id, kind } of questions) {
+    if (kind === 'statement') continue;
     const input = fields.get(id);
     if (kind === 'file') {
       if (input instanceof File && input.name) answers[id] = input;
@@ -102,7 +103,7 @@ function readAnswers(questions: PublicFormQuestion[], fields: FormData) {
       answers[id] = fields.getAll(id).map(String);
     } else {
       const value = String(input ?? '').trim();
-      answers[id] = kind === 'number' && value !== '' ? Number(value) : value;
+      answers[id] = (kind === 'number' || kind === 'scale') && value !== '' ? Number(value) : value;
     }
   }
   return answers;
@@ -146,6 +147,26 @@ function PublicQuestion({
 }) {
   const { id, kind, label, required } = question;
   const inputId = prefix + id;
+  if (kind === 'statement') return <p className="tw:whitespace-pre-line">{label}</p>;
+  if (kind === 'scale') {
+    const { scaleMin = 0, scaleMax = 10, minLabel, maxLabel } = question;
+    const options = Array.from({ length: scaleMax - scaleMin + 1 }, (_, i) => scaleMin + i);
+    return (
+      <Field id={inputId} label={label}>
+        <select id={inputId} name={id} required={required} defaultValue="">
+          <option value="">Selecione</option>
+          {options.map((score) => {
+            const endpoint = score === scaleMin ? minLabel : score === scaleMax ? maxLabel : '';
+            return (
+              <option key={score} value={score}>
+                {endpoint ? `${score} — ${endpoint}` : score}
+              </option>
+            );
+          })}
+        </select>
+      </Field>
+    );
+  }
   if (kind === 'file') {
     return (
       <Field id={inputId} label={label}>

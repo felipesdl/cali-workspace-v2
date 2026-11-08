@@ -1,8 +1,12 @@
 # Registro de mudanças
 
+## Escala e bloco de texto no Forms
+
+- Editor configura limites e rótulos da escala. A coleta grava nota inteira e exibe blocos de texto sem gerar resposta ou coluna no Excel. [Validação local e estado do CALI MAPA](contracts/PHASE_4_READ.md#escala-e-bloco-de-texto-no-forms-v2).
+
 ## Nome, e-mail e telefone no Forms
 
-- O editor e a coleta piloto aceitam campos de contato, inclusive em formulários com anexo PDF. A validação local cobriu formatos inválidos e exportação Excel. [Contrato e estado de homologação](contracts/PHASE_4_READ.md#campos-de-contato-no-forms-v2).
+- Nome, e-mail normalizado e telefone conferidos no banco e no Excel baixado pelo Admin no CALI MAPA. Coleta sintética encerrada, sem envio de e-mail. [Contrato e evidência](contracts/PHASE_4_READ.md#campos-de-contato-no-forms-v2).
 
 ## Aceite do simulador para a devolutiva do Mapa
 

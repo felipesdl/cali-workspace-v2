@@ -292,6 +292,62 @@ begin
   assert not has_function_privilege('anon','cali_workspace.v2_read_pilot_form_pdf(uuid,uuid,uuid)','execute');
 end;
 $$;
+do $$
+declare
+  company constant uuid:='9c5ab148-78b8-4410-9338-58c44222a5db';
+  form uuid:=gen_random_uuid();
+  slug constant text:='coleta-escala-qa';
+  block_id text;
+  scale_id text;
+  answer jsonb;
+  report jsonb;
+begin
+  set local role authenticated;
+  perform cali_workspace.fixture_as('admin');
+  perform cali_workspace.v2_create_pilot_form_draft(company,form,slug,'Coleta com escala');
+  perform cali_workspace.v2_edit_pilot_form_draft(company,form,
+    (cali_workspace.v2_read_pilot_form_draft(company,form)->>'updatedAt')::timestamptz,
+    'add_question','{"kind":"statement","label":"Leia as instruções","required":true}');
+  assert cali_workspace.v2_read_pilot_form_draft(company,form)#>>'{questions,0,required}'='false';
+  begin
+    perform cali_workspace.v2_edit_pilot_form_draft(company,form,
+      (cali_workspace.v2_read_pilot_form_draft(company,form)->>'updatedAt')::timestamptz,
+      'add_question','{"kind":"scale","label":"Nota","required":true,"scaleMin":5,"scaleMax":2}');
+    raise exception 'Escala com limites invertidos aceita';
+  exception when invalid_parameter_value then null; end;
+  perform cali_workspace.v2_edit_pilot_form_draft(company,form,
+    (cali_workspace.v2_read_pilot_form_draft(company,form)->>'updatedAt')::timestamptz,
+    'add_question','{"kind":"scale","label":"Nota","required":true,"scaleMin":0,"scaleMax":4,"minLabel":"Baixa"}');
+  scale_id:=cali_workspace.v2_read_pilot_form_draft(company,form)#>>'{questions,1,id}';
+  perform cali_workspace.v2_edit_pilot_form_draft(company,form,
+    (cali_workspace.v2_read_pilot_form_draft(company,form)->>'updatedAt')::timestamptz,
+    'edit_question',jsonb_build_object('id',scale_id,'label','Nota','required',true,'maxLabel','Alta'));
+  perform cali_workspace.v2_open_pilot_public_form(company,form,'draft',true);
+  set local role anon;
+  block_id:=public.v2_read_pilot_public_text_form(slug)#>>'{questions,0,id}';
+  assert public.v2_read_pilot_public_text_form(slug)#>>'{questions,1,maxLabel}'='Alta';
+  assert public.v2_read_pilot_public_text_form(slug)#>>'{questions,1,scaleMax}'='4';
+  foreach answer in array array[
+    '{}'::jsonb,jsonb_build_object(scale_id,5),jsonb_build_object(scale_id,2.5),
+    jsonb_build_object(scale_id,'2'),jsonb_build_object(scale_id,0,block_id,'')
+  ] loop
+    begin
+      perform public.v2_submit_pilot_public_text_form(slug,gen_random_uuid(),answer);
+      raise exception 'Resposta inválida de escala ou bloco aceita';
+    exception when invalid_parameter_value then null; end;
+  end loop;
+  assert public.v2_submit_pilot_public_text_form(slug,gen_random_uuid(),jsonb_build_object(scale_id,0));
+  set local role authenticated;
+  perform cali_workspace.v2_set_pilot_form_state(company,form,'open','closed');
+  report:=cali_workspace.v2_export_pilot_form_responses(company,form);
+  assert jsonb_array_length(report->'questions')=1;
+  assert report#>>'{questions,0,id}'=scale_id;
+  assert report#>'{responses,0,values}'='["0"]'::jsonb;
+  reset role;
+  assert (select r.answers from cali_workspace.form_responses r where r.form_id=form)
+    =jsonb_build_object(scale_id,0);
+end;
+$$;
 rollback;
 \echo Fase 4E: exportação Excel de Forms autorizada, auditada e protegida contra acesso cruzado.
 \ir rollback-forms-export.sql

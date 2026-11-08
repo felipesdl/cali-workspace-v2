@@ -79,3 +79,5 @@ Em 07/11, o catálogo hospedado confirmou que o leitor público por slug não ex
 A V2 exige [confirmação explícita de coleta pública](../contracts/PHASE_4_READ.md#confirmação-de-coleta-pública-em-forms). Abertura privada por vínculo não faz parte do leitor legado.
 
 Em 08/11, o piloto V2 ampliou o editor, a coleta e o Excel para [número e data](../contracts/PHASE_4_READ.md#tipos-numérico-e-data-em-forms) e [alternativas](../contracts/PHASE_4_READ.md#alternativas-em-forms). O ensaio no CALI MAPA reverteu as fixtures. Condições e anexos não passam pelo contrato de coleta destes tipos.
+
+O piloto de [campos de contato](../contracts/PHASE_4_READ.md#campos-de-contato-no-forms-v2) passou no CALI MAPA com dados fictícios e coleta encerrada. No lote de [escala e bloco de texto](../contracts/PHASE_4_READ.md#escala-e-bloco-de-texto-no-forms-v2), Admin configura os limites no rascunho; respondente vê os blocos no caminho e escolhe a nota. Apenas a nota vira resposta e entra no Excel. A instalação e o aceite no navegador para esses dois tipos ainda estão pendentes.

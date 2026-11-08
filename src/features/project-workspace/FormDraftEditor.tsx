@@ -26,6 +26,8 @@ const questionLabels = {
   single_choice: 'Escolha única',
   multi_choice: 'Escolha múltipla',
   yes_no: 'Sim ou não',
+  scale: 'Escala',
+  statement: 'Bloco de texto',
   file: 'Anexo PDF (até 2 MiB)',
 };
 
@@ -38,6 +40,23 @@ const choices = (fields: FormData, kind: string) =>
         .map((line) => line.trim())
         .filter(Boolean)
     : undefined;
+
+const scaleFields = [
+  { name: 'scaleMin', label: 'Valor mínimo', defaultValue: 0, numeric: true },
+  { name: 'scaleMax', label: 'Valor máximo', defaultValue: 10, numeric: true },
+  { name: 'minLabel', label: 'Rótulo do mínimo', defaultValue: '', numeric: false },
+  { name: 'maxLabel', label: 'Rótulo do máximo', defaultValue: '', numeric: false },
+] as const;
+
+function scaleSettings(fields: FormData, kind: string) {
+  if (kind !== 'scale') return {};
+  return {
+    scaleMin: Number(text(fields, 'scaleMin')),
+    scaleMax: Number(text(fields, 'scaleMax')),
+    minLabel: text(fields, 'minLabel'),
+    maxLabel: text(fields, 'maxLabel'),
+  };
+}
 
 export function NewFormDraft({ company, actor, operations, saved }: Scope & { saved: () => void }) {
   const cache = useQueryClient();
@@ -124,16 +143,21 @@ function QuestionFields({
   required,
   kind,
   options,
+  scale,
 }: {
   prefix: string;
   label?: string;
   required?: boolean;
   kind: string;
   options?: string[] | null;
+  scale?: FormDraft['questions'][number];
 }) {
   return (
     <>
-      <Field id={prefix + 'label'} label="Texto da pergunta">
+      <Field
+        id={prefix + 'label'}
+        label={kind === 'statement' ? 'Texto do bloco' : 'Texto da pergunta'}
+      >
         <textarea
           id={prefix + 'label'}
           name="label"
@@ -152,9 +176,24 @@ function QuestionFields({
           />
         </Field>
       )}
-      <Checkbox name="required" defaultChecked={required}>
-        Resposta obrigatória
-      </Checkbox>
+      {kind === 'scale' &&
+        scaleFields.map(({ name, label, defaultValue, numeric }) => (
+          <Field key={name} id={prefix + name} label={label}>
+            <input
+              id={prefix + name}
+              name={name}
+              defaultValue={scale?.[name] ?? defaultValue}
+              {...(numeric
+                ? { type: 'number', min: 0, max: 10, step: 1, required: true }
+                : { maxLength: 80 })}
+            />
+          </Field>
+        ))}
+      {kind !== 'statement' && (
+        <Checkbox name="required" defaultChecked={required}>
+          Resposta obrigatória
+        </Checkbox>
+      )}
     </>
   );
 }
@@ -215,6 +254,7 @@ function DraftContent({
                       action: 'edit_question',
                       id: question.id,
                       options: choices(fields, question.kind),
+                      ...scaleSettings(fields, question.kind),
                       label: text(fields, 'label'),
                       required: fields.has('required'),
                     })
@@ -227,6 +267,7 @@ function DraftContent({
                       required={question.required}
                       kind={question.kind}
                       options={question.options}
+                      scale={question}
                     />
                   )}
                 </ActionForm>
@@ -248,6 +289,7 @@ function DraftContent({
               action: 'add_question',
               kind,
               options: choices(fields, kind),
+              ...scaleSettings(fields, kind),
               label: text(fields, 'label'),
               required: fields.has('required'),
             })
