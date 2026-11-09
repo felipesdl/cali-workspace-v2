@@ -30,7 +30,7 @@ O código oficial descrito nas tabelas continua inalterado e diferente desse alv
 
 **Aceite proposto:** pendências apontam ao objeto correto; resumo e detalhe mantêm mesma empresa/período; ausência de horas visíveis não vira consumo zero; Cliente não abre detalhe Admin. **Dúvidas:** `REF-24` (continuidade e especificação responsiva ainda propostas).
 
-**Implementação V2 na fase 6.** Na Visão executiva Admin, a carteira mantém os totais da listagem de empresas. Ao selecionar uma empresa do piloto, a seção Prioridades operacionais lista projetos com ajuste solicitado e execução normal e, quando o detalhe de ocorrências está disponível, ocorrências em atendimento. Cada fonte declara que o recorte corresponde à primeira página e tem recuperação independente. Os atalhos abrem o cronograma ou a conversa mantendo a empresa na URL. Os destinos aplicam as próprias guardas. Agregados das demais fontes e homologação do recorte conectado seguem pendentes.
+**Implementação V2 na fase 6.** Na Visão executiva Admin, a carteira mantém os totais da listagem de empresas. Ao selecionar uma empresa do piloto, a seção Prioridades operacionais lista projetos com ajuste solicitado e execução normal e, quando o detalhe de ocorrências está disponível, ocorrências em atendimento. Cada fonte declara que o recorte corresponde à primeira página e tem recuperação independente. Os atalhos abrem o cronograma ou a conversa mantendo a empresa na URL. Os destinos aplicam as próprias guardas. A seleção e os estados vazios foram homologados com A/B no CALI MAPA. Os atalhos com itens foram exercitados com serviços sintéticos. Agregados das demais fontes seguem pendentes.
 
 ## FLOW-07 — Registro e consulta de Horas
 
@@ -122,7 +122,7 @@ Minha conta está disponível no shell conectado de Admin e Cliente. A consulta 
 
 ### Permissões de notificações no CALI MAPA
 
-Consulta em leitura aos GRANTs, políticas RLS e definições das funções no catálogo do CALI MAPA em 09/11/2026.
+Consulta aos GRANTs, políticas RLS e definições das funções no catálogo do CALI MAPA em 09/11/2026. O quadro descreve a autorização por destinatário, cumulativa com a guarda de sessão.
 
 | Ator ou operação | Comportamento definido no banco |
 | --- | --- |
@@ -133,4 +133,8 @@ Consulta em leitura aos GRANTs, políticas RLS e definições das funções no c
 | `mark_all_notifications_read()` | Função `SECURITY DEFINER` com execução autenticada. Atualiza apenas as linhas ainda não lidas do próprio destinatário. |
 | `service_role` | Permissões de leitura, atualização e execução, com bypass de RLS. Uso de servidor. |
 
-A tabela não possui política restritiva de sessão viva. As funções retornam `void` e seus corpos não verificam sessão viva, admissão ou aceite vigente. Antes de conectar o sino da V2, falta delimitar a leitura e a marcação à sessão habilitada, verificar o resultado da ação e aplicar as guardas do destino. A consulta de catálogo não executou as funções nem alterou registros, permissões ou schema.
+A [guarda instalada no CALI MAPA](../../supabase/proposals/notifications/session-guard.sql) exige que o `session_id` corresponda a uma sessão Auth vigente do próprio usuário. O helper de corte existente também precisa aprovar a sessão, o que preserva a admissão e o corte dos Clientes piloto. Duas políticas restritivas cobrem SELECT e UPDATE diretos autenticados. As RPCs `SECURITY DEFINER` fazem a mesma checagem antes de gravar, com erro `42501` para sujeito sem sessão vigente. Continuam retornando `void`, sem mudar assinatura, GRANTs, destinatário ou a data da primeira leitura. O caminho interno sem sujeito continua sem efeito.
+
+A aplicação foi verificada por catálogo e leitura própria na Data API com Admin e Cliente. Marcações, sessão ausente, expirada, removida ou de outro usuário, corte do piloto e reversão foram testados em PostgreSQL descartável. O [teste focado](../../supabase/proposals/notifications/test-session-guard.sql) usa um predicado sintético para o corte compartilhado. Executar com `psql -X -v ON_ERROR_STOP=1 -f supabase/proposals/notifications/test-session-guard.sql` apenas em PostgreSQL vazio e descartável. O [rollback](../../supabase/proposals/notifications/rollback-session-guard.sql) remove as políticas novas, restaura os corpos anteriores e preserva as marcações feitas. Nenhuma notificação foi marcada ou enviada no CALI MAPA durante o teste.
+
+O sino da V2 ainda depende de consulta própria com aceite vigente, tratamento do resultado da marcação e validação do acesso ao destino. A guarda de sessão não altera o contrato de aceite.

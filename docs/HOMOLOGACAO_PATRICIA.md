@@ -279,7 +279,13 @@ Rodada com dados sintéticos no navegador integrado em 375 × 812 e 1366 × 768.
 | Minha conta | Admin e Cliente abriram o próprio perfil após nova tentativa. Texto longo coube na largura disponível. O teste de regressão confirmou que o ID vem da sessão, mesmo com ID alheio na URL, e o logout limpa o cache. |
 | Responsividade | Uma coluna em 375 px e duas em 1366 px para prioridades e perfil. A carteira ganhou três colunas no desktop. As larguras de documento coincidiram com as do viewport. |
 
-A UI reaproveita o escopo de Projetos, o seletor, os rótulos de situação e o feedback do design system. Os recortes de projetos e ocorrências usam serviços já existentes, limitados à primeira página. A leitura de Minha conta é mínima e a edição aguarda contrato que preserve mídia e campos omitidos. O [catálogo efetivo de notificações](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) foi consultado em leitura no CALI MAPA. A homologação autenticada dos fluxos novos e o aceite da Patrícia seguem pendentes. Reversão por commit de frontend, sem migração.
+A UI reaproveita o escopo de Projetos, o seletor, os rótulos de situação e o feedback do design system. Os recortes de projetos e ocorrências usam serviços já existentes, limitados à primeira página. A leitura de Minha conta é mínima e a edição aguarda contrato que preserve mídia e campos omitidos. O [catálogo efetivo de notificações](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) foi consultado em leitura no CALI MAPA. Reversão da UI por commit. A rodada autenticada está registrada abaixo.
+
+### Prioridades, Minha conta e guarda de sessão no CALI MAPA
+
+Em 09/11/2026, a V2 local conectada ao CALI MAPA abriu Minha conta com sessões reais de Admin e Cliente A. Ambas exibiram os seis campos esperados e o papel da sessão em 375 × 812 e 1366 × 768. Na Visão executiva, Admin alternou A/B nas duas larguras. As consultas de projetos e ocorrências concluíram e os dois blocos ficaram vazios nas duas empresas. Os atalhos com itens permanecem cobertos pela prova sintética anterior. Perfil e prioridades tiveram uma coluna em 375 px e duas em 1366 px, sem rolagem horizontal.
+
+Após instalar a guarda de notificações, Admin e Cliente A consultaram a contagem própria pela Data API no navegador. As duas consultas retornaram HTTP 200 com linhas visíveis. As duas políticas e as permissões foram conferidas no catálogo. Marcação e cenários de sessão inválida ficaram no PostgreSQL descartável. O [contrato de sessão e rollback](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) separa as evidências. O aceite da Patrícia, a edição de perfil e o sino conectado continuam pendentes.
 
 ## Mensagem para enviar junto do link
 

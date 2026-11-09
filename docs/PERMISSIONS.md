@@ -182,7 +182,7 @@ RPCs de issue/delivery/consume são exclusivas de serviço; papéis do navegador
 | Operação/superfície | Admin | Cliente | Condições e fonte |
 | --- | --- | --- | --- |
 | Editar perfil próprio | C via RPC pessoal | C via RPC pessoal | Campos limitados; sincronização principal; [perfil](flows/SOURCES.md#contact) |
-| Ler notificação/marcar lida | C policy Admin; UI chama RPC | C SELECT próprio; ? corpo das RPCs de marcação | [schema](flows/SOURCES.md#schema), [chrome](flows/SOURCES.md#chrome) |
+| Ler notificação/marcar lida | Leitura e atualização diretas conforme policy Admin. As RPCs marcam somente as próprias. | SELECT próprio e marcação própria por RPC. | [CALI MAPA: sessão, permissões e rollback](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) |
 | Gerir staff/atribuições/convidar | C policy Admin e EDGE is_admin | N nas policies/rotas localizadas | [staff](flows/SOURCES.md#staff), [EDGE](flows/SOURCES.md#staff-invite) |
 | Decidir hora/material submetido | C conforme fila/operação | N na gestão | Pending e motivo na recusa; [fila](flows/SOURCES.md#staff-review), [UI](flows/SOURCES.md#staff-ui) |
 | Ler painel auditoria | UI Admin e SELECTs condicionados | N rota; acesso a alguns eventos próprios não é painel Admin | [auditoria](flows/SOURCES.md#audit) |

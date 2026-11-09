@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Homologação de prioridades, perfil e notificações
+
+- Homologa Minha conta com Admin e Cliente e Prioridades com Admin no CALI MAPA em 375 e 1366 px. A/B retornaram estados vazios nas prioridades. [Evidência](HOMOLOGACAO_PATRICIA.md#prioridades-minha-conta-e-guarda-de-sessão-no-cali-mapa).
+- Aplica a guarda de sessão às leituras e atualizações autenticadas de notificações e às duas RPCs de marcação. Preserva o acesso por destinatário, os GRANTs e as marcações existentes. [Contrato, teste isolado e rollback](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa).
+
 ## Prioridades Admin e Minha conta
 
 - A Visão executiva mostra ajustes em projetos e ocorrências em atendimento da empresa selecionada, com atalhos para os objetos e indicação de cobertura da primeira página.
