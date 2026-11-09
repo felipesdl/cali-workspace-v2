@@ -1,5 +1,10 @@
 begin;
 set local lock_timeout='5s';
+drop function if exists cali_workspace.v2_list_partner_pilot_catalog(uuid,text,integer);
+drop function if exists cali_workspace.v2_change_partner_pilot_timer(uuid,uuid,text,uuid,text,uuid,text);
+drop function if exists cali_workspace.v2_read_partner_pilot_timer(uuid);
+drop function if exists cali_session_guard.phase5_partner_hour_targets(uuid);
+drop function if exists cali_session_guard.require_phase5_partner(uuid,text);
 drop function if exists cali_workspace.v2_decide_partner_pilot_hours(uuid,uuid,boolean,text);
 drop function if exists cali_workspace.v2_list_partner_pilot_hour_requests(uuid,boolean,integer);
 drop function if exists cali_workspace.v2_submit_partner_pilot_hours(uuid,uuid,date,integer,text,text);

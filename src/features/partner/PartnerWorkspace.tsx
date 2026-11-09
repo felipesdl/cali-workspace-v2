@@ -3,23 +3,31 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import {
   partnerModule,
+  hasPartnerItemDetail,
   type PartnerModule,
   type PartnerPilot,
 } from '../../api/modules/partner/pilot';
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
-import { formatCalendarDate } from '../../lib/dates';
+import { formatCalendarDate, formatServerInstant } from '../../lib/dates';
+import { CodeForm } from '../access/CodeForm';
 import { MfaForm } from '../access/MfaForm';
 import { TermsAcceptance } from '../access/TermsAcceptance';
 import { WorkspacePagination } from '../project-workspace/WorkspacePagination';
 import { workspaceLabel } from '../project-workspace/workspace-labels';
 import { PartnerItemDetail } from './PartnerItemDetail';
 import { PartnerHoursQueue } from './PartnerHoursQueue';
+import { PartnerTimer } from './PartnerTimer';
 
 const labels = {
   projects: 'Projetos',
   records: 'Ocorrências',
   hours: 'Minhas horas',
+  calendar: 'Agenda',
+  documents: 'Documentos',
+  reports: 'Relatórios',
+  notices: 'Avisos',
+  team: 'Equipe',
 } satisfies Record<PartnerModule, string>;
 const panel =
   'tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
@@ -42,7 +50,7 @@ function PartnerItems({
     queryFn: ({ signal }) => api.items(access.company, module, page, signal),
     refetchInterval: 30000,
   });
-  if (item && module !== 'hours') {
+  if (item && hasPartnerItemDetail(module)) {
     return (
       <PartnerItemDetail
         key={item}
@@ -78,13 +86,18 @@ function PartnerItems({
                 {[
                   row.protocol,
                   row.status && workspaceLabel(row.status),
-                  row.day && formatCalendarDate(row.day),
+                  row.instant
+                    ? formatServerInstant(row.instant)
+                    : row.day && formatCalendarDate(row.day),
                   row.minutes !== null && `${row.minutes} min`,
                 ]
                   .filter(Boolean)
                   .join(' · ')}
               </p>
-              {module !== 'hours' && (
+              {row.summary && (
+                <p className="tw:wrap-anywhere tw:whitespace-pre-line">{row.summary}</p>
+              )}
+              {hasPartnerItemDetail(module) && (
                 <div>
                   <Button
                     variant="secondary"
@@ -103,7 +116,15 @@ function PartnerItems({
       )}
       <WorkspacePagination total={result.data.total} page={page} change={setPage} />
       {module === 'hours' && (
-        <PartnerHoursQueue api={api} actor={access.actor} company={access.company} admin={false} />
+        <>
+          <PartnerTimer api={api} actor={access.actor} company={access.company} />
+          <PartnerHoursQueue
+            api={api}
+            actor={access.actor}
+            company={access.company}
+            admin={false}
+          />
+        </>
       )}
     </section>
   );
@@ -213,7 +234,14 @@ function PartnerGate({ api }: { api: PartnerPilot }) {
       );
       break;
     case 'signed_out':
-      content = <p>Use a sessão da identidade de homologação convidada para a Equipe CALI.</p>;
+      content = (
+        <CodeForm
+          api={api}
+          onConfirmed={async () => {
+            await query.refetch();
+          }}
+        />
+      );
       break;
     case 'terms_unavailable':
       content = <FeedbackState kind="error">Os termos vigentes estão indisponíveis.</FeedbackState>;

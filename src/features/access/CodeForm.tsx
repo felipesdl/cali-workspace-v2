@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 import { type HostedAccessApi } from '../../api/modules/access/api';
-import { type SessionState } from '../../app/session/controller';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { CodeInput } from './CodeInput';
@@ -16,10 +15,11 @@ export function CodeForm({
   api,
   onConfirmed,
 }: {
-  api: HostedAccessApi;
-  onConfirmed: () => Promise<SessionState>;
+  api: Pick<HostedAccessApi, 'verifyCode'> & Partial<Pick<HostedAccessApi, 'requestCode'>>;
+  onConfirmed: () => void | Promise<void>;
 }) {
   const [sent, setSent] = useState(false);
+  const verifyOnly = !api.requestCode;
   const [message, setMessage] = useState('');
   const [retryAt, setRetryAt] = useState(0);
   const form = useForm({
@@ -27,11 +27,11 @@ export function CodeForm({
     onSubmit: async ({ value }) => {
       setMessage('');
       try {
-        if (sent) {
+        if (sent || verifyOnly) {
           await api.verifyCode(value.email, value.code);
           await onConfirmed();
         } else {
-          await api.requestCode(value.email);
+          await api.requestCode?.(value.email);
           setSent(true);
           setRetryAt(Date.now() + 120000);
         }
@@ -52,9 +52,11 @@ export function CodeForm({
       }}
     >
       <p>
-        {sent
-          ? 'Se o e-mail estiver habilitado, o código chegará em instantes. Informe os seis dígitos.'
-          : 'Informe seu e-mail cadastrado para receber um código de acesso.'}
+        {verifyOnly
+          ? 'Informe o e-mail e o código da conta de homologação.'
+          : sent
+            ? 'Se o e-mail estiver habilitado, o código chegará em instantes. Informe os seis dígitos.'
+            : 'Informe seu e-mail cadastrado para receber um código de acesso.'}
       </p>
       <form.Field name="email">
         {(field) => (
@@ -71,7 +73,7 @@ export function CodeForm({
           </Field>
         )}
       </form.Field>
-      {sent && (
+      {(sent || verifyOnly) && (
         <form.Field name="code">
           {(field) => (
             <Field id="access-code" label="Código de acesso">
@@ -85,7 +87,7 @@ export function CodeForm({
         {(pending) => (
           <>
             <Button type="submit" pending={pending}>
-              {sent ? 'Confirmar código' : 'Receber código'}
+              {sent || verifyOnly ? 'Confirmar código' : 'Receber código'}
             </Button>
             {sent && (
               <Button
@@ -111,7 +113,7 @@ export function CodeForm({
                   }
                   try {
                     setRetryAt(Date.now() + 120000);
-                    await api.requestCode(form.state.values.email);
+                    await api.requestCode?.(form.state.values.email);
                     setMessage('Solicitação enviada. Confira seu e-mail.');
                   } catch {
                     setMessage('Não foi possível reenviar. Aguarde e tente novamente.');

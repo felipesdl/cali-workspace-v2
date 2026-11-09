@@ -60,7 +60,14 @@ function AccessStep({ api, session, state, access, acceptance }: AccessStepProps
     case 'ready':
       return <FeedbackState kind="loading">Abrindo seu Workspace…</FeedbackState>;
   }
-  return <CodeForm api={api} onConfirmed={() => session.refresh()} />;
+  return (
+    <CodeForm
+      api={api}
+      onConfirmed={async () => {
+        await session.refresh();
+      }}
+    />
+  );
 }
 
 export function AccessFlow({

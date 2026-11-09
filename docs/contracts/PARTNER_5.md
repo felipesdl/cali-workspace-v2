@@ -9,8 +9,9 @@ O piloto usa o vínculo da Equipe CALI para dar acesso por empresa e módulo. O 
 | Admissão | Identidade confirmada, convite individual, sessão viva, TOTP verificado, AAL2 e aceite da versão vigente. Revisão do vínculo, desativação ou revogação retiram acesso. | Candidata instalada e testada no CALI MAPA com identidade fictícia. |
 | Projetos | Empresa e módulo atribuídos. Listagem de projetos e detalhe de entregáveis. | Leitura de projetos inscritos no piloto. Escrita e submissão para revisão em recorte próprio. |
 | Ocorrências | Empresa e módulo atribuídos. Conversa do Cliente no recorte inicial. | Leitura de ocorrências fictícias inscritas e mensagens públicas da conversa. Notas internas, anexos e escrita em recorte próprio. |
-| Horas | Partner consulta as próprias horas. A publicação 83 diferencia timer direto e lançamento manual sujeito a justificativa e decisão Admin. | Leitura de horas próprias e fila de lançamento manual com decisão Admin homologadas. Timer direto e vínculos com entregáveis seguem em lote próprio. |
-| Agenda, Documentos, Relatórios, Avisos, Equipe e Mapa | Projetar e autorizar por operação e módulo, sem expor trilhas privadas, dados salariais ou anexos por associação ampla. | A matriz do legado foi inventariada; a V2 ainda precisa homologar cada projeção. |
+| Horas | Partner consulta as próprias horas. Cronômetro registra trechos privados; lançamento manual exige justificativa e decisão Admin. | Fila manual homologada. Cronômetro instalado com vínculo opcional a projeto, entregável, subtarefa ou ocorrência. |
+| Agenda, Documentos, Relatórios, Avisos e Equipe | Consultar registros da empresa conforme atribuição de módulo e visibilidade do registro. | Cinco projeções instaladas e provadas com dados sintéticos. Arquivos, PDF e operações de escrita ainda exigem contrato próprio. |
+| Mapa | A publicação 83 não oferece Mapa no Partner; a V2 exige Admin na triagem. | Sem concessão ao Partner. Ampliação exige definição de público e finalidade. |
 | Resumo diário Partner | Empresas abrangidas e presença de horas dependem da definição da Patrícia. | Decisão em aberto em [DEC-19](../PRODUCT_RULES.md#resumo-01--contrato-admin-definido-partner-posterior). |
 
 ## Isolamento no CALI MAPA
@@ -21,8 +22,7 @@ Aplicar em uma transação [a base de convites fictícios](../../supabase/propos
 
 O Auth hospedado e a Data API foram exercitados com identidade descartável confirmada, TOTP real e JWT do próprio Auth, sem enviar e-mail. A tentativa em AAL1 falhou. Depois do convite e dos termos, A leu Projetos, Ocorrências e somente horas próprias. B e módulo não atribuído foram recusados nos ensaios. Na Data API, Projetos e Ocorrências abriram os detalhes e a revogação cortou a mesma sessão antes do logout. A identidade, convite, sessão e aceite da prova foram removidos.
 
-A rota `/equipe` usa `VITE_CALI_PHASE5_PARTNER=true` apenas no Vite dev, em `127.0.0.1` conectado ao CALI MAPA. A tela abre separada de Admin/Cliente. A entrada sem sessão foi conferida no navegador. O login por e-mail e o convite de destinatário real exigem homologação própria. A prova automatizada de interface cobre navegação, escopo e retirada do detalhe após revogação.
-
+A rota `/equipe` usa `VITE_CALI_PHASE5_PARTNER=true` apenas no Vite dev, em `127.0.0.1` conectado ao CALI MAPA. A tela abre separada de Admin/Cliente. A entrada sem sessão foi conferida no navegador. A rota aceita OTP nativo de identidade fictícia no formato reservado. Emissão por caixa de teste e prova completa do código no navegador permanecem pendentes. A prova automatizada de interface cobre navegação, escopo e retirada do detalhe após revogação.
 
 ## Horas manuais e decisão Admin
 
@@ -30,4 +30,16 @@ Partner com módulo Horas envia data, minutos, descrição e justificativa. A fi
 
 No CALI MAPA, a rodada de Auth para preparar a fila gravou uma solicitação antes de expirar e foi limpa. O ensaio seguinte usou uma sessão SQL fictícia para preparar duas solicitações pela RPC, comprovando repetição, divergência de conteúdo, corte de empresa e recusa de decisão pelo Partner. Admin autenticado recusou uma solicitação na interface e conferiu o motivo persistido. A aprovação foi exercitada pela mesma sessão Admin em uma chamada de prova com rollback. O banco conferiu uma hora privada, mesmo com duas decisões iguais. Após reverter, o extrato ficou sem lançamentos fictícios. As solicitações, a identidade e a função temporária foram removidas.
 
-Continuam pendentes a homologação do login por código e do aceite pela interface Partner, timer direto, vínculos operacionais e a matriz das outras operações. O resumo Partner aguarda a definição de público e horas pela CALI.
+## Cronômetro e vínculos
+
+Aplicar [cronômetro](../../supabase/proposals/phase-5/partner-timer.sql) após a admissão. O vínculo opcional usa os IDs sintéticos já inscritos em Projetos ou Ocorrências e exige também a atribuição ao módulo de origem. O servidor revalida a cadeia projeto, entregável e subtarefa, o estado operacional e a ocorrência aberta. A operação usa os registros nativos de timer e horas, sem conceder acesso ao contrato legado.
+
+Somente o titular do convite opera o cronômetro; um segundo timer aberto é recusado. Ao encerrar, o servidor descarta trechos inferiores a 30 segundos e arredonda os demais para cima. Registra a hora privada, com o mesmo contexto, e protege o retry por identificador de operação. A [prova no CALI MAPA](../../supabase/proposals/phase-5/prove-partner-timer.sql) foi revertida: bloqueio de outra empresa e alvo não inscrito, unicidade de timer aberto, vínculo com subtarefa, descarte de trecho curto, gravação privada de 2 minutos em 61 segundos, repetição sem duplicar e corte após revogação.
+
+## Catálogos adicionais
+
+A [consulta Partner](../../supabase/proposals/phase-5/partner-catalogs.sql) retorna cinco projeções com paginação e registro sintético inscrito por UUID e empresa. Agenda requer evento não cancelado com visibilidade para Equipe CALI. Documentos exige publicação e visibilidade de Cliente e só mostra metadados. Relatórios omite revisões retiradas, PDF e notas. Avisos exige publicação e público elegível. Equipe mostra nome, cargo e área de registros ativos, sem contatos, salários ou dados privados. A [prova no CALI MAPA](../../supabase/proposals/phase-5/prove-partner-catalogs.sql) confirmou leitura, ausência de campos privados e retirada de itens que perderam visibilidade; reverteu todas as fixtures. A instalação inscreveu dois eventos sintéticos já existentes.
+
+No Chrome, a tela abriu o formulário de código. A rodada autenticada usou senha da fixture e TOTP real; confirmou convite e termos pela interface, navegou nos cinco catálogos, iniciou e encerrou timer vinculado a subtarefa, e perdeu acesso ao recarregar a mesma sessão após revogação. A primeira rodada encontrou campos extras no payload de aceite; o ajuste enviou apenas versão e hash e a repetição passou. Identidade, aceite, timer e demais registros da fixture foram removidos. A rodada não comprova entrada por OTP.
+
+Continuam pendentes a emissão e a confirmação real de OTP na interface, downloads e operações de escrita/revisão nos módulos. O resumo Partner aguarda a definição de público e horas pela CALI.

@@ -33,8 +33,11 @@ it('abre apenas o módulo atribuído e retira o detalhe após o corte de acesso'
       notify = listener;
       return () => {};
     },
+    verifyCode: async () => {},
     acceptInvite: async () => {},
     acceptTerms: async () => {},
+    timer: async () => ({ active: null, targets: [] }),
+    changeTimer: async () => ({ id, status: 'active', minutes: null }),
     hourRequests: async () => ({ total: 0, rows: [] }),
     submitHours: async () => id,
     decideHours: async () => id,

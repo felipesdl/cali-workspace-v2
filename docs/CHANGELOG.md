@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Cronômetro e catálogos Partner
+
+- Instala no CALI MAPA o cronômetro privado com vínculo opcional e as projeções de Agenda, Documentos, Relatórios, Avisos e Equipe. Provas SQL com fixtures revertidas. A tela Partner passa a aceitar código nativo de conta de homologação; emissão e login completo por OTP permanecem pendentes. [Contrato e evidências](contracts/PARTNER_5.md).
+
 ## Admissão e leitura Partner no CALI MAPA
 
 - Piloto isolado com convite, TOTP e termos vigentes. Empresa atribuída, leitura de Projetos e Ocorrências, horas próprias e fila manual com decisão Admin. [Contrato e evidências](contracts/PARTNER_5.md).

@@ -221,3 +221,5 @@ Autorização da agenda DISC. `action=scheduled` exige JWT de serviço correspon
 ## Piloto Partner da fase 5
 
 O [contrato Partner](contracts/PARTNER_5.md) define a projeção isolada do CALI MAPA. O convite fictício exige sessão ativa, TOTP verificado e AAL2 antes do aceite. A leitura exige termos vigentes e revalida o vínculo e o módulo em cada chamada. Projetos e ocorrências dependem da inscrição sintética e Horas restringe autoria. A fila manual permite decisão somente por Admin com MFA e termos. A aprovação usa o contrato de horas existente, com visibilidade Cliente desmarcada. Os predicados do Partner legado permanecem fora deste piloto.
+
+Cronômetro Partner exige Horas e, quando vinculado, Projetos ou Ocorrências. Só o titular do convite opera o trecho; a saída é privada. Agenda, Documentos, Relatórios, Avisos e Equipe exigem atribuição e inscrição do registro na empresa. A projeção não concede download, escrita ou leitura do Mapa. [Contrato e prova](contracts/PARTNER_5.md#catálogos-adicionais).
