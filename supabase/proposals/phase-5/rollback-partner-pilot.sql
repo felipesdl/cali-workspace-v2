@@ -1,5 +1,10 @@
 begin;
 set local lock_timeout='5s';
+drop function if exists cali_workspace.v2_decide_partner_pilot_review(uuid,uuid,boolean,text);
+drop function if exists cali_workspace.v2_list_partner_pilot_reviews(uuid,boolean,integer);
+drop function if exists cali_workspace.v2_submit_partner_pilot_review(uuid,uuid,text,uuid,text);
+drop function if exists cali_session_guard.phase5_lock_review_target(uuid,text,uuid);
+drop function if exists cali_workspace.v2_download_partner_pilot_document(uuid,uuid,uuid);
 drop function if exists cali_workspace.v2_download_partner_pilot_report(uuid,uuid,integer);
 drop function if exists cali_workspace.v2_reply_partner_pilot_record(uuid,uuid,uuid,text);
 drop function if exists cali_workspace.v2_list_partner_pilot_catalog(uuid,text,integer);

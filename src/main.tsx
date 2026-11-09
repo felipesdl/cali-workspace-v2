@@ -1,4 +1,4 @@
-import { createPartnerPilot } from './api/modules/partner/pilot';
+import { createPartnerOtpQa, createPartnerPilot } from './api/modules/partner/pilot';
 import { createProjectJournal } from './api/modules/project-workspace/project-journal';
 import { createAdminRead } from './api/modules/project-workspace/admin-read';
 import { createDocumentOperations } from './api/modules/project-workspace/documents';
@@ -77,7 +77,12 @@ try {
             client &&
             window.location.hostname === '127.0.0.1' &&
             import.meta.env.VITE_CALI_PHASE5_PARTNER === 'true'
-              ? createPartnerPilot(client)
+              ? createPartnerPilot(
+                  client,
+                  window.location.port === '5183' && import.meta.env.VITE_CALI_PARTNER_OTP_QA_TICKET
+                    ? createPartnerOtpQa(client, import.meta.env.VITE_CALI_PARTNER_OTP_QA_TICKET)
+                    : undefined,
+                )
               : null,
           team,
           monthly: team && client ? createHostedTeamMonthly(client) : null,

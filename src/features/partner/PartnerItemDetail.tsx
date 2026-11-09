@@ -7,6 +7,7 @@ import { formatServerInstant } from '../../lib/dates';
 import { WorkspacePagination } from '../project-workspace/WorkspacePagination';
 import { workspaceLabel } from '../project-workspace/workspace-labels';
 import { PartnerRecordReply } from './PartnerRecordReply';
+import { PartnerReviewRequest } from './PartnerReviewQueue';
 
 export function PartnerItemDetail({
   api,
@@ -68,6 +69,15 @@ export function PartnerItemDetail({
                       .filter(Boolean)
                       .join(' · ')}
                   </p>
+                  {module === 'projects' && row.canReview && (
+                    <PartnerReviewRequest
+                      api={api}
+                      company={company}
+                      kind="deliverable"
+                      item={row.id}
+                      saved={() => void result.refetch()}
+                    />
+                  )}
                 </li>
               ))}
             </ul>
@@ -75,6 +85,15 @@ export function PartnerItemDetail({
             <FeedbackState kind="empty">Nenhum item nesta página.</FeedbackState>
           )}
           <WorkspacePagination total={result.data.total} page={page} change={setPage} />
+          {module === 'records' && result.data.canReply && (
+            <PartnerReviewRequest
+              api={api}
+              company={company}
+              kind="record_close"
+              item={id}
+              saved={() => void result.refetch()}
+            />
+          )}
           {module === 'records' && result.data.canReply && (
             <PartnerRecordReply
               api={api}

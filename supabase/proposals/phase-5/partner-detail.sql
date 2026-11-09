@@ -29,11 +29,13 @@ begin
 
   return (
     with matched as (
-      select d.id,d.title as title,d.protocol,d.status::text as status,d.due_at as instant,d.sort_order as ordinal
+      select d.id,d.title as title,d.protocol,d.status::text as status,d.due_at as instant,d.sort_order as ordinal,
+        (d.client_visible and d.status not in ('approved','cancelled','client_review','rebriefing')
+          and d.work_closed_at is null) as "canReview"
       from cali_workspace.deliverables d
       where p_module='projects' and d.project_id=p_item and d.company_id=p_company
       union all
-      select m.id,m.body,null::text,null::text,m.created_at,null::integer
+      select m.id,m.body,null::text,null::text,m.created_at,null::integer,false
       from cali_workspace.account_record_messages m
       where p_module='records' and m.record_id=p_item and m.company_id=p_company and m.deleted_at is null
         and m.visibility='client'

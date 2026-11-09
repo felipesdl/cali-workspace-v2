@@ -54,6 +54,11 @@ begin
       select f.id,f.title,f.protocol,f.status,(f.published_at at time zone 'America/Sao_Paulo')::date,null::timestamptz,null::text
       from cali_workspace.files f join scope s on s.item_id=f.id
       where p_module='documents' and f.company_id=p_company and f.status='published' and f.client_visible
+        and not exists(select 1 from cali_session_guard.phase4_documents d where d.id=f.id)
+      union all
+      select d.id,d.title,null::text,'published',null::date,null::timestamptz,null::text
+      from cali_session_guard.phase4_documents d join scope s on s.item_id=d.id
+      where p_module='documents' and d.company_id=p_company and d.delivery_id is null and d.published_revision is not null
       union all
       select r.id,r.title,r.protocol,r.status,r.period_end,null::timestamptz,null::text
       from cali_workspace.reports r join scope s on s.item_id=r.id
@@ -83,7 +88,10 @@ begin
         join cali_session_guard.phase4_report_releases x on x.report_id=r.id and x.version=r.version and x.withdrawn_at is null
         where p_module='reports' and r.id=m.id and r.company_id=p_company and r.status='approved'
           and r.published_at is null and r.sent_at is null and r.withdrawn_at is null
-      ) as "downloadVersion" from matched m order by day desc nulls last,instant desc nulls last,title,id
+       ) as "downloadVersion",(
+        select d.published_revision from cali_session_guard.phase4_documents d
+        where p_module='documents' and d.id=m.id and d.company_id=p_company and d.delivery_id is null
+      ) as "downloadRevision" from matched m order by day desc nulls last,instant desc nulls last,title,id
       limit 25 offset (p_page-1)*25
     )
     select jsonb_build_object('total',(select count(*) from matched),'rows',coalesce((

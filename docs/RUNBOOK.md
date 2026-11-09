@@ -193,6 +193,8 @@ Keys antigas por índice foram corrigidas: coleções estáticas usam identidade
 
 As restrições sintáticas reconhecem os padrões descritos; não detectam toda forma indireta/alias equivalente nem substituem revisão. `tests/lint.test.ts` exercita exemplos permitidos/negados contra a configuração real, incluindo fronteiras. ESLint não usa aqui análise de tipos `no-unsafe-*`; `tsc` continua `strict`, com unused delegado ao lint por causa das exceções legadas.
 
+A ponte de OTP Partner usada em homologação tem uma exceção local de recarga, somente em Vite dev com ticket temporário. A recarga acontece após o SDK persistir a sessão e evita a disputa com o controlador Admin/Cliente. O canal não está publicado; a exceção não se aplica aos fluxos de produto.
+
 ## Configuração e fronteira de dados
 
 `.env.example` contém `VITE_DATA_MODE=demo` e `VITE_DEMO_MODE=true`. O bootstrap agora consome/valida a configuração com Zod. Modo não demonstrativo, flag false ou URL de API/Supabase preenchida resulta em erro de configuração, sem fallback de produção. Não copiar chaves reais para VITE_: configurações expostas ao navegador são públicas.

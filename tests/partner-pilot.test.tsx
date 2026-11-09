@@ -33,7 +33,12 @@ it('abre apenas o módulo atribuído e retira o detalhe após o corte de acesso'
       notify = listener;
       return () => {};
     },
+    requestCode: undefined,
     verifyCode: async () => {},
+    reviews: async () => ({ total: 0, rows: [] }),
+    submitReview: async () => id,
+    decideReview: async () => id,
+    documentPdf: async () => ({ blob: new Blob(), fileName: 'teste.pdf' }),
     reportPdf: async () => ({ blob: new Blob(), fileName: 'teste.pdf' }),
     replyRecord: async () => id,
     acceptInvite: async () => {},

@@ -33,7 +33,7 @@ O ensaio de recuperação com fixtures passou localmente. A separação dos proj
 | 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A, 2B e 2C homologadas funcionalmente no piloto A/B; frontend final pendente |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Implementada no piloto; ativação final pendente |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
-| 5 — Partner | Piloto próprio após a fase 4 | Admissão, atribuições e operação por módulo | Em andamento no CALI MAPA. [Contrato e matriz](contracts/PARTNER_5.md) |
+| 5 — Partner | Piloto próprio após a fase 4 | Admissão, atribuições e operação por módulo | Piloto técnico fechado no CALI MAPA. [Contrato e limites](contracts/PARTNER_5.md#limites-de-fechamento) |
 | 6 — Homologação global do recorte | Entregas aplicáveis de 2–4; 5 somente se autorizada no recorte | Regressão entre fluxos, evidência de permissões, UX e aceite de produto | Planejada |
 | 7 — Preparação de release | 6 e aceites exigidos | Configuração de destino, observabilidade, corte, backup/restauração e rollback revisáveis | Planejada; sem publicação implícita |
 
@@ -342,7 +342,7 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 ## Fases 5–7 — Prioridade posterior e fechamento
 
-**5 — Partner:** em andamento no CALI MAPA. Admissão fictícia com MFA, convite e termos validada no Auth e na Data API. Área isolada em `/equipe` com leitura por empresa e módulo, detalhes de Projetos, leitura e resposta em Ocorrências, cronômetro privado com vínculos, fila de horas manuais com decisão Admin cinco catálogos adicionais e download da revisão liberada de relatório homologados no escopo sintético. Emissão e validação do OTP no navegador, arquivos, escritas e revisões dos módulos permanecem em aberto. [Matriz, provas e próximos recortes](contracts/PARTNER_5.md).
+**5 — Partner:** piloto técnico fechado no CALI MAPA. OTP, MFA, convite, aceite, revogação e decisões Admin homologados no navegador integrado. Horas, resposta de ocorrência, cinco catálogos e PDFs publicados estão conectados. Canal temporário retirado. Rollout, demais operações e resumo seguem os limites e decisões registrados no [contrato](contracts/PARTNER_5.md#limites-de-fechamento).
 
 **6 — Homologação:** os 18 IDs/subfluxos aplicáveis têm evidência real ou adiamento explicitamente aprovado. Executar regressão entre módulos, isolamento e decisões vigentes; mídia/PDF/e-mail e tela concordam; sem operação obrigatória apenas simulada, bloqueio crítico oculto ou dados fictícios tratados como reais. UX/mobile/teclado são conferidos em cada entrega e novamente nos percursos cruzados. Resumo Admin segue RESUMO-01/DEC-19 e exige evidência de operação; conteúdo Partner não faz parte do aceite Admin/Cliente.
 

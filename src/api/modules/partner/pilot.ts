@@ -41,6 +41,7 @@ const page = z.object({
       minutes: z.number().int().nullable(),
       instant: z.iso.datetime({ offset: true }).nullish(),
       summary: z.string().nullish(),
+      downloadRevision: z.uuid().nullish(),
       downloadVersion: z.number().int().positive().nullish(),
     }),
   ),
@@ -57,6 +58,7 @@ const detail = z.object({
       protocol: z.string().nullable(),
       status: z.string().nullable(),
       instant: z.string().nullable(),
+      canReview: z.boolean().optional(),
     }),
   ),
 });
@@ -91,8 +93,70 @@ const hourQueue = z.object({
   ),
 });
 
-export function createPartnerPilot(client: WorkspaceClient) {
+const reviewKind = z.enum(['deliverable', 'record_close']);
+export type PartnerReviewKind = z.infer<typeof reviewKind>;
+const reviewQueue = z.object({
+  total: z.number().int().nonnegative(),
+  rows: z.array(
+    z.object({
+      id: z.uuid(),
+      kind: reviewKind,
+      title: z.string(),
+      note: z.string().nullable(),
+      status: z.enum(['pending', 'approved', 'returned']),
+      decision_note: z.string().nullable(),
+    }),
+  ),
+});
+
+const qaSession = z.object({ access_token: z.string().min(1), refresh_token: z.string().min(1) });
+
+export function createPartnerOtpQa(client: WorkspaceClient, ticket: string) {
+  if (!/^[a-f0-9]{64}$/.test(ticket)) return undefined;
+  async function call(body: { email: string; action: 'request' | 'verify'; code?: string }) {
+    const response = await fetch(
+      'https://kqtbfeeqbcllwvlkbrkq.supabase.co/functions/v1/workspace-partner-otp-qa',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-cali-qa-ticket': ticket },
+        cache: 'no-store',
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(20000),
+      },
+    );
+    // Uma janela permite um envio. Reabrir o formulário não solicita outro código.
+    if (body.action === 'request' && response.status === 429) return { accepted: true };
+    if (!response.ok) {
+      throw new Error(
+        response.status === 403
+          ? 'Código inválido, expirado ou já utilizado.'
+          : 'O serviço de homologação não concluiu a solicitação.',
+      );
+    }
+    return response.json();
+  }
   return {
+    async requestCode(email: string) {
+      z.object({ accepted: z.literal(true) }).parse(await call({ email, action: 'request' }));
+    },
+    async verifyCode(email: string, code: string) {
+      const session = qaSession.parse(await call({ email, code, action: 'verify' }));
+      const saved = await client.auth.setSession(session);
+      if (saved.error || !saved.data.session)
+        throw new Error('A sessão de homologação não foi salva.');
+      // Reinicia o piloto após salvar a sessão; o controlador Admin/Cliente pode limpar a consulta atual.
+      // eslint-disable-next-line no-restricted-syntax -- Exclusivo da janela OTP descartável em Vite dev.
+      window.location.reload();
+    },
+  };
+}
+
+export function createPartnerPilot(
+  client: WorkspaceClient,
+  otp?: ReturnType<typeof createPartnerOtpQa>,
+) {
+  return {
+    requestCode: otp?.requestCode,
     subscribe(listener: () => void) {
       const { data } = client.auth.onAuthStateChange(() => setTimeout(listener, 0));
       return () => data.subscription.unsubscribe();
@@ -114,6 +178,7 @@ export function createPartnerPilot(client: WorkspaceClient) {
       return result;
     },
     async verifyCode(email: string, code: string) {
+      if (otp) return otp.verifyCode(email, code);
       const address = z
         .string()
         .trim()
@@ -206,6 +271,61 @@ export function createPartnerPilot(client: WorkspaceClient) {
         throw new Error('A solicitação já foi decidida. Atualize a fila.');
       if (error) throw new Error('Não foi possível registrar a decisão.');
       return z.uuid().parse(data);
+    },
+    async reviews(company: string, admin: boolean, page: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_list_partner_pilot_reviews', {
+          p_company: company,
+          p_admin: admin,
+          p_page: page,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar as revisões.');
+      return reviewQueue.parse(data);
+    },
+    async submitReview(
+      company: string,
+      request: string,
+      kind: PartnerReviewKind,
+      item: string,
+      note: string,
+    ) {
+      const { data, error } = await client.rpc('v2_submit_partner_pilot_review', {
+        p_company: company,
+        p_request: request,
+        p_kind: kind,
+        p_item: item,
+        p_note: note,
+      });
+      if (error?.code === '40001')
+        throw new Error('Já existe uma revisão ou o item mudou. Atualize a tela.');
+      if (error) throw new Error('Não foi possível enviar o item para revisão.');
+      return z.uuid().parse(data);
+    },
+    async decideReview(company: string, request: string, approve: boolean, note: string) {
+      const { data, error } = await client.rpc('v2_decide_partner_pilot_review', {
+        p_company: company,
+        p_request: request,
+        p_approve: approve,
+        p_note: note,
+      });
+      if (error?.code === '22023') throw new Error('Informe o motivo para devolver a revisão.');
+      if (error?.code === '40001') throw new Error('A revisão ou o item mudou. Atualize a fila.');
+      if (error) throw new Error('Não foi possível registrar a decisão.');
+      return z.uuid().parse(data);
+    },
+    async documentPdf(company: string, id: string, revision: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_download_partner_pilot_document', {
+          p_company: company,
+          p_document: id,
+          p_revision: revision,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('Documento indisponível para esta revisão.');
+      return decodePdf(
+        pdfPayload.extend({ id: z.literal(id), revisionId: z.literal(revision) }).parse(data),
+      );
     },
     async reportPdf(company: string, report: string, version: number, signal: AbortSignal) {
       const { data, error } = await client

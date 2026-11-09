@@ -19,6 +19,7 @@ import { workspaceLabel } from '../project-workspace/workspace-labels';
 import { PartnerItemDetail } from './PartnerItemDetail';
 import { PartnerHoursQueue } from './PartnerHoursQueue';
 import { PartnerTimer } from './PartnerTimer';
+import { PartnerReviewQueue } from './PartnerReviewQueue';
 
 const labels = {
   projects: 'Projetos',
@@ -96,48 +97,57 @@ function PartnerItems({
       <h2 className="tw:text-section tw:font-semibold">{labels[module]}</h2>
       {result.data.rows.length ? (
         <ul className="tw:grid tw:gap-3">
-          {result.data.rows.map((row) => (
-            <li
-              key={row.id}
-              className="tw:grid tw:gap-1 tw:border-b tw:border-border-default tw:pb-3"
-            >
-              <strong className="tw:wrap-anywhere">{row.title || 'Sem descrição'}</strong>
-              <p>
-                {[
-                  row.protocol,
-                  row.status && workspaceLabel(row.status),
-                  row.instant
-                    ? formatServerInstant(row.instant)
-                    : row.day && formatCalendarDate(row.day),
-                  row.minutes !== null && `${row.minutes} min`,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </p>
-              {row.summary && (
-                <p className="tw:wrap-anywhere tw:whitespace-pre-line">{row.summary}</p>
-              )}
-              {module === 'reports' && row.downloadVersion != null && (
-                <PartnerReportDownload
-                  api={api}
-                  company={access.company}
-                  report={row.id}
-                  version={row.downloadVersion}
-                />
-              )}
-              {hasPartnerItemDetail(module) && (
-                <div>
-                  <Button
-                    variant="secondary"
-                    onClick={() => setItem(row.id)}
-                    aria-label={`Abrir ${row.title ?? 'registro'}`}
-                  >
-                    Abrir detalhe
-                  </Button>
-                </div>
-              )}
-            </li>
-          ))}
+          {result.data.rows.map((row) => {
+            const revision = row.downloadRevision;
+            return (
+              <li
+                key={row.id}
+                className="tw:grid tw:gap-1 tw:border-b tw:border-border-default tw:pb-3"
+              >
+                <strong className="tw:wrap-anywhere">{row.title || 'Sem descrição'}</strong>
+                <p>
+                  {[
+                    row.protocol,
+                    row.status && workspaceLabel(row.status),
+                    row.instant
+                      ? formatServerInstant(row.instant)
+                      : row.day && formatCalendarDate(row.day),
+                    row.minutes !== null && `${row.minutes} min`,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
+                {row.summary && (
+                  <p className="tw:wrap-anywhere tw:whitespace-pre-line">{row.summary}</p>
+                )}
+                {module === 'documents' && revision && (
+                  <PdfDownload
+                    key={revision}
+                    download={(signal) => api.documentPdf(access.company, row.id, revision, signal)}
+                  />
+                )}
+                {module === 'reports' && row.downloadVersion != null && (
+                  <PartnerReportDownload
+                    api={api}
+                    company={access.company}
+                    report={row.id}
+                    version={row.downloadVersion}
+                  />
+                )}
+                {hasPartnerItemDetail(module) && (
+                  <div>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setItem(row.id)}
+                      aria-label={`Abrir ${row.title ?? 'registro'}`}
+                    >
+                      Abrir detalhe
+                    </Button>
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <FeedbackState kind="empty">Nenhum registro nesta página.</FeedbackState>
@@ -186,6 +196,9 @@ function PartnerModules({ api, access }: { api: PartnerPilot; access: Ready }) {
         <PartnerItems key={active} api={api} access={access} module={active} />
       ) : (
         <FeedbackState kind="empty">Nenhum módulo de homologação atribuído.</FeedbackState>
+      )}
+      {(available.includes('projects') || available.includes('records')) && (
+        <PartnerReviewQueue api={api} company={access.company} actor={access.actor} admin={false} />
       )}
     </>
   );
@@ -266,6 +279,7 @@ function PartnerGate({ api }: { api: PartnerPilot }) {
         <CodeForm
           api={api}
           codeLength={8}
+          qa
           onConfirmed={async () => {
             await query.refetch();
           }}

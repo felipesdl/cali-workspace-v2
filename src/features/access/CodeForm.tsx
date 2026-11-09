@@ -15,10 +15,12 @@ export function CodeForm({
   api,
   onConfirmed,
   codeLength = 6,
+  qa = false,
 }: {
   api: Pick<HostedAccessApi, 'verifyCode'> & Partial<Pick<HostedAccessApi, 'requestCode'>>;
   onConfirmed: () => void | Promise<void>;
   codeLength?: 6 | 8;
+  qa?: boolean;
 }) {
   const [sent, setSent] = useState(false);
   const verifyOnly = !api.requestCode;
@@ -39,7 +41,11 @@ export function CodeForm({
         }
       } catch (error) {
         setMessage(
-          error instanceof Error ? errorMessage(error) : 'Não foi possível concluir o acesso.',
+          error instanceof Error
+            ? qa && !(error instanceof z.ZodError)
+              ? error.message
+              : errorMessage(error)
+            : 'Não foi possível concluir o acesso.',
         );
       }
     },
@@ -57,7 +63,7 @@ export function CodeForm({
         {verifyOnly
           ? 'Informe o e-mail e o código da conta de homologação.'
           : sent
-            ? 'Se o e-mail estiver habilitado, o código chegará em instantes. Informe os seis dígitos.'
+            ? `Se o e-mail estiver habilitado, o código chegará em instantes. Informe os ${codeLength} dígitos.`
             : 'Informe seu e-mail cadastrado para receber um código de acesso.'}
       </p>
       <form.Field name="email">

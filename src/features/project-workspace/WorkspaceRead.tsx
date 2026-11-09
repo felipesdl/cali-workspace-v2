@@ -1,4 +1,5 @@
 import { PartnerHoursQueue } from '../partner/PartnerHoursQueue';
+import { PartnerReviewQueue } from '../partner/PartnerReviewQueue';
 import { Fragment, useState } from 'react';
 import { ClientReportReading } from './ClientReportReading';
 import { AdminReportWorkspace } from './AdminReportWorkspace';
@@ -1186,6 +1187,15 @@ export function AdminStaffRosterPage() {
           company={companyId}
           operations={domainOperations}
           saved={refresh}
+        />
+      )}
+      {companyId && partnerPilot && (
+        <PartnerReviewQueue
+          key={companyId}
+          api={partnerPilot}
+          company={companyId}
+          actor={actor}
+          admin
         />
       )}
       {companyId && partnerPilot && (

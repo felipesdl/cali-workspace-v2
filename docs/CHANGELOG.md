@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## OTP, Documentos e revisão Partner
+
+- Login por código recebido, MFA, convite, aceite e corte da mesma sessão homologados no navegador integrado. Canal de teste, segredo e identidade descartável retirados. [Evidência](contracts/PARTNER_5.md#otp-por-e-mail-e-limpeza).
+- Download de Documento V2 pela revisão publicada e fila de revisão de entregável/encerramento instalados no CALI MAPA. Ponta Partner comprovada no staging; decisões Admin homologadas no navegador com duas aprovações, uma devolução e nenhuma comunicação externa. [Contrato](contracts/PARTNER_5.md#revisão-de-entregável-e-encerramento-de-ocorrência).
+
 ## Resposta em ocorrência e PDF Partner
 
 - Partner responde ocorrência fictícia aberta da empresa atribuída, com autoria, recibo, transição para aguardar Cliente e aviso somente no aplicativo. Prova SQL com rollback e publicação/releitura no Chrome com fixture retirada. [Contrato e evidências](contracts/PARTNER_5.md#resposta-em-ocorrência).
