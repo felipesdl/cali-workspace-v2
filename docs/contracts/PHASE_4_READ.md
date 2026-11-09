@@ -781,7 +781,13 @@ A API REST recebe caminhos. A configuração do CALI MAPA mostrou S3 habilitado 
 
 A limpeza inicial via REST deixou o primeiro bucket presente. A limpeza via S3 removeu os objetos restantes dos dois buckets. O catálogo confirmou ambos ausentes. A prova se limita ao transporte S3 e à configuração ensaiada.
 
-Para um executor, a revalidação por SQL continua útil como prévia. A remoção precisa aplicar a identidade e a versão aprovadas no próprio ato, ou usar uma chave protegida contra substituição durante todo o intervalo até o recibo. A prova de uma chave protegida precisa abranger os caminhos de escrita privilegiados, upload, sobrescrita e movimentação. A operação permanece desabilitada.
+#### Trava de versão para a remoção no Storage
+
+A [candidata de QA](../../supabase/proposals/phase-4/elimination-storage-fence-qa.sql) reserva o caminho em uma transação com a conferência do bucket, da chave, do UUID e da versão. Os gatilhos disputam o mesmo bloqueio por caminho. A reserva rejeita um snapshot antigo. Depois da reserva, o catálogo rejeita escritas que alterem o alvo ou recriem o caminho, inclusive com a credencial de serviço. A exclusão continua pela API do Storage. O gatilho confere a linha que a API está removendo e só permite o UUID e a versão reservados. A reserva permanece após a exclusão para proteger uma nova tentativa de remoção contra um objeto recriado.
+
+No CALI MAPA, duas rodadas usaram buckets privados descartáveis. A API S3 recusou uma exclusão com aprovação obsoleta, a sobrescrita e a recriação do caminho. Na disputa simultânea, a sobrescrita foi recusada e a exclusão da versão aprovada passou. A leitura posterior confirmou ausência. A API REST recusou mover o alvo para outro caminho e mover outro arquivo para a chave reservada. A movimentação do controle entre caminhos livres passou e os bytes esperados foram conferidos. O [ensaio em PostgreSQL descartável](../../supabase/proposals/phase-4/prove-elimination-storage-fence-qa.sql) também cobriu reenvio da reserva.
+
+A instalação de ensaio tem filtros para um único bucket com nome reservado a QA. O [rollback](../../supabase/proposals/phase-4/rollback-elimination-storage-fence-qa.sql) removeu os gatilhos e as funções temporárias. A conferência comparou as definições dos gatilhos preexistentes e confirmou que os dois buckets foram removidos. O executor operacional ainda depende de vínculo com o plano aprovado e a elegibilidade da empresa, validação da guarda e confirmação de cópias externas. A resposta bem-sucedida da API, junto com a ausência conferida, é a evidência da prova. Ausência no catálogo após erro ou resposta perdida exige reconciliação.
 
 Para liberar execução operacional, faltam a validação da guarda por grupo, a confirmação das cópias com os responsáveis pelos destinos e a integração com um transporte que preserve o alvo aprovado.
 

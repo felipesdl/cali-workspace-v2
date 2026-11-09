@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Trava de versão para a remoção de arquivos
+
+- A API real do CALI MAPA recusou aprovação obsoleta, sobrescrita e recriação do caminho reservado. A exclusão da versão aprovada passou. Trava e bucket de teste removidos após a prova. [Evidências](contracts/PHASE_4_READ.md#trava-de-versão-para-a-remoção-no-storage).
+
 ## Prova de remoção condicional no CALI MAPA
 
 - No S3 do staging, If-Match antigo não protegeu o substituto e VersionId retornou NotSupported. Os buckets descartáveis foram removidos e conferidos no catálogo. [Evidências](contracts/PHASE_4_READ.md#prova-da-remoção-condicional-no-cali-mapa).
