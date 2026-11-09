@@ -33,7 +33,7 @@ O ensaio de recuperação com fixtures passou localmente. A separação dos proj
 | 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A, 2B e 2C homologadas funcionalmente no piloto A/B; frontend final pendente |
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Implementada no piloto; ativação final pendente |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
-| 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
+| 5 — Partner | Piloto próprio após a fase 4 | Admissão, atribuições e operação por módulo | Em andamento no CALI MAPA. [Contrato e matriz](contracts/PARTNER_5.md) |
 | 6 — Homologação global do recorte | Entregas aplicáveis de 2–4; 5 somente se autorizada no recorte | Regressão entre fluxos, evidência de permissões, UX e aceite de produto | Planejada |
 | 7 — Preparação de release | 6 e aceites exigidos | Configuração de destino, observabilidade, corte, backup/restauração e rollback revisáveis | Planejada; sem publicação implícita |
 
@@ -342,7 +342,7 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 ## Fases 5–7 — Prioridade posterior e fechamento
 
-**5 — Partner:** adiar a área completa; antes de incluí-la, fechar público, atribuições, matriz e paridade próprios. Não conflitar com a gestão Admin de equipe CALI já prevista. O recorte Cliente/Admin pode ser homologado sem essa expansão.
+**5 — Partner:** em andamento no CALI MAPA. Admissão fictícia com MFA, convite e termos validada no Auth e na Data API. Área isolada em `/equipe` com leitura por empresa e módulo, detalhes de Projetos e Ocorrências, consulta de horas próprias e fila de horas manuais com decisão Admin homologada. [Matriz, provas e próximos recortes](contracts/PARTNER_5.md).
 
 **6 — Homologação:** os 18 IDs/subfluxos aplicáveis têm evidência real ou adiamento explicitamente aprovado. Executar regressão entre módulos, isolamento e decisões vigentes; mídia/PDF/e-mail e tela concordam; sem operação obrigatória apenas simulada, bloqueio crítico oculto ou dados fictícios tratados como reais. UX/mobile/teclado são conferidos em cada entrega e novamente nos percursos cruzados. Resumo Admin segue RESUMO-01/DEC-19 e exige evidência de operação; conteúdo Partner não faz parte do aceite Admin/Cliente.
 

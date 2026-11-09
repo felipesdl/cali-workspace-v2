@@ -46,7 +46,14 @@ function AccessStep({ api, session, state, access, acceptance }: AccessStepProps
         </FeedbackState>
       );
     case 'mfa_required':
-      return <MfaForm api={api} onConfirmed={() => session.refresh()} />;
+      return (
+        <MfaForm
+          api={api}
+          onConfirmed={async () => {
+            await session.refresh();
+          }}
+        />
+      );
     case 'terms_required':
       if (access.terms) return <TermsAcceptance terms={access.terms} {...acceptance} />;
       break;

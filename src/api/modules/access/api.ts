@@ -8,8 +8,8 @@ import {
   verifyAccessCodeResponseSchema,
   workspaceProfileRecordSchema,
 } from './schemas';
-import { currentTermsSchema, acceptCurrentTermsSchema } from './session';
-import { hostedLegalContent, hostedLegalTitle, hostedLegalVersion } from './legal';
+import { acceptCurrentTermsSchema } from './session';
+import { readPublishedTerms } from './hosted-terms';
 import { createAccessStateSource } from './service';
 
 const unavailable = () => new Error('Não foi possível confirmar seu acesso. Tente novamente.');
@@ -21,29 +21,13 @@ export function createHostedAccessApi(
   endpoint: 'workspace-access' | 'workspace-access-pilot' = 'workspace-access',
 ) {
   const termsStateSchema = acceptCurrentTermsSchema.extend({ accepted: z.boolean() });
-  let bundledHash: Promise<string> | undefined;
   async function termsState(signal: AbortSignal) {
     const { data, error } = await client.rpc('v2_read_terms_state').abortSignal(signal);
     if (error) throw unavailable();
     if (data === null) return null;
     const published = termsStateSchema.parse(data);
-    if (published.version !== hostedLegalVersion) return null;
-
-    bundledHash ??= crypto.subtle
-      .digest('SHA-256', new TextEncoder().encode(hostedLegalContent))
-      .then((digest) =>
-        Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join(''),
-      );
-    if (published.contentHash !== (await bundledHash)) return null;
-    return {
-      terms: currentTermsSchema.parse({
-        version: published.version,
-        contentHash: published.contentHash,
-        title: hostedLegalTitle,
-        content: hostedLegalContent,
-      }),
-      accepted: published.accepted,
-    };
+    const terms = await readPublishedTerms(published);
+    return terms ? { terms, accepted: published.accepted } : null;
   }
   async function identity() {
     const session = await client.auth.getSession();

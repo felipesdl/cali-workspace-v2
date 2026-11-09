@@ -216,3 +216,8 @@ A [2C](contracts/TEAM_MONTHLY_2C.md) tem contrato e prova próprios, sem ampliar
 Os wrappers `v2_disc_admin/command/document` exigem Admin com MFA e aceite para operações internas. `v2_disc_client` deriva empresa da sessão e retorna somente gestão aprovada/liberada. `v2_disc_document` permite ao Cliente somente essa mesma gestão; resultado individual exige Admin. `v2_disc_public` recebe capacidade do convite e retorna contexto/participação, nunca resultado. `v2_disc_worker` é exclusivo do papel servidor. O schema privado não concede leitura direta a anon/authenticated/service_role. [Contrato, provas e limites](contracts/DISC_3.md).
 
 Autorização da agenda DISC. `action=scheduled` exige JWT de serviço correspondente ao SHA-256 configurado para o agendador e hook privado com `config.enabled=true`; rejeita Origin de navegador e parâmetros de documento/relógio. `verify_jwt=true` permanece obrigatório no gateway. O segredo é lido do Vault pelo banco, sem novo grant na API. `worker_at` e seu relógio de teste permanecem privados; a RPC usa o relógio do servidor. O incremento está no CALI MAPA com flag desligada.
+
+
+## Piloto Partner da fase 5
+
+O [contrato Partner](contracts/PARTNER_5.md) define a projeção isolada do CALI MAPA. O convite fictício exige sessão ativa, TOTP verificado e AAL2 antes do aceite. A leitura exige termos vigentes e revalida o vínculo e o módulo em cada chamada. Projetos e ocorrências dependem da inscrição sintética e Horas restringe autoria. A fila manual permite decisão somente por Admin com MFA e termos. A aprovação usa o contrato de horas existente, com visibilidade Cliente desmarcada. Os predicados do Partner legado permanecem fora deste piloto.

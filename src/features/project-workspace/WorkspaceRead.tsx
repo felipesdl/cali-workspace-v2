@@ -1,3 +1,4 @@
+import { PartnerHoursQueue } from '../partner/PartnerHoursQueue';
 import { Fragment, useState } from 'react';
 import { ClientReportReading } from './ClientReportReading';
 import { AdminReportWorkspace } from './AdminReportWorkspace';
@@ -1159,7 +1160,7 @@ const staffInvitationLabels = {
 };
 
 export function AdminStaffRosterPage() {
-  const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
+  const { adminRead, domainOperations, partnerPilot } = useRouteContext({ from: '__root__' });
   const search = adminStaffRoster.useSearch();
   const navigate = adminStaffRoster.useNavigate();
   const { companyId, actor, admin } = useScope(search);
@@ -1185,6 +1186,15 @@ export function AdminStaffRosterPage() {
           company={companyId}
           operations={domainOperations}
           saved={refresh}
+        />
+      )}
+      {companyId && partnerPilot && (
+        <PartnerHoursQueue
+          key={companyId}
+          api={partnerPilot}
+          company={companyId}
+          actor={actor}
+          admin
         />
       )}
       {!companyId ? (

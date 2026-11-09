@@ -1,3 +1,4 @@
+import { createPartnerPilot } from './api/modules/partner/pilot';
 import { createProjectJournal } from './api/modules/project-workspace/project-journal';
 import { createAdminRead } from './api/modules/project-workspace/admin-read';
 import { createDocumentOperations } from './api/modules/project-workspace/documents';
@@ -71,6 +72,13 @@ try {
       ? {
           access,
           companies: composeCompaniesService(client),
+          partnerPilot:
+            team &&
+            client &&
+            window.location.hostname === '127.0.0.1' &&
+            import.meta.env.VITE_CALI_PHASE5_PARTNER === 'true'
+              ? createPartnerPilot(client)
+              : null,
           team,
           monthly: team && client ? createHostedTeamMonthly(client) : null,
           disc: team && client ? createHostedDisc(client) : null,

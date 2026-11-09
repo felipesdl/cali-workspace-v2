@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Admissão e leitura Partner no CALI MAPA
+
+- Piloto isolado com convite, TOTP e termos vigentes. Empresa atribuída, leitura de Projetos e Ocorrências, horas próprias e fila manual com decisão Admin. [Contrato e evidências](contracts/PARTNER_5.md).
+
 ## Fechamento de Relatórios e Administração no piloto
 
 - Trilha de aprovação, arquivo Cliente e PDF da revisão 5 homologados em A/B. Admin emitiu e revogou convite fictício da Equipe CALI. A prova de eliminação vinculou a reserva do plano à versão do arquivo. [Evidências](contracts/PHASE_4_READ.md#fechamento-de-relatórios-no-piloto).

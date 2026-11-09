@@ -1,3 +1,4 @@
+import type { PartnerPilot } from '../api/modules/partner/pilot';
 import { type ProjectJournal } from '../api/modules/project-workspace/project-journal';
 import { type AdminReadService } from '../api/modules/project-workspace/admin-read';
 import { type DocumentOperations } from '../api/modules/project-workspace/documents';
@@ -48,6 +49,7 @@ const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient;
   session: SessionController | null;
   access: HostedAccessApi | null;
+  partnerPilot?: PartnerPilot | null;
   companies: CompaniesService;
   team?: TeamService | null;
   monthly?: TeamMonthlyService | null;
@@ -349,8 +351,18 @@ const externalCommercialRoute = createRoute({
   ),
 });
 
+const partnerPilotRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/equipe',
+  component: lazyRouteComponent(
+    () => import('../features/partner/PartnerWorkspace'),
+    'PartnerWorkspace',
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
   externalCommercialRoute,
+  partnerPilotRoute,
   publicTextFormRoute,
   discRespondentRoute,
   accessGateRoute,
@@ -366,6 +378,7 @@ export function createAppRouter(
   session: SessionController | null = null,
   services?: {
     access: HostedAccessApi;
+    partnerPilot?: PartnerPilot | null;
     companies: CompaniesService;
     team?: TeamService | null;
     monthly?: TeamMonthlyService | null;
@@ -387,6 +400,7 @@ export function createAppRouter(
       queryClient,
       session,
       access: services?.access ?? null,
+      partnerPilot: services?.partnerPilot ?? null,
       companies: services?.companies ?? companiesService,
       team: services?.team ?? null,
       monthly: services?.monthly ?? null,

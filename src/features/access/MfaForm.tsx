@@ -1,7 +1,6 @@
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { useForm } from '@tanstack/react-form';
 import { type HostedAccessApi } from '../../api/modules/access/api';
-import { type SessionState } from '../../app/session/controller';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { CodeInput } from './CodeInput';
@@ -10,9 +9,11 @@ import { useMfaEnrollment } from './hooks/useMfaEnrollment';
 export function MfaForm({
   api,
   onConfirmed,
+  audience = 'Admin',
 }: {
   api: HostedAccessApi;
-  onConfirmed: () => Promise<SessionState>;
+  onConfirmed: () => Promise<void>;
+  audience?: 'Admin' | 'Partner';
 }) {
   const { factor, enrollment, loading, failed, message, setMessage, setEnrollment, retry, enroll } =
     useMfaEnrollment(api);
@@ -40,7 +41,7 @@ export function MfaForm({
   return (
     <div className="tw:mt-4 tw:grid tw:gap-4">
       <p>
-        Admin exige confirmação pelo aplicativo autenticador. Falha nesta etapa mantém o acesso
+        {audience} exige confirmação pelo aplicativo autenticador. Falha nesta etapa mantém o acesso
         bloqueado.
       </p>
       {!factor && (
