@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## Revisão do Admin antes da publicação
+
+- O resumo global Admin mantém consulta, erro e nova tentativa próprios quando a lista de empresas está carregando ou falha. Prioridades por empresa continuam dependentes da listagem.
+- Separa a composição conectada do Admin da demonstração e usa `workspaceRole` nos guards de sessão, rotas e ações que dependem do papel. As regras de acesso permanecem as mesmas.
+- A regressão da Visão executiva exercita a lista normal e a falha de listagem com o resumo global disponível. A validação usa serviços locais de teste. O rollback é a reversão do commit.
+
 ## Preparação do núcleo da V2 para produção
 
 - Separa a edição de Minha conta, as notificações próprias e o resumo global Admin dos módulos que ainda dependem do piloto. A configuração é optativa e restrita ao domínio oficial e ao backend CALI MAPA.

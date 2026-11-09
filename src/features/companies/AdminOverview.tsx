@@ -72,7 +72,7 @@ export function AdminOverview() {
           </ul>
         )}
       </section>
-      {companies.isSuccess && <AdminPriorities companies={companies.data} />}
+      <AdminPriorities companies={companies.isSuccess ? companies.data : undefined} />
     </div>
   );
 }

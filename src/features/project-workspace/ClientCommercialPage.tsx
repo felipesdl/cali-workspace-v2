@@ -1,3 +1,4 @@
+import { workspaceRole } from '../../api/modules/access/schemas';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useEffect, useRef } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
@@ -72,7 +73,7 @@ export function ClientCommercialPage() {
     queryFn:
       adminRead &&
       domainOperations &&
-      profile?.role === 'client' &&
+      profile?.role === workspaceRole.Client &&
       isPilotCompany(company ?? undefined) &&
       company
         ? ({ signal }) => adminRead.receivedOffers(company, signal)

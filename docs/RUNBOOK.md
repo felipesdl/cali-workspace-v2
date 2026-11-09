@@ -269,6 +269,8 @@ A preparação do ambiente de homologação ainda exige domínio de teste proteg
 
 A opção `VITE_CALI_RELEASE_CORE=true` conecta edição da própria conta, notificações próprias e resumo global da carteira Admin no build publicado. A configuração exige o projeto CALI MAPA e a origem exata `https://app.calirh.com`. A carteira global funciona sem carregar a área piloto de Projetos. As notificações mostram os atalhos de detalhe somente quando a rota correspondente estiver disponível. A flag controla a composição do frontend. Os contratos do servidor continuam responsáveis por sessão, papel, aceite e vínculo. A configuração padrão mantém a opção desativada.
 
+Na Visão executiva, o resumo global tem consulta e recuperação independentes da lista de empresas. A regressão local cobre as duas respostas da listagem, com e sem falha, sem acesso ao ambiente publicado.
+
 A conferência em leitura de 09/11/2026 encontrou:
 
 | Superfície | Evidência | Trabalho antes de ativar |

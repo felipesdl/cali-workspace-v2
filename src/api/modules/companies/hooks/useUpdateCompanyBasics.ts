@@ -1,3 +1,4 @@
+import { workspaceRole } from '../../access/schemas';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { companyKeys } from '../keys';
@@ -15,7 +16,7 @@ export function useUpdateCompanyBasics() {
         session &&
         (state?.phase !== 'resolved' ||
           state.access.status !== 'ready' ||
-          state.access.profile?.role !== 'admin')
+          state.access.profile?.role !== workspaceRole.Admin)
       )
         throw new Error('Não foi possível confirmar sua permissão para editar.');
       return scope.service.updateBasics(input);

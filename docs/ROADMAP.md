@@ -357,6 +357,8 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 **Lotes 1 e 2 da preparação 7:** [candidata de produção e inventário](RUNBOOK.md#candidata-da-v2-para-o-domínio-de-produção) registram a configuração explícita do núcleo da V2, o artefato online, os contratos do CALI MAPA e as lacunas de origem e callback. Equipe e as demais operações limitadas ao piloto continuam pendentes de liberação operacional. A validação autenticada no domínio corresponde ao lote seguinte.
 
+**Revisão antes da publicação:** o resumo global Admin independe da listagem de empresas. A composição do Admin e as verificações de papel foram padronizadas com regressão local. [Registro](CHANGELOG.md#revisão-do-admin-antes-da-publicação).
+
 ## Referências anteriores e tarefa para IA
 
 O plano anterior 0–7 organizava camadas: fundação, DS, shell, demo, acesso, integração e homologação. Nesta revisão, DS/shell/hooks/adaptadores/testes passam a acompanhar cada entrega; acesso/isolamento essenciais são antecipados para 1. As antigas ondas 6A–6D são substituídas pela matriz acima. Referências de fases em entradas históricas do changelog descrevem o plano daquela data, não uma obrigação de concluir todos os módulos demo antes de integrar o primeiro.

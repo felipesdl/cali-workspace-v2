@@ -17,7 +17,7 @@ const listStyle = 'tw:m-0 tw:grid tw:list-none tw:gap-2 tw:p-0';
 const linkStyle =
   'tw:block tw:rounded-control tw:border tw:border-border-default tw:p-3 tw:text-brand tw:no-underline tw:wrap-anywhere tw:hover:bg-ivory tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-focus';
 
-export function AdminPriorities({ companies }: { companies: readonly Company[] }) {
+export function AdminPriorities({ companies }: { companies?: readonly Company[] }) {
   const search = overviewRoute.useSearch();
   const navigate = overviewRoute.useNavigate();
   const { domainOperations, adminPortfolio } = useRouteContext({ from: '__root__' });
@@ -25,19 +25,19 @@ export function AdminPriorities({ companies }: { companies: readonly Company[] }
   const projects = useQuery({
     queryKey: ['projects', actor, companyId, firstPage],
     queryFn:
-      service && companyId && admin
+      companies && service && companyId && admin
         ? ({ signal }) => service.list(companyId, firstPage, signal)
         : skipToken,
   });
   const records = useQuery({
     queryKey: ['phase4-catalog', actor, companyId, 'records', null, firstPage],
     queryFn:
-      service && companyId && admin && domainOperations
+      companies && service && companyId && admin && domainOperations
         ? ({ signal }) => service.catalog(companyId, 'records', null, firstPage, signal)
         : skipToken,
   });
   if (!admin) return null;
-  if (!service)
+  if (!service || !companies)
     return adminPortfolio ? <AdminPortfolioSummary service={adminPortfolio} actor={actor} /> : null;
   const pilotCompanies = companies.filter((company) => isPilotCompany(company.id));
   const adjustments = projects.data?.projects.filter(

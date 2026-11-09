@@ -1,3 +1,4 @@
+import { workspaceRole } from '../../access/schemas';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { useWorkspaceSession } from '../../access/hooks/useWorkspaceSession';
@@ -9,7 +10,7 @@ export function useClientCompany() {
   const profile =
     state.phase === 'resolved' &&
     state.access.status === 'ready' &&
-    state.access.profile?.role === 'client'
+    state.access.profile?.role === workspaceRole.Client
       ? state.access.profile
       : null;
   const companyId = profile?.company_id;
@@ -29,7 +30,7 @@ export function useClientCompany() {
       current.access.status !== 'ready' ||
       current.access.profile?.id !== profile.id ||
       current.access.profile?.company_id !== companyId ||
-      current.access.profile.role !== 'client'
+      current.access.profile.role !== workspaceRole.Client
     )
       return;
     await cache.invalidateQueries({

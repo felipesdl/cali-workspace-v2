@@ -1,3 +1,4 @@
+import { workspaceRole } from '../access/schemas';
 import { type ImportPrivateRow } from './import';
 import { writeMonthOptions, type ProfessionalPatch } from './maintenance';
 import { teamViews } from './schemas';
@@ -16,7 +17,7 @@ export function useTeam(search: TeamSearch) {
     session.phase === 'resolved' && session.access.status === 'ready'
       ? session.access.profile
       : null;
-  const companyId = profile?.role === 'admin' ? search.companyId : profile?.company_id;
+  const companyId = profile?.role === workspaceRole.Admin ? search.companyId : profile?.company_id;
   const enabled = Boolean(team && profile?.active && companyId && isPilotCompany(companyId));
   const cache = useQueryClient();
   const key = ['team', profile?.id, companyId] as const;

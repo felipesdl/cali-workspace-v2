@@ -1,3 +1,4 @@
+import { workspaceRole } from '../access/schemas';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { z } from 'zod';
@@ -13,7 +14,7 @@ export function useDiscAdmin(campaignId: string | null) {
       ? session.access.profile
       : null;
   const allowed = Boolean(
-    disc && import.meta.env.DEV && profile?.active && profile.role === 'admin',
+    disc && import.meta.env.DEV && profile?.active && profile.role === workspaceRole.Admin,
   );
   const cache = useQueryClient();
   const key = ['disc', profile?.id ?? 'unauthorized'] as const;
@@ -81,7 +82,7 @@ export function useDiscClient() {
     disc &&
     import.meta.env.DEV &&
     profile?.active &&
-    profile.role === 'client' &&
+    profile.role === workspaceRole.Client &&
     isDiscPilotCompany(profile.company_id),
   );
   const query = useQuery({

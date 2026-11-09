@@ -1,3 +1,4 @@
+import { workspaceRole } from '../access/schemas';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { useWorkspaceSession } from '../access/hooks/useWorkspaceSession';
@@ -13,8 +14,8 @@ export function useTeamPrivate(member: ProfessionalRecord) {
   const enabled = Boolean(
     profile?.active &&
     isPilotCompany(member.company_id) &&
-    (profile.role === 'admin' ||
-      (profile.role === 'client' && profile.company_id === member.company_id)),
+    (profile.role === workspaceRole.Admin ||
+      (profile.role === workspaceRole.Client && profile.company_id === member.company_id)),
   );
   const cache = useQueryClient();
   const rootKey = ['team', profile?.id, member.company_id] as const;

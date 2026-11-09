@@ -1,9 +1,10 @@
 import { type AccessReason } from './access-reason';
+import { type workspaceRole } from '../../api/modules/access/schemas';
 import { type SessionState } from './controller';
 
 export function sessionGuard(
   state: SessionState,
-  role: 'admin' | 'client',
+  role: typeof workspaceRole.Admin | typeof workspaceRole.Client,
 ): AccessReason | 'allowed' {
   if (state.phase === 'signed_out' || state.phase === 'idle') return 'signed_out';
   if (state.phase !== 'resolved') return 'unavailable';

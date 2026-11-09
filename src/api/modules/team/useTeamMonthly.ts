@@ -1,3 +1,4 @@
+import { workspaceRole } from '../access/schemas';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { useWorkspaceSession } from '../access/hooks/useWorkspaceSession';
@@ -14,7 +15,7 @@ export function useTeamMonthly(search: Pick<TeamSearch, 'companyId' | 'month'>) 
     session.phase === 'resolved' && session.access.status === 'ready'
       ? session.access.profile
       : null;
-  const companyId = profile?.role === 'admin' ? search.companyId : profile?.company_id;
+  const companyId = profile?.role === workspaceRole.Admin ? search.companyId : profile?.company_id;
   const month = `${search.month ?? writeMonthOptions()[0]}-01`;
   const enabled = Boolean(monthly && profile?.active && companyId && isPilotCompany(companyId));
   const key = ['team-monthly', profile?.id, companyId] as const;
@@ -61,7 +62,7 @@ export function useTeamMonthly(search: Pick<TeamSearch, 'companyId' | 'month'>) 
     companyId,
     month,
     enabled,
-    admin: profile?.role === 'admin',
+    admin: profile?.role === workspaceRole.Admin,
     available: Boolean(monthly),
   };
 }

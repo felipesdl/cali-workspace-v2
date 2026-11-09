@@ -1,3 +1,4 @@
+import { workspaceRole } from '../../access/schemas';
 import { useRouteContext } from '@tanstack/react-router';
 import { useWorkspaceSession } from '../../access/hooks/useWorkspaceSession';
 
@@ -11,6 +12,6 @@ export function useCompaniesScope() {
     actor: session
       ? `${access?.profile?.id ?? 'unauthorized'}:${access?.profile?.company_id ?? 'admin'}`
       : 'mock-admin',
-    enabled: !session || access?.profile?.role === 'admin',
+    enabled: !session || access?.profile?.role === workspaceRole.Admin,
   };
 }

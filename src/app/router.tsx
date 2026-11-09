@@ -44,6 +44,7 @@ import { AccessGatePage } from './routes/AccessGatePage';
 import { type SessionController } from './session/controller';
 import { safeReturnPath, sessionGuard } from './session/guard';
 import { type HostedAccessApi } from '../api/modules/access/api';
+import { workspaceRole } from '../api/modules/access/schemas';
 import { type CompaniesService } from '../api/modules/companies/service';
 import { companiesService } from '../api/modules/companies/api';
 import { parseAccessReason } from './session/access-reason';
@@ -79,7 +80,7 @@ const indexRoute = createRoute({
   path: '/',
   beforeLoad: async ({ context }) => {
     const state = await context.session?.resolve();
-    if (state?.phase === 'resolved' && state.access.profile?.role === 'admin')
+    if (state?.phase === 'resolved' && state.access.profile?.role === workspaceRole.Admin)
       throw redirect({ to: '/admin/clientes', search: { q: '', status: 'all' } });
     throw redirect({ to: '/cliente' });
   },
@@ -89,7 +90,7 @@ const clientRoute = createRoute({
   path: '/cliente',
   beforeLoad: async ({ context, location }) => {
     if (!context.session) return; // Permitido somente na composição demonstrativa explícita.
-    const reason = sessionGuard(await context.session.resolve(), 'client');
+    const reason = sessionGuard(await context.session.resolve(), workspaceRole.Client);
     if (reason !== 'allowed')
       throw redirect({
         to: '/acesso',
@@ -104,7 +105,7 @@ const adminRoute = createRoute({
   path: '/admin',
   beforeLoad: async ({ context, location }) => {
     if (!context.session) return;
-    const reason = sessionGuard(await context.session.resolve(), 'admin');
+    const reason = sessionGuard(await context.session.resolve(), workspaceRole.Admin);
     if (reason !== 'allowed')
       throw redirect({
         to: '/acesso',

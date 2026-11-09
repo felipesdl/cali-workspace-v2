@@ -27,7 +27,7 @@ async function openApp(entry = '/admin/clientes') {
 }
 
 describe('navegação e formulário de empresas', () => {
-  it('mostra a carteira Admin sem habilitar a área de Projetos do piloto', async () => {
+  it.each([false, true])('mantém o resumo global com falha de lista=%s', async (listFails) => {
     const cache = createQueryClient();
     const session = createSessionController(
       {
@@ -54,13 +54,20 @@ describe('navegação e formulário de empresas', () => {
     );
     const url = 'https://example.supabase.co';
     const key = 'sb_publishable_test';
+    const companies = composeCompaniesService(null);
     const router = createAppRouter(
       createMemoryHistory({ initialEntries: ['/admin'] }),
       cache,
       session,
       {
         access: createHostedAccessApi(createWorkspaceClient(url, key), url, key),
-        companies: composeCompaniesService(null),
+        companies: {
+          ...companies,
+          list: async (filters, signal) => {
+            if (listFails) throw new Error('Listagem indisponível');
+            return companies.list(filters, signal);
+          },
+        },
         adminPortfolio: {
           read: async (month) => ({
             month,
@@ -79,6 +86,11 @@ describe('navegação e formulário de empresas', () => {
       await router.load();
     });
     render(<App router={router} />);
+    if (listFails) {
+      expect(await screen.findByText('Não foi possível consultar a carteira.')).toBeTruthy();
+    } else {
+      expect(await screen.findByRole('link', { name: /Todas as empresas/ })).toBeTruthy();
+    }
     expect(await screen.findByRole('heading', { name: 'Resumo da carteira' })).toBeTruthy();
     expect(await screen.findByText('Horas registradas')).toBeTruthy();
     expect(screen.queryByLabelText('Empresa de homologação')).toBeNull();

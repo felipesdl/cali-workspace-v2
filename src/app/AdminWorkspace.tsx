@@ -1,5 +1,5 @@
 import { phase4CatalogFromPath } from './phase4-navigation';
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import {
   Outlet,
   useLocation,
@@ -19,68 +19,67 @@ const CompaniesPage = lazy(() =>
 );
 const AdminPreview = lazy(() => import('../AdminPreview'));
 
+const adminReadTitles: Readonly<Record<string, string | undefined>> = {
+  '/admin/mapa-people': 'Mapa de People',
+  '/admin/satisfacao': 'Satisfação',
+  '/admin/auditoria': 'Auditoria',
+  [adminPaths.proposals]: 'Propostas',
+  '/admin/equipe-cali': 'Equipe CALI',
+};
+
+const projectTitles: Readonly<Record<string, string | undefined>> = {
+  '/admin/formularios': 'Formulários',
+  '/admin/privacidade': 'Privacidade',
+  [adminPaths.projects]: 'Projetos',
+  [adminPaths.hours]: 'Horas',
+};
+
 export function AdminWorkspace() {
+  const { access } = useRouteContext({ from: '__root__' });
+  return access ? <ConnectedAdminWorkspace /> : <DemoAdminWorkspace />;
+}
+
+function ConnectedAdminWorkspace() {
   const pathname = useMatches({
-    select: (matches) => matches[matches.length - 1]?.pathname.replace(/\/$/, '') ?? '/admin',
+    select: (matches) =>
+      matches[matches.length - 1]?.pathname.replace(/\/$/, '') ?? adminPaths.overview,
   });
+  const { team, disc, projectWorkspace, adminRead } = useRouteContext({ from: '__root__' });
+  const outletTitle =
+    (pathname === '/admin/minha-conta' && 'Minha conta') ||
+    (team && pathname === adminPaths.people && 'Equipe') ||
+    (disc && pathname === '/admin/perfil' && 'Perfil comportamental') ||
+    (adminRead && adminReadTitles[pathname]) ||
+    (projectWorkspace && (projectTitles[pathname] ?? phase4CatalogFromPath(pathname)?.title));
+
+  let title = outletTitle || 'Empresas e acessos';
+  let content: ReactNode = null;
+  if (pathname === adminPaths.overview) {
+    title = 'Visão executiva';
+    content = <AdminOverview />;
+  } else if (pathname === adminPaths.accounts) {
+    content = (
+      <Suspense fallback={<FeedbackState kind="loading">Carregando empresas…</FeedbackState>}>
+        <CompaniesPage />
+      </Suspense>
+    );
+  } else if (!outletTitle) {
+    content = (
+      <p>Esta área está em preparação. Acesse Empresas e acessos para acompanhar as contas.</p>
+    );
+  }
+
+  return (
+    <WorkspaceLayout title={title}>
+      {content}
+      <Outlet />
+    </WorkspaceLayout>
+  );
+}
+
+function DemoAdminWorkspace() {
   const navigate = useNavigate();
   const previewPath = useLocation({ select: (location) => location.pathname });
-  const { access, team, disc, projectWorkspace, adminRead } = useRouteContext({ from: '__root__' });
-  const showOverview = pathname === adminPaths.overview;
-  const showAccount = pathname === '/admin/minha-conta';
-  const showTeam = Boolean(team && pathname === adminPaths.people);
-  const showDisc = Boolean(disc && pathname === '/admin/perfil');
-  const adminReadTitle =
-    adminRead &&
-    (pathname === '/admin/satisfacao'
-      ? 'Satisfação'
-      : pathname === '/admin/auditoria'
-        ? 'Auditoria'
-        : pathname === '/admin/propostas'
-          ? 'Propostas'
-          : pathname === '/admin/equipe-cali'
-            ? 'Equipe CALI'
-            : null);
-  const operationsTitle =
-    (adminRead && pathname === '/admin/mapa-people' && 'Mapa de People') ||
-    adminReadTitle ||
-    (projectWorkspace &&
-      (pathname === '/admin/formularios'
-        ? 'Formulários'
-        : pathname === '/admin/privacidade'
-          ? 'Privacidade'
-          : pathname === adminPaths.projects
-            ? 'Projetos'
-            : pathname === adminPaths.hours
-              ? 'Horas'
-              : phase4CatalogFromPath(pathname)?.title));
-  const sectionTitle = showAccount ? 'Minha conta' : operationsTitle;
-  if (access)
-    return (
-      <WorkspaceLayout
-        title={
-          sectionTitle ||
-          (showOverview
-            ? 'Visão executiva'
-            : showDisc
-              ? 'Perfil comportamental'
-              : showTeam
-                ? 'Equipe'
-                : 'Empresas e acessos')
-        }
-      >
-        {showOverview ? (
-          <AdminOverview />
-        ) : showTeam || showDisc || sectionTitle ? null : pathname === '/admin/clientes' ? (
-          <Suspense fallback={<FeedbackState kind="loading">Carregando empresas…</FeedbackState>}>
-            <CompaniesPage />
-          </Suspense>
-        ) : (
-          <p>Esta área está em preparação. Acesse Empresas e acessos para acompanhar as contas.</p>
-        )}
-        <Outlet />
-      </WorkspaceLayout>
-    );
   return (
     <>
       <Suspense fallback={<FeedbackState kind="loading">Carregando demonstração…</FeedbackState>}>
@@ -88,10 +87,10 @@ export function AdminWorkspace() {
           section={adminSectionFromPath(previewPath)}
           onSectionChange={(section) => {
             if (section === 'accounts') {
-              void navigate({ to: '/admin/clientes', search: { q: '', status: 'all' } });
-            } else {
-              void navigate({ to: adminPaths[section] });
+              void navigate({ to: adminPaths.accounts, search: { q: '', status: 'all' } });
+              return;
             }
+            void navigate({ to: adminPaths[section] });
           }}
           onClient={() => void navigate({ to: '/cliente' })}
         />

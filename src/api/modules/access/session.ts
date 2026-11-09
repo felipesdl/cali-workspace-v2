@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { workspaceProfileRecordSchema } from './schemas.ts';
+import { workspaceProfileRecordSchema, workspaceRole } from './schemas.ts';
 import { companyStatus } from '../companies/schemas.ts';
 
 export const currentTermsSchema = z.strictObject({
@@ -34,8 +34,8 @@ export const workspaceAccessStateSchema = z
       profile?.active &&
       value.terms &&
       value.termsAccepted &&
-      (profile.role === 'admin' ||
-        (profile.role === 'client' &&
+      (profile.role === workspaceRole.Admin ||
+        (profile.role === workspaceRole.Client &&
           profile.company_id &&
           (value.companyStatus === 'active' || value.companyStatus === 'paused'))),
     );
