@@ -14,9 +14,11 @@ const errorMessage = (error: Error) =>
 export function CodeForm({
   api,
   onConfirmed,
+  codeLength = 6,
 }: {
   api: Pick<HostedAccessApi, 'verifyCode'> & Partial<Pick<HostedAccessApi, 'requestCode'>>;
   onConfirmed: () => void | Promise<void>;
+  codeLength?: 6 | 8;
 }) {
   const [sent, setSent] = useState(false);
   const verifyOnly = !api.requestCode;
@@ -77,7 +79,12 @@ export function CodeForm({
         <form.Field name="code">
           {(field) => (
             <Field id="access-code" label="Código de acesso">
-              <CodeInput id="access-code" value={field.state.value} onChange={field.handleChange} />
+              <CodeInput
+                id="access-code"
+                value={field.state.value}
+                onChange={field.handleChange}
+                length={codeLength}
+              />
             </Field>
           )}
         </form.Field>

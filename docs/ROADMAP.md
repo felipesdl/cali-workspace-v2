@@ -342,7 +342,7 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 ## Fases 5–7 — Prioridade posterior e fechamento
 
-**5 — Partner:** em andamento no CALI MAPA. Admissão fictícia com MFA, convite e termos validada no Auth e na Data API. Área isolada em `/equipe` com leitura por empresa e módulo, detalhes de Projetos e Ocorrências, cronômetro privado com vínculos, fila de horas manuais com decisão Admin e cinco catálogos adicionais homologados no escopo sintético. Emissão e validação do OTP no navegador, arquivos, escritas e revisões dos módulos permanecem em aberto. [Matriz, provas e próximos recortes](contracts/PARTNER_5.md).
+**5 — Partner:** em andamento no CALI MAPA. Admissão fictícia com MFA, convite e termos validada no Auth e na Data API. Área isolada em `/equipe` com leitura por empresa e módulo, detalhes de Projetos, leitura e resposta em Ocorrências, cronômetro privado com vínculos, fila de horas manuais com decisão Admin cinco catálogos adicionais e download da revisão liberada de relatório homologados no escopo sintético. Emissão e validação do OTP no navegador, arquivos, escritas e revisões dos módulos permanecem em aberto. [Matriz, provas e próximos recortes](contracts/PARTNER_5.md).
 
 **6 — Homologação:** os 18 IDs/subfluxos aplicáveis têm evidência real ou adiamento explicitamente aprovado. Executar regressão entre módulos, isolamento e decisões vigentes; mídia/PDF/e-mail e tela concordam; sem operação obrigatória apenas simulada, bloqueio crítico oculto ou dados fictícios tratados como reais. UX/mobile/teclado são conferidos em cada entrega e novamente nos percursos cruzados. Resumo Admin segue RESUMO-01/DEC-19 e exige evidência de operação; conteúdo Partner não faz parte do aceite Admin/Cliente.
 

@@ -6,6 +6,7 @@ import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { formatServerInstant } from '../../lib/dates';
 import { WorkspacePagination } from '../project-workspace/WorkspacePagination';
 import { workspaceLabel } from '../project-workspace/workspace-labels';
+import { PartnerRecordReply } from './PartnerRecordReply';
 
 export function PartnerItemDetail({
   api,
@@ -74,6 +75,17 @@ export function PartnerItemDetail({
             <FeedbackState kind="empty">Nenhum item nesta página.</FeedbackState>
           )}
           <WorkspacePagination total={result.data.total} page={page} change={setPage} />
+          {module === 'records' && result.data.canReply && (
+            <PartnerRecordReply
+              api={api}
+              company={company}
+              record={id}
+              onSent={async () => {
+                if (page === 1) await result.refetch();
+                else setPage(1);
+              }}
+            />
+          )}
         </>
       )}
     </section>

@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { WorkspaceClient } from '../../supabase';
 import { readPublishedTerms } from '../access/hosted-terms';
 import { acceptCurrentTermsSchema, type CurrentTerms } from '../access/session';
+import { decodePdf, pdfPayload } from '../project-workspace/pdf-payload';
 
 const baseModules = z.enum(['projects', 'records', 'hours']);
 export const partnerModule = z.enum([
@@ -40,11 +41,13 @@ const page = z.object({
       minutes: z.number().int().nullable(),
       instant: z.iso.datetime({ offset: true }).nullish(),
       summary: z.string().nullish(),
+      downloadVersion: z.number().int().positive().nullish(),
     }),
   ),
 });
 
 const detail = z.object({
+  canReply: z.boolean().optional(),
   title: z.string(),
   total: z.number().int().nonnegative(),
   rows: z.array(
@@ -119,7 +122,7 @@ export function createPartnerPilot(client: WorkspaceClient) {
         .parse(email);
       const token = z
         .string()
-        .regex(/^\d{6}$/)
+        .regex(/^\d{8}$/)
         .parse(code);
       const { error } = await client.auth.verifyOtp({ email: address, token, type: 'email' });
       if (error) throw new Error('Código indisponível. Confira os dados.');
@@ -202,6 +205,30 @@ export function createPartnerPilot(client: WorkspaceClient) {
       if (error?.code === '40001')
         throw new Error('A solicitação já foi decidida. Atualize a fila.');
       if (error) throw new Error('Não foi possível registrar a decisão.');
+      return z.uuid().parse(data);
+    },
+    async reportPdf(company: string, report: string, version: number, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_download_partner_pilot_report', {
+          p_company: company,
+          p_report: report,
+          p_version: version,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('PDF indisponível para esta revisão.');
+      return decodePdf(
+        pdfPayload.extend({ id: z.literal(report), version: z.literal(version) }).parse(data),
+      );
+    },
+    async replyRecord(company: string, request: string, record: string, body: string) {
+      const { data, error } = await client.rpc('v2_reply_partner_pilot_record', {
+        p_company: company,
+        p_request: request,
+        p_record: record,
+        p_body: z.string().trim().min(1).max(4000).parse(body),
+      });
+      if (error?.code === '42501') throw new Error('A conversa está indisponível.');
+      if (error) throw new Error('Não foi possível confirmar o envio.');
       return z.uuid().parse(data);
     },
     async detail(

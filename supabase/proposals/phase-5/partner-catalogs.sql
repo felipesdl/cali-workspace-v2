@@ -23,7 +23,7 @@ begin
 end;
 $$;
 
-create table cali_session_guard.phase5_partner_catalog_scope (
+create table if not exists cali_session_guard.phase5_partner_catalog_scope (
   company_id uuid not null,
   module text not null check(module in ('calendar','documents','reports','notices','team')),
   item_id uuid not null,
@@ -32,7 +32,7 @@ create table cali_session_guard.phase5_partner_catalog_scope (
 alter table cali_session_guard.phase5_partner_catalog_scope enable row level security;
 revoke all on cali_session_guard.phase5_partner_catalog_scope from public,anon,authenticated,service_role;
 
-create function cali_workspace.v2_list_partner_pilot_catalog(p_company uuid,p_module text,p_page integer)
+create or replace function cali_workspace.v2_list_partner_pilot_catalog(p_company uuid,p_module text,p_page integer)
 returns jsonb language plpgsql stable security definer set search_path='' as $$
 declare
   access jsonb:=cali_session_guard.require_phase5_partner(p_company,p_module);
@@ -57,7 +57,14 @@ begin
       union all
       select r.id,r.title,r.protocol,r.status,r.period_end,null::timestamptz,null::text
       from cali_workspace.reports r join scope s on s.item_id=r.id
-      where p_module='reports' and r.company_id=p_company and r.status in ('sent','published') and r.withdrawn_at is null
+      where p_module='reports' and r.company_id=p_company and r.withdrawn_at is null and (
+        r.status in ('sent','published') or (
+          r.status='approved' and r.published_at is null and r.sent_at is null and exists(
+            select 1 from cali_session_guard.phase4_report_releases x
+            where x.report_id=r.id and x.version=r.version and x.withdrawn_at is null
+          )
+        )
+      )
       union all
       select n.id,n.title,n.protocol,n.category,n.notice_date,null::timestamptz,n.body
       from cali_workspace.notices n join scope s on s.item_id=n.id
@@ -71,7 +78,12 @@ begin
       from cali_workspace.team_members m join scope s on s.item_id=m.id
       where p_module='team' and m.company_id=p_company and m.archived_at is null and m.status='active'
     ), page as (
-      select *,null::integer as minutes from matched order by day desc nulls last,instant desc nulls last,title,id
+      select m.*,null::integer as minutes,(
+        select r.version from cali_workspace.reports r
+        join cali_session_guard.phase4_report_releases x on x.report_id=r.id and x.version=r.version and x.withdrawn_at is null
+        where p_module='reports' and r.id=m.id and r.company_id=p_company and r.status='approved'
+          and r.published_at is null and r.sent_at is null and r.withdrawn_at is null
+      ) as "downloadVersion" from matched m order by day desc nulls last,instant desc nulls last,title,id
       limit 25 offset (p_page-1)*25
     )
     select jsonb_build_object('total',(select count(*) from matched),'rows',coalesce((

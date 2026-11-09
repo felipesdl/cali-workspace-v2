@@ -34,6 +34,8 @@ it('abre apenas o módulo atribuído e retira o detalhe após o corte de acesso'
       return () => {};
     },
     verifyCode: async () => {},
+    reportPdf: async () => ({ blob: new Blob(), fileName: 'teste.pdf' }),
+    replyRecord: async () => id,
     acceptInvite: async () => {},
     acceptTerms: async () => {},
     timer: async () => ({ active: null, targets: [] }),

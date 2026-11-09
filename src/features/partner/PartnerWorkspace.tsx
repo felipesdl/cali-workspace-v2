@@ -13,6 +13,7 @@ import { formatCalendarDate, formatServerInstant } from '../../lib/dates';
 import { CodeForm } from '../access/CodeForm';
 import { MfaForm } from '../access/MfaForm';
 import { TermsAcceptance } from '../access/TermsAcceptance';
+import { PdfDownload } from '../project-workspace/PdfDownload';
 import { WorkspacePagination } from '../project-workspace/WorkspacePagination';
 import { workspaceLabel } from '../project-workspace/workspace-labels';
 import { PartnerItemDetail } from './PartnerItemDetail';
@@ -33,6 +34,25 @@ const panel =
   'tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
 
 type Ready = Extract<Awaited<ReturnType<PartnerPilot['read']>>, { status: 'ready' }>;
+
+function PartnerReportDownload({
+  api,
+  company,
+  report,
+  version,
+}: {
+  api: PartnerPilot;
+  company: string;
+  report: string;
+  version: number;
+}) {
+  return (
+    <PdfDownload
+      key={version}
+      download={(signal) => api.reportPdf(company, report, version, signal)}
+    />
+  );
+}
 
 function PartnerItems({
   api,
@@ -96,6 +116,14 @@ function PartnerItems({
               </p>
               {row.summary && (
                 <p className="tw:wrap-anywhere tw:whitespace-pre-line">{row.summary}</p>
+              )}
+              {module === 'reports' && row.downloadVersion != null && (
+                <PartnerReportDownload
+                  api={api}
+                  company={access.company}
+                  report={row.id}
+                  version={row.downloadVersion}
+                />
               )}
               {hasPartnerItemDetail(module) && (
                 <div>
@@ -237,6 +265,7 @@ function PartnerGate({ api }: { api: PartnerPilot }) {
       content = (
         <CodeForm
           api={api}
+          codeLength={8}
           onConfirmed={async () => {
             await query.refetch();
           }}

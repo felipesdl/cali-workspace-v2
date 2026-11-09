@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Resposta em ocorrência e PDF Partner
+
+- Partner responde ocorrência fictícia aberta da empresa atribuída, com autoria, recibo, transição para aguardar Cliente e aviso somente no aplicativo. Prova SQL com rollback e publicação/releitura no Chrome com fixture retirada. [Contrato e evidências](contracts/PARTNER_5.md#resposta-em-ocorrência).
+- Partner baixa o PDF da revisão vigente liberada no Workspace. Recusa de versão anterior, retirada e empresa B provadas no CALI MAPA com rollback. [Contrato e evidências](contracts/PARTNER_5.md#pdf-de-relatório-liberado).
+
 ## Cronômetro e catálogos Partner
 
 - Instala no CALI MAPA o cronômetro privado com vínculo opcional e as projeções de Agenda, Documentos, Relatórios, Avisos e Equipe. Provas SQL com fixtures revertidas. A tela Partner passa a aceitar código nativo de conta de homologação; emissão e login completo por OTP permanecem pendentes. [Contrato e evidências](contracts/PARTNER_5.md).
