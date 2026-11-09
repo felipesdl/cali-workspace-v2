@@ -25,3 +25,22 @@
 .notice-detail-cover{height:240px}
 @media(max-width:1100px){.notice-list.notice-feed{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.notice-list.notice-feed{grid-template-columns:1fr}.notice-feed .notice-cover{height:160px}}
+
+.notice-dialog {
+  max-height: min(calc(100dvh - 36px), 860px);
+}
+
+.notice-create .notice-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.notice-create :is(input:not([type='checkbox']), select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .notice-create .notice-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

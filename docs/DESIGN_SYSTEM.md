@@ -112,7 +112,7 @@ Field explicita herança da família tipográfica nos controles nativos, incluin
 
 O consumidor visual de foto/logo mantém formato quadrado e raio de 7 px mesmo quando a API interna da peça usa o nome `Avatar`. Barras de controles priorizam linha única sem cortar ações em mobile; rolagem discreta mantém operação por toque/teclado e indicação de continuação. Alertas de atenção/erro usam âmbar/vermelho e orientação textual; demais estados mantêm a semântica da paleta.
 
-Dialog de confirmação, inclusive exclusão, deve seguir o padrão visual observado na main da V2 ou, se a operação só existir no domínio publicado, o equivalente ali observado e registrado e explicar objeto/efeito. Não criar novo formato a partir de um texto genérico de confirmação. Formulário por seções e notas de rodapé são decisões de composição em UX/UI; foco/teclado/scroll pertencem ao DS.
+Dialog de confirmação, inclusive exclusão, deve seguir o padrão visual observado na main da V2 ou, se a operação só existir no domínio publicado, o equivalente ali observado e registrado e explicar objeto/efeito. Não criar novo formato a partir de um texto genérico de confirmação. Formulário por seções e notas de rodapé são decisões de composição em UX/UI. Foco, teclado e rolagem pertencem ao contrato do componente. A demonstração usa [PreviewDialog](../src/components/preview/PreviewDialog.tsx) para esse comportamento, preservando a composição de cada superfície.
 
 Não criar `DataTable` universal com todos os filtros/ações do produto. DS fornece semântica e composição; coluna, escopo e permissão continuam no domínio. Charts recebem dados com origem e período; não calculam indicador oficial.
 

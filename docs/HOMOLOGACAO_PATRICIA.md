@@ -144,6 +144,14 @@ Felipe definiu 375 px como largura principal da revisão mobile. A rodada usou 3
 
 O Início conectado deixou de anunciar módulos integrados como se estivessem em preparação. A ficha de Empresas mantém as mensagens de disponibilidade nas seções responsáveis. Capturas locais em `cali-fase-6-responsividade`. Validação de interface com dados sintéticos e operações de escrita desativadas. O lote não altera contratos de backend. Rollback de frontend.
 
+### Diálogos e formulários demonstrativos
+
+Em 375 × 812, o formulário Novo comunicado ultrapassava a área útil na linha de data e horário. Escape mantinha a janela aberta. As 12 superfícies demonstrativas de Início, Perfil, Equipe, Agenda, Ocorrências, Documentos, Avisos, Entregáveis e Admin passaram a usar diálogo nativo com nome acessível, foco contido, fechamento por Escape e clique no fundo. O foco volta ao acionador. O perfil devolve o foco ao botão da conta porque o menu de origem já foi fechado ao abrir a janela.
+
+O formulário de Avisos empilha data e horário no celular. Cadastro de Equipe usa uma coluna. Os painéis mantêm a área de conteúdo rolável e as ações alcançáveis, inclusive com altura reduzida. A conversa de Ocorrências manteve o botão de envio dentro de 320 × 568.
+
+A rodada no navegador abriu as 12 superfícies em 375 px e conferiu fechamento e retorno de foco. Novo comunicado foi preenchido e criado em memória, com repetição do cancelamento, clique no fundo e checagem a 1280 px. Capturas locais em `cali-fase6-dialogos`. O lote cobre as prévias da V2. Formulários conectados, estados com erro e confirmação de operações reais permanecem no roteiro da fase 6. Rollback de frontend.
+
 A fase 6 permanece aberta para os demais percursos e para o aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
 
 ## Mensagem para enviar junto do link

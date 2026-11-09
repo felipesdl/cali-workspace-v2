@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Diálogos e formulários demonstrativos
+
+- Unifica as 12 superfícies da demonstração em diálogo nativo com nome acessível, foco contido, fechamento por Escape e retorno ao acionador.
+- Ajusta campos, altura e ações em telas estreitas. A prévia de aviso e a conversa de ocorrência foram conferidas no navegador. [Evidências](HOMOLOGACAO_PATRICIA.md#diálogos-e-formulários-demonstrativos).
+
 ## Responsividade e hierarquia em 375 px
 
 - Corrige a barra superior Cliente, o menu compacto Admin e a quebra de linhas em Projetos, Equipe e Ocorrências na demonstração.

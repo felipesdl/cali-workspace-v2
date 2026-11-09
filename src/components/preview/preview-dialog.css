@@ -1,0 +1,22 @@
+dialog[data-preview-dialog] {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  color: inherit;
+}
+
+dialog[data-preview-dialog]:not([open]) {
+  display: none;
+}
+
+dialog[data-preview-dialog]::backdrop {
+  background: transparent;
+}
+
+body:has(dialog[data-preview-dialog][open]) {
+  overflow: hidden;
+}

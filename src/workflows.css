@@ -7,7 +7,7 @@
 .wf-doc-cover.doc-deliverable .wf-doc-art{border-bottom-color:#b58c52!important}.wf-doc-cover.doc-executive .wf-doc-art{border-bottom-color:#946db4!important}.wf-doc-cover.doc-work .wf-doc-art{border-bottom-color:#5eac9a!important}.wf-doc-label.doc-deliverable{color:#966423;background:#fff1d8}.wf-doc-label.doc-executive{color:#7753a1;background:#f2eaf8}.wf-doc-label.doc-work{color:#227c68;background:#e3f5ef}
 .v2-doc-list .doc-deliverable{border-left:3px solid #b58c52}.v2-doc-list .doc-executive{border-left:3px solid #946db4}.v2-doc-list .doc-work{border-left:3px solid #5eac9a}
 .v2-burgundy-aside,.v2-burgundy-calendar{background:linear-gradient(158deg,#5a1e2d,#70374c)!important;color:#fff9f3!important}
-.v2-burgundy-aside h3,.v2-burgundy-aside p,.v2-burgundy-aside li,.v2-burgundy-calendar strong,.v2-burgundy-calendar span,.v2-burgundy-calendar .wf-cal-legend span{color:#fff9f3!important}.v2-burgundy-calendar .wf-cal-legend{color:white}.wf-story-compact{padding:10px 17px!important;margin:0 22px!important;flex:none!important}.wf-story-compact summary{cursor:pointer;font-weight:700;font-size:11px;color:#6c4753}.wf-story-compact p{font-size:11px;margin:10px 0}.wf-chat-photo{width:27px;height:27px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;vertical-align:middle;margin-right:7px;font-size:10px;font-weight:700}.wf-chat-photo.cali{background:#5a1e2d;color:white}.wf-chat-photo.customer{background:#f2dfa4;color:#5a1e2d}.wf-record-drawer{height:100dvh!important;max-height:100dvh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}.wf-record-drawer .wf-thread{flex:1!important;min-height:240px!important;overflow-y:auto!important;scrollbar-width:none}.wf-record-drawer .wf-thread::-webkit-scrollbar{display:none}.wf-record-drawer .wf-compose{flex-shrink:0!important}
+.v2-burgundy-aside h3,.v2-burgundy-aside p,.v2-burgundy-aside li,.v2-burgundy-calendar strong,.v2-burgundy-calendar span,.v2-burgundy-calendar .wf-cal-legend span{color:#fff9f3!important}.v2-burgundy-calendar .wf-cal-legend{color:white}.wf-story-compact{padding:10px 17px!important;margin:0 22px!important;flex:none!important}.wf-story-compact summary{cursor:pointer;font-weight:700;font-size:11px;color:#6c4753}.wf-story-compact p{font-size:11px;margin:10px 0}.wf-chat-photo{width:27px;height:27px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px;vertical-align:middle;margin-right:7px;font-size:10px;font-weight:700}.wf-chat-photo.cali{background:#5a1e2d;color:white}.wf-chat-photo.customer{background:#f2dfa4;color:#5a1e2d}.wf-record-drawer{height:100dvh!important;max-height:100dvh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}.wf-record-drawer .wf-thread{flex:1!important;min-height:0!important;overflow-y:auto!important;scrollbar-width:none}.wf-record-drawer .wf-thread::-webkit-scrollbar{display:none}.wf-record-drawer .wf-compose{flex-shrink:0!important}
 
 /* refinamento adicional: calendário informativo, chat sem barras conflitantes */
 .v2-agenda-summary{display:flex;flex-direction:column;gap:16px;margin-top:auto;padding-top:20px;border-top:1px solid #ffffff45}.v2-agenda-summary>div{display:flex;flex-direction:column;gap:7px}.v2-agenda-summary small{color:#e5cfc8;font-size:9px;letter-spacing:1px}.v2-agenda-summary strong{font-size:26px;color:#fff!important;line-height:1.15}.v2-agenda-summary strong.v2-agenda-next{font-size:13px;line-height:1.35}.v2-agenda-summary span{font-size:10px;color:#ecd9d3}.wf-story-compact{background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;border-bottom:1px solid #eaded7!important;margin:0 22px!important;padding:10px 4px 12px!important}.wf-story-compact summary{list-style:none;display:flex;align-items:center;gap:8px}.wf-story-compact summary::-webkit-details-marker{display:none}.wf-story-compact summary:before{content:"›";font-size:18px;color:#b58c52;transition:transform .18s}.wf-story-compact[open] summary:before{transform:rotate(90deg)}.wf-record-drawer .wf-thread{border-top:0!important;margin-top:0!important}
@@ -19,4 +19,17 @@
   .wf-segments {
     flex-wrap: wrap;
   }
+}
+
+.wf-modal {
+  max-height: calc(100dvh - 36px);
+}
+
+.wf-modal-actions,
+.wf-compose > div {
+  flex-wrap: wrap;
+}
+
+.wf-compose > div {
+  gap: 8px;
 }
