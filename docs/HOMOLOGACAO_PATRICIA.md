@@ -253,7 +253,21 @@ Rodada local no navegador integrado em 375 × 812 e 1366 × 768, com sessão e s
 | Início Cliente e dados mensais | Após falha de consulta, a nova tentativa devolveu o foco ao atalho e abriu Dados do mês na mesma referência exibida. Com referência já confirmada, o foco voltou ao título Sua empresa no Workspace. Uma segunda falha manteve a ação de recuperação alcançável. |
 | Navegação Admin | Abrir Horas por teclado a partir de Projetos preservou a empresa selecionada e levou o foco ao título. A versão mobile usou o botão Menu principal. |
 
-Capturas locais em `cali-fase6-navegacao`. A prova automatizada cobre o retorno por papel. Rollback por reversão do commit. O recorte cobre atalhos existentes, estados de recuperação e continuidade do contexto. A visão inicial Admin completa, o localizador e as notificações conectadas ainda exigem cobertura própria em FLOW-04 e FLOW-14. Callback real no domínio de homologação e aceite da Patrícia seguem em suas etapas.
+Capturas locais em `cali-fase6-navegacao`. A prova automatizada cobre o retorno por papel. Rollback por reversão do commit. O recorte cobre atalhos existentes, estados de recuperação e continuidade do contexto. A cobertura de carteira e localizador foi ampliada na rodada seguinte. Prioridades da visão inicial Admin e notificações conectadas ainda exigem cobertura própria em FLOW-04 e FLOW-14. Callback real no domínio de homologação e aceite da Patrícia seguem em suas etapas.
+
+### Carteira Admin e localizador de módulos
+
+Rodada local no navegador integrado em 375 × 812 e 1366 × 768, com sessão e serviços sintéticos.
+
+| Percurso | Resultado nas duas larguras |
+| --- | --- |
+| Visão executiva Admin | A consulta da carteira falhou uma vez. Nova tentativa devolveu o foco ao título da seção e exibiu dois registros, um ativo e um pausado. O atalho de pausadas abriu Empresas e acessos com o filtro aplicado e somente a empresa correspondente. A página permaneceu na largura da janela. |
+| Localizador Admin | O menu encontrou Relatórios com a busca sem acento. Abrir o resultado por teclado fechou o menu, abriu a rota real e preservou a empresa selecionada em Projetos. |
+| Localizador Cliente | Buscar Empresas e acessos exibiu o estado sem resultado. Termos e privacidade e Documentos apareceram no menu conforme os serviços disponíveis. Escape fechou o menu e devolveu o foco ao acionador. Reabrir limpou a busca. |
+
+A visão executiva usa a listagem de empresas já consumida pelo Admin e agrega somente situações que a resposta contém. Prioridades operacionais e agregados de outras fontes continuam pendentes em FLOW-04. O localizador filtra os rótulos do próprio menu, sem consulta adicional a conteúdo. A leitura de notificações e a marcação individual/em lote ainda exigem contrato de público, vínculo e revalidação do destino. A baseline histórica contém leitura do próprio destinatário e política Admin ampla. Os corpos das duas RPCs de marcação não foram localizados nas fontes versionadas. Isso e as provas de geração de eventos não certificam as permissões efetivas do piloto. [Fichas dos fluxos](flows/WORKSPACE_HOURS_TEAM.md).
+
+Capturas locais em `cali-fase6-carteira`. Reversão por commit de frontend. Homologação com sessão real e aceite da Patrícia seguem em suas etapas.
 
 ## Mensagem para enviar junto do link
 

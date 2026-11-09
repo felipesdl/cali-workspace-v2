@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Carteira Admin e localizador de módulos
+
+- A Visão executiva Admin usa a consulta de empresas para contar a carteira por situação e abrir a lista com o filtro correspondente.
+- Admin e Cliente filtram os módulos do próprio menu por rótulo. O destino preserva a empresa nos módulos com contexto Admin. [Validação em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#carteira-admin-e-localizador-de-módulos).
+
 ## Recuperação de navegação e atalho mensal
 
 - Corrige o retorno de endereço inexistente e falha de rota para resolver a área pela sessão. Aplica o padrão de mensagem e foco ao erro de rota e callback.

@@ -1,36 +1,51 @@
 import { Menu, X } from 'lucide-react';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import oakMark from '../assets/brand/cali-oak-mark-light.svg';
 import { Button } from '../components/ds/button/Button';
+import { Field } from '../components/ds/field/Field';
+import { Input } from '../components/ds/field/Controls';
+import { type WorkspaceModuleLink } from './workspace-navigation';
 import '../styles/workspace-frame.css';
+
+const searchKey = (value: string) =>
+  value.trim().normalize('NFD').replace(/\p{M}/gu, '').toLocaleLowerCase('pt-BR');
 
 export function WorkspaceFrame({
   title,
   area,
   navigation,
+  modules,
   actions,
   children,
 }: {
   title: string;
   area?: string;
   navigation?: ReactNode;
+  modules?: readonly WorkspaceModuleLink[];
   actions?: ReactNode;
   children: ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const hasNavigation = Boolean(navigation || modules?.length);
+  const normalizedQuery = searchKey(query);
+  const visibleModules = modules?.filter((module) =>
+    searchKey(module.label).includes(normalizedQuery),
+  );
   const menuButton = useRef<HTMLButtonElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), [title]);
 
   const closeMenu = () => {
     setMenuOpen(false);
+    setQuery('');
     menuButton.current?.focus();
   };
 
   return (
     <div
       className={`workspace-frame tw:min-h-screen tw:bg-ivory tw:text-body tw:text-copy ${
-        navigation ? 'workspace-frame-with-nav' : ''
+        hasNavigation ? 'workspace-frame-with-nav' : ''
       }`}
       data-menu-open={menuOpen}
       onKeyDown={(event) => {
@@ -48,7 +63,7 @@ export function WorkspaceFrame({
       </a>
       <header className="tw:col-start-2 tw:row-start-1 tw:flex tw:min-h-15 tw:items-center tw:justify-between tw:gap-2 tw:border-b tw:border-border-default tw:bg-panel tw:px-8 tw:mobile:px-4">
         <div className="tw:flex tw:min-w-0 tw:items-center tw:gap-3">
-          {navigation && (
+          {hasNavigation && (
             <div>
               <Button
                 ref={menuButton}
@@ -57,7 +72,7 @@ export function WorkspaceFrame({
                 aria-label="Menu principal"
                 aria-controls="workspace-navigation"
                 aria-expanded={menuOpen}
-                onClick={() => setMenuOpen((open) => !open)}
+                onClick={() => (menuOpen ? closeMenu() : setMenuOpen(true))}
               >
                 {menuOpen ? (
                   <X aria-hidden="true" size={18} />
@@ -73,7 +88,7 @@ export function WorkspaceFrame({
         </div>
         {actions}
       </header>
-      {navigation && (
+      {hasNavigation && (
         <aside className="workspace-rail tw:text-panel">
           <div className="workspace-rail-brand tw:flex tw:h-15 tw:items-center tw:justify-center">
             <img src={oakMark} width={24} height={24} alt="" />
@@ -96,7 +111,27 @@ export function WorkspaceFrame({
               }
             }}
           >
+            {menuOpen && modules && (
+              <div className="tw:rounded-control tw:bg-panel tw:p-2 tw:text-copy">
+                <Field id="workspace-module-search" label="Buscar módulo">
+                  <Input
+                    id="workspace-module-search"
+                    type="search"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                  />
+                </Field>
+                <p className="tw:mt-2 tw:mb-0 tw:text-caption" role="status">
+                  {visibleModules?.length
+                    ? `${visibleModules.length} ${visibleModules.length === 1 ? 'módulo encontrado' : 'módulos encontrados'}`
+                    : 'Nenhum módulo encontrado.'}
+                </p>
+              </div>
+            )}
             {navigation}
+            {visibleModules?.map(({ label, element }) => (
+              <Fragment key={label}>{element}</Fragment>
+            ))}
           </nav>
         </aside>
       )}

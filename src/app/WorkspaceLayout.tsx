@@ -6,7 +6,7 @@ import { isPilotCompany } from '../api/modules/companies/onboarding';
 import { teamSearchSchema } from '../api/modules/team/schemas';
 import { Button } from '../components/ds/button/Button';
 import { WorkspaceFrame } from './WorkspaceFrame';
-import { WorkspaceNavLabel } from './WorkspaceNavLabel';
+import { workspaceModuleLink, type WorkspaceModuleLink } from './workspace-navigation';
 import { useWorkspaceSession } from '../api/modules/access/hooks/useWorkspaceSession';
 
 const companyScopedAdminPaths = new Set([
@@ -29,7 +29,7 @@ export function WorkspaceLayout({
 }: {
   title: string;
   children: ReactNode;
-  navigation?: ReactNode;
+  navigation?: readonly WorkspaceModuleLink[];
 }) {
   const { session, team, disc, projectWorkspace, domainOperations, adminRead } = useRouteContext({
     from: '__root__',
@@ -50,6 +50,92 @@ export function WorkspaceLayout({
   const workspaceNavigationSearch = workspaceSearch.parse({
     companyId: admin ? selectedCompany : undefined,
   });
+  const modules = [...(navigation ?? [])];
+  if (admin) {
+    modules.push(
+      workspaceModuleLink('Início', <Link to="/admin" />),
+      workspaceModuleLink(
+        'Empresas e acessos',
+        <Link to="/admin/clientes" search={{ q: '', status: 'all' }} />,
+      ),
+    );
+    if (team) {
+      modules.push(
+        workspaceModuleLink(
+          'Equipe',
+          <Link
+            to="/admin/equipe"
+            search={teamSearchSchema.parse({ companyId: selectedCompany })}
+          />,
+        ),
+      );
+    }
+    if (disc)
+      modules.push(
+        workspaceModuleLink('Perfil comportamental', <Link to="/admin/perfil" search={{}} />),
+      );
+  }
+  if (projectWorkspace) {
+    modules.push(
+      workspaceModuleLink(
+        'Projetos',
+        <Link
+          to={admin ? '/admin/projetos' : '/cliente/entregaveis'}
+          search={workspaceNavigationSearch}
+        />,
+      ),
+      workspaceModuleLink(
+        'Horas',
+        <Link to={admin ? '/admin/horas' : '/cliente/horas'} search={workspaceNavigationSearch} />,
+      ),
+      ...phase4CatalogLinks.map((item) =>
+        workspaceModuleLink(
+          item.title,
+          <Link to={admin ? item.admin : item.client} search={workspaceNavigationSearch} />,
+        ),
+      ),
+    );
+  }
+  if (admin && domainOperations) {
+    modules.push(
+      workspaceModuleLink(
+        'Privacidade',
+        <Link to="/admin/privacidade" search={workspaceNavigationSearch} />,
+      ),
+      workspaceModuleLink(
+        'Formulários',
+        <Link to="/admin/formularios" search={workspaceNavigationSearch} />,
+      ),
+    );
+  }
+  if (admin && adminRead) {
+    modules.push(
+      workspaceModuleLink(
+        'Propostas',
+        <Link to="/admin/propostas" search={workspaceNavigationSearch} />,
+      ),
+      workspaceModuleLink(
+        'Mapa de People',
+        <Link to="/admin/mapa-people" search={workspaceNavigationSearch} />,
+      ),
+      workspaceModuleLink(
+        'Equipe CALI',
+        <Link to="/admin/equipe-cali" search={workspaceNavigationSearch} />,
+      ),
+      workspaceModuleLink(
+        'Auditoria',
+        <Link to="/admin/auditoria" search={workspaceNavigationSearch} />,
+      ),
+      workspaceModuleLink(
+        'Satisfação',
+        <Link to="/admin/satisfacao" search={workspaceNavigationSearch} />,
+      ),
+    );
+  }
+  if (!admin && adminRead && domainOperations) {
+    modules.push(workspaceModuleLink('Propostas', <Link to="/cliente/propostas" />));
+  }
+
   return (
     <WorkspaceFrame
       title={title}
@@ -59,128 +145,7 @@ export function WorkspaceLayout({
           Sair
         </Button>
       }
-      navigation={
-        <>
-          {navigation}
-          {admin && (
-            <Link
-              activeOptions={{ exact: true, includeSearch: false }}
-              to="/admin/clientes"
-              search={{ q: '', status: 'all' }}
-            >
-              <WorkspaceNavLabel label="Empresas e acessos" />
-            </Link>
-          )}
-          {admin && team && (
-            <Link
-              activeOptions={{ exact: true, includeSearch: false }}
-              to="/admin/equipe"
-              search={teamSearchSchema.parse({ companyId: selectedCompany })}
-            >
-              <WorkspaceNavLabel label="Equipe" />
-            </Link>
-          )}
-          {admin && disc && (
-            <Link
-              to="/admin/perfil"
-              search={{}}
-              activeOptions={{ exact: true, includeSearch: false }}
-            >
-              <WorkspaceNavLabel label="Perfil comportamental" />
-            </Link>
-          )}
-          {projectWorkspace && (
-            <>
-              <Link
-                activeOptions={{ exact: true, includeSearch: false }}
-                to={admin ? '/admin/projetos' : '/cliente/entregaveis'}
-                search={workspaceNavigationSearch}
-              >
-                <WorkspaceNavLabel label="Projetos" />
-              </Link>
-              <Link
-                activeOptions={{ exact: true, includeSearch: false }}
-                to={admin ? '/admin/horas' : '/cliente/horas'}
-                search={workspaceNavigationSearch}
-              >
-                <WorkspaceNavLabel label="Horas" />
-              </Link>
-              {phase4CatalogLinks.map((item) => (
-                <Link
-                  key={item.module}
-                  activeOptions={{ exact: true, includeSearch: false }}
-                  to={admin ? item.admin : item.client}
-                  search={workspaceNavigationSearch}
-                >
-                  <WorkspaceNavLabel label={item.title} />
-                </Link>
-              ))}
-            </>
-          )}
-          {admin && domainOperations && (
-            <Link
-              activeOptions={{ exact: true, includeSearch: false }}
-              to="/admin/privacidade"
-              search={workspaceNavigationSearch}
-            >
-              <WorkspaceNavLabel label="Privacidade" />
-            </Link>
-          )}
-          {admin && domainOperations && (
-            <Link
-              activeOptions={{ exact: true, includeSearch: false }}
-              to="/admin/formularios"
-              search={workspaceNavigationSearch}
-            >
-              <WorkspaceNavLabel label="Formulários" />
-            </Link>
-          )}
-          {!admin && adminRead && domainOperations && (
-            <Link activeOptions={{ exact: true, includeSearch: false }} to="/cliente/propostas">
-              <WorkspaceNavLabel label="Propostas" />
-            </Link>
-          )}
-          {admin && adminRead && (
-            <>
-              <Link
-                activeOptions={{ exact: true, includeSearch: false }}
-                to="/admin/propostas"
-                search={workspaceNavigationSearch}
-              >
-                <WorkspaceNavLabel label="Propostas" />
-              </Link>
-              <Link
-                activeOptions={{ exact: true, includeSearch: false }}
-                to="/admin/mapa-people"
-                search={workspaceNavigationSearch}
-              >
-                <WorkspaceNavLabel label="Mapa de People" />
-              </Link>
-              <Link
-                activeOptions={{ exact: true, includeSearch: false }}
-                to="/admin/equipe-cali"
-                search={workspaceNavigationSearch}
-              >
-                <WorkspaceNavLabel label="Equipe CALI" />
-              </Link>
-              <Link
-                activeOptions={{ exact: true, includeSearch: false }}
-                to="/admin/auditoria"
-                search={workspaceNavigationSearch}
-              >
-                <WorkspaceNavLabel label="Auditoria" />
-              </Link>
-              <Link
-                activeOptions={{ exact: true, includeSearch: false }}
-                to="/admin/satisfacao"
-                search={workspaceNavigationSearch}
-              >
-                <WorkspaceNavLabel label="Satisfação" />
-              </Link>
-            </>
-          )}
-        </>
-      }
+      modules={modules}
     >
       {children}
     </WorkspaceFrame>

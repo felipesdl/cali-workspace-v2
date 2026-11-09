@@ -217,6 +217,26 @@ describe('consulta Cliente de empresa e termos', () => {
     await screen.findByRole('heading', { name: 'Acesso indisponível' });
     expect(account).not.toHaveBeenCalled();
   });
+  it('localiza módulos do Cliente por rótulo sem acentos e preserva as capacidades do menu', async () => {
+    const { user } = await openApp({ entry: '/cliente' });
+    await screen.findByRole('heading', { name: 'Seu Workspace' });
+    const menu = screen.getByRole('button', { name: 'Menu principal' });
+    await user.click(menu);
+    const search = screen.getByRole('searchbox', { name: 'Buscar módulo' });
+    await user.type(search, 'termos e privacidade');
+    expect(screen.getByRole('link', { name: 'Termos e privacidade' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Minha empresa' })).toBeNull();
+    await user.clear(search);
+    await user.type(search, 'inicio');
+    expect(screen.getByRole('link', { name: 'Início' })).toBeTruthy();
+    await user.clear(search);
+    await user.type(search, 'empresas e acessos');
+    expect(screen.getByText('Nenhum módulo encontrado.')).toBeTruthy();
+    await user.keyboard('{Escape}');
+    expect(document.activeElement).toBe(menu);
+    await user.click(menu);
+    expect(screen.getByRole('searchbox', { name: 'Buscar módulo' })).toHaveProperty('value', '');
+  });
   it('rotas novas não simulam empresa autenticada no modo demonstrativo', async () => {
     const cache = createQueryClient();
     const router = createAppRouter(

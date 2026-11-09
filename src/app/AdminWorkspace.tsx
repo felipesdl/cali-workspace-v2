@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-router';
 import { adminPaths, adminSectionFromPath } from './navigation';
 import { WorkspaceLayout } from './WorkspaceLayout';
+import { AdminOverview } from '../features/companies/AdminOverview';
 import { FeedbackState } from '../components/ds/feedback/FeedbackState';
 
 const CompaniesPage = lazy(() =>
@@ -20,11 +21,12 @@ const AdminPreview = lazy(() => import('../AdminPreview'));
 
 export function AdminWorkspace() {
   const pathname = useMatches({
-    select: (matches) => matches[matches.length - 1]?.pathname ?? '/admin',
+    select: (matches) => matches[matches.length - 1]?.pathname.replace(/\/$/, '') ?? '/admin',
   });
   const navigate = useNavigate();
   const previewPath = useLocation({ select: (location) => location.pathname });
   const { access, team, disc, projectWorkspace, adminRead } = useRouteContext({ from: '__root__' });
+  const showOverview = pathname === adminPaths.overview;
   const showTeam = Boolean(team && pathname === adminPaths.people);
   const showDisc = Boolean(disc && pathname === '/admin/perfil');
   const adminReadTitle =
@@ -56,10 +58,18 @@ export function AdminWorkspace() {
       <WorkspaceLayout
         title={
           operationsTitle ||
-          (showDisc ? 'Perfil comportamental' : showTeam ? 'Equipe' : 'Empresas e acessos')
+          (showOverview
+            ? 'Visão executiva'
+            : showDisc
+              ? 'Perfil comportamental'
+              : showTeam
+                ? 'Equipe'
+                : 'Empresas e acessos')
         }
       >
-        {showTeam || showDisc || operationsTitle ? null : pathname === '/admin/clientes' ? (
+        {showOverview ? (
+          <AdminOverview />
+        ) : showTeam || showDisc || operationsTitle ? null : pathname === '/admin/clientes' ? (
           <Suspense fallback={<FeedbackState kind="loading">Carregando empresas…</FeedbackState>}>
             <CompaniesPage />
           </Suspense>
