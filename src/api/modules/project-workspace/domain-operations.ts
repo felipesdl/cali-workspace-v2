@@ -3,6 +3,7 @@ import {
   encodeAttachment,
   maxAttachmentBytes,
   maxRecordAttachmentBatchBytes,
+  stageAttachment,
 } from './file-payload';
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
@@ -57,6 +58,7 @@ const records = z.object({
   reopen: reopen.nullable().optional(),
   attachmentsEnabled: z.boolean().optional(),
   attachmentBatchesEnabled: z.boolean().optional(),
+  stagedBatchesEnabled: z.boolean().optional(),
   imageAttachmentsEnabled: z.boolean().optional(),
   messages: z.array(
     z.object({
@@ -811,6 +813,7 @@ export function createDomainOperations(client: WorkspaceClient) {
       input: RecordAction,
       files: File[] = [],
       batch = false,
+      staged = false,
     ) {
       const command = recordAction.parse(input);
       if (files.length) {
@@ -826,8 +829,37 @@ export function createDomainOperations(client: WorkspaceClient) {
             )
           )
             throw new Error('Selecione até cinco arquivos compatíveis de até 10 MiB cada.');
-          if (files.reduce((bytes, file) => bytes + file.size, 0) > maxRecordAttachmentBatchBytes)
-            throw new Error('A mensagem pode ter até 10 MiB em anexos.');
+          if (files.reduce((bytes, file) => bytes + file.size, 0) > maxRecordAttachmentBatchBytes) {
+            if (!staged) throw new Error('A mensagem pode ter até 10 MiB em anexos.');
+            const scope = {
+              p_company_id: company,
+              p_request_id: id,
+              p_record_id: command.record,
+            };
+            const manifest: Array<{ fileName: string; sha256: string }> = [];
+            for (const [index, file] of files.entries()) {
+              const { base64, sha256 } = await stageAttachment(file);
+              const { error } = await client.rpc('v2_stage_pilot_record_attachment', {
+                ...scope,
+                p_position: index + 1,
+                p_file_name: file.name,
+                p_base64: base64,
+              });
+              if (error?.code === '22023')
+                throw new Error('Confira o formato e o tamanho dos anexos.');
+              if (error) throw rejected(error.code);
+              manifest.push({ fileName: file.name, sha256 });
+            }
+            const { data, error } = await client.rpc('v2_post_pilot_staged_record_batch', {
+              ...scope,
+              p_body: command.body,
+              p_internal: command.internal,
+              p_manifest: manifest,
+            });
+            if (error?.code === '40001') throw new Error('O envio mudou. Tente novamente.');
+            if (error) throw rejected(error.code);
+            return z.uuid().parse(data);
+          }
           const { data, error } = await client.rpc('v2_post_pilot_record_batch', {
             p_company_id: company,
             p_request_id: id,

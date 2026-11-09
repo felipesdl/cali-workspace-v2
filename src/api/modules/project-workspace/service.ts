@@ -22,7 +22,7 @@ export function createProjectWorkspace(client: WorkspaceClient, reportRelease = 
     async detail(
       companyId: string,
       projectId: string,
-      section: WorkspaceSearch['section'],
+      section: WorkspaceSearch['section'] | 'roadmap',
       page: number,
       signal: AbortSignal,
     ) {

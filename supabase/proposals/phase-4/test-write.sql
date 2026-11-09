@@ -52,6 +52,11 @@
 \ir satisfaction-operations.sql
 
 begin;
+\ir prove-project-roadmap.sql
+rollback;
+\echo Fase 4A: ordem e paginação do cronograma validadas.
+
+begin;
 do $$
 declare
  a constant uuid := '9c5ab148-78b8-4410-9338-58c44222a5db';

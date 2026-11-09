@@ -39,7 +39,7 @@ declare
   admin boolean := exists(select 1 from cali_workspace.profiles where id=actor and role::text='admin');
 begin
   if p_page is null or p_page not between 1 and 10000
-    or p_section is null or p_section not in ('deliverables','workstreams') then
+    or p_section is null or p_section not in ('deliverables','workstreams','roadmap') then
     raise exception using errcode='22023', message='Seleção de projeto inválida.';
   end if;
   return (
@@ -59,7 +59,7 @@ begin
           select d.id,d.title as name,d.protocol,d.status,d.execution_status,d.due_at,d.sort_order,d.updated_at,
             d.description,d.workstream_id,d.complexity
           from cali_workspace.deliverables d
-          where p_section='deliverables' and d.company_id=p_company_id and d.project_id=p.id
+          where p_section in ('deliverables','roadmap') and d.company_id=p_company_id and d.project_id=p.id
             and (admin or cali_workspace.client_can_view_deliverable(d.id))
           union all
           select w.id,w.name,w.protocol,w.status,w.execution_status,null::timestamptz,w.sort_order,w.updated_at,
@@ -67,10 +67,12 @@ begin
           from cali_workspace.project_workstreams w
           where p_section='workstreams' and w.company_id=p_company_id and w.project_id=p.id
         ), page as (
-          select * from matched order by sort_order,id limit 25 offset (p_page-1)*25
+          select * from matched
+          order by (case when p_section='roadmap' then due_at end) nulls last,sort_order,id
+          limit 25 offset (p_page-1)*25
         )
         select jsonb_build_object('total',(select count(*) from matched),
-          'rows',coalesce((select jsonb_agg(to_jsonb(page) order by sort_order,id) from page),'[]'::jsonb))
+          'rows',coalesce((select jsonb_agg(to_jsonb(page) order by (case when p_section='roadmap' then due_at end) nulls last,sort_order,id) from page),'[]'::jsonb))
       )
     )
     from cali_workspace.projects p

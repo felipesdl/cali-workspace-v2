@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Cronograma, leitura de relatórios e lotes de anexos
+
+- Cronograma cronológico instalado no CALI MAPA. Cliente e Admin ganharam visões dedicadas de relatórios. Cinco anexos de 10 MiB passaram em PostgreSQL descartável. Candidatas de anexos e admissão da Equipe CALI compiladas com rollback no staging. [Evidências e pendências](contracts/PHASE_4_READ.md#cronograma-relatórios-e-lote-completo-de-anexos).
+
 ## Trava de versão para a remoção de arquivos
 
 - A API real do CALI MAPA recusou aprovação obsoleta, sobrescrita e recriação do caminho reservado. A exclusão da versão aprovada passou. Trava e bucket de teste removidos após a prova. [Evidências](contracts/PHASE_4_READ.md#trava-de-versão-para-a-remoção-no-storage).

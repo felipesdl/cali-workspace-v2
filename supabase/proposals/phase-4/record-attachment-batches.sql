@@ -258,6 +258,9 @@ begin
     select jsonb_build_object('id',r.id,'title',r.title,'status',r.workflow_status,'visibility',r.visibility,
       'attachmentsEnabled',attachments_enabled,
       'attachmentBatchesEnabled',to_regprocedure('cali_workspace.v2_post_pilot_record_batch(uuid,uuid,uuid,text,boolean,jsonb)') is not null,
+      'stagedBatchesEnabled',to_regprocedure(
+        'cali_workspace.v2_stage_pilot_record_attachment(uuid,uuid,uuid,integer,text,text)') is not null
+        and to_regprocedure('cali_workspace.v2_post_pilot_staged_record_batch(uuid,uuid,uuid,text,boolean,jsonb)') is not null,
       'imageAttachmentsEnabled',to_regprocedure(
         'cali_workspace.v2_post_pilot_record_image(uuid,uuid,uuid,text,boolean,text,text)') is not null,
       'feedback',(select jsonb_build_object('score',f.score,'comment',f.comment)

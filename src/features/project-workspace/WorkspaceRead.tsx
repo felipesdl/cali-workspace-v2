@@ -1,4 +1,6 @@
 import { Fragment, useState } from 'react';
+import { ClientReportReading } from './ClientReportReading';
+import { AdminReportWorkspace } from './AdminReportWorkspace';
 import { ProjectJournalPanel } from './ProjectJournalPanel';
 import { workspaceLabel as label } from './workspace-labels';
 import { WorkspacePagination } from './WorkspacePagination';
@@ -15,7 +17,6 @@ import { MapaJourneys } from './MapaJourneys';
 import { MapaReview } from './MapaReview';
 import { MapaReportSummary } from './MapaReportSummary';
 import { StaffActivation, StaffDraftEditor } from './StaffDraftEditor';
-import { ReportCurationSections, ReportIndicators, ReportSources } from './ReportCuration';
 import {
   ActivateContractedFront,
   ContractedFrontTerms,
@@ -27,19 +28,12 @@ import {
   FormAdministration,
   NoticeItemAction,
   PublishNotice,
-  ReportDraftActions,
-  ReportPublicationActions,
 } from './CatalogActions';
 import { AgendaActions } from './AgendaActions';
 import { NoticeInteractions } from './NoticeInteractions';
 import { NoticeCover } from './NoticeCover';
 import { OpenRecord, RecordConversation } from './RecordActions';
-import {
-  DataLifecycleOverview,
-  PrivacyActions,
-  ReportAcknowledgment,
-  ReportReadiness,
-} from './ReportPrivacyActions';
+import { DataLifecycleOverview, PrivacyActions, ReportReadiness } from './ReportPrivacyActions';
 import { HourActions, HourCapacityAction, HourEntryCorrection } from './HourActions';
 import { CapacityMilestones } from './CapacityMilestones';
 import { HourLink } from './HourLink';
@@ -119,6 +113,7 @@ function CompanySelect({ search, update }: Props) {
             companyId: event.currentTarget.value || undefined,
             project: undefined,
             record: undefined,
+            report: undefined,
             page: 1,
           })
         }
@@ -145,7 +140,8 @@ function Pages({ total, search, update }: Props & { total: number }) {
 function Projects({ search, update }: Props) {
   const { service, actor, companyId, admin, connected } = useScope(search);
   const { documentOperations } = useRouteContext({ from: '__root__' });
-  const { page, section, project } = search;
+  const { page, section, project, projectView } = search;
+  const readSection = projectView === 'roadmap' ? 'roadmap' : section;
   const list = useQuery({
     queryKey: ['projects', actor, companyId, page],
     queryFn:
@@ -154,10 +150,10 @@ function Projects({ search, update }: Props) {
         : skipToken,
   });
   const detail = useQuery({
-    queryKey: ['project', actor, companyId, project, section, page],
+    queryKey: ['project', actor, companyId, project, readSection, page],
     queryFn:
       service && companyId && project
-        ? ({ signal }) => service.detail(companyId, project, section, page, signal)
+        ? ({ signal }) => service.detail(companyId, project, readSection, page, signal)
         : skipToken,
   });
   const projectData = detail.data;
@@ -179,13 +175,23 @@ function Projects({ search, update }: Props) {
       ) : project ? (
         <>
           <div>
-            <Button variant="secondary" onClick={() => update({ project: undefined, page: 1 })}>
+            <Button
+              variant="secondary"
+              onClick={() => update({ project: undefined, projectView: undefined, page: 1 })}
+            >
               Voltar aos projetos
             </Button>
           </div>
           {projectData ? (
             <section className={panel}>
-              <h2 className="tw:font-semibold">{projectData.project.name}</h2>
+              <div className="tw:grid tw:gap-1 tw:border-b tw:border-border-default tw:pb-4">
+                {projectData.project.protocol && (
+                  <p className="tw:text-caption tw:text-muted-copy">
+                    {projectData.project.protocol}
+                  </p>
+                )}
+                <h2 className="tw:text-section tw:font-semibold">{projectData.project.name}</h2>
+              </div>
               <p>{projectData.project.description}</p>
               <p>
                 {label(projectData.project.planning_status)} ·{' '}
@@ -230,24 +236,58 @@ function Projects({ search, update }: Props) {
                   execution={projectData.project.execution_status}
                 />
               )}
-              <ProjectJournalPanel scope={{ company: companyId, actor, project }} admin={admin} />
-              <div className="tw:my-4 tw:flex tw:gap-2">
+              <nav aria-label="Gestão do projeto" className="tw:my-4 tw:flex tw:flex-wrap tw:gap-2">
                 <Button
-                  aria-pressed={section === 'deliverables'}
+                  aria-pressed={projectView === 'roadmap'}
                   variant="secondary"
-                  onClick={() => update({ section: 'deliverables', page: 1 })}
+                  onClick={() => update({ projectView: 'roadmap', page: 1 })}
+                >
+                  Cronograma
+                </Button>
+                <Button
+                  aria-pressed={!projectView && section === 'deliverables'}
+                  variant="secondary"
+                  onClick={() =>
+                    update({ projectView: undefined, section: 'deliverables', page: 1 })
+                  }
                 >
                   Entregáveis
                 </Button>
                 <Button
-                  aria-pressed={section === 'workstreams'}
+                  aria-pressed={!projectView && section === 'workstreams'}
                   variant="secondary"
-                  onClick={() => update({ section: 'workstreams', page: 1 })}
+                  onClick={() =>
+                    update({ projectView: undefined, section: 'workstreams', page: 1 })
+                  }
                 >
                   Frentes do projeto
                 </Button>
-              </div>
-              {projectData.items.rows.length ? (
+                <Button
+                  aria-pressed={projectView === 'history'}
+                  variant="secondary"
+                  onClick={() => update({ projectView: 'history', page: 1 })}
+                >
+                  Histórico
+                </Button>
+              </nav>
+              {projectView === 'history' ? (
+                <ProjectJournalPanel scope={{ company: companyId, actor, project }} admin={admin} />
+              ) : projectView === 'roadmap' && projectData.items.rows.length ? (
+                <ol aria-label="Marcos do cronograma" className="tw:grid tw:gap-3">
+                  {projectData.items.rows.map((row) => (
+                    <li
+                      key={row.id}
+                      className="tw:grid tw:gap-1 tw:border-l-2 tw:border-brand tw:pl-3"
+                    >
+                      <p>{row.due_at ? formatServerInstant(row.due_at) : 'Sem prazo definido'}</p>
+                      <strong>{row.name}</strong>
+                      <p>
+                        {label(row.status)} · {label(row.execution_status)}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              ) : projectData.items.rows.length ? (
                 <ul className="tw:grid tw:gap-3">
                   {projectData.items.rows.map((row) => (
                     <li key={row.id}>
@@ -356,7 +396,9 @@ function Projects({ search, update }: Props) {
               ) : (
                 <FeedbackState kind="empty">Nenhum item nesta página.</FeedbackState>
               )}
-              <Pages total={projectData.items.total} search={search} update={update} />
+              {projectView !== 'history' && (
+                <Pages total={projectData.items.total} search={search} update={update} />
+              )}
             </section>
           ) : (
             <FeedbackState kind="empty">Projeto indisponível.</FeedbackState>
@@ -712,6 +754,28 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
         <FeedbackState kind="error" onRetry={() => void result.refetch()}>
           Não foi possível carregar as informações.
         </FeedbackState>
+      ) : module === 'reports' && admin ? (
+        <AdminReportWorkspace
+          company={companyId}
+          actor={actor}
+          data={result.data}
+          report={search.report}
+          page={search.page}
+          select={(id) => update({ report: id })}
+          changePage={(page) => update({ page, report: undefined })}
+        />
+      ) : module === 'reports' ? (
+        <ClientReportReading
+          company={companyId}
+          actor={actor}
+          data={result.data}
+          report={search.report}
+          showList={search.reportView === 'list'}
+          page={search.page}
+          select={(id) => update({ report: id, reportView: undefined })}
+          changePage={(page) => update({ page, report: undefined })}
+          toggleList={(show) => update({ reportView: show ? 'list' : undefined })}
+        />
       ) : (
         <>
           {module === 'documents' && documentOperations && (
@@ -738,12 +802,6 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                       Abrir conversa
                     </Button>
                   )}
-                  {module === 'reports' &&
-                    !admin &&
-                    !item.reportVersion &&
-                    item.acknowledgmentAvailable && (
-                      <ReportAcknowledgment company={companyId} report={item.id} />
-                    )}
                   {module === 'notices' && (
                     <NoticeItemAction
                       company={companyId}
@@ -754,49 +812,8 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                       acknowledged={item.noticeAcknowledged}
                     />
                   )}
-                  {module === 'reports' && admin && item.reportUpdatedAt && (
-                    <ReportDraftActions
-                      company={companyId}
-                      actor={actor}
-                      id={item.id}
-                      status={item.status}
-                      expected={item.reportUpdatedAt}
-                      summary={item.summary}
-                      curation={item.reportCuration}
-                      released={item.status === 'published' && Boolean(item.reportVersion)}
-                    />
-                  )}
-                  {module === 'reports' && item.reportVersion && (
-                    <ReportPublicationActions
-                      company={companyId}
-                      actor={actor}
-                      id={item.id}
-                      version={item.reportVersion}
-                      pdfReady={Boolean(item.reportPdfReady)}
-                      published={item.status === 'published'}
-                      admin={admin}
-                      previouslyReleased={Boolean(item.reportPreviouslyReleased)}
-                      acknowledgmentAvailable={Boolean(item.acknowledgmentAvailable)}
-                      acknowledged={Boolean(item.reportAcknowledged)}
-                    />
-                  )}
                   {item.summary && (
                     <p className="tw:mt-2 tw:break-words tw:whitespace-pre-line">{item.summary}</p>
-                  )}
-                  {item.reportCuration && item.reportVersion && (
-                    <ReportCurationSections sections={item.reportCuration} />
-                  )}
-                  {item.reportMetrics && item.reportVersion && (
-                    <ReportIndicators metrics={item.reportMetrics} />
-                  )}
-                  {item.reportClientSourceCounts && item.reportVersion && (
-                    <ReportSources
-                      counts={item.reportClientSourceCounts}
-                      title="Conteúdo visível no Workspace"
-                    />
-                  )}
-                  {admin && item.reportSourceCounts && (
-                    <ReportSources counts={item.reportSourceCounts} />
                   )}
                   {item.frontTerms && <ContractedFrontTerms terms={item.frontTerms} />}
                   {item.frontTerms && admin && item.status === 'active' && (

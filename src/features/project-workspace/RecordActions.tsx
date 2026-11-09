@@ -68,13 +68,19 @@ function MessageFields({
   attachmentsEnabled,
   imageAttachmentsEnabled,
   attachmentBatchesEnabled,
+  stagedBatchesEnabled,
 }: {
   prefix: string;
   admin: boolean;
   attachmentsEnabled?: boolean;
   imageAttachmentsEnabled?: boolean;
   attachmentBatchesEnabled?: boolean;
+  stagedBatchesEnabled?: boolean;
 }) {
+  const batchLimit = stagedBatchesEnabled ? 'por arquivo' : 'no total';
+  const attachmentLabel = attachmentBatchesEnabled
+    ? `Anexos de até 10 MiB ${batchLimit} (opcional)`
+    : 'Anexo de até 2 MiB (opcional)';
   return (
     <>
       <Field id={prefix + 'message'} label="Mensagem">
@@ -82,14 +88,7 @@ function MessageFields({
       </Field>
       {admin && <Checkbox name="internal">Somente para a CALI</Checkbox>}
       {attachmentsEnabled && (
-        <Field
-          id={prefix + 'attachment'}
-          label={
-            attachmentBatchesEnabled
-              ? 'Anexos de até 10 MiB no total (opcional)'
-              : 'Anexo de até 2 MiB (opcional)'
-          }
-        >
+        <Field id={prefix + 'attachment'} label={attachmentLabel}>
           <input
             id={prefix + 'attachment'}
             name="attachment"
@@ -140,13 +139,14 @@ export function RecordConversation({
     id: string,
     files?: File[],
     batch?: boolean,
+    staged?: boolean,
   ) {
     try {
       switch (command.action) {
         case 'open':
         case 'message':
         case 'change_status':
-          return await operations.recordAction(company, id, command, files, batch);
+          return await operations.recordAction(company, id, command, files, batch, staged);
         default:
           return await operations.reviewRecord(company, id, command);
       }
@@ -293,6 +293,7 @@ export function RecordConversation({
                   id,
                   attachments,
                   data.attachmentBatchesEnabled,
+                  data.stagedBatchesEnabled,
                 );
               }}
               saved={() => setPage(1)}
@@ -304,6 +305,7 @@ export function RecordConversation({
                   attachmentsEnabled={data.attachmentsEnabled}
                   imageAttachmentsEnabled={data.imageAttachmentsEnabled}
                   attachmentBatchesEnabled={data.attachmentBatchesEnabled}
+                  stagedBatchesEnabled={data.stagedBatchesEnabled}
                 />
               )}
             </ActionForm>

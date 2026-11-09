@@ -134,5 +134,13 @@ begin
   exception when insufficient_privilege then null; end;
 end $$;
 rollback;
-\ir rollback-record-attachments.sql
 \echo Fase 4C: anexos atômicos com mensagem, visibilidade, reexecução e retirada validados.
+
+\ir record-attachment-staging.sql
+begin;
+\ir prove-record-attachment-staging.sql
+rollback;
+drop function cali_workspace.v2_stage_pilot_record_attachment(uuid,uuid,uuid,integer,text,text);
+drop function cali_workspace.v2_post_pilot_staged_record_batch(uuid,uuid,uuid,text,boolean,jsonb);
+drop table cali_session_guard.phase4_record_attachment_staging;
+\ir rollback-record-attachments.sql

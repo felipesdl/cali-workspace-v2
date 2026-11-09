@@ -7,6 +7,9 @@ const monthSchema = z.iso.date().refine((date) => date.endsWith('-01'));
 export const workspaceSearch = z.object({
   companyId: z.uuid().optional().catch(undefined),
   project: z.uuid().optional().catch(undefined),
+  projectView: z.enum(['roadmap', 'history']).optional().catch(undefined),
+  report: z.uuid().optional().catch(undefined),
+  reportView: z.enum(['list']).optional().catch(undefined),
   record: z.uuid().optional().catch(undefined),
   delivery: z.uuid().optional().catch(undefined),
   task: z.uuid().optional().catch(undefined),
