@@ -13,14 +13,7 @@ import { ActionForm } from './ActionForm';
 import { RecordReviewActions } from './RecordReviewActions';
 import { FileDownload } from './FileDownload';
 import { workspaceSearch } from '../../api/modules/project-workspace/schemas';
-
-const states = {
-  in_progress: 'Em atendimento',
-  waiting_client: 'Aguardando Cliente',
-  standby: 'Em espera',
-  completed: 'Finalizada',
-  cancelled: 'Cancelada',
-} as const;
+import { isRecordStatus, recordStatusLabels } from './workspace-labels';
 
 type Scope = { company: string; actor?: string; admin: boolean };
 
@@ -324,10 +317,8 @@ export function RecordConversation({
             <ActionForm
               label={open ? 'Atualizar situação' : 'Reabrir pela CALI'}
               submit={(fields, id) => {
-                const next = Object.entries(states).find(
-                  ([name]) => name === fields.get('next'),
-                )?.[0];
-                if (!next || !isState(next))
+                const next = fields.get('next');
+                if (typeof next !== 'string' || !isRecordStatus(next))
                   return Promise.reject(new Error('Selecione a situação.'));
                 return submit({ action: 'change_status', record, expected: status, next }, id);
               }}
@@ -338,7 +329,7 @@ export function RecordConversation({
                     <option value="" disabled>
                       Selecione
                     </option>
-                    {Object.entries(states)
+                    {Object.entries(recordStatusLabels)
                       .filter(
                         ([key]) =>
                           key !== status &&
@@ -359,8 +350,4 @@ export function RecordConversation({
       )}
     </section>
   );
-}
-
-function isState(value: string): value is keyof typeof states {
-  return Object.prototype.hasOwnProperty.call(states, value);
 }

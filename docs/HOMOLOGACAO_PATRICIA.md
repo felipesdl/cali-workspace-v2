@@ -54,7 +54,22 @@ Primeira rodada no navegador integrado, com sessões existentes e empresas sint�
 
 A rodada foi de leitura: não alterou dados, não enviou e-mails e não reativou a conta Partner descartável. Os três servidores locais foram desligados ao final. A reversão do ajuste de navegação é de código; não há migração de banco associada.
 
-Próximas provas internas: encadear arquivos e revisões, horas e agenda, ocorrências e avisos, tela e PDF de relatório, e percursos administrativos. Reutilizar as evidências do piloto para o Partner e registrar lacunas de sessão. Conferir tela estreita, teclado e paridade com a publicação 83 antes de preparar o link e o aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
+### Regressão de leitura dos módulos operacionais
+
+Sessões Admin e Cliente A/B existentes no CALI MAPA. A interface local foi configurada para consultar também os catálogos de revisões e as conversas.
+
+| Fluxo | Resultado no navegador |
+| --- | --- |
+| FLOW-07 e FLOW-09 · Horas e Agenda | Admin viu franquia de 12 h 30 min, consumo de 27 min e saldo de 12 h 3 min em A. Novembro estava oculto aos Clientes, conforme a configuração do piloto. A viu quatro reuniões próprias, B viu a agenda vazia e o evento cancelado apareceu somente no Admin. |
+| FLOW-10 · Ocorrências | Admin e A viram “Aguardando Cliente” na lista. A abriu a conversa de teste. B recebeu “Ocorrência indisponível” ao usar o mesmo link. |
+| FLOW-11 · Documentos | Admin viu as revisões 1 e 2 do documento sintético e baixou a revisão 2 como PDF. O documento retirado não apareceu nas bibliotecas de A/B. |
+| FLOW-12 · Relatórios | Admin viu o relatório sintético de outubro em rascunho. A/B não viram relatório liberado. A comparação positiva entre tela e PDF segue na [prova da revisão publicada](contracts/PHASE_4_READ.md#fechamento-de-relatórios-no-piloto). |
+| FLOW-13 · Avisos | A e B viram a publicação geral. Os avisos sintéticos arquivados de A apareceram somente no Admin. |
+| FLOW-16 e FLOW-17 · Forms e Auditoria | Admin viu formulários sintéticos e eventos de Forms em A. Em B, a auditoria ficou vazia. Abrir a rota de Auditoria como Cliente B redirecionou para a área Cliente. |
+
+A rodada conferiu leitura, navegação, permissão e download de arquivo sintético. Os servidores locais foram desligados. As transições de escrita e os PDFs publicados permanecem nas provas dos respectivos pilotos. O ajuste de rótulos de ocorrência é reversível no frontend.
+
+Próximas provas internas: reconciliar as lacunas de transição e permissão com os resultados dos pilotos, incluindo Partner. Conferir tela estreita, teclado e paridade com a publicação 83 antes de preparar o link e o aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
 
 ## Mensagem para enviar junto do link
 

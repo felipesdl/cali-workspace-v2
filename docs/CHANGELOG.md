@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Ocorrências e revisão dos módulos na fase 6
+
+- A lista de Ocorrências usa os mesmos rótulos de situação do formulário Admin, incluindo “Aguardando Cliente”.
+- CALI MAPA: consulta entre módulos com Admin e Clientes A/B, download da revisão 2 de um documento sintético, histórico privado e recusa de ocorrência e Auditoria fora do papel ou da empresa. [Evidências por fluxo](HOMOLOGACAO_PATRICIA.md#regressão-de-leitura-dos-módulos-operacionais).
+
 ## Navegação e isolamento na fase 6
 
 - Links do Admin preservam a empresa piloto entre módulos e reiniciam o contexto do módulo anterior. A troca de empresa limpa o detalhe selecionado; o título e o foco acompanham o conteúdo carregado.

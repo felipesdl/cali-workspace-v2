@@ -37,6 +37,21 @@ const labels: Readonly<Record<string, string>> = {
 };
 export const workspaceLabel = (status: string) => labels[status] ?? status;
 
+export const recordStatusLabels = {
+  in_progress: 'Em atendimento',
+  waiting_client: 'Aguardando Cliente',
+  standby: 'Em espera',
+  completed: 'Finalizada',
+  cancelled: 'Cancelada',
+} as const;
+
+export function isRecordStatus(status: string): status is keyof typeof recordStatusLabels {
+  return Object.prototype.hasOwnProperty.call(recordStatusLabels, status);
+}
+
+export const recordStatusLabel = (status: string) =>
+  isRecordStatus(status) ? recordStatusLabels[status] : workspaceLabel(status);
+
 const appointmentStatus: Readonly<Record<string, string>> = {
   submitted: 'Aguardando análise da CALI',
   client_review: 'Aguardando Cliente',

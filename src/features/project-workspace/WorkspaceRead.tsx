@@ -6,7 +6,7 @@ import { AdminReportWorkspace } from './AdminReportWorkspace';
 import { ProjectJournalPanel } from './ProjectJournalPanel';
 import { ProjectRoadmap } from './ProjectRoadmap';
 import { ProjectDeliverableList } from './ProjectDeliverableList';
-import { workspaceLabel as label } from './workspace-labels';
+import { recordStatusLabel, workspaceLabel as label } from './workspace-labels';
 import { WorkspacePagination } from './WorkspacePagination';
 import {
   CommercialDraftEditor,
@@ -671,6 +671,7 @@ export function ClientHoursPage() {
 function Catalog({ search, update, module }: Props & { module: CatalogModule }) {
   const { service, actor, companyId, admin, connected } = useScope(search);
   const { domainOperations, documentOperations } = useRouteContext({ from: '__root__' });
+  const statusLabel = module === 'records' ? recordStatusLabel : label;
   const record = module === 'records' && domainOperations ? search.record : undefined;
   const month = module === 'calendar' ? (search.month ?? currentMonth()) : null;
   const result = useQuery({
@@ -787,7 +788,7 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                   <p>
                     {[
                       item.protocol,
-                      item.status && label(item.status),
+                      item.status && statusLabel(item.status),
                       item.day
                         ? formatCalendarDate(item.day)
                         : item.instant && formatServerInstant(item.instant),
