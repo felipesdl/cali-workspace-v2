@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Input } from '../../components/ds/field/Controls';
 import { useEffect, useRef, useState } from 'react';
@@ -91,7 +92,7 @@ function RegistrationForm({
         Se a razão social ficar em branco, será usado o nome de apresentação.
       </p>
       {create.isError && <FeedbackMessage tone="error">{create.error.message}</FeedbackMessage>}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, submitting]) => (
             <Button type="submit" disabled={!canSubmit} pending={submitting || create.isPending}>
@@ -102,7 +103,7 @@ function RegistrationForm({
         <Button variant="secondary" disabled={create.isPending} onClick={onClose}>
           Cancelar cadastro
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

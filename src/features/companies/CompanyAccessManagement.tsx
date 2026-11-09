@@ -76,7 +76,11 @@ export function CompanyAccessManagement({
           }}
         />
       )}
-      {notice && <FeedbackMessage tone="success">{notice}</FeedbackMessage>}
+      {notice && (
+        <FeedbackMessage tone="success" className="tw:mt-3">
+          {notice}
+        </FeedbackMessage>
+      )}
       {accesses.length === 0 ? (
         <p>Nenhum acesso nesta empresa.</p>
       ) : (

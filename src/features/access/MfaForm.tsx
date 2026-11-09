@@ -8,7 +8,7 @@ import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { CodeInput } from './CodeInput';
 import { useMfaEnrollment } from './hooks/useMfaEnrollment';
-import { AccessActions } from './AccessActions';
+import { FormActions } from '../../components/ds/button/FormActions';
 
 export function MfaForm({
   api,
@@ -41,17 +41,17 @@ export function MfaForm({
     return (
       <>
         <FeedbackState kind="loading">Consultando autenticador…</FeedbackState>
-        {exitAction && <AccessActions>{exitAction}</AccessActions>}
+        {exitAction && <FormActions className="tw:mt-3">{exitAction}</FormActions>}
       </>
     );
   if (failed)
     return (
       <>
         <FeedbackState kind="error">Não foi possível consultar o autenticador.</FeedbackState>
-        <AccessActions>
+        <FormActions className="tw:mt-3">
           <Button onClick={retry}>Tentar novamente</Button>
           {exitAction}
-        </AccessActions>
+        </FormActions>
       </>
     );
   return (
@@ -61,12 +61,12 @@ export function MfaForm({
         bloqueado.
       </p>
       {!factor && (
-        <AccessActions>
+        <FormActions>
           <Button pending={loading} onClick={() => void enroll()}>
             Configurar autenticador
           </Button>
           {exitAction}
-        </AccessActions>
+        </FormActions>
       )}
       {enrollment && (
         <div className="tw:grid tw:gap-3">
@@ -111,12 +111,12 @@ export function MfaForm({
           </form.Field>
           <form.Subscribe selector={(s) => s.isSubmitting}>
             {(pending) => (
-              <AccessActions>
+              <FormActions>
                 <Button type="submit" pending={pending}>
                   Confirmar autenticador
                 </Button>
                 {exitAction}
-              </AccessActions>
+              </FormActions>
             )}
           </form.Subscribe>
         </form>

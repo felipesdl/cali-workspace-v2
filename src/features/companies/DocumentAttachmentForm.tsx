@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Input, Select } from '../../components/ds/field/Controls';
 import { FileInput } from '../../components/ds/field/FileInput';
@@ -100,7 +101,7 @@ export function DocumentAttachmentForm({
         </p>
       </fieldset>
       {attach.isError && <FeedbackMessage tone="error">{attach.error.message}</FeedbackMessage>}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, pending]) => (
             <Button
@@ -115,7 +116,7 @@ export function DocumentAttachmentForm({
         <Button variant="secondary" disabled={attach.isPending} onClick={() => onClose(false)}>
           Cancelar anexo
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

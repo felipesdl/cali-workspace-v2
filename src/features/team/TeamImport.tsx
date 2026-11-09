@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FileInput } from '../../components/ds/field/FileInput';
 import { useState } from 'react';
 import { z } from 'zod';
@@ -176,14 +177,14 @@ export function TeamImport({
           </ul>
         </FeedbackState>
       )}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <Button type="submit" pending={pending} disabled={busy || !prepared || managerError}>
           Confirmar importação
         </Button>
         <Button variant="secondary" disabled={pending} onClick={onCancel}>
           Cancelar
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

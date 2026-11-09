@@ -111,7 +111,11 @@ export function AdhesionEvidencePanel({
       {action?.kind === 'retract' && (
         <AdhesionEvidenceRetraction evidence={action.evidence} onClose={finish} />
       )}
-      {notice && <FeedbackMessage tone="success">{notice}</FeedbackMessage>}
+      {notice && (
+        <FeedbackMessage tone="success" className="tw:mt-3">
+          {notice}
+        </FeedbackMessage>
+      )}
     </section>
   );
 }

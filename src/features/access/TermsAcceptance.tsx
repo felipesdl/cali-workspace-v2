@@ -3,7 +3,7 @@ import { TermsContent } from './TermsContent';
 import { type CurrentTerms } from '../../api/modules/access/session';
 import { Button } from '../../components/ds/button/Button';
 import { Checkbox } from '../../components/ds/checkbox/Checkbox';
-import { AccessActions } from './AccessActions';
+import { FormActions } from '../../components/ds/button/FormActions';
 
 type TermsAcceptanceProps = {
   terms: CurrentTerms;
@@ -29,12 +29,12 @@ export function TermsAcceptance({
       <Checkbox checked={agreed} onChange={(event) => setAgreed(event.target.checked)}>
         Li e aceito os termos de uso e a política de privacidade.
       </Checkbox>
-      <AccessActions>
+      <FormActions>
         <Button disabled={!agreed} pending={busy} onClick={() => void accept()}>
           Aceitar e continuar
         </Button>
         {exitAction}
-      </AccessActions>
+      </FormActions>
     </>
   );
 }

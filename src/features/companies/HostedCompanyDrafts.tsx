@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Input } from '../../components/ds/field/Controls';
 import { useState } from 'react';
@@ -62,14 +63,14 @@ function NewDraft({
         />
       </Field>
       {mutation.isError && <FeedbackMessage tone="error">{mutation.error.message}</FeedbackMessage>}
-      <div className="tw:flex tw:flex-wrap tw:gap-2">
+      <FormActions className="tw:max-w-md">
         <Button type="submit" pending={mutation.isPending} disabled={!displayName.trim()}>
           Salvar rascunho
         </Button>
         <Button variant="secondary" disabled={mutation.isPending} onClick={close}>
           Cancelar
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

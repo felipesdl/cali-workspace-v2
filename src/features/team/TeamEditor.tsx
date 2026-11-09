@@ -1,6 +1,7 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { Input, Select } from '../../components/ds/field/Controls';
 import { parseTerminationReason, teamTerminationCodes } from '../../api/modules/team/termination';
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { z } from 'zod';
 import { type ProfessionalRecord, teamStatus } from '../../api/modules/team/schemas';
 import {
@@ -13,7 +14,7 @@ import {
 } from '../../api/modules/team/maintenance';
 import { Button } from '../../components/ds/button/Button';
 import { Checkbox } from '../../components/ds/checkbox/Checkbox';
-import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Field } from '../../components/ds/field/Field';
 import {
   teamContractLabels,
@@ -218,14 +219,16 @@ export function TeamEditor({
   const [original] = useState(member);
   const [status, setStatus] = useState(member?.status ?? teamStatus.Active);
   const [error, setError] = useState('');
+  const feedback = useRef<HTMLParagraphElement>(null);
   return (
     <form
       aria-label={member ? 'Editar ficha profissional' : 'Cadastrar pessoa'}
-      className="tw:grid tw:gap-4"
+      className="tw:grid tw:min-w-0 tw:gap-3"
       onSubmit={async (event) => {
         event.preventDefault();
         setError('');
-        const form = new FormData(event.currentTarget);
+        const formElement = event.currentTarget;
+        const form = new FormData(formElement);
         try {
           await onSave(z.iso.date().parse(form.get('month')), {
             fields: toProfessionalPatch(form, original),
@@ -239,20 +242,26 @@ export function TeamEditor({
                 ? cause.message
                 : 'Não foi possível salvar a ficha.',
           );
+          requestAnimationFrame(() => {
+            const focused = document.activeElement;
+            if (focused === document.body || formElement.contains(focused)) {
+              feedback.current?.focus();
+            }
+          });
         }
       }}
     >
-      <h2 className="tw:text-section tw:font-bold tw:text-brand">
+      <h2 className="tw:m-0 tw:text-section tw:font-bold tw:text-brand">
         {member ? 'Editar ficha profissional' : 'Cadastrar pessoa'}
       </h2>
-      <p className="tw:text-muted-copy">
+      <p className="tw:m-0 tw:text-muted-copy">
         {member?.archived_at
           ? 'Salvar traz esta ficha de volta ao diretório e preserva o histórico.'
           : 'A ficha registra a pessoa na equipe da empresa.'}
       </p>
       <fieldset
         disabled={pending}
-        className="tw:grid tw:min-w-0 tw:grid-cols-2 tw:gap-3 tw:mobile:grid-cols-1"
+        className="tw:m-0 tw:grid tw:min-w-0 tw:grid-cols-2 tw:gap-3 tw:border-0 tw:p-0 tw:mobile:grid-cols-1 tw:[&>label]:my-0"
       >
         {professionalInputs.map(({ key, label, ...props }) => (
           <Field key={key} id={`${prefix}-${key}`} label={label}>
@@ -305,15 +314,19 @@ export function TeamEditor({
         {status === teamStatus.Leave && <LeaveFields prefix={prefix} member={member} />}
         {status === teamStatus.Terminated && <TerminationFields prefix={prefix} member={member} />}
       </fieldset>
-      {error && <FeedbackState kind="error">{error}</FeedbackState>}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      {error && (
+        <FeedbackMessage ref={feedback} tone="error" tabIndex={-1}>
+          {error}
+        </FeedbackMessage>
+      )}
+      <FormActions className="tw:max-w-md">
         <Button type="submit" pending={pending}>
           Salvar ficha
         </Button>
         <Button variant="secondary" disabled={pending} onClick={onCancel}>
           Cancelar
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

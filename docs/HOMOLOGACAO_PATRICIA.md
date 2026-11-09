@@ -228,6 +228,20 @@ O navegador integrado conferiu o PR em 375 × 812 e 1366 × 768 com sessões e s
 
 Capturas locais em `cali-fase6-controles`. Escopo de frontend. Rollback por reversão do commit. A homologação autenticada e o aceite da Patrícia seguem registrados separadamente.
 
+### Revalidação de formulários Admin e Cliente
+
+O navegador integrado percorreu 20 rotas demonstrativas e 21 rotas com composição conectada, em 375 × 812 e 1366 × 768. Todas couberam na largura da janela. As rotas conectadas usaram sessão e serviços sintéticos locais. A abertura de rota conferiu composição e largura. Os percursos abaixo também exercitaram ações e estados.
+
+| Percurso | Resultado nas duas larguras |
+| --- | --- |
+| Empresas Admin | Aplicar e limpar filtros mantiveram ações lado a lado, com a mesma dimensão. Busca acima de 120 caracteres bloqueou o envio e exibiu o erro a 12 px do campo. Cancelar e salvar a edição foram exercitados. O recibo que encostava em Editar passou de 0 a 12 px. O mesmo recuo foi aplicado aos recibos de ficha administrativa, dados cadastrais, acesso, adesão e documentos contratuais. |
+| Equipe Admin e Cliente | Cadastro e cancelamento conferidos em ambos os papéis. A moldura nativa do agrupamento foi removida. Salvar e cancelar ficaram com dimensões iguais. Falha longa apareceu a 12 px do grupo, recebeu foco e preservou os dados. A segunda tentativa registrou a ficha e exibiu a confirmação verde. Nova tentativa de consulta também recuperou a lista Cliente. |
+| Agenda Cliente | Datas, formato e assunto couberam na página. A falha longa recebeu foco, preservou o assunto e ficou a 12 px da área do formulário. A nova tentativa limpou o rascunho e focou o recibo. |
+| Documentos Admin | Campo obrigatório bloqueou envio sem PDF. O seletor exibiu o arquivo em português. A falha manteve o PDF e o identificador da tentativa. O reenvio confirmou a ação e limpou o campo. |
+| Acesso | Com termos indisponíveis, o aviso passou de 0 a 12 px das ações. Nova tentativa e saída mantiveram dimensões iguais. A nova consulta restaurou a navegação com a mesma sessão sintética. |
+
+Capturas locais em `cali-fase6-revalidacao`. A revisão cobre os percursos listados. Evidência autenticada do CALI MAPA e aceite da Patrícia têm registros próprios. Rollback por reversão do commit de frontend.
+
 ## Mensagem para enviar junto do link
 
 > Patrícia, a V2 está pronta para esta rodada de homologação em ambiente de teste. Vamos conferir acesso, empresas, Equipe, dados mensais e DISC usando os dados de exemplo. Te mando o link e os acessos de teste pelo canal combinado. Para cada ponto que você quiser ajustar, me diga a tela, o que tentou fazer e o que esperava ver.

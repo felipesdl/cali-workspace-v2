@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Revalidação de formulários Admin e Cliente
+
+- Reutiliza a composição de ações de Acesso em filtros e formulários de Empresas e Equipe. Mantém dimensões iguais e intervalo de 12 px. Remove a moldura nativa dos agrupamentos de Equipe.
+- Separa erros e recibos das ações por 12 px onde faltava espaço. A falha de gravação em Equipe recebe foco sem perder os campos. [Percursos revalidados em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#revalidação-de-formulários-admin-e-cliente).
+
 ## Campos, ações e mensagens da interface
 
 - Migra os controles de formulário para o design system. Localiza o seletor de arquivos, alinha a seta do select e padroniza as ações de acesso.

@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { TextArea } from '../../components/ds/field/Controls';
 import { useState } from 'react';
@@ -48,14 +49,14 @@ export function DocumentWithdrawal({
         />
       </Field>
       {withdraw.isError && <FeedbackMessage tone="error">{withdraw.error.message}</FeedbackMessage>}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <Button type="submit" disabled={!reason.trim()} pending={withdraw.isPending}>
           Confirmar retirada
         </Button>
         <Button variant="secondary" disabled={withdraw.isPending} onClick={() => onClose(false)}>
           Cancelar retirada
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

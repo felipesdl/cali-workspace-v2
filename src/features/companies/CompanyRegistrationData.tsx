@@ -79,7 +79,9 @@ function RegistrationPanel({ companyId }: { companyId: string }) {
         </>
       )}
       {saved && (
-        <FeedbackMessage tone="success">Dados cadastrais salvos na demonstração.</FeedbackMessage>
+        <FeedbackMessage tone="success" className="tw:mt-3">
+          Dados cadastrais salvos na demonstração.
+        </FeedbackMessage>
       )}
       <RegistrationHistory companyId={companyId} />
     </section>

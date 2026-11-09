@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { Input, Select } from '../../components/ds/field/Controls';
 import { companyFilterSchema, companyStatus } from '../../api/modules/companies/schemas';
 import { Button } from '../../components/ds/button/Button';
@@ -9,7 +10,7 @@ export function CompanyFilters() {
   const { form, clear } = useCompanyFilters();
   return (
     <form
-      className="tw:grid tw:grid-cols-[minmax(160px,1fr)_minmax(150px,220px)_auto] tw:items-end tw:gap-4 tw:compact:grid-cols-2 tw:mobile:grid-cols-1"
+      className="tw:grid tw:grid-cols-[minmax(160px,1fr)_minmax(150px,220px)_minmax(256px,auto)] tw:items-end tw:gap-4 tw:compact:grid-cols-2 tw:mobile:grid-cols-1"
       aria-label="Filtrar empresas"
       onSubmit={(event) => {
         event.preventDefault();
@@ -57,7 +58,7 @@ export function CompanyFilters() {
           </Field>
         )}
       </form.Field>
-      <div className="tw:flex tw:items-center tw:justify-between tw:gap-2 tw:compact:col-span-full tw:compact:justify-start">
+      <FormActions className="tw:compact:col-span-full tw:compact:max-w-md tw:[&>button]:px-3">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, isSubmitting]) => (
             <Button type="submit" disabled={!canSubmit} pending={isSubmitting}>
@@ -68,7 +69,7 @@ export function CompanyFilters() {
         <Button variant="secondary" onClick={clear}>
           Limpar
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

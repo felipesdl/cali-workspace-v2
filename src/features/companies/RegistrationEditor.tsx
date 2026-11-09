@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { type CompanyRegistrationRecord } from '../../api/modules/companies/registration-schemas';
 import { useRegistrationEditor } from './hooks/useRegistrationEditor';
@@ -52,7 +53,7 @@ export function RegistrationEditor({
           </Button>
         </div>
       )}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, pending]) => (
             <Button
@@ -67,7 +68,7 @@ export function RegistrationEditor({
         <Button variant="secondary" disabled={update.isPending} onClick={() => onClose(false)}>
           Cancelar cadastro da empresa
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

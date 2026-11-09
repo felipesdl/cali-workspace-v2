@@ -98,9 +98,21 @@ function DocumentPanel({ companyId }: { companyId: string }) {
       {action?.kind === 'withdraw' && (
         <DocumentWithdrawal document={action.document} onClose={finish} />
       )}
-      {notice && <FeedbackMessage tone="success">{notice}</FeedbackMessage>}
-      {download.message && <FeedbackMessage tone="success">{download.message}</FeedbackMessage>}
-      {download.error && <FeedbackMessage tone="error">{download.error.message}</FeedbackMessage>}
+      {notice && (
+        <FeedbackMessage tone="success" className="tw:mt-3">
+          {notice}
+        </FeedbackMessage>
+      )}
+      {download.message && (
+        <FeedbackMessage tone="success" className="tw:mt-3">
+          {download.message}
+        </FeedbackMessage>
+      )}
+      {download.error && (
+        <FeedbackMessage tone="error" className="tw:mt-3">
+          {download.error.message}
+        </FeedbackMessage>
+      )}
       <DocumentHistory companyId={companyId} />
     </section>
   );

@@ -91,7 +91,7 @@ function AdministrationPanel({
         </>
       )}
       {saved && (
-        <FeedbackMessage tone="success">
+        <FeedbackMessage tone="success" className="tw:mt-3">
           {hosted ? 'Ficha administrativa salva.' : 'Ficha administrativa salva na demonstração.'}
         </FeedbackMessage>
       )}

@@ -91,7 +91,8 @@ Reutilizar esse vocabulário entre componentes que compartilhem a mesma hierarqu
 - `Select` de escolha única usa 12 px de recuo para o texto e para a seta. Reserva espaço para o ícone e mantém a lista nativa. O modo de cores forçadas usa a seta do sistema.
 - `FileInput` mostra a ação em português e os nomes dos arquivos. Mantém seleção simples ou múltipla, `accept`, validação obrigatória e envio por `FormData`. O reset do formulário limpa a seleção e o rótulo.
 - `FeedbackMessage` usa texto, ícone e borda para distinguir sucesso em verde (`status`) e erro em vermelho (`alert`). Carregamento, vazio e informação usam a apresentação neutra. `FeedbackState` mantém o botão de nova tentativa fora da mensagem anunciada.
-- Em Acesso, ação principal e saída têm a mesma largura e altura quando cabem lado a lado, com 12 px entre elas. A cor distingue a ação principal da secundária.
+- `FormActions` agrupa pares de ações de formulário, como salvar e cancelar, filtrar e limpar ou continuar e sair. Botões têm largura e altura iguais quando ficam na mesma linha e 12 px de intervalo. Em espaço insuficiente, passam para uma coluna. A variante distingue a ação principal da secundária.
+- Mantenha 12 px entre uma ação e o recibo ou erro associado, antes ou depois da ação. Use o espaçamento do grupo quando ele já separa os elementos. Em um cartão de fluxo normal, o consumidor aplica o recuo à mensagem. `FeedbackState` aplica os mesmos 12 px entre a mensagem e a ação de recuperação. Fieldsets estruturais preservam a semântica nativa e usam borda e espaçamento definidos pela composição.
 
 ## Ficha administrativa — 02/11
 
@@ -106,6 +107,7 @@ Field explicita herança da família tipográfica nos controles nativos, incluin
 | Peça | Contrato obrigatório | Primeiros consumidores |
 | --- | --- | --- |
 | `Button`/`IconButton` | Variantes, tamanho/densidade, disabled, pending, nome acessível, bloqueio de duplo envio | Todos os fluxos |
+| `FormActions` | Ações relacionadas com dimensões iguais na mesma linha e 12 px de intervalo | Acesso, Empresas e Equipe |
 | `PageShell`/`PageHeader`/`FilterBar` | Slots, título único, ações/filtros responsivos | Equipe, Horas, Admin |
 | `Tabs` | Controlado, identificadores estáveis; navegação ou painel local explicitamente definidos | Equipe e Projetos |
 | `Field`/`Input`/`Select`/`TextArea`/`FileInput`/`CheckboxInput` | Label, ajuda, erro associado, required/disabled; sem placeholder como único label | Busca e formulários |

@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Input, Select } from '../../components/ds/field/Controls';
 import { useId, useState } from 'react';
@@ -70,7 +71,7 @@ function PrivateEditor({
     >
       <fieldset
         disabled={pending}
-        className="tw:grid tw:min-w-0 tw:grid-cols-2 tw:gap-3 tw:mobile:grid-cols-1"
+        className="tw:m-0 tw:grid tw:min-w-0 tw:grid-cols-2 tw:gap-3 tw:border-0 tw:p-0 tw:mobile:grid-cols-1"
       >
         <Field id={`${prefix}-salary`} label="Remuneração (R$)">
           <Input
@@ -137,14 +138,14 @@ function PrivateEditor({
         </Checkbox>
       </fieldset>
       {error && <FeedbackState kind="error">{error}</FeedbackState>}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <Button type="submit" pending={pending}>
           Salvar dados privados
         </Button>
         <Button variant="secondary" disabled={pending} onClick={onCancel}>
           Cancelar
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

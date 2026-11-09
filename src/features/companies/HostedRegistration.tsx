@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useId, useState } from 'react';
@@ -116,14 +117,14 @@ function RegistrationEditor({
       {error && <FeedbackState kind="error">{error}</FeedbackState>}
       <form.Subscribe selector={(state) => state.isSubmitting}>
         {(pending) => (
-          <div className="tw:flex tw:flex-wrap tw:gap-2">
+          <FormActions className="tw:max-w-md">
             <Button type="submit" pending={pending}>
               Salvar cadastro complementar
             </Button>
             <Button variant="secondary" onClick={onClose} disabled={pending}>
               Cancelar edição
             </Button>
-          </div>
+          </FormActions>
         )}
       </form.Subscribe>
     </form>

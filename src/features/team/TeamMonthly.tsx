@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Input, TextArea } from '../../components/ds/field/Controls';
 import { useId, useState } from 'react';
@@ -116,7 +117,7 @@ function MetricsEditor({
       </p>
       <fieldset
         disabled={pending}
-        className="tw:grid tw:min-w-0 tw:grid-cols-2 tw:gap-3 tw:mobile:grid-cols-1"
+        className="tw:m-0 tw:grid tw:min-w-0 tw:grid-cols-2 tw:gap-3 tw:border-0 tw:p-0 tw:mobile:grid-cols-1"
       >
         {numericFields.map((field) => (
           <Field key={field.key} id={`${id}-${field.key}`} label={field.label}>
@@ -132,7 +133,10 @@ function MetricsEditor({
           </Field>
         ))}
       </fieldset>
-      <fieldset disabled={pending} className="tw:grid tw:min-w-0 tw:gap-3">
+      <fieldset
+        disabled={pending}
+        className="tw:m-0 tw:grid tw:min-w-0 tw:gap-3 tw:border-0 tw:p-0"
+      >
         <legend className="tw:font-semibold">Quadro aprovado por departamento</legend>
         {departments.map((row) => (
           <div
@@ -213,14 +217,14 @@ function MetricsEditor({
         <p className="tw:text-caption">Depois de enviar, correções são realizadas pela CALI.</p>
       )}
       {error && <FeedbackState kind="error">{error}</FeedbackState>}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <Button type="submit" pending={pending}>
           {record ? 'Salvar correção' : 'Enviar dados mensais'}
         </Button>
         <Button variant="secondary" disabled={pending} onClick={onCancel}>
           Cancelar
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

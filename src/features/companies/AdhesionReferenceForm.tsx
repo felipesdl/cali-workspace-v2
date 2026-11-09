@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Input } from '../../components/ds/field/Controls';
 import { useState } from 'react';
@@ -65,7 +66,7 @@ export function AdhesionReferenceForm({
         documento nem substitui o aceite individual dos termos.
       </p>
       {register.isError && <FeedbackMessage tone="error">{register.error.message}</FeedbackMessage>}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, submitting]) => (
             <Button type="submit" disabled={!canSubmit} pending={submitting || register.isPending}>
@@ -76,7 +77,7 @@ export function AdhesionReferenceForm({
         <Button variant="secondary" disabled={register.isPending} onClick={onClose}>
           Cancelar registro
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

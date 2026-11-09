@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Select, TextArea } from '../../components/ds/field/Controls';
 import { type WorkspaceAdhesionRecord } from '../../api/modules/access/adhesion';
@@ -127,7 +128,7 @@ export function AdhesionEvidenceForm({
         </form.Field>
       </fieldset>
       {confirm.isError && <FeedbackMessage tone="error">{confirm.error.message}</FeedbackMessage>}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <form.Subscribe
           selector={(state) =>
             [state.canSubmit, state.isSubmitting, state.values.confirmed] as const
@@ -146,7 +147,7 @@ export function AdhesionEvidenceForm({
         <Button variant="secondary" disabled={confirm.isPending} onClick={() => onClose(false)}>
           Cancelar comprovação
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

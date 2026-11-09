@@ -6,7 +6,7 @@ import { accessReasonMessages } from '../../app/session/access-reason';
 import { type WorkspaceAccessState } from '../../api/modules/access/session';
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
-import { AccessActions } from './AccessActions';
+import { FormActions } from '../../components/ds/button/FormActions';
 import { CodeForm } from './CodeForm';
 import { MfaForm } from './MfaForm';
 import { TermsAcceptance } from './TermsAcceptance';
@@ -50,7 +50,7 @@ function AccessStep({ api, session, state, access, acceptance, exitAction }: Acc
           <FeedbackState kind="error">
             Seu acesso está indisponível. Entre em contato com a CALI.
           </FeedbackState>
-          <AccessActions>{exitAction}</AccessActions>
+          <FormActions className="tw:mt-3">{exitAction}</FormActions>
         </>
       );
     case 'mfa_required':
@@ -71,10 +71,10 @@ function AccessStep({ api, session, state, access, acceptance, exitAction }: Acc
       return (
         <>
           <FeedbackState kind="error">{accessReasonMessages.terms_unavailable}</FeedbackState>
-          <AccessActions>
+          <FormActions className="tw:mt-3">
             <Button onClick={() => void session.refresh()}>Tentar novamente</Button>
             {exitAction}
-          </AccessActions>
+          </FormActions>
         </>
       );
     case 'ready':
@@ -138,7 +138,11 @@ export function AccessFlow({
           acceptance={acceptance}
           exitAction={exitAction}
         />
-        {acceptance.message && <FeedbackMessage tone="error">{acceptance.message}</FeedbackMessage>}
+        {acceptance.message && (
+          <FeedbackMessage tone="error" className="tw:mt-3">
+            {acceptance.message}
+          </FeedbackMessage>
+        )}
       </section>
     </main>
   );

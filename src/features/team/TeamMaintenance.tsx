@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { TeamPrivate } from './TeamPrivate';
 import { useState } from 'react';
 import { z } from 'zod';
@@ -60,14 +61,14 @@ function ArchiveForm({
       </p>
       <TeamMonthField id="team-archive-month" />
       {error && <FeedbackState kind="error">{error}</FeedbackState>}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <Button type="submit" pending={pending}>
           Confirmar arquivamento
         </Button>
         <Button variant="secondary" disabled={pending} onClick={onCancel}>
           Cancelar
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

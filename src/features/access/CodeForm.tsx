@@ -7,7 +7,7 @@ import { type HostedAccessApi } from '../../api/modules/access/api';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { CodeInput } from './CodeInput';
-import { AccessActions } from './AccessActions';
+import { FormActions } from '../../components/ds/button/FormActions';
 
 const errorMessage = (error: Error) =>
   error instanceof z.ZodError
@@ -107,14 +107,14 @@ export function CodeForm({
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(pending) => (
           <>
-            <AccessActions>
+            <FormActions>
               <Button type="submit" pending={pending}>
                 {sent || verifyOnly ? 'Confirmar código' : 'Receber código'}
               </Button>
               {exitAction}
-            </AccessActions>
+            </FormActions>
             {sent && (
-              <AccessActions>
+              <FormActions>
                 <Button
                   variant="secondary"
                   disabled={pending}
@@ -154,7 +154,7 @@ export function CodeForm({
                 >
                   Solicitar novo código
                 </Button>
-              </AccessActions>
+              </FormActions>
             )}
           </>
         )}

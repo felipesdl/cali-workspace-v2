@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { type HostedAdministration } from '../../api/modules/companies/hosted-administration';
 import { type CompanyAdministration } from '../../api/modules/companies/administration-schemas';
@@ -44,7 +45,7 @@ export function AdministrationEditor({
           </Button>
         </div>
       )}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, submitting]) => (
             <Button type="submit" disabled={!canSubmit} pending={submitting || update.isPending}>
@@ -55,7 +56,7 @@ export function AdministrationEditor({
         <Button variant="secondary" disabled={update.isPending} onClick={() => onClose(false)}>
           Cancelar ficha
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

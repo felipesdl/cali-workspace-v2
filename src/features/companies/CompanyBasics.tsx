@@ -1,3 +1,4 @@
+import { FormActions } from '../../components/ds/button/FormActions';
 import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { Input } from '../../components/ds/field/Controls';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
@@ -96,7 +97,7 @@ function CompanyBasicsEditor({
           </Button>
         </div>
       )}
-      <div className="tw:flex tw:flex-wrap tw:gap-3">
+      <FormActions className="tw:max-w-md">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, submitting]) => (
             <Button type="submit" disabled={!canSubmit} pending={submitting || update.isPending}>
@@ -107,7 +108,7 @@ function CompanyBasicsEditor({
         <Button variant="secondary" disabled={update.isPending} onClick={() => onClose(false)}>
           Cancelar edição
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }
@@ -191,7 +192,11 @@ export function CompanyBasics({
             </Button>
           </>
         ))}
-      {saved && <FeedbackMessage tone="success">Dados da empresa salvos.</FeedbackMessage>}
+      {saved && (
+        <FeedbackMessage tone="success" className="tw:mt-3">
+          Dados da empresa salvos.
+        </FeedbackMessage>
+      )}
     </section>
   );
 }
