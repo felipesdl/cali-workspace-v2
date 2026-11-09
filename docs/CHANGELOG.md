@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Cruzamento dos pilotos e comparação visual da fase 6
+
+- O atalho “Ir ao conteúdo” agora leva o foco ao conteúdo principal no Admin e no Cliente. Confirmado no navegador integrado.
+- A revisão cruzou os 18 fluxos com as provas existentes, incluindo Partner, e comparou a V2 e a publicação 83 em desktop e celular. [Cobertura e diferenças](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-publicação-83).
+
 ## Ocorrências e revisão dos módulos na fase 6
 
 - A lista de Ocorrências usa os mesmos rótulos de situação do formulário Admin, incluindo “Aguardando Cliente”.

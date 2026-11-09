@@ -189,7 +189,11 @@ export function WorkspaceLayout({
           </Button>
         </nav>
       </header>
-      <main id="workspace-content" className="tw:mx-auto tw:max-w-6xl tw:p-6 tw:mobile:p-4">
+      <main
+        id="workspace-content"
+        tabIndex={-1}
+        className="tw:mx-auto tw:max-w-6xl tw:p-6 tw:mobile:p-4"
+      >
         <h1
           ref={heading}
           tabIndex={-1}
