@@ -14,3 +14,9 @@
 
 /* Informações do mural aparecem no calendário sem reservar horários */
 .v2-calendar-notices{background:#fffdfb;border:1px solid #e7ddd4;border-radius:9px;padding:17px 20px;margin:14px 0 16px;display:flex;flex-wrap:wrap;align-items:center;column-gap:14px;row-gap:11px}.v2-calendar-notices>strong{font-size:12px;color:#5a1e2d}.v2-calendar-notices>span{font-size:10px;color:#988a7e}.v2-calendar-notices>div{display:flex;flex-wrap:wrap;gap:9px;width:100%}.v2-calendar-notices button{border:1px solid #e5d8c9;background:#faf6ef;border-radius:6px;padding:11px 13px;display:flex;align-items:center;gap:10px;color:#756057;cursor:pointer;font-size:11px;text-align:left}.v2-calendar-notices button:hover{border-color:#b58c52;background:#fff9eb}.v2-calendar-notices button b{color:#a47a3e}.v2-calendar-notices button>span{font-weight:600}.v2-calendar-notices button>svg:last-child{color:#a38f7e}
+
+@media (max-width: 600px) {
+  .wf-segments {
+    flex-wrap: wrap;
+  }
+}

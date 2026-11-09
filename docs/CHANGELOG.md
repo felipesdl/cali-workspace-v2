@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Responsividade e hierarquia em 375 px
+
+- Corrige a barra superior Cliente, o menu compacto Admin e a quebra de linhas em Projetos, Equipe e Ocorrências na demonstração.
+- Aproxima Ficha e Acessos da primeira coluna, contém títulos longos nos catálogos, nas fichas e em Partner e retira avisos de preparação desatualizados. [Evidência no navegador](HOMOLOGACAO_PATRICIA.md#responsividade-e-hierarquia-em-375-px).
+
 ## Revisão visual contra a main da V2
 
 - A lateral padrão dos workspaces conectados usa 56 px no desktop, ícones com nomes acessíveis e opção de expandir os rótulos. O menu recolhe no celular. Cabeçalhos, abas de Projetos e leitura de Relatórios foram alinhados à V2 de referência.

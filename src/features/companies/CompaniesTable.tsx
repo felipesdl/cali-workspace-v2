@@ -19,11 +19,8 @@ export function CompaniesTable({
       aria-labelledby="companies-title"
       aria-busy={companies.isFetching}
     >
-      <h2
-        className="tw:m-0 tw:mb-3 tw:text-section tw:font-bold tw:text-action-primary"
-        id="companies-title"
-      >
-        Empresas
+      <h2 className="tw:sr-only" id="companies-title">
+        Resultado da busca de empresas
       </h2>
       {companies.isPending && <FeedbackState kind="loading">Carregando empresas…</FeedbackState>}
       {companies.isError && (
@@ -45,7 +42,7 @@ export function CompaniesTable({
           aria-label="Tabela de empresas; role horizontalmente para ver todas as colunas"
           tabIndex={0}
         >
-          <table className="tw:w-full tw:border-collapse tw:text-left tw:[&_:is(th,td)]:border-b tw:[&_:is(th,td)]:border-border-default tw:[&_:is(th,td)]:p-3 tw:mobile:[&_:is(th,td)]:p-2">
+          <table className="tw:w-full tw:min-w-[31rem] tw:border-collapse tw:text-left tw:[&_:is(th,td)]:border-b tw:[&_:is(th,td)]:border-border-default tw:[&_:is(th,td)]:p-3 tw:mobile:[&_:is(th,td)]:p-2">
             <caption className="tw:pb-3 tw:text-left tw:text-muted-copy">
               {companies.data.length}{' '}
               {companies.data.length === 1 ? 'empresa no resultado' : 'empresas no resultado'}
@@ -56,25 +53,26 @@ export function CompaniesTable({
                 <th scope="col">Plano</th>
                 <th scope="col">Situação</th>
                 <th scope="col">Cadastro</th>
-                <th scope="col">Acessos</th>
               </tr>
             </thead>
             <tbody>
               {companies.data.map((company) => (
                 <tr key={company.id}>
-                  <th scope="row">{company.displayName}</th>
+                  <th scope="row">
+                    <div className="tw:grid tw:max-w-64 tw:min-w-36 tw:justify-items-start tw:gap-2 tw:wrap-anywhere">
+                      {company.displayName}
+                      <Button
+                        variant="secondary"
+                        aria-label={`Ver acessos de ${company.displayName}`}
+                        onClick={() => onSelect(company.id)}
+                      >
+                        Ver acessos
+                      </Button>
+                    </div>
+                  </th>
                   <td>{company.plan ? companyPlanLabels[company.plan] : 'Não informado'}</td>
                   <td>{companyStatusLabels[company.status]}</td>
                   <td>{formatCalendarDate(company.createdOn)}</td>
-                  <td>
-                    <Button
-                      variant="secondary"
-                      aria-label={`Ver acessos de ${company.displayName}`}
-                      onClick={() => onSelect(company.id)}
-                    >
-                      Ver acessos
-                    </Button>
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -83,7 +81,7 @@ export function CompaniesTable({
       )}
       {companies.isSuccess && companies.data.length > 0 && (
         <p className="tw:hidden tw:text-caption tw:leading-normal tw:text-muted-copy tw:compact:block">
-          Role a tabela para ver todas as colunas e acessos.
+          Role a tabela para ver plano, situação e cadastro.
         </p>
       )}
     </section>

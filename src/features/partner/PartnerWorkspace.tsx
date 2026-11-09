@@ -97,7 +97,7 @@ function PartnerItems({
   return (
     <section className={panel} aria-label={labels[module]}>
       {result.data.rows.length ? (
-        <ul className="tw:grid tw:gap-3">
+        <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
           {result.data.rows.map((row) => {
             const revision = row.downloadRevision;
             return (
@@ -106,7 +106,7 @@ function PartnerItems({
                 className="tw:grid tw:gap-1 tw:border-b tw:border-border-default tw:pb-3"
               >
                 <strong className="tw:wrap-anywhere">{row.title || 'Sem descrição'}</strong>
-                <p>
+                <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
                   {[
                     row.protocol,
                     row.status && workspaceLabel(row.status),
@@ -119,7 +119,7 @@ function PartnerItems({
                     .join(' · ')}
                 </p>
                 {row.summary && (
-                  <p className="tw:wrap-anywhere tw:whitespace-pre-line">{row.summary}</p>
+                  <p className="tw:m-0 tw:wrap-anywhere tw:whitespace-pre-line">{row.summary}</p>
                 )}
                 {module === 'documents' && revision && (
                   <PdfDownload
@@ -200,7 +200,7 @@ function PartnerModules({
         ))
       }
     >
-      <div className="tw:grid tw:gap-4">
+      <div className="tw:grid tw:min-w-0 tw:gap-4 tw:wrap-anywhere">
         <section className={panel} aria-label="Empresa atribuída">
           <p className="tw:m-0 tw:text-caption tw:font-semibold tw:text-brand">Empresa atribuída</p>
           <h2 className="tw:m-0 tw:text-section tw:font-semibold">{access.companyName}</h2>
@@ -357,8 +357,8 @@ export function PartnerWorkspace() {
       api={partnerPilot}
       actions={
         session && (
-          <Button variant="secondary" onClick={() => void logout()}>
-            Sair da sessão
+          <Button variant="secondary" aria-label="Sair da sessão" onClick={() => void logout()}>
+            Sair
           </Button>
         )
       }

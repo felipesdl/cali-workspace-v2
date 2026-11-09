@@ -4,7 +4,7 @@ import { CompanyContractDocuments } from './CompanyContractDocuments';
 import { CompanyRegistrationData } from './CompanyRegistrationData';
 import { CompanyAdministration } from './CompanyAdministration';
 import { useState } from 'react';
-import { useNavigate, useRouteContext } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { companiesRoute } from '../../app/router';
 import { useCompanyManagementAvailable } from '../../api/modules/companies/hooks/useCompanyManagement';
 import { CompanyBasics } from './CompanyBasics';
@@ -19,7 +19,6 @@ import { CompanyCycles } from './CompanyCycles';
 export function CompaniesPage() {
   const [createdCompanyId, setCreatedCompanyId] = useState<string | null>(null);
   const canManage = useCompanyManagementAvailable();
-  const { access } = useRouteContext({ from: '__root__' });
   const search = companiesRoute.useSearch();
   const navigate = useNavigate({ from: '/admin/clientes' });
   return (
@@ -84,11 +83,6 @@ export function CompaniesPage() {
           />
         </>
       )}
-      <p className="tw:m-0 tw:text-caption tw:leading-note tw:text-muted-copy">
-        {access
-          ? 'Convites, novos acessos e demais operações da conta estão em preparação.'
-          : 'Demonstração local com dados fictícios. Cadastro, convites e alterações reais serão disponibilizados após a integração e validação de acesso.'}
-      </p>
     </div>
   );
 }

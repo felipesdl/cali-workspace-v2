@@ -32,7 +32,7 @@ export function PartnerItemDetail({
   });
   return (
     <section
-      className="tw:grid tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
+      className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4 tw:wrap-anywhere"
       aria-label="Detalhe do registro"
     >
       <div>
@@ -53,7 +53,7 @@ export function PartnerItemDetail({
         <>
           <h2 className="tw:text-section tw:font-semibold">{result.data.title}</h2>
           {result.data.rows.length ? (
-            <ul className="tw:grid tw:gap-3">
+            <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
               {result.data.rows.map((row) => (
                 <li
                   key={row.id}

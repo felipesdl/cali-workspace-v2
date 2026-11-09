@@ -271,7 +271,9 @@ function TeamPage({
             Diretório
           </h2>
           {team.list.data && (
-            <p className="tw:mb-4 tw:text-muted-copy">{team.list.data.companyName}</p>
+            <p className="tw:mb-4 tw:wrap-anywhere tw:text-muted-copy">
+              {team.list.data.companyName}
+            </p>
           )}
           {team.list.isSuccess && (
             <div className="tw:mb-4">
@@ -300,7 +302,7 @@ function TeamPage({
         </section>
       )}
       {team.enabled && search.view === teamViews.Directory && search.member && (
-        <section className={panel} aria-label="Ficha profissional">
+        <section className={`${panel} tw:wrap-anywhere`} aria-label="Ficha profissional">
           {team.member.isPending && <FeedbackState kind="loading">Carregando ficha…</FeedbackState>}
           {team.member.isError && (
             <FeedbackState kind="error" onRetry={() => void team.member.refetch()}>

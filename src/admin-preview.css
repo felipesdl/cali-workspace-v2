@@ -10,3 +10,57 @@
 .ap-client-subtabs{display:flex;flex-wrap:wrap;gap:6px;padding-bottom:16px;border-bottom:1px solid #eadbd0}
 .ap-client-subtabs button{padding:8px 10px;border:1px solid #e8dbd1;background:white;color:#86766b;border-radius:6px;font-size:10px}
 .ap-client-subtabs button.selected{background:#5a1e2d;color:white;border-color:#5a1e2d}
+
+@media (max-width: 600px) {
+  .ap-pane {
+    padding: 14px;
+  }
+
+  .ap-pane-head,
+  .ap-client,
+  .ap-project-banner > div {
+    flex-wrap: wrap;
+  }
+
+  .ap-account-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ap-project-banner > div {
+    gap: 10px 16px;
+  }
+
+  .ap-client > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 950px) {
+  .ap-sidebar.expanded {
+    width: 60px;
+  }
+
+  .ap-sidebar.expanded .ap-logo {
+    padding-inline: 5px;
+    text-align: center;
+  }
+
+  .ap-sidebar.expanded nav {
+    position: absolute;
+    inset-block-start: 65px;
+    inset-inline-start: 0;
+    width: 194px;
+    max-height: calc(100dvh - 65px);
+    border-radius: 0 8px 8px 0;
+    background: #582031;
+  }
+
+  .ap-sidebar.expanded nav button {
+    justify-content: flex-start;
+  }
+
+  .ap-sidebar.expanded nav button span {
+    display: inline;
+  }
+}

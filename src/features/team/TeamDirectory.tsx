@@ -25,7 +25,7 @@ export function TeamDirectory({
         tabIndex={0}
         className="tw:max-w-full tw:min-w-0 tw:overflow-x-auto"
       >
-        <table className="tw:w-full tw:border-collapse tw:text-left tw:[&_:is(th,td)]:border-b tw:[&_:is(th,td)]:border-border-default tw:[&_:is(th,td)]:p-3">
+        <table className="tw:w-full tw:min-w-[34rem] tw:border-collapse tw:text-left tw:wrap-anywhere tw:[&_:is(th,td)]:border-b tw:[&_:is(th,td)]:border-border-default tw:[&_:is(th,td)]:p-3">
           <caption className="tw:pb-2 tw:text-left tw:text-muted-copy">
             {directory.total} {directory.total === 1 ? 'registro' : 'registros'} no diretório
           </caption>
@@ -36,17 +36,27 @@ export function TeamDirectory({
               <th scope="col">Gestão direta</th>
               <th scope="col">Admissão</th>
               <th scope="col">Situação</th>
-              <th scope="col">Ficha</th>
             </tr>
           </thead>
           <tbody>
             {directory.members.map((member) => (
               <tr key={member.id}>
                 <th scope="row">
-                  {member.full_name}
-                  <span className="tw:block tw:text-caption tw:text-muted-copy">
-                    {member.employee_code}
-                  </span>
+                  <div className="tw:grid tw:max-w-64 tw:min-w-36 tw:justify-items-start tw:gap-2">
+                    <div>
+                      {member.full_name}
+                      <span className="tw:block tw:text-caption tw:text-muted-copy">
+                        {member.employee_code}
+                      </span>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      aria-label={`Ver ficha de ${member.full_name}`}
+                      onClick={() => navigate({ member: member.id })}
+                    >
+                      Ver ficha
+                    </Button>
+                  </div>
                 </th>
                 <td>
                   {member.job_title}
@@ -56,15 +66,6 @@ export function TeamDirectory({
                 <td>{formatCalendarDate(member.admission_date)}</td>
                 <td>
                   {member.archived_at ? teamStatusLabels.archived : teamStatusLabels[member.status]}
-                </td>
-                <td>
-                  <Button
-                    variant="secondary"
-                    aria-label={`Ver ficha de ${member.full_name}`}
-                    onClick={() => navigate({ member: member.id })}
-                  >
-                    Ver ficha
-                  </Button>
                 </td>
               </tr>
             ))}

@@ -37,19 +37,6 @@ export function ClientOverview() {
           </li>
         </ul>
       </section>
-      <section
-        aria-labelledby="client-pending-title"
-        className="tw:border-t tw:border-border-default tw:pt-4"
-      >
-        <h2 id="client-pending-title" className="tw:mt-0 tw:text-section tw:text-brand">
-          Próximas áreas do seu Workspace
-        </h2>
-        <p className="tw:mb-0">
-          {!team && 'Equipe, '}Horas, Calendário, Ocorrências, Documentos, Relatórios, Projetos e
-          Avisos estão em preparação. As informações serão disponibilizadas após a integração e
-          validação de cada área.
-        </p>
-      </section>
     </div>
   );
 }

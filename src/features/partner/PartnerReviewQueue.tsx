@@ -70,7 +70,7 @@ export function PartnerReviewQueue({
     refetchInterval: 30000,
   });
   return (
-    <section className="tw:grid tw:gap-3" aria-label="Revisões Partner">
+    <section className="tw:grid tw:min-w-0 tw:gap-3 tw:wrap-anywhere" aria-label="Revisões Partner">
       <h2 className="tw:text-section tw:font-semibold">Revisões Partner</h2>
       {queue.isPending && <FeedbackState kind="loading">Carregando revisões…</FeedbackState>}
       {queue.isError && (
@@ -83,7 +83,7 @@ export function PartnerReviewQueue({
           {queue.data.rows.length === 0 && (
             <FeedbackState kind="empty">Nenhuma revisão nesta página.</FeedbackState>
           )}
-          <ul className="tw:grid tw:gap-3">
+          <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
             {queue.data.rows.map((row) => (
               <li
                 key={row.id}

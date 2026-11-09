@@ -185,3 +185,45 @@
 .v4-project-stats>div:nth-child(4) strong{color:#8869b2}
 
 .ap-switch-trigger{border:1px solid #e9d9ce;background:#fff8f0;color:#5a1e2d;border-radius:7px;padding:8px 10px;display:inline-flex;align-items:center;gap:7px;font-size:10px;font-weight:700;cursor:pointer}
+
+.ap-switch-compact {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .topbar {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+
+  .topbar .top-left,
+  .topbar .top-actions {
+    gap: 6px;
+  }
+
+  .topbar .top-left {
+    min-width: 0;
+  }
+
+  .topbar .workspace-label {
+    white-space: normal;
+  }
+
+  .topbar .ap-switch-trigger {
+    flex: none;
+    padding-inline: 8px;
+  }
+
+  .topbar .ap-switch-full {
+    display: none;
+  }
+
+  .topbar .ap-switch-compact {
+    display: inline;
+  }
+
+  .context-strip {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+}

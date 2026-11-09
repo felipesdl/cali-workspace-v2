@@ -789,23 +789,29 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
             <h2 className="tw:text-section">Acervo anterior</h2>
           )}
           {result.data.entries.length ? (
-            <ul className="tw:grid tw:gap-3">
+            <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
               {result.data.entries.map((item) => (
-                <li key={item.id} className={panel}>
+                <li key={item.id} className={`${panel} tw:grid tw:gap-3 tw:wrap-anywhere`}>
                   <strong>{item.title}</strong>
-                  <p>
-                    {[
-                      item.protocol,
-                      item.status && statusLabel(item.status),
-                      item.day
-                        ? formatCalendarDate(item.day)
-                        : item.instant && formatServerInstant(item.instant),
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </p>
+                  {(item.protocol || item.status || item.day || item.instant) && (
+                    <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
+                      {[
+                        item.protocol,
+                        item.status && statusLabel(item.status),
+                        item.day
+                          ? formatCalendarDate(item.day)
+                          : item.instant && formatServerInstant(item.instant),
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </p>
+                  )}
                   {module === 'records' && domainOperations && (
-                    <Button variant="secondary" onClick={() => update({ record: item.id })}>
+                    <Button
+                      variant="secondary"
+                      className="tw:justify-self-start"
+                      onClick={() => update({ record: item.id })}
+                    >
                       Abrir conversa
                     </Button>
                   )}
@@ -819,9 +825,7 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
                       acknowledged={item.noticeAcknowledged}
                     />
                   )}
-                  {item.summary && (
-                    <p className="tw:mt-2 tw:break-words tw:whitespace-pre-line">{item.summary}</p>
-                  )}
+                  {item.summary && <p className="tw:m-0 tw:whitespace-pre-line">{item.summary}</p>}
                   {item.frontTerms && <ContractedFrontTerms terms={item.frontTerms} />}
                   {item.frontTerms && admin && item.status === 'active' && (
                     <EndContractedFront company={companyId} actor={actor} id={item.id} />

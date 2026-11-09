@@ -131,6 +131,19 @@ Em 09/11/2026, Felipe definiu a `main` da V2 como base visual do PR #2 e indicou
 
 Capturas locais em `cali-main-v2`. Projetos Admin e Cliente e Relatórios Cliente conferidos em 1280 px e 390 px. No desktop a lateral expandiu para 208 px, e Escape recolheu o menu. Em 390 px, abrir o menu e selecionar Projetos fechou a navegação, manteve o foco no título e não causou rolagem horizontal. A inspeção online foi somente leitura. Os servidores temporários foram encerrados. Rollback do lote é de frontend.
 
+### Responsividade e hierarquia em 375 px
+
+Felipe definiu 375 px como largura principal da revisão mobile. A rodada usou 375 × 812 no navegador integrado, com 320 px como checagem adicional e 1280 px como referência desktop. As rotas conectadas usaram serviços sintéticos locais com nomes e títulos longos sem espaços. A demonstração usou os dados do repositório.
+
+| Recorte | Defeito e correção | Evidência |
+| --- | --- | --- |
+| Demonstração Cliente | Barra superior cortava o perfil e as notificações. O atalho Admin ganhou rótulo compacto. A faixa de contexto de Equipe e os filtros de Ocorrências passaram a quebrar linha. | Nove telas em 375 e 320 px sem rolagem horizontal da página. Notificações abertas em 320 px. |
+| Demonstração Admin | A expansão lateral estreitava o conteúdo e cortava ações. O menu expandido passou a sobrepor a página em telas compactas. Projetos e a Visão executiva passaram a quebrar linhas de metadados e ações. O atalho repetido para Cliente foi retirado. | Onze telas em 375 px, incluindo as três abas de Projetos. Abrir o menu manteve a lateral de 60 px e a página em 375 px. |
+| Empresas e Equipe conectados | Nomes longos estouravam a página e as ações ficavam na última coluna. A ação agora fica junto ao nome, com rolagem restrita à tabela. Nomes quebram linha também nas fichas. | Abrir Acessos e Ficha pelo botão visível sem rolar horizontalmente. Página dentro de 375 px, com checagens adicionais a 320 e 1280 px. |
+| Catálogos e Partner | Títulos longos estouravam Ocorrências, Agenda, Documentos, Avisos, Frentes e a área Partner. Cartões quebram texto e ocupam a largura útil. Contexto Partner, fila e detalhe receberam o mesmo tratamento. | Cinco catálogos e lista Partner em 375 px. Detalhe Partner conferido em 390 px. A largura da página acompanha a janela. |
+
+O Início conectado deixou de anunciar módulos integrados como se estivessem em preparação. A ficha de Empresas mantém as mensagens de disponibilidade nas seções responsáveis. Capturas locais em `cali-fase-6-responsividade`. Validação de interface com dados sintéticos e operações de escrita desativadas. O lote não altera contratos de backend. Rollback de frontend.
+
 A fase 6 permanece aberta para os demais percursos e para o aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
 
 ## Mensagem para enviar junto do link

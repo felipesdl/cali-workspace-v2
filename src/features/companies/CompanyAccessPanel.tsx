@@ -27,16 +27,16 @@ export function CompanyAccessPanel({
       aria-busy={accesses.isFetching}
     >
       <div className="tw:flex tw:items-center tw:justify-between tw:gap-2 tw:mobile:flex-col tw:mobile:items-start">
-        <div>
+        <div className="tw:min-w-0">
           <h2
-            className="tw:m-0 tw:mb-3 tw:text-section tw:font-bold tw:text-action-primary"
+            className="tw:m-0 tw:mb-3 tw:text-section tw:font-bold tw:wrap-anywhere tw:text-action-primary"
             id="accesses-title"
           >
             Acessos{selectedCompany.data ? ` · ${selectedCompany.data.displayName}` : ''}
           </h2>
           <p>Até quatro acessos Cliente equivalentes por empresa.</p>
         </div>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" className="tw:shrink-0" onClick={onClose}>
           Fechar acessos
         </Button>
       </div>
