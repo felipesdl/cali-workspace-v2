@@ -30,6 +30,8 @@ O código oficial descrito nas tabelas continua inalterado e diferente desse alv
 
 **Aceite proposto:** pendências apontam ao objeto correto; resumo e detalhe mantêm mesma empresa/período; ausência de horas visíveis não vira consumo zero; Cliente não abre detalhe Admin. **Dúvidas:** `REF-24` (continuidade e especificação responsiva ainda propostas).
 
+**Implementação V2 na fase 6.** Na Visão executiva Admin, a carteira mantém os totais da listagem de empresas. Ao selecionar uma empresa do piloto, a seção Prioridades operacionais lista projetos com ajuste solicitado e execução normal e, quando o detalhe de ocorrências está disponível, ocorrências em atendimento. Cada fonte declara que o recorte corresponde à primeira página e tem recuperação independente. Os atalhos abrem o cronograma ou a conversa mantendo a empresa na URL. Os destinos aplicam as próprias guardas. Agregados das demais fontes e homologação do recorte conectado seguem pendentes.
+
 ## FLOW-07 — Registro e consulta de Horas
 
 **Objetivo/atores/entrada:** Admin registra atuação e controla capacidade em `/admin/horas`; Cliente consulta `/cliente/horas`, sem lançar/editar horas. Contexto: empresa, mês/ciclo e vínculo opcional a projeto, entregável, subtarefa ou ocorrência.
@@ -112,3 +114,23 @@ Contrato atual: chat não gera e-mail; atrasos e menções avisam o destinatári
 | Perfil/privacidade | Exportar próprios dados ou pedir direito | UI chama RPCs documentadas por comentário, mas seus corpos não constam no snapshot; não inferir capacidade de exportar empresa inteira |
 
 **Continuidade/falhas/aceite proposto:** validar assinatura/foto sem conceder papel; URL de notificação cruzada não abre objeto de outra empresa; erro de marcação não simula persistência; logout limpa contexto; mídia falha sem apagar dados não relacionados. Requests de privacidade são FLOW-18. **Dúvidas:** `REF-04` (RPCs sem corpo), `REF-24` (continuidade/UX), `REF-01` (identidade x privilégio real).
+
+
+### Perfil próprio na V2
+
+Minha conta está disponível no shell conectado de Admin e Cliente. A consulta usa o ID da sessão pronta, com RLS de perfil próprio e política restritiva de sessão no CALI MAPA. Projeta apenas ID, nome, cargo, e-mail, telefone e WhatsApp. O papel exibido vem da sessão. O perfil comportamental continua em rota própria. A RPC legada `update_my_profile_v56` regrava foto, assinatura e demais campos junto dos dados básicos e pode sincronizar o contato principal. A edição da V2 aguarda contrato restrito de atualização para preservar mídia e campos omitidos.
+
+### Permissões de notificações no CALI MAPA
+
+Consulta em leitura aos GRANTs, políticas RLS e definições das funções no catálogo do CALI MAPA em 09/11/2026.
+
+| Ator ou operação | Comportamento definido no banco |
+| --- | --- |
+| Anônimo | Sem acesso direto à tabela e sem execução das duas funções de marcação. |
+| Usuário autenticado | `notifications_self_select` permite consultar as próprias linhas por `user_id = auth.uid()`. As permissões de tabela incluem UPDATE, mas essa política não permite atualização direta. |
+| Admin aceito por `is_admin()` | `notifications_admin_all` permite ler e atualizar diretamente as linhas de outros destinatários. O helper avalia a lista de Admins e o requisito de MFA da sessão. |
+| `mark_notification_read(uuid)` | Função `SECURITY DEFINER` com execução autenticada. Atualiza apenas a linha do próprio destinatário e mantém a data da primeira leitura. |
+| `mark_all_notifications_read()` | Função `SECURITY DEFINER` com execução autenticada. Atualiza apenas as linhas ainda não lidas do próprio destinatário. |
+| `service_role` | Permissões de leitura, atualização e execução, com bypass de RLS. Uso de servidor. |
+
+A tabela não possui política restritiva de sessão viva. As funções retornam `void` e seus corpos não verificam sessão viva, admissão ou aceite vigente. Antes de conectar o sino da V2, falta delimitar a leitura e a marcação à sessão habilitada, verificar o resultado da ação e aplicar as guardas do destino. A consulta de catálogo não executou as funções nem alterou registros, permissões ou schema.

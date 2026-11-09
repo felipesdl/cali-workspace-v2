@@ -12,6 +12,7 @@ const navigation = [
 const titles: Readonly<Record<string, string>> = {
   [clientPaths.overview]: 'Seu Workspace',
   [clientAccountPaths.company]: 'Minha empresa',
+  '/cliente/minha-conta': 'Minha conta',
   [clientAccountPaths.terms]: 'Termos e privacidade',
   [clientPaths.team]: 'Equipe',
   '/cliente/perfil': 'Perfil comportamental',

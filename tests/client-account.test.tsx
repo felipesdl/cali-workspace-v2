@@ -9,6 +9,7 @@ import { createAppRouter } from '../src/app/router';
 import { createSessionController } from '../src/app/session/controller';
 import { createQueryClient } from '../src/api/query-client';
 import { createHostedCompaniesService } from '../src/api/modules/companies/hosted';
+import { type OwnProfileService } from '../src/api/modules/access/own-profile';
 import { type WorkspaceAccessState } from '../src/api/modules/access/session';
 import { type CompanyAccount } from '../src/api/modules/companies/schemas';
 import { companyKeys } from '../src/api/modules/companies/keys';
@@ -40,6 +41,7 @@ async function openApp(
     entry?: string;
     initial?: WorkspaceAccessState;
     read?: () => Promise<CompanyAccount | null>;
+    ownProfile?: OwnProfileService;
   } = {},
 ) {
   const request = vi.fn(async () => {
@@ -64,7 +66,15 @@ async function openApp(
   const session = createSessionController(source, cache);
   const history = createMemoryHistory({ initialEntries: [options.entry ?? '/cliente/empresa'] });
   const router = createAppRouter(history, cache, session);
-  router.update({ context: { queryClient: cache, session, access: null, companies } });
+  router.update({
+    context: {
+      queryClient: cache,
+      session,
+      access: null,
+      companies,
+      ownProfile: options.ownProfile,
+    },
+  });
   await act(async () => {
     await router.load();
   });
@@ -100,6 +110,27 @@ describe('consulta Cliente de empresa e termos', () => {
     expect(screen.getByRole('link', { name: 'Minha empresa' }).getAttribute('aria-current')).toBe(
       'page',
     );
+  });
+  it('consulta somente o perfil da sessão e limpa o resultado ao sair', async () => {
+    const ownProfile = {
+      read: vi.fn(async () => ({
+        id: actorId,
+        full_name: 'Pessoa sintética',
+        email: 'cliente@example.test',
+        job_title: null,
+        phone: null,
+        whatsapp: null,
+      })),
+    };
+    const { cache, user } = await openApp({
+      entry: `/cliente/minha-conta?actor=${otherCompanyId}`,
+      ownProfile,
+    });
+    await screen.findByText('Pessoa sintética');
+    expect(ownProfile.read).toHaveBeenCalledWith(actorId, expect.any(AbortSignal));
+    await user.click(screen.getByRole('button', { name: 'Sair' }));
+    await waitFor(() => expect(screen.queryByText('Pessoa sintética')).toBeNull());
+    expect(cache.getQueryData(['own-profile', actorId])).toBeUndefined();
   });
   it('navega entre início/empresa/termos, suporta Back/Forward e não cria aceite novo', async () => {
     const { user, history, source } = await openApp();

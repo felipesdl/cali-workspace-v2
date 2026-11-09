@@ -137,3 +137,8 @@ O Admin consulta a avaliação de 1 a 3 da empresa selecionada. Tema e anotaçã
 ## Consulta do ciclo de dados (4E)
 
 A consulta Admin do piloto projeta situação da conta e os marcos de encerramento/eliminação, sem dados de usuários, conteúdo ou anexos. O intervalo técnico do banco não define guarda nem elimina dados por si. O [contrato da consulta](contracts/PHASE_4_READ.md#consulta-do-ciclo-de-dados-no-cali-mapa) registra o inventário da exportação e da eliminação e as lacunas para homologar as escritas.
+
+
+## Minha conta na fase 6
+
+Admin e Cliente consultam o próprio nome, cargo, e-mail, telefone e WhatsApp para conferir os dados vinculados ao acesso. A consulta seleciona também o ID para validar a correspondência com a sessão. O papel apresentado vem da sessão. A interface não altera perfil, mídia, credenciais, papel ou empresa. A leitura segue as permissões de perfil e de sessão do CALI MAPA. O cache da consulta é limpo no logout.

@@ -27,6 +27,7 @@ export function AdminWorkspace() {
   const previewPath = useLocation({ select: (location) => location.pathname });
   const { access, team, disc, projectWorkspace, adminRead } = useRouteContext({ from: '__root__' });
   const showOverview = pathname === adminPaths.overview;
+  const showAccount = pathname === '/admin/minha-conta';
   const showTeam = Boolean(team && pathname === adminPaths.people);
   const showDisc = Boolean(disc && pathname === '/admin/perfil');
   const adminReadTitle =
@@ -53,11 +54,12 @@ export function AdminWorkspace() {
             : pathname === adminPaths.hours
               ? 'Horas'
               : phase4CatalogFromPath(pathname)?.title));
+  const sectionTitle = showAccount ? 'Minha conta' : operationsTitle;
   if (access)
     return (
       <WorkspaceLayout
         title={
-          operationsTitle ||
+          sectionTitle ||
           (showOverview
             ? 'Visão executiva'
             : showDisc
@@ -69,7 +71,7 @@ export function AdminWorkspace() {
       >
         {showOverview ? (
           <AdminOverview />
-        ) : showTeam || showDisc || operationsTitle ? null : pathname === '/admin/clientes' ? (
+        ) : showTeam || showDisc || sectionTitle ? null : pathname === '/admin/clientes' ? (
           <Suspense fallback={<FeedbackState kind="loading">Carregando empresas…</FeedbackState>}>
             <CompaniesPage />
           </Suspense>

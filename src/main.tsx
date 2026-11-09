@@ -1,3 +1,4 @@
+import { createOwnProfileService } from './api/modules/access/own-profile';
 import { createPartnerOtpQa, createPartnerPilot } from './api/modules/partner/pilot';
 import { createProjectJournal } from './api/modules/project-workspace/project-journal';
 import { createAdminRead } from './api/modules/project-workspace/admin-read';
@@ -72,6 +73,7 @@ try {
       ? {
           access,
           companies: composeCompaniesService(client),
+          ownProfile: client ? createOwnProfileService(client) : null,
           partnerPilot:
             team &&
             client &&

@@ -253,7 +253,7 @@ Rodada local no navegador integrado em 375 × 812 e 1366 × 768, com sessão e s
 | Início Cliente e dados mensais | Após falha de consulta, a nova tentativa devolveu o foco ao atalho e abriu Dados do mês na mesma referência exibida. Com referência já confirmada, o foco voltou ao título Sua empresa no Workspace. Uma segunda falha manteve a ação de recuperação alcançável. |
 | Navegação Admin | Abrir Horas por teclado a partir de Projetos preservou a empresa selecionada e levou o foco ao título. A versão mobile usou o botão Menu principal. |
 
-Capturas locais em `cali-fase6-navegacao`. A prova automatizada cobre o retorno por papel. Rollback por reversão do commit. O recorte cobre atalhos existentes, estados de recuperação e continuidade do contexto. A cobertura de carteira e localizador foi ampliada na rodada seguinte. Prioridades da visão inicial Admin e notificações conectadas ainda exigem cobertura própria em FLOW-04 e FLOW-14. Callback real no domínio de homologação e aceite da Patrícia seguem em suas etapas.
+Capturas locais em `cali-fase6-navegacao`. A prova automatizada cobre o retorno por papel. Rollback por reversão do commit. O recorte cobre atalhos existentes, estados de recuperação e continuidade do contexto. A cobertura de carteira e localizador foi ampliada na rodada seguinte. As rodadas seguintes detalham o recorte de prioridades e as permissões de notificações em FLOW-04 e FLOW-14. Callback real no domínio de homologação e aceite da Patrícia seguem em suas etapas.
 
 ### Carteira Admin e localizador de módulos
 
@@ -265,9 +265,21 @@ Rodada local no navegador integrado em 375 × 812 e 1366 × 768, com sessão e s
 | Localizador Admin | O menu encontrou Relatórios com a busca sem acento. Abrir o resultado por teclado fechou o menu, abriu a rota real e preservou a empresa selecionada em Projetos. |
 | Localizador Cliente | Buscar Empresas e acessos exibiu o estado sem resultado. Termos e privacidade e Documentos apareceram no menu conforme os serviços disponíveis. Escape fechou o menu e devolveu o foco ao acionador. Reabrir limpou a busca. |
 
-A visão executiva usa a listagem de empresas já consumida pelo Admin e agrega somente situações que a resposta contém. Prioridades operacionais e agregados de outras fontes continuam pendentes em FLOW-04. O localizador filtra os rótulos do próprio menu, sem consulta adicional a conteúdo. A leitura de notificações e a marcação individual/em lote ainda exigem contrato de público, vínculo e revalidação do destino. A baseline histórica contém leitura do próprio destinatário e política Admin ampla. Os corpos das duas RPCs de marcação não foram localizados nas fontes versionadas. Isso e as provas de geração de eventos não certificam as permissões efetivas do piloto. [Fichas dos fluxos](flows/WORKSPACE_HOURS_TEAM.md).
+A visão executiva usa a listagem de empresas já consumida pelo Admin e agrega somente situações que a resposta contém. A rodada seguinte cobre prioridades operacionais. Agregados de outras fontes seguem em FLOW-04. O localizador filtra os rótulos do próprio menu, sem consulta adicional a conteúdo. A leitura de notificações e a marcação individual/em lote ainda exigem contrato de público, vínculo e revalidação do destino. A rodada seguinte reconcilia a baseline com o catálogo hospedado. [Fichas dos fluxos](flows/WORKSPACE_HOURS_TEAM.md).
 
 Capturas locais em `cali-fase6-carteira`. Reversão por commit de frontend. Homologação com sessão real e aceite da Patrícia seguem em suas etapas.
+
+### Prioridades Admin e Minha conta
+
+Rodada com dados sintéticos no navegador integrado em 375 × 812 e 1366 × 768.
+
+| Percurso | Resultado |
+| --- | --- |
+| Prioridades Admin | A exibiu o ajuste em projeto e a ocorrência em atendimento. Projeto suspenso e ocorrência finalizada ficaram fora. A troca para B limpou os itens de A e exibiu os estados vazios. Falha de projetos permitiu nova tentativa. Ambos os links abriram o objeto na empresa selecionada. |
+| Minha conta | Admin e Cliente abriram o próprio perfil após nova tentativa. Texto longo coube na largura disponível. O teste de regressão confirmou que o ID vem da sessão, mesmo com ID alheio na URL, e o logout limpa o cache. |
+| Responsividade | Uma coluna em 375 px e duas em 1366 px para prioridades e perfil. A carteira ganhou três colunas no desktop. As larguras de documento coincidiram com as do viewport. |
+
+A UI reaproveita o escopo de Projetos, o seletor, os rótulos de situação e o feedback do design system. Os recortes de projetos e ocorrências usam serviços já existentes, limitados à primeira página. A leitura de Minha conta é mínima e a edição aguarda contrato que preserve mídia e campos omitidos. O [catálogo efetivo de notificações](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) foi consultado em leitura no CALI MAPA. A homologação autenticada dos fluxos novos e o aceite da Patrícia seguem pendentes. Reversão por commit de frontend, sem migração.
 
 ## Mensagem para enviar junto do link
 

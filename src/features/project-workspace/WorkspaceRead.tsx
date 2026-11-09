@@ -47,7 +47,7 @@ import { EditProject, EditPlanItem, ScheduleItemRequest } from './ProjectPlannin
 import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getRouteApi, Link, useMatch, useNavigate, useRouteContext } from '@tanstack/react-router';
-import { useWorkspaceSession } from '../../api/modules/access/hooks/useWorkspaceSession';
+import { useProjectWorkspaceScope } from './useProjectWorkspaceScope';
 import { useCompaniesQuery } from '../../api/modules/companies/hooks/useCompaniesQuery';
 import { isPilotCompany } from '../../api/modules/companies/onboarding';
 import {
@@ -77,22 +77,6 @@ const panel = 'tw:min-w-0 tw:rounded-control tw:border tw:border-border-default 
 const projectSectionButton =
   'tw:rounded-none tw:border-0 tw:border-b-2 tw:border-transparent tw:bg-transparent tw:px-2 tw:aria-pressed:border-brand tw:aria-pressed:font-semibold';
 type Props = { search: WorkspaceSearch; update: (change: Partial<WorkspaceSearch>) => void };
-
-function useScope(search: WorkspaceSearch) {
-  const { projectWorkspace, session } = useRouteContext({ from: '__root__' });
-  const state = useWorkspaceSession();
-  const profile =
-    state.phase === 'resolved' && state.access.status === 'ready' ? state.access.profile : null;
-  const admin = profile?.role === 'admin';
-  const requested = admin ? search.companyId : (profile?.company_id ?? undefined);
-  return {
-    service: projectWorkspace,
-    actor: profile?.id,
-    companyId: profile?.active && isPilotCompany(requested) ? requested : undefined,
-    admin,
-    connected: session !== null,
-  };
-}
 
 function CompanySelect({ search, update }: Props) {
   const companies = useCompaniesQuery({ q: '', status: 'all' });
@@ -143,7 +127,7 @@ function Pages({ total, search, update }: Props & { total: number }) {
 }
 
 function Projects({ search, update }: Props) {
-  const { service, actor, companyId, admin, connected } = useScope(search);
+  const { service, actor, companyId, admin, connected } = useProjectWorkspaceScope(search);
   const { documentOperations, projectOperations } = useRouteContext({ from: '__root__' });
   const { page, section, project, projectView } = search;
   const readSection = projectView === 'roadmap' ? 'roadmap' : section;
@@ -562,7 +546,7 @@ function MonthSelect({ month, update }: { month: string; update: Props['update']
 }
 
 function Hours({ search, update }: Props) {
-  const { service, actor, companyId, admin, connected } = useScope(search);
+  const { service, actor, companyId, admin, connected } = useProjectWorkspaceScope(search);
   const month = search.month ?? currentMonth();
   const result = useQuery({
     queryKey: ['hours', actor, companyId, month, search.page],
@@ -704,7 +688,7 @@ export function ClientHoursPage() {
 }
 
 function Catalog({ search, update, module }: Props & { module: CatalogModule }) {
-  const { service, actor, companyId, admin, connected } = useScope(search);
+  const { service, actor, companyId, admin, connected } = useProjectWorkspaceScope(search);
   const { domainOperations, documentOperations } = useRouteContext({ from: '__root__' });
   const statusLabel = module === 'records' ? recordStatusLabel : label;
   const record = module === 'records' && domainOperations ? search.record : undefined;
@@ -913,7 +897,7 @@ export function Phase4CatalogPage() {
 export function AdminPrivacyPage() {
   const search = adminPrivacy.useSearch();
   const navigate = adminPrivacy.useNavigate();
-  const { companyId, actor, admin } = useScope(search);
+  const { companyId, actor, admin } = useProjectWorkspaceScope(search);
   const { domainOperations } = useRouteContext({ from: '__root__' });
   if (!admin || !domainOperations) return null;
   return (
@@ -937,7 +921,7 @@ export function AdminPrivacyPage() {
 export function AdminFormsPage() {
   const search = adminForms.useSearch();
   const navigate = adminForms.useNavigate();
-  const { companyId, actor, admin } = useScope(search);
+  const { companyId, actor, admin } = useProjectWorkspaceScope(search);
   const { domainOperations } = useRouteContext({ from: '__root__' });
   if (!admin || !domainOperations) return null;
   return (
@@ -957,7 +941,7 @@ export function AdminFormsPage() {
 
 function AdminAudit({ search, update }: Props) {
   const { adminRead } = useRouteContext({ from: '__root__' });
-  const { companyId, actor, admin } = useScope(search);
+  const { companyId, actor, admin } = useProjectWorkspaceScope(search);
   const month = search.month ?? null;
   const result = useQuery({
     queryKey: ['phase4-audit', actor, companyId, month, search.page],
@@ -1019,7 +1003,7 @@ export function AdminAuditPage() {
 
 function AdminCommercial({ search, update }: Props) {
   const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
-  const { companyId, actor, admin } = useScope(search);
+  const { companyId, actor, admin } = useProjectWorkspaceScope(search);
   const result = useQuery({
     queryKey: ['phase4-commercial', actor, companyId, search.page],
     queryFn:
@@ -1110,7 +1094,7 @@ export function AdminMapaPage() {
   const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
   const search = adminMapa.useSearch();
   const navigate = adminMapa.useNavigate();
-  const { companyId, actor, admin } = useScope(search);
+  const { companyId, actor, admin } = useProjectWorkspaceScope(search);
   const cache = useQueryClient();
   const update: Props['update'] = (change) => void navigate({ search: { ...search, ...change } });
   const [view, setView] = useState<'responses' | 'journeys'>('responses');
@@ -1201,7 +1185,7 @@ export function AdminStaffRosterPage() {
   const { adminRead, domainOperations, partnerPilot } = useRouteContext({ from: '__root__' });
   const search = adminStaffRoster.useSearch();
   const navigate = adminStaffRoster.useNavigate();
-  const { companyId, actor, admin } = useScope(search);
+  const { companyId, actor, admin } = useProjectWorkspaceScope(search);
   const update: Props['update'] = (change) => void navigate({ search: { ...search, ...change } });
   const cache = useQueryClient();
   const key = ['phase4-staff-roster', actor, companyId];
@@ -1318,7 +1302,7 @@ export function AdminCommercialPage() {
 
 function AdminSatisfaction({ search, update }: Props) {
   const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
-  const { companyId, actor, admin } = useScope(search);
+  const { companyId, actor, admin } = useProjectWorkspaceScope(search);
   const cache = useQueryClient();
   const key = ['phase4-satisfaction', actor, companyId];
   const result = useQuery({

@@ -10,6 +10,7 @@ import { workspaceModuleLink, type WorkspaceModuleLink } from './workspace-navig
 import { useWorkspaceSession } from '../api/modules/access/hooks/useWorkspaceSession';
 
 const companyScopedAdminPaths = new Set([
+  '/admin',
   '/admin/equipe',
   '/admin/projetos',
   '/admin/horas',
@@ -31,16 +32,18 @@ export function WorkspaceLayout({
   children: ReactNode;
   navigation?: readonly WorkspaceModuleLink[];
 }) {
-  const { session, team, disc, projectWorkspace, domainOperations, adminRead } = useRouteContext({
-    from: '__root__',
-  });
+  const { session, team, disc, projectWorkspace, domainOperations, adminRead, ownProfile } =
+    useRouteContext({
+      from: '__root__',
+    });
   const state = useWorkspaceSession();
   const admin = state.phase === 'resolved' && state.access.profile?.role === 'admin';
   const selectedCompany = useMatches({
     select: (matches) => {
       const match = matches[matches.length - 1];
-      if (!match?.pathname.startsWith('/admin/')) return undefined;
-      if (!companyScopedAdminPaths.has(match.pathname) && !phase4CatalogFromPath(match.pathname))
+      const pathname = match?.pathname.replace(/\/$/, '');
+      if (!match || !pathname) return undefined;
+      if (!companyScopedAdminPaths.has(pathname) && !phase4CatalogFromPath(pathname))
         return undefined;
       if (!('companyId' in match.search)) return undefined;
       const company = match.search.companyId;
@@ -53,7 +56,7 @@ export function WorkspaceLayout({
   const modules = [...(navigation ?? [])];
   if (admin) {
     modules.push(
-      workspaceModuleLink('Início', <Link to="/admin" />),
+      workspaceModuleLink('Início', <Link to="/admin" search={{ companyId: selectedCompany }} />),
       workspaceModuleLink(
         'Empresas e acessos',
         <Link to="/admin/clientes" search={{ q: '', status: 'all' }} />,
@@ -74,6 +77,14 @@ export function WorkspaceLayout({
       modules.push(
         workspaceModuleLink('Perfil comportamental', <Link to="/admin/perfil" search={{}} />),
       );
+  }
+  if (ownProfile) {
+    modules.push(
+      workspaceModuleLink(
+        'Minha conta',
+        <Link to={admin ? '/admin/minha-conta' : '/cliente/minha-conta'} />,
+      ),
+    );
   }
   if (projectWorkspace) {
     modules.push(

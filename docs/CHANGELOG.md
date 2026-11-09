@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## Prioridades Admin e Minha conta
+
+- A Visão executiva mostra ajustes em projetos e ocorrências em atendimento da empresa selecionada, com atalhos para os objetos e indicação de cobertura da primeira página.
+- Admin e Cliente consultam o próprio perfil por uma projeção mínima vinculada à sessão. Corrige a grade responsiva da Visão executiva com o breakpoint do design system. [Validação em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#prioridades-admin-e-minha-conta).
+- Registra as [permissões de notificações no CALI MAPA](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) e as guardas pendentes de integração.
+
 ## Carteira Admin e localizador de módulos
 
 - A Visão executiva Admin usa a consulta de empresas para contar a carteira por situação e abrir a lista com o filtro correspondente.

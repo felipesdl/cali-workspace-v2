@@ -1,3 +1,4 @@
+import { type OwnProfileService } from '../api/modules/access/own-profile';
 import type { PartnerPilot } from '../api/modules/partner/pilot';
 import { type ProjectJournal } from '../api/modules/project-workspace/project-journal';
 import { type AdminReadService } from '../api/modules/project-workspace/admin-read';
@@ -27,6 +28,7 @@ import {
   lazyRouteComponent,
   Outlet,
   redirect,
+  type RouteComponent,
   type RouterHistory,
 } from '@tanstack/react-router';
 import { type QueryClient } from '@tanstack/react-query';
@@ -51,6 +53,7 @@ const rootRoute = createRootRouteWithContext<{
   access: HostedAccessApi | null;
   partnerPilot?: PartnerPilot | null;
   companies: CompaniesService;
+  ownProfile?: OwnProfileService | null;
   team?: TeamService | null;
   monthly?: TeamMonthlyService | null;
   disc?: DiscService | null;
@@ -114,7 +117,7 @@ function clientChild<const Path extends string>(
 ) {
   return createRoute({ getParentRoute: () => clientRoute, path, component });
 }
-function clientAccountChild<const Path extends string>(path: Path, component: () => ReactElement) {
+function clientAccountChild<const Path extends string>(path: Path, component: RouteComponent) {
   return createRoute({
     getParentRoute: () => clientRoute,
     path,
@@ -123,9 +126,6 @@ function clientAccountChild<const Path extends string>(path: Path, component: ()
       if (!context.session) throw redirect({ to: '/cliente' });
     },
   });
-}
-function adminChild<const Path extends string>(path: Path) {
-  return createRoute({ getParentRoute: () => adminRoute, path });
 }
 const phase4CatalogPage = lazyRouteComponent(
   () => import('../features/project-workspace/WorkspaceRead'),
@@ -151,6 +151,10 @@ const clientChildren = [
   clientCatalogChild('frentes'),
   clientChild('/', ClientOverview),
   clientAccountChild('empresa', ClientCompanyPage),
+  clientAccountChild(
+    'minha-conta',
+    lazyRouteComponent(() => import('../features/account/OwnProfilePage'), 'OwnProfilePage'),
+  ),
   clientAccountChild('termos', ClientTermsPage),
   createRoute({
     getParentRoute: () => clientRoute,
@@ -218,7 +222,19 @@ const adminChildren = [
       'AdminPrivacyPage',
     ),
   }),
-  adminChild('/'),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: '/',
+    validateSearch: workspaceSearch.pick({ companyId: true }),
+  }),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'minha-conta',
+    component: lazyRouteComponent(
+      () => import('../features/account/OwnProfilePage'),
+      'OwnProfilePage',
+    ),
+  }),
   createRoute({
     getParentRoute: () => adminRoute,
     path: 'projetos',
@@ -380,6 +396,7 @@ export function createAppRouter(
     access: HostedAccessApi;
     partnerPilot?: PartnerPilot | null;
     companies: CompaniesService;
+    ownProfile?: OwnProfileService | null;
     team?: TeamService | null;
     monthly?: TeamMonthlyService | null;
     disc?: DiscService | null;
@@ -402,6 +419,7 @@ export function createAppRouter(
       access: services?.access ?? null,
       partnerPilot: services?.partnerPilot ?? null,
       companies: services?.companies ?? companiesService,
+      ownProfile: services?.ownProfile ?? null,
       team: services?.team ?? null,
       monthly: services?.monthly ?? null,
       disc: services?.disc ?? null,

@@ -22,6 +22,7 @@ import {
 const icons = {
   Início: LayoutDashboard,
   'Minha empresa': Building2,
+  'Minha conta': Users,
   'Termos e privacidade': ShieldCheck,
   'Empresas e acessos': Building2,
   Equipe: Users,
