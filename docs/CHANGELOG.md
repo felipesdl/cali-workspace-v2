@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Navegação e isolamento na fase 6
+
+- Links do Admin preservam a empresa piloto entre módulos e reiniciam o contexto do módulo anterior. A troca de empresa limpa o detalhe selecionado; o título e o foco acompanham o conteúdo carregado.
+- CALI MAPA: Admin validou mudança de empresa e retorno pelo navegador. Cliente A abriu o próprio projeto e Cliente B recebeu “Projeto indisponível” ao abrir o link direto de A. [Evidência e limites](HOMOLOGACAO_PATRICIA.md#fase-6--regressão-interna).
+
 ## OTP, Documentos e revisão Partner
 
 - Login por código recebido, MFA, convite, aceite e corte da mesma sessão homologados no navegador integrado. Canal de teste, segredo e identidade descartável retirados. [Evidência](contracts/PARTNER_5.md#otp-por-e-mail-e-limpeza).

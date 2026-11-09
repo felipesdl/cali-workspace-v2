@@ -1,6 +1,6 @@
 import { phase4CatalogFromPath } from './phase4-navigation';
 import { teamSearchSchema } from '../api/modules/team/schemas';
-import { Link, Outlet, useLocation, useRouteContext } from '@tanstack/react-router';
+import { Link, Outlet, useMatches, useRouteContext } from '@tanstack/react-router';
 import { WorkspaceLayout } from './WorkspaceLayout';
 import { clientAccountPaths, clientPaths } from './navigation';
 const navigation = [
@@ -25,7 +25,9 @@ const titles: Readonly<Record<string, string>> = {
 };
 export function ConnectedClientWorkspace() {
   const { team, disc } = useRouteContext({ from: '__root__' });
-  const pathname = useLocation({ select: (location) => location.pathname });
+  const pathname = useMatches({
+    select: (matches) => matches[matches.length - 1]?.pathname ?? '/cliente',
+  });
   return (
     <WorkspaceLayout
       title={titles[pathname] ?? phase4CatalogFromPath(pathname)?.title ?? 'Seu Workspace'}

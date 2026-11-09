@@ -42,6 +42,20 @@ Cada percurso usa a empresa A como fixture e B como controle de isolamento. Regi
 
 Na revisão do aceite visual, conferir navegação por teclado, foco, estados vazios, erros, leitura em tela estreita e os percursos acima na publicação de referência. O [roadmap](ROADMAP.md#fechamento-da-fase-4-no-piloto) registra operações que ainda exigem implementação, prova hospedada ou autorização específica.
 
+## Fase 6 — regressão interna
+
+Primeira rodada no navegador integrado, com sessões existentes e empresas sintéticas no CALI MAPA:
+
+| Percurso | Resultado |
+| --- | --- |
+| Admin: Projetos A → B → voltar | B deixou de mostrar o detalhe de A. Voltar pelo navegador recuperou a empresa e o projeto de A. |
+| Admin: Projetos → Horas → Documentos → Relatórios | A seleção da empresa se manteve. O ID de projeto ficou na tela de origem. A navegação por teclado levou o foco ao título do novo módulo, sem manter o detalhe anterior. |
+| Cliente A/B: Minha empresa → Projetos | A viu o projeto da própria empresa; B ficou com lista vazia. O link direto do projeto de A abriu “Projeto indisponível” em B, mesmo com a empresa A na URL. |
+
+A rodada foi de leitura: não alterou dados, não enviou e-mails e não reativou a conta Partner descartável. Os três servidores locais foram desligados ao final. A reversão do ajuste de navegação é de código; não há migração de banco associada.
+
+Próximas provas internas: encadear arquivos e revisões, horas e agenda, ocorrências e avisos, tela e PDF de relatório, e percursos administrativos. Reutilizar as evidências do piloto para o Partner e registrar lacunas de sessão. Conferir tela estreita, teclado e paridade com a publicação 83 antes de preparar o link e o aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
+
 ## Mensagem para enviar junto do link
 
 > Patrícia, a V2 está pronta para esta rodada de homologação em ambiente de teste. Vamos conferir acesso, empresas, Equipe, dados mensais e DISC usando os dados de exemplo. Te mando o link e os acessos de teste pelo canal combinado. Para cada ponto que você quiser ajustar, me diga a tela, o que tentou fazer e o que esperava ver.

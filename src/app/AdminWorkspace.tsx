@@ -1,6 +1,12 @@
 import { phase4CatalogFromPath } from './phase4-navigation';
 import { lazy, Suspense } from 'react';
-import { Outlet, useLocation, useNavigate, useRouteContext } from '@tanstack/react-router';
+import {
+  Outlet,
+  useLocation,
+  useMatches,
+  useNavigate,
+  useRouteContext,
+} from '@tanstack/react-router';
 import { adminPaths, adminSectionFromPath } from './navigation';
 import { WorkspaceLayout } from './WorkspaceLayout';
 import { FeedbackState } from '../components/ds/feedback/FeedbackState';
@@ -13,8 +19,11 @@ const CompaniesPage = lazy(() =>
 const AdminPreview = lazy(() => import('../AdminPreview'));
 
 export function AdminWorkspace() {
-  const pathname = useLocation({ select: (location) => location.pathname });
+  const pathname = useMatches({
+    select: (matches) => matches[matches.length - 1]?.pathname ?? '/admin',
+  });
   const navigate = useNavigate();
+  const previewPath = useLocation({ select: (location) => location.pathname });
   const { access, team, disc, projectWorkspace, adminRead } = useRouteContext({ from: '__root__' });
   const showTeam = Boolean(team && pathname === adminPaths.people);
   const showDisc = Boolean(disc && pathname === '/admin/perfil');
@@ -64,7 +73,7 @@ export function AdminWorkspace() {
     <>
       <Suspense fallback={<FeedbackState kind="loading">Carregando demonstração…</FeedbackState>}>
         <AdminPreview
-          section={adminSectionFromPath(pathname)}
+          section={adminSectionFromPath(previewPath)}
           onSectionChange={(section) => {
             if (section === 'accounts') {
               void navigate({ to: '/admin/clientes', search: { q: '', status: 'all' } });

@@ -44,14 +44,7 @@ import { HourLink } from './HourLink';
 import { EditProject, EditPlanItem, ScheduleItemRequest } from './ProjectPlanning';
 import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  getRouteApi,
-  Link,
-  useLocation,
-  useNavigate,
-  useRouteContext,
-  useSearch,
-} from '@tanstack/react-router';
+import { getRouteApi, Link, useMatch, useNavigate, useRouteContext } from '@tanstack/react-router';
 import { useWorkspaceSession } from '../../api/modules/access/hooks/useWorkspaceSession';
 import { useCompaniesQuery } from '../../api/modules/companies/hooks/useCompaniesQuery';
 import { isPilotCompany } from '../../api/modules/companies/onboarding';
@@ -116,8 +109,12 @@ function CompanySelect({ search, update }: Props) {
           update({
             companyId: event.currentTarget.value || undefined,
             project: undefined,
+            projectView: undefined,
+            delivery: undefined,
+            task: undefined,
             record: undefined,
             report: undefined,
+            reportView: undefined,
             page: 1,
           })
         }
@@ -853,9 +850,10 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
 }
 
 export function Phase4CatalogPage() {
-  const path = useLocation({ select: (location) => location.pathname });
+  const match = useMatch({ strict: false });
+  const path = match.pathname;
   const view = phase4CatalogFromPath(path);
-  const search = workspaceSearch.parse(useSearch({ strict: false }));
+  const search = workspaceSearch.parse(match.search);
   const navigate = useNavigate();
   if (!view) return null;
   return (

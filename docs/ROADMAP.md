@@ -34,7 +34,7 @@ O ensaio de recuperação com fixtures passou localmente. A separação dos proj
 | 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Implementada no piloto; ativação final pendente |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
 | 5 — Partner | Piloto próprio após a fase 4 | Admissão, atribuições e operação por módulo | Piloto técnico fechado no CALI MAPA. [Contrato e limites](contracts/PARTNER_5.md#limites-de-fechamento) |
-| 6 — Homologação global do recorte | Entregas aplicáveis de 2–4; 5 somente se autorizada no recorte | Regressão entre fluxos, evidência de permissões, UX e aceite de produto | Planejada |
+| 6 — Homologação global do recorte | Entregas aplicáveis de 2–4 e Partner no recorte autorizado | Regressão entre fluxos, evidência de permissões, UX e aceite de produto | [Em andamento](HOMOLOGACAO_PATRICIA.md#fase-6--regressão-interna) |
 | 7 — Preparação de release | 6 e aceites exigidos | Configuração de destino, observabilidade, corte, backup/restauração e rollback revisáveis | Planejada; sem publicação implícita |
 
 Não há estimativas em dias nem responsáveis individuais inventados. Nomear responsável técnico e validador funcional/UX/dados/operação antes do aceite aplicável. Resumo Admin tem contrato fechado em DEC-19/RESUMO-01 e precisa de prova técnica; a versão Partner será definida em sua fase, sem bloquear Cliente/Admin.
@@ -348,7 +348,7 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 **Aceite com Patrícia:** compartilhar o acesso quando todo o escopo combinado da V2 estiver concluído, a validação interna tiver passado e o ambiente de homologação estiver pronto. Completar o [roteiro de aceite](HOMOLOGACAO_PATRICIA.md) com os fluxos entregues até lá.
 
-**Preparação 6:** [roteiro interno de regressão](HOMOLOGACAO_PATRICIA.md#roteiro-de-regressão-interna-da-fase-4) consolidado com percursos e provas existentes. A rodada integral e o aceite seguem pendentes.
+**Andamento 6:** [primeira rodada interna](HOMOLOGACAO_PATRICIA.md#fase-6--regressão-interna) validou a navegação Admin entre módulos e o isolamento de Projetos entre Clientes A/B. O [roteiro interno](HOMOLOGACAO_PATRICIA.md#roteiro-de-regressão-interna-da-fase-4) concentra os demais percursos. Regressão integral, paridade visual e aceite seguem pendentes.
 
 **7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. DEC-28 mantém a recuperação no preparo de produção. No release, comprovar a restauração e confirmar os projetos separados. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
 

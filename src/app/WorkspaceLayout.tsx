@@ -1,10 +1,24 @@
-import { phase4CatalogLinks } from './phase4-navigation';
+import { phase4CatalogFromPath, phase4CatalogLinks } from './phase4-navigation';
 import { workspaceSearch } from '../api/modules/project-workspace/schemas';
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Link, useRouteContext } from '@tanstack/react-router';
+import { Link, useMatches, useRouteContext } from '@tanstack/react-router';
+import { isPilotCompany } from '../api/modules/companies/onboarding';
 import { teamSearchSchema } from '../api/modules/team/schemas';
 import { Button } from '../components/ds/button/Button';
 import { useWorkspaceSession } from '../api/modules/access/hooks/useWorkspaceSession';
+
+const companyScopedAdminPaths = new Set([
+  '/admin/equipe',
+  '/admin/projetos',
+  '/admin/horas',
+  '/admin/formularios',
+  '/admin/privacidade',
+  '/admin/propostas',
+  '/admin/mapa-people',
+  '/admin/equipe-cali',
+  '/admin/auditoria',
+  '/admin/satisfacao',
+]);
 
 export function WorkspaceLayout({
   title,
@@ -22,6 +36,20 @@ export function WorkspaceLayout({
   });
   const state = useWorkspaceSession();
   const admin = state.phase === 'resolved' && state.access.profile?.role === 'admin';
+  const selectedCompany = useMatches({
+    select: (matches) => {
+      const match = matches[matches.length - 1];
+      if (!match?.pathname.startsWith('/admin/')) return undefined;
+      if (!companyScopedAdminPaths.has(match.pathname) && !phase4CatalogFromPath(match.pathname))
+        return undefined;
+      if (!('companyId' in match.search)) return undefined;
+      const company = match.search.companyId;
+      return typeof company === 'string' && isPilotCompany(company) ? company : undefined;
+    },
+  });
+  const workspaceNavigationSearch = workspaceSearch.parse({
+    companyId: admin ? selectedCompany : undefined,
+  });
   return (
     <div className="tw:min-h-screen tw:bg-ivory tw:text-body tw:text-copy">
       <a className="tw:sr-only tw:focus:not-sr-only" href="#workspace-content">
@@ -49,7 +77,7 @@ export function WorkspaceLayout({
             <Link
               className="tw:text-brand tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
               to="/admin/equipe"
-              search={teamSearchSchema.parse({})}
+              search={teamSearchSchema.parse({ companyId: selectedCompany })}
             >
               Equipe
             </Link>
@@ -68,14 +96,14 @@ export function WorkspaceLayout({
               <Link
                 className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
                 to={admin ? '/admin/projetos' : '/cliente/entregaveis'}
-                search={workspaceSearch.parse({})}
+                search={workspaceNavigationSearch}
               >
                 Projetos
               </Link>
               <Link
                 className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
                 to={admin ? '/admin/horas' : '/cliente/horas'}
-                search={workspaceSearch.parse({})}
+                search={workspaceNavigationSearch}
               >
                 Horas
               </Link>
@@ -84,7 +112,7 @@ export function WorkspaceLayout({
                   key={item.module}
                   className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
                   to={admin ? item.admin : item.client}
-                  search={workspaceSearch.parse({})}
+                  search={workspaceNavigationSearch}
                 >
                   {item.title}
                 </Link>
@@ -95,6 +123,7 @@ export function WorkspaceLayout({
             <Link
               className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
               to="/admin/privacidade"
+              search={workspaceNavigationSearch}
             >
               Privacidade
             </Link>
@@ -103,6 +132,7 @@ export function WorkspaceLayout({
             <Link
               className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
               to="/admin/formularios"
+              search={workspaceNavigationSearch}
             >
               Formulários
             </Link>
@@ -120,35 +150,35 @@ export function WorkspaceLayout({
               <Link
                 className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
                 to="/admin/propostas"
-                search={workspaceSearch.parse({})}
+                search={workspaceNavigationSearch}
               >
                 Propostas
               </Link>
               <Link
                 className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
                 to="/admin/mapa-people"
-                search={workspaceSearch.parse({})}
+                search={workspaceNavigationSearch}
               >
                 Mapa de People
               </Link>
               <Link
                 className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
                 to="/admin/equipe-cali"
-                search={workspaceSearch.parse({})}
+                search={workspaceNavigationSearch}
               >
                 Equipe CALI
               </Link>
               <Link
                 className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
                 to="/admin/auditoria"
-                search={workspaceSearch.parse({})}
+                search={workspaceNavigationSearch}
               >
                 Auditoria
               </Link>
               <Link
                 className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
                 to="/admin/satisfacao"
-                search={workspaceSearch.parse({})}
+                search={workspaceNavigationSearch}
               >
                 Satisfação
               </Link>
