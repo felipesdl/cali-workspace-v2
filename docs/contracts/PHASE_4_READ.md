@@ -715,6 +715,21 @@ O catálogo do CALI MAPA confirmou que o enumerador legado consulta Storage e a 
 
 Antes de habilitar a execução, classificar as relações e os vínculos indiretos por remoção, anonimização ou preservação aprovada; mapear destinos externos que não aparecem nas FKs; e ligar a retomada ensaiada aos transportes reais. A confirmação final deve depender da conclusão do plano registrado para a empresa, inclusive destinos externos. Este preflight só consultou catálogo; não chamou a eliminação nem removeu dados.
 
+### Cobertura adicional da prévia de eliminação
+
+O enumerador legado encontra objetos em dois buckets quando o caminho contém um segmento com o ID da empresa ou de um perfil Cliente. Isso não cobre, por si, toda referência explícita da empresa. A [consulta privada](../../supabase/proposals/phase-4/elimination-coverage-read.sql) acrescenta à prévia Admin:
+
+| Grupo | Origem e tratamento no inventário |
+| --- | --- |
+| Caminhos registrados | Contratos/aditivos, arquivos e capas legadas, anexos de visita e logo privado. Conta caminhos distintos ausentes da listagem legada; não resolve existência, bucket, versão nem propriedade compartilhada. |
+| Referências externas | Link de documento administrativo, Drive de arquivo e pasta da empresa. Conta vínculos cadastrados; não consulta provedores nem presume que cada link corresponda a um arquivo distinto. |
+| DISC V2 | Campanhas por empresa e seus resultados e registros de envio. Convites, eventos e revisões continuam no mapa de dependências por campanha. Não presume remoção de PDFs recebidos por e-mail. |
+| Fora da contagem | Dados estruturados de adesão, sessões, termos, auditoria, filas privadas, Propostas e Mapa exigem classificação e conferência de vínculos diretos e indiretos. Cópias externas e acervo ficam fora da prova. |
+
+A tela informa quando a versão anterior do banco não fornece essas contagens. Não retorna caminhos, links, nomes, respostas ou destinatários. O [teste SQL](../../supabase/proposals/phase-4/test-data-lifecycle-read.sql) cobriu escopo, deduplicação, permissões e ausência de referências brutas. No CALI MAPA, a consulta privada distinguiu duas empresas fictícias e reconheceu um caminho presente na lista legada. As fixtures foram revertidas, e a RPC de prévia ficou instalada com a mesma guarda e os mesmos GRANTs. O build do frontend e o teste de contrato verificaram a compatibilidade com a resposta anterior e a nova. Não houve nova sessão Admin no navegador.
+
+Instalar [consulta privada](../../supabase/proposals/phase-4/elimination-coverage-read.sql) e [definição da prévia](../../supabase/proposals/phase-4/data-lifecycle-export.sql) na mesma transação. Rollback do incremento no CALI MAPA: reaplicar a preimagem em `output/runtime/phase4e/privacy-coverage-rollback.sql`, que restaura a prévia anterior e retira a consulta auxiliar. O inventário continua somente leitura e não habilita a eliminação.
+
 ### Retomada sintética da eliminação após falha parcial
 
 A [candidata privada](../../supabase/proposals/phase-4/elimination-resume-qa.sql) congela referências do ensaio, reserva uma etapa por vez e registra recibos por objeto. A verificação externa precede o primeiro efeito. O banco só encerra a tarefa quando todas as etapas foram confirmadas; a escrita final e o recibo devem compartilhar a mesma transação.

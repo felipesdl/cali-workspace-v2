@@ -1010,6 +1010,15 @@ export function createDomainOperations(client: WorkspaceClient) {
             legacyStorageObjects: z.number().int().nonnegative(),
             forms: z.number().int().nonnegative(),
             formsPdfs: z.number().int().nonnegative(),
+            coverageReview: z
+              .object({
+                pathsOutsideLegacy: z.number().int().nonnegative(),
+                externalReferences: z.number().int().nonnegative(),
+                discCampaigns: z.number().int().nonnegative(),
+                discResults: z.number().int().nonnegative(),
+                discDispatches: z.number().int().nonnegative(),
+              })
+              .optional(),
             workspaceFiles: z
               .object({
                 documentRevisions: z.number().int().nonnegative(),

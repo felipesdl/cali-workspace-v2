@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Cobertura adicional da prévia de eliminação
+
+- A prévia destaca caminhos fora da lista legada, vínculos externos e dados DISC por empresa, sem expor nomes ou links. Contagens conferidas no CALI MAPA com fixtures revertidas. [Contrato e rollback](contracts/PHASE_4_READ.md#cobertura-adicional-da-prévia-de-eliminação).
+
 ## Ensaio de retomada da eliminação
 
 - O PostgreSQL descartável retomou após perda do recibo de arquivo e falha no commit do banco, sem repetir a etapa confirmada nem atingir a empresa de controle. CALI MAPA repetiu a lógica com dados fictícios e rollback. [Provas e limites](contracts/PHASE_4_READ.md#retomada-sintética-da-eliminação-após-falha-parcial).

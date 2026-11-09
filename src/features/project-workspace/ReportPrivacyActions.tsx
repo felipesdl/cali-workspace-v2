@@ -151,6 +151,28 @@ function CompanyDataActions({
                 {inventory.data.legacyStorageObjects} arquivo(s) no inventário legado ·{' '}
                 {inventory.data.forms} formulário(s) · {inventory.data.formsPdfs} PDF(s) de Forms
               </p>
+              {inventory.data.coverageReview ? (
+                <>
+                  <ul aria-label="Itens que exigem conferência adicional">
+                    <li>
+                      {inventory.data.coverageReview.pathsOutsideLegacy} caminho(s) fora do
+                      inventário legado
+                    </li>
+                    <li>
+                      {inventory.data.coverageReview.externalReferences} referência(s) a arquivos
+                      externos
+                    </li>
+                    <li>
+                      DISC: {inventory.data.coverageReview.discCampaigns} campanha(s),{' '}
+                      {inventory.data.coverageReview.discResults} resultado(s) e{' '}
+                      {inventory.data.coverageReview.discDispatches} registro(s) de envio
+                    </li>
+                  </ul>
+                  <p>A prévia não confirma a exclusão dos dados nem de cópias externas.</p>
+                </>
+              ) : (
+                <p>A conferência de vínculos externos e dados DISC está indisponível.</p>
+              )}
               {inventory.data.workspaceFiles ? (
                 <ul aria-label="Arquivos do Workspace V2">
                   <li>

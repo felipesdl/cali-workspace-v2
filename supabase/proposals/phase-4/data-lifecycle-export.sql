@@ -1,4 +1,5 @@
 -- FLOW-18. Exportação administrativa por destinatário e conferência de eliminação.
+-- Instalar elimination-coverage-read.sql na mesma entrega, antes desta definição.
 begin;
 set local lock_timeout='5s';
 
@@ -47,15 +48,18 @@ declare
   actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
   company cali_workspace.companies;
   storage_count integer;
+  storage_paths text[];
 begin
   select c.* into company from cali_workspace.companies c where c.id=p_company_id;
   if not found then raise exception using errcode='42501',message='Empresa indisponível.'; end if;
   if not cali_workspace.company_elimination_ready(p_company_id) then
     return jsonb_build_object('companyId',p_company_id,'eligible',false);
   end if;
-  select count(*) into storage_count from cali_workspace.admin_company_storage_objects(p_company_id);
+  select count(*),array_agg(o.path) into storage_count,storage_paths
+    from cali_workspace.admin_company_storage_objects(p_company_id) o;
   return jsonb_build_object('companyId',p_company_id,'eligible',true,
     'legacyStorageObjects',storage_count,
+    'coverageReview',cali_session_guard.phase4_elimination_coverage(p_company_id,storage_paths),
     'forms',(select count(*) from cali_workspace.forms f where f.company_id=p_company_id),
     'formsPdfs',(select count(*) from cali_session_guard.phase4_form_pdfs p
       join cali_workspace.form_responses r on r.id=p.response_id
