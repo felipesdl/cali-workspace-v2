@@ -7,5 +7,6 @@ begin;
 set plpgsql.check_asserts=on;
 \ir elimination-resume-qa.sql
 \ir prove-elimination-resume-qa.sql
+\ir prove-elimination-target-read.sql
 commit;
 \echo Fase 4E: eliminação fictícia retomada sem repetir etapas confirmadas.

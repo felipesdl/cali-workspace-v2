@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Conferência dos alvos de eliminação
+
+- A candidata confere fechamento, elegibilidade, identidade e versão de objetos. Inventário agregado de destinos externos atualizado no CALI MAPA. [Evidências e pendências](contracts/PHASE_4_READ.md#conferência-dos-destinos-e-do-alvo).
+
 ## Matriz de destinação na eliminação
 
 - A prova de retomada exige classificação completa e conferência individual dos destinos externos. O ensaio fictício desidentificou e bloqueou o Cliente, reduziu dados livres e preservou a cobrança. [Matriz e evidências](contracts/PHASE_4_READ.md#matriz-de-destinação-para-a-eliminação).

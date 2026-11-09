@@ -748,7 +748,31 @@ O ensaio exige conferência separada de Drive, e-mail, Portal Comercial/Mapa e b
 
 A [candidata](../../supabase/proposals/phase-4/elimination-resume-qa.sql) congela a classificação sintética junto ao plano. O [ensaio](../../supabase/proposals/phase-4/prove-elimination-resume-qa.sql) recusa grupo ou destino ausente. Após uma falha e nova tentativa, removeu conteúdo fictício, desativou acesso e retirou o e-mail da identidade de teste, limpou texto livre e preservou a referência da cobrança. A empresa de controle permaneceu intacta. A prova passou no PostgreSQL descartável e no CALI MAPA com rollback.
 
-Para liberar execução operacional, faltam a validação dos campos e da guarda por grupo, a conferência das cópias externas, a revalidação da elegibilidade e da versão do objeto no executor e a integração dos recibos aos serviços reais.
+#### Campos de guarda para revisão
+
+O catálogo confirmou os campos abaixo. A proposta reduz o registro ao necessário para cada finalidade e mantém fora do executor qualquer grupo com decisão em aberto.
+
+| Registro | Manter na proposta | Resolver antes de executar |
+| --- | --- | --- |
+| Cobrança | Empresa, protocolo, competência, valor, encargos, vencimento, situação e data de pagamento. | Confirmar guarda e tratamento de notas, links de pagamento, PIX, boleto e trilha de notificações. |
+| Auditoria e recibo | Identificador do caso, tipo de evento, data, autoria restrita e contagens. | Revisar metadados livres, campos alterados, vínculos com pessoas e nome da empresa no recibo legado. |
+| Direitos | Protocolo ou ID, tipo, situação, abertura e resolução. | Confirmar finalidade e guarda de detalhes, resposta e vínculo com o titular. |
+| Contratos e adesão | Identificador, tipo, data e referência da comprovação cuja guarda for confirmada. | Confirmar guarda dos bytes, URLs, metadados extraídos e notas por tipo de documento. |
+
+#### Conferência dos destinos e do alvo
+
+| Destino | Evidência no CALI MAPA | Tratamento restante |
+| --- | --- | --- |
+| Drive e documentos externos | Zero conexões Drive, pastas cadastradas, links Drive de arquivos e links externos em documentos na consulta agregada. | Conferir cópias fora do catálogo com o responsável pelo destino. |
+| E-mail | Quatro recibos do provedor no DISC. | Reconciliar a guarda com o provedor e separar o que pode ser confirmado no remetente do que fica nas caixas dos destinatários. |
+| Portal Comercial e Mapa | Quatro delegações comerciais e nenhuma delegação de resposta ou jornada do Mapa na consulta. | Validar titularidade por vínculo e o destino dos documentos e das cópias em cada serviço. |
+| Backup e acervo | API de gestão retornou lista de backups vazia, sem metadados físicos e com PITR desligado no staging. | Confirmar cópias manuais e acervo fora da API de gestão. |
+
+A [conferência privada do alvo](../../supabase/proposals/phase-4/elimination-target-read.sql) revalida o fechamento original e a elegibilidade vigente, depois compara bucket, caminho, UUID e versão. Detecta troca de objeto, mudança de versão e movimentação. Uma ausência no snapshot fica separada do recibo de remoção. A consulta agrega somente os metadados necessários ao resultado. No PostgreSQL descartável, a [prova](../../supabase/proposals/phase-4/prove-elimination-target-read.sql) confirmou esses casos, a reabertura da empresa e a rejeição de versão ausente. No CALI MAPA, a definição compilou, recusou um ID de empresa fictício inexistente e foi revertida.
+
+A API REST de remoção recebe caminhos. A tabela oficial de compatibilidade S3 documenta condicionais de leitura, mas não documenta uma condição equivalente para `DeleteObject` no serviço hospedado. Entre consultar metadados e remover por caminho, um novo objeto pode ocupar o mesmo nome. O próximo ensaio de transporte precisa comprovar remoção condicional no serviço escolhido ou bloquear todas as escritas concorrentes nessa chave, inclusive escritores com acesso privilegiado, até registrar o recibo. O SQL acessa metadados em leitura. [Remoção no Storage](https://supabase.com/docs/guides/storage/management/delete-objects) e [compatibilidade S3](https://supabase.com/docs/guides/storage/s3/compatibility).
+
+Para liberar execução operacional, faltam a validação da guarda por grupo, a confirmação das cópias com os responsáveis pelos destinos e a integração com um transporte que preserve o alvo aprovado.
 
 ### Retomada sintética da eliminação após falha parcial
 
