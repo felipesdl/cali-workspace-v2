@@ -19,6 +19,13 @@ type Props = {
   changePage: (page: number) => void;
 };
 
+const stages = [
+  { status: 'draft', label: 'Rascunho' },
+  { status: 'review', label: 'Revisão interna' },
+  { status: 'approved', label: 'Aprovado' },
+  { status: 'published', label: 'Liberado ao Cliente' },
+] as const;
+
 export function AdminReportWorkspace({
   company,
   actor,
@@ -38,6 +45,8 @@ export function AdminReportWorkspace({
       </>
     );
   }
+
+  const stage = current.status === 'sent' ? 'published' : current.status;
 
   return (
     <section
@@ -60,6 +69,26 @@ export function AdminReportWorkspace({
           </p>
           <h2 className="tw:text-section tw:font-semibold">{current.title}</h2>
         </header>
+        {stages.some(({ status }) => status === stage) && (
+          <ol
+            aria-label="Etapa do fechamento"
+            className="tw:md:grid-cols-4 tw:grid tw:grid-cols-2 tw:gap-2"
+          >
+            {stages.map(({ status, label }) => (
+              <li
+                key={status}
+                aria-current={status === stage ? 'step' : undefined}
+                className={
+                  status === stage
+                    ? 'tw:rounded-control tw:border tw:border-brand tw:p-2 tw:text-caption tw:font-semibold tw:text-brand'
+                    : 'tw:rounded-control tw:border tw:border-border-default tw:p-2 tw:text-caption tw:text-muted-copy'
+                }
+              >
+                {label}
+              </li>
+            ))}
+          </ol>
+        )}
         {current.summary && (
           <p className="tw:break-words tw:whitespace-pre-line">{current.summary}</p>
         )}

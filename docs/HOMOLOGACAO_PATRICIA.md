@@ -40,7 +40,7 @@ Cada percurso usa a empresa A como fixture e B como controle de isolamento. Regi
 | Relatórios | Aprovar, conferir tela e PDF, republicar com a regra de ciência escolhida e confirmar o corte de download | [Republicação com curadoria](contracts/PHASE_4_READ.md#republicação-com-curadoria-no-cali-mapa) |
 | Comercial e administração | Conferir rascunho de Forms, triagem, vínculo de frente e pedido de privacidade. Conferir edição e aprovação interna de Propostas com delegação sintética temporária na V2 | [Forms](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa), [Frentes](contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa) e [prova de Propostas](contracts/PHASE_4_READ.md#delegação-temporária-de-propostas-no-staging) |
 
-Na revisão do aceite visual, conferir navegação por teclado, foco, estados vazios, erros, leitura em tela estreita e os percursos acima na publicação de referência. O [roadmap](ROADMAP.md#pendências-para-fechar-a-fase-4) registra operações que ainda exigem implementação, prova hospedada ou autorização específica.
+Na revisão do aceite visual, conferir navegação por teclado, foco, estados vazios, erros, leitura em tela estreita e os percursos acima na publicação de referência. O [roadmap](ROADMAP.md#fechamento-da-fase-4-no-piloto) registra operações que ainda exigem implementação, prova hospedada ou autorização específica.
 
 ## Mensagem para enviar junto do link
 

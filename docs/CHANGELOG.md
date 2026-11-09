@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Fechamento de Relatórios e Administração no piloto
+
+- Trilha de aprovação, arquivo Cliente e PDF da revisão 5 homologados em A/B. Admin emitiu e revogou convite fictício da Equipe CALI. A prova de eliminação vinculou a reserva do plano à versão do arquivo. [Evidências](contracts/PHASE_4_READ.md#fechamento-de-relatórios-no-piloto).
+
 ## Fechamento da 4C no piloto
 
 - Cinco anexos de 10 MiB homologados no CALI MAPA. A tentativa inválida ficou sem publicação parcial. A correção gravou uma mensagem, com download em A, isolamento de B e retirada auditada. [Evidências](contracts/PHASE_4_READ.md#fechamento-de-interações-no-piloto).

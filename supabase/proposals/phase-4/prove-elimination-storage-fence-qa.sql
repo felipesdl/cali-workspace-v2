@@ -44,4 +44,6 @@ begin
   assert not has_function_privilege('service_role','cali_storage_fence_qa.arm(text,text,uuid,text)','execute');
 end;
 $$;
+\ir elimination-storage-step-qa.sql
+\ir prove-elimination-storage-step-qa.sql
 \ir rollback-elimination-storage-fence-qa.sql

@@ -71,9 +71,12 @@ export function ClientReportReading({
         <div className="tw:lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] tw:grid tw:items-start tw:gap-4">
           <article
             aria-labelledby="executive-report-title"
-            className="tw:grid tw:min-w-0 tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5"
+            className="tw:lg:p-8 tw:grid tw:min-w-0 tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5"
           >
-            <header className="tw:border-b tw:border-border-default tw:pb-4">
+            <header className="tw:grid tw:gap-2 tw:border-b tw:border-border-default tw:pb-4">
+              <p className="tw:text-caption tw:font-semibold tw:tracking-wide tw:text-brand">
+                RELATÓRIO EXECUTIVO
+              </p>
               {current.day && <p>{formatCalendarDate(current.day)}</p>}
               <h2 id="executive-report-title" className="tw:text-section tw:font-semibold">
                 {current.title}
@@ -97,7 +100,7 @@ export function ClientReportReading({
           </article>
           <aside
             aria-label="Sobre a leitura"
-            className="tw:grid tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
+            className="tw:grid tw:gap-3 tw:rounded-control tw:border tw:border-l-4 tw:border-border-default tw:border-l-brand tw:bg-panel tw:p-4"
           >
             <h3 className="tw:font-semibold">Sobre a leitura</h3>
             <dl className="tw:grid tw:gap-2">
