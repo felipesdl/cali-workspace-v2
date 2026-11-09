@@ -54,12 +54,12 @@ export function MapaReportSummary({
         <FeedbackState kind="empty">Nenhum diagnóstico completo disponível.</FeedbackState>
       )}
       {open && data && content && (
-        <div className="tw:grid tw:gap-3">
+        <div className="tw:grid tw:min-w-0 tw:gap-3 tw:wrap-anywhere">
           <p>
             Nota ponderada · <strong>{content.score}</strong>
           </p>
           <p>{content.outlook}</p>
-          <ul className="tw:sm:grid-cols-2 tw:grid tw:gap-3">
+          <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0 tw:wide:grid-cols-2">
             {content.dimensions.map((dimension) => (
               <li
                 key={dimension.title}

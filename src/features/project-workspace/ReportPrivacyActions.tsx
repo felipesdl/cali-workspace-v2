@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { Button } from '../../components/ds/button/Button';
@@ -218,6 +218,8 @@ export function PrivacyActions({
   const { domainOperations } = useRouteContext({ from: '__root__' });
   const cache = useQueryClient();
   const [page, setPage] = useState(1);
+  const [answeredRequest, setAnsweredRequest] = useState<string>();
+  const receipt = useRef<HTMLParagraphElement>(null);
   const key = ['phase4-privacy', actor, company];
   const requests = useQuery({
     queryKey: [...key, page],
@@ -225,6 +227,14 @@ export function PrivacyActions({
       ? ({ signal }) => domainOperations.privacyRequests(company, page, signal)
       : skipToken,
   });
+  const answered = requests.data?.find(
+    (request) => request.id === answeredRequest && request.status !== 'open' && request.answer,
+  );
+  const answeredId = answered?.id;
+  useEffect(() => {
+    if (answeredId && document.activeElement === document.body) receipt.current?.focus();
+  }, [answeredId]);
+
   if (!domainOperations) return null;
   const operations = domainOperations;
   async function refreshed(result: string) {
@@ -279,32 +289,42 @@ export function PrivacyActions({
         </ActionForm>
       )}
       {requests.isPending && <p role="status">Carregando pedidos…</p>}
-      {requests.isError && <p role="alert">Não foi possível carregar os pedidos.</p>}
+      {requests.isError && (
+        <FeedbackState kind="error" onRetry={() => void requests.refetch()}>
+          Não foi possível carregar os pedidos.
+        </FeedbackState>
+      )}
       {requests.data?.length === 0 && <p>Nenhum pedido nesta página.</p>}
       {requests.data?.map((request) => (
         <article
           key={request.id}
-          className="tw:grid tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4"
+          className="tw:grid tw:min-w-0 tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere"
         >
           <h3>
             {kinds[request.kind]} · {formatServerInstant(request.created_at)}
           </h3>
-          <p className="tw:break-words tw:whitespace-pre-line">{request.details}</p>
-          {request.answer && (
-            <p className="tw:break-words tw:whitespace-pre-line">{request.answer}</p>
+          <p className="tw:whitespace-pre-line">{request.details}</p>
+          {request.answer && <p className="tw:whitespace-pre-line">{request.answer}</p>}
+          {answeredId === request.id && (
+            <p ref={receipt} role="status" tabIndex={-1} className="tw:m-0 tw:text-caption">
+              Resposta registrada.
+            </p>
           )}
           {admin && request.status === 'open' && (
             <ActionForm
               label="Responder pedido"
-              submit={async (fields) =>
-                refreshed(
+              submit={async (fields) => {
+                setAnsweredRequest(undefined);
+                const result = await refreshed(
                   await operations.answerPrivacy(
                     company,
                     request.id,
                     String(fields.get('answer') ?? ''),
                   ),
-                )
-              }
+                );
+                setAnsweredRequest(request.id);
+                return result;
+              }}
             >
               {(prefix) => (
                 <Field id={prefix + 'answer'} label="Resposta">

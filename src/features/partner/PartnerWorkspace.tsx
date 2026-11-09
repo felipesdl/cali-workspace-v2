@@ -68,6 +68,7 @@ function PartnerItems({
 }) {
   const [page, setPage] = useState(1);
   const [item, setItem] = useState<string>();
+  const [returnItem, setReturnItem] = useState<string>();
   const result = useQuery({
     queryKey: ['partner-items', access.actor, access.company, module, page],
     queryFn: ({ signal }) => api.items(access.company, module, page, signal),
@@ -82,7 +83,10 @@ function PartnerItems({
         company={access.company}
         module={module}
         id={item}
-        back={() => setItem(undefined)}
+        back={() => {
+          setReturnItem(item);
+          setItem(undefined);
+        }}
       />
     );
   }
@@ -139,7 +143,11 @@ function PartnerItems({
                   <div>
                     <Button
                       variant="secondary"
-                      onClick={() => setItem(row.id)}
+                      autoFocus={returnItem === row.id}
+                      onClick={() => {
+                        setReturnItem(undefined);
+                        setItem(row.id);
+                      }}
                       aria-label={`Abrir ${row.title ?? 'registro'}`}
                     >
                       Abrir detalhe

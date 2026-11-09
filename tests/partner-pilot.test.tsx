@@ -68,6 +68,13 @@ it('abre apenas o módulo atribuído e retira o detalhe após o corte de acesso'
   await userEvent.click(await screen.findByRole('button', { name: 'Abrir Projeto de teste' }));
   expect(await screen.findByText('Entrega de teste')).toBeTruthy();
   expect(detail).toHaveBeenCalledWith(company, 'projects', id, 1, expect.any(AbortSignal));
+  const back = screen.getByRole('button', { name: 'Voltar à lista' });
+  expect(document.activeElement).toBe(back);
+  await userEvent.click(back);
+  const open = await screen.findByRole('button', { name: 'Abrir Projeto de teste' });
+  expect(document.activeElement).toBe(open);
+  await userEvent.click(open);
+  expect(await screen.findByText('Entrega de teste')).toBeTruthy();
 
   revoked = true;
   act(notify);

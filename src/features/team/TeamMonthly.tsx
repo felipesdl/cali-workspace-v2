@@ -283,7 +283,7 @@ export function TeamMonthly({
   return (
     <section
       aria-label="Dados do mês"
-      className="tw:grid tw:min-w-0 tw:gap-5 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
+      className="tw:grid tw:min-w-0 tw:gap-5 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4 tw:wrap-anywhere"
     >
       <h2 className="tw:m-0 tw:text-section tw:font-bold tw:text-brand">Dados do mês</h2>
       <p className="tw:m-0 tw:text-caption tw:text-muted-copy">{data.companyName}</p>

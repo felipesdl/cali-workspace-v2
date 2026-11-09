@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type { PartnerPilot } from '../../api/modules/partner/pilot';
 import { Button } from '../../components/ds/button/Button';
@@ -16,6 +16,8 @@ export function PartnerRecordReply({
   onSent: () => Promise<void>;
 }) {
   const id = useId();
+  const form = useRef<HTMLFormElement>(null);
+  const feedback = useRef<HTMLParagraphElement>(null);
   const [body, setBody] = useState('');
   const receipt = useRef<{ body: string; id: string } | null>(null);
   const reply = useMutation({
@@ -30,9 +32,16 @@ export function PartnerRecordReply({
       await onSent();
     },
   });
+  const { isError, isSuccess } = reply;
+  useEffect(() => {
+    if (!isError && !isSuccess) return;
+    const focused = document.activeElement;
+    if (focused === document.body || form.current?.contains(focused)) feedback.current?.focus();
+  }, [isError, isSuccess]);
 
   return (
     <form
+      ref={form}
       aria-label="Responder ocorrência"
       className="tw:grid tw:gap-3 tw:border-t tw:border-border-default tw:pt-3"
       onSubmit={(event) => {
@@ -56,8 +65,16 @@ export function PartnerRecordReply({
           Enviar resposta
         </Button>
       </div>
-      {reply.isError && <p role="alert">{reply.error.message}</p>}
-      {reply.isSuccess && <p role="status">Resposta publicada na conversa.</p>}
+      {isError && (
+        <p ref={feedback} role="alert" tabIndex={-1}>
+          {reply.error.message}
+        </p>
+      )}
+      {isSuccess && (
+        <p ref={feedback} role="status" tabIndex={-1}>
+          Resposta publicada na conversa.
+        </p>
+      )}
     </form>
   );
 }

@@ -196,6 +196,25 @@ O navegador integrado executou quatro percursos da V2 com sessão e serviços si
 
 O histórico Admin usava variantes de largura ausentes do design system. O ajuste usa a variante `wide` já adotada na V2. Capturas locais em `cali-fase6-rascunhos`. Teste automatizado cobre a troca de revisão do editor de Forms. Escopo de interface e serviços em memória. Rollback por reversão do commit de frontend.
 
+### Comparação dos módulos com a main em 375 e 1366 px
+
+A referência foi a [main da V2 em c9baea7](https://github.com/patricia258/cali-workspace-v2/commit/c9baea7903a9bbd26d1f89321c789e60e1a542d3), conferida no GitHub e servida em loopback. A comparação abriu nove telas Cliente e onze Admin nas duas revisões em 375 × 812 e 1366 × 768. Os títulos coincidiram. Em 1366 px, os dois lados couberam na janela. Em 375 px, as telas Cliente da main mediram 401 px de largura e Projetos Admin mediu 433 px. As 20 telas demonstrativas do PR ficaram em 375 px.
+
+O PR também foi exercitado com sessões e serviços sintéticos locais nas duas larguras. A main oferece demonstrações, portanto a comparação direta cobre a apresentação e a navegação equivalente. Os estados conectados abaixo foram verificados no PR.
+
+| Recorte | Resultado nas duas larguras |
+| --- | --- |
+| Projetos Admin e Cliente | Protocolo, nomes e frentes longas quebram dentro da janela em lista, detalhe, frentes e cronograma. O Kanban Admin usa três colunas no desktop e uma no celular. Teclado abre e retorna com foco na região correta. Falha e reenvio abriram o novo rascunho com o mesmo identificador de tentativa. |
+| Equipe Admin e Cliente | Diretório, estrutura, histórico e dados do mês comportaram nomes, notas e motivos longos. A estrutura usa duas colunas no desktop. O diretório mantém a rolagem na tabela. |
+| Propostas | Admin exibiu a oportunidade e o protocolo longo. Cliente aceitou a versão 2 sintética após falha, com foco na confirmação. |
+| Horas, Ocorrências e Agenda | Horas Admin registrou lançamento manual. Ocorrências Admin registrou mensagem interna. Agenda Cliente pediu visita adicional sintética. Os três percursos conservaram o identificador ao repetir a gravação. A conversa e os encontros adicionais comportaram textos longos. |
+| Equipe CALI, Auditoria e Satisfação | Equipe CALI bloqueou rascunho sem módulo e confirmou após selecionar um. Auditoria exibiu evento e prévia do resumo diário com texto longo. Satisfação registrou acompanhamento após nova tentativa. |
+| Mapa de People e DISC | Mapa exibiu dimensões e parecer longo e confirmou a revisão da triagem com foco no recibo. DISC Admin abriu o formulário de campanha. DISC Cliente exibiu a leitura qualitativa liberada da fixture. |
+| Frentes, Termos e Privacidade | Frentes Admin confirmou ativação simulada após falha. Termos Cliente e Privacidade Admin recuperaram a consulta de pedidos. Admin respondeu e recebeu confirmação focada. |
+| Partner | Navegou por Projetos, Ocorrências, Minhas horas, Agenda, Documentos, Relatórios, Avisos e Equipe. Abriu e voltou do detalhe com foco, reenviou resposta após falha e iniciou um trecho vinculado antes de confirmar o encerramento. A main não tem o workspace conectado Partner. |
+
+Capturas locais em `cali-fase6-paridade`. O teste automatizado de Partner cobre foco ao abrir e voltar do detalhe junto da retirada de conteúdo após corte de acesso simulado. Rollback por reversão do commit de frontend. Esta rodada cobre apresentação e os estados exercitados com fixtures. A validação autenticada continua registrada por piloto, e o aceite da Patrícia segue como etapa própria. Operações de alto impacto, entrega externa e critérios de publicação seguem a matriz e o rollout.
+
 ## Mensagem para enviar junto do link
 
 > Patrícia, a V2 está pronta para esta rodada de homologação em ambiente de teste. Vamos conferir acesso, empresas, Equipe, dados mensais e DISC usando os dados de exemplo. Te mando o link e os acessos de teste pelo canal combinado. Para cada ponto que você quiser ajustar, me diga a tela, o que tentou fazer e o que esperava ver.

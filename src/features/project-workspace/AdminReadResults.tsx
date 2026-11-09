@@ -64,7 +64,8 @@ const proposalLabels = {
   expirada: 'Expirada',
 } as const satisfies Record<ProposalStatus, string>;
 const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-const card = 'tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
+const card =
+  'tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4 tw:wrap-anywhere';
 
 export function AuditResults({
   entries,
@@ -72,7 +73,7 @@ export function AuditResults({
   entries: Awaited<ReturnType<AdminReadService['audit']>>['entries'];
 }) {
   return (
-    <ol className="tw:grid tw:gap-2">
+    <ol className="tw:m-0 tw:grid tw:list-none tw:gap-2 tw:p-0">
       {entries.map((entry) => (
         <li key={entry.id} className={card}>
           <strong>{auditLabels[entry.event]}</strong>
@@ -106,7 +107,7 @@ export function CommercialResults({
   email?: (proposal: string, expected: string) => ReactNode;
 }) {
   return (
-    <ul className="tw:grid tw:gap-2">
+    <ul className="tw:m-0 tw:grid tw:list-none tw:gap-2 tw:p-0">
       {entries.map((entry) => (
         <li key={entry.proposalId ?? entry.opportunityId} className={card}>
           <strong>

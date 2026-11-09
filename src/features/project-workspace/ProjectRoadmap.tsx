@@ -35,7 +35,10 @@ export function ProjectRoadmap({ data, actor, admin }: Props) {
         <FeedbackState kind="empty">Nenhuma entrega nesta página do cronograma.</FeedbackState>
       )}
       {items.rows.length > 0 && (
-        <ol aria-label="Marcos do cronograma" className="tw:grid tw:gap-2">
+        <ol
+          aria-label="Marcos do cronograma"
+          className="tw:m-0 tw:grid tw:list-none tw:gap-2 tw:p-0"
+        >
           {items.rows.map((row) => {
             const due = Date.parse(row.due_at ?? '');
             const position = Math.max(0, Math.min(100, ((due - start) / (end - start)) * 100));

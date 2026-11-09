@@ -12,11 +12,12 @@ type Props = {
 };
 
 const listStyle = 'tw:grid tw:gap-3';
+const rowsStyle = `${listStyle} tw:m-0 tw:min-w-0 tw:list-none tw:p-0 tw:wrap-anywhere`;
 
 export function ProjectDeliverableList({ rows, grouped, admin, renderRow }: Props) {
   const [board, setBoard] = useState(false);
   const showBoard = admin && board;
-  if (!grouped) return <ul className={listStyle}>{rows.map(renderRow)}</ul>;
+  if (!grouped) return <ul className={rowsStyle}>{rows.map(renderRow)}</ul>;
 
   const groups = new Map<string | null, Row[]>();
   for (const row of rows) {
@@ -37,11 +38,11 @@ export function ProjectDeliverableList({ rows, grouped, admin, renderRow }: Prop
           </Button>
         </nav>
       )}
-      <div className={showBoard ? 'tw:xl:grid-cols-3 tw:grid tw:items-start tw:gap-3' : listStyle}>
+      <div className={showBoard ? `${listStyle} tw:items-start tw:wide:grid-cols-3` : listStyle}>
         {Array.from(groups, ([key, items]) => (
           <section
             key={key ?? 'unassigned'}
-            className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:p-3"
+            className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:p-3 tw:wrap-anywhere"
           >
             <h3 className="tw:font-semibold">
               {showBoard
@@ -49,7 +50,7 @@ export function ProjectDeliverableList({ rows, grouped, admin, renderRow }: Prop
                 : (items[0].workstream_name ??
                   (key ? 'Frente vinculada' : 'Entregáveis sem frente'))}
             </h3>
-            <ul className={listStyle}>{items.map(renderRow)}</ul>
+            <ul className={rowsStyle}>{items.map(renderRow)}</ul>
           </section>
         ))}
       </div>

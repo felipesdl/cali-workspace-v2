@@ -5,7 +5,7 @@ import { workspaceLabel } from './workspace-labels';
 export function ProjectOverview({ project, review }: Pick<ProjectDetail, 'project' | 'review'>) {
   const { roadmap_start_date: start, roadmap_end_date: end } = project;
   return (
-    <header className="tw:grid tw:gap-3 tw:rounded-control tw:border tw:border-t-[3px] tw:border-border-default tw:border-t-brand tw:bg-panel tw:p-5 tw:wide:p-6">
+    <header className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-t-[3px] tw:border-border-default tw:border-t-brand tw:bg-panel tw:p-5 tw:wrap-anywhere tw:wide:p-6">
       {project.protocol && (
         <p className="tw:m-0 tw:text-caption tw:font-semibold tw:tracking-wide tw:text-muted-copy">
           {project.protocol}

@@ -30,7 +30,7 @@ export function AgendaExtras({
   });
   return (
     <details
-      className="tw:rounded-control tw:border tw:border-border-default tw:p-4"
+      className="tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere"
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary>Encontros adicionais</summary>
@@ -55,7 +55,7 @@ export function AgendaExtras({
               }}
             />
           )}
-          <ul className="tw:my-3 tw:grid tw:gap-3">
+          <ul className="tw:my-3 tw:grid tw:list-none tw:gap-3 tw:p-0">
             {result.data.entries.map((item) => (
               <li
                 key={item.id}

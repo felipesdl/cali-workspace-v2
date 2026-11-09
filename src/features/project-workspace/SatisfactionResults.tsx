@@ -22,11 +22,11 @@ export function SatisfactionResults({
   save?: (entry: SatisfactionEntry, theme: string, note: string) => Promise<string>;
 }) {
   return (
-    <ul className="tw:grid tw:gap-3">
+    <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
       {entries.map((entry) => (
         <li
           key={entry.source + ':' + entry.response}
-          className="tw:grid tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
+          className="tw:grid tw:min-w-0 tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4 tw:wrap-anywhere"
         >
           <strong>{entry.title}</strong>
           <p>
@@ -38,10 +38,10 @@ export function SatisfactionResults({
             {' · '}
             {entry.score}/5 · {formatServerInstant(entry.ratedAt)} (Brasília)
           </p>
-          {entry.comment && <p className="tw:break-words">{entry.comment}</p>}
+          {entry.comment && <p>{entry.comment}</p>}
           <p>{entry.followup ? 'Acompanhamento registrado' : 'Aguardando acompanhamento'}</p>
           {entry.followup && (
-            <p className="tw:break-words">
+            <p>
               {entry.followup.theme ? themes[entry.followup.theme] : 'Sem tema'}
               {entry.followup.note && ` · ${entry.followup.note}`}
             </p>

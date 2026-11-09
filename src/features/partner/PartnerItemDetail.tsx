@@ -36,7 +36,7 @@ export function PartnerItemDetail({
       aria-label="Detalhe do registro"
     >
       <div>
-        <Button variant="secondary" onClick={back}>
+        <Button variant="secondary" autoFocus onClick={back}>
           Voltar à lista
         </Button>
       </div>

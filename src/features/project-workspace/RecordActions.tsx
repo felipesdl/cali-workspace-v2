@@ -155,7 +155,10 @@ export function RecordConversation({
   const status = data?.status;
   const open = status !== 'cancelled' && status !== 'completed';
   return (
-    <section className="tw:grid tw:gap-3" aria-label="Conversa da ocorrência">
+    <section
+      className="tw:grid tw:min-w-0 tw:gap-3 tw:wrap-anywhere"
+      aria-label="Conversa da ocorrência"
+    >
       <div>
         <Button autoFocus variant="secondary" onClick={back}>
           Voltar às ocorrências
@@ -189,7 +192,7 @@ export function RecordConversation({
             </section>
           )}
           {data.messages.length ? (
-            <ol className="tw:grid tw:gap-3">
+            <ol className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
               {data.messages.map((message) => (
                 <li
                   key={message.id}
@@ -204,13 +207,13 @@ export function RecordConversation({
                     · {formatServerInstant(message.created_at)}
                     {message.visibility === 'internal' && ' · Interna'}
                   </p>
-                  <p className="tw:break-words tw:whitespace-pre-line">{message.body}</p>
+                  <p className="tw:whitespace-pre-line">{message.body}</p>
                   {(
                     message.attachments ??
                     (message.attachment ? [{ ...message.attachment, position: undefined }] : [])
                   ).map((attachment) => (
                     <div className="tw:grid tw:gap-2" key={attachment.position ?? 1}>
-                      <p className="tw:break-words">{attachment.fileName}</p>
+                      <p>{attachment.fileName}</p>
                       <FileDownload
                         label="Baixar anexo"
                         download={(signal) =>

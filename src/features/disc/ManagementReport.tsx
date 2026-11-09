@@ -58,7 +58,7 @@ export function ManagementReport({
 
   if (report.mode === 'unavailable') {
     return (
-      <section className="tw:grid tw:gap-3 tw:border tw:border-border-default tw:bg-panel tw:p-5">
+      <section className="tw:grid tw:min-w-0 tw:gap-3 tw:border tw:border-border-default tw:bg-panel tw:p-5 tw:wrap-anywhere">
         <h2 className="tw:m-0 tw:text-section tw:font-semibold tw:text-brand">{report.title}</h2>
         <p className="tw:m-0 tw:text-copy">
           A leitura de gestão ficará disponível após a CALI concluir e liberar a análise do grupo.
@@ -68,7 +68,7 @@ export function ManagementReport({
   }
 
   return (
-    <article className="tw:grid tw:gap-5 tw:border tw:border-border-default tw:bg-panel tw:p-5">
+    <article className="tw:grid tw:min-w-0 tw:gap-5 tw:border tw:border-border-default tw:bg-panel tw:p-5 tw:wrap-anywhere">
       <header className="tw:grid tw:gap-2">
         <p className="tw:m-0 tw:text-caption tw:font-semibold tw:tracking-wide tw:text-muted-copy tw:uppercase">
           Perfil comportamental · gestão

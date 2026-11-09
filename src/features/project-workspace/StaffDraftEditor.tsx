@@ -59,7 +59,7 @@ export function StaffDraftEditor({
                   defaultValue={draft?.name}
                 />
               </Field>
-              <fieldset className="tw:grid tw:gap-1">
+              <fieldset className="tw:m-0 tw:grid tw:min-w-0 tw:gap-1 tw:border-0 tw:p-0">
                 <legend>Módulos</legend>
                 {staffDraftModule.options.map((module) => (
                   <label key={module} className="tw:flex tw:gap-2">

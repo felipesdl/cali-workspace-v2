@@ -18,7 +18,7 @@ function SummaryBlock({ title, block }: { title: string; block: PreviewBlock }) 
             <p>
               {formatServerInstant(item.at)} · {item.title}
             </p>
-            {item.excerpt && <p className="tw:break-words">{item.excerpt}</p>}
+            {item.excerpt && <p>{item.excerpt}</p>}
             {item.link && <a href={item.link}>Abrir no Workspace</a>}
           </li>
         ))}
@@ -44,7 +44,7 @@ export function AdminDailyPreview({ actor }: { actor?: string }) {
   const data = result.data;
   return (
     <details
-      className="tw:rounded-control tw:border tw:border-border-default tw:p-4"
+      className="tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere"
       onToggle={(event) => setOpen(event.currentTarget.open)}
     >
       <summary className="tw:cursor-pointer tw:font-semibold">Prévia do resumo diário</summary>

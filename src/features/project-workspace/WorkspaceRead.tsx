@@ -1,6 +1,6 @@
 import { PartnerHoursQueue } from '../partner/PartnerHoursQueue';
 import { PartnerReviewQueue } from '../partner/PartnerReviewQueue';
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { ClientReportReading } from './ClientReportReading';
 import { AdminReportWorkspace } from './AdminReportWorkspace';
 import { ProjectJournalPanel } from './ProjectJournalPanel';
@@ -161,10 +161,33 @@ function Projects({ search, update }: Props) {
         : skipToken,
   });
   const projectData = detail.data;
-  if (!service) return connected && !admin ? <ClientModulePending /> : null;
   const result = project ? detail : list;
+  const focusTarget = useRef<HTMLElement>(null);
+  const focusAfterNavigation = useRef(false);
+  const isSettled = result.isSuccess || result.isError;
+  useEffect(() => {
+    if (!isSettled || !focusAfterNavigation.current) return;
+    focusAfterNavigation.current = false;
+    if (document.activeElement === document.body) focusTarget.current?.focus();
+  }, [isSettled, page, project, projectView, section]);
+
+  const selectView: Props['update'] = (change) => {
+    const next = { ...search, ...change };
+    focusAfterNavigation.current =
+      next.project !== project ||
+      next.projectView !== projectView ||
+      next.section !== section ||
+      next.page !== page;
+    update(change);
+  };
+  if (!service) return connected && !admin ? <ClientModulePending /> : null;
   return (
-    <div className="tw:grid tw:gap-4">
+    <section
+      ref={focusTarget}
+      tabIndex={-1}
+      aria-label={project ? 'Detalhes do projeto' : 'Lista de projetos'}
+      className="tw:grid tw:min-w-0 tw:gap-4"
+    >
       {admin && <CompanySelect search={search} update={update} />}
       {!companyId ? (
         <FeedbackState kind="empty">
@@ -181,7 +204,7 @@ function Projects({ search, update }: Props) {
           <div>
             <Button
               variant="secondary"
-              onClick={() => update({ project: undefined, projectView: undefined, page: 1 })}
+              onClick={() => selectView({ project: undefined, projectView: undefined, page: 1 })}
             >
               Voltar aos projetos
             </Button>
@@ -196,7 +219,7 @@ function Projects({ search, update }: Props) {
                   aria-pressed={projectView === 'roadmap'}
                   variant="secondary"
                   className={projectSectionButton}
-                  onClick={() => update({ projectView: 'roadmap', page: 1 })}
+                  onClick={() => selectView({ projectView: 'roadmap', page: 1 })}
                 >
                   Cronograma
                 </Button>
@@ -205,7 +228,7 @@ function Projects({ search, update }: Props) {
                   variant="secondary"
                   className={projectSectionButton}
                   onClick={() =>
-                    update({ projectView: undefined, section: 'deliverables', page: 1 })
+                    selectView({ projectView: undefined, section: 'deliverables', page: 1 })
                   }
                 >
                   Entregáveis
@@ -215,7 +238,7 @@ function Projects({ search, update }: Props) {
                   variant="secondary"
                   className={projectSectionButton}
                   onClick={() =>
-                    update({ projectView: undefined, section: 'workstreams', page: 1 })
+                    selectView({ projectView: undefined, section: 'workstreams', page: 1 })
                   }
                 >
                   Frentes do projeto
@@ -224,7 +247,7 @@ function Projects({ search, update }: Props) {
                   aria-pressed={projectView === 'history'}
                   variant="secondary"
                   className={projectSectionButton}
-                  onClick={() => update({ projectView: 'history', page: 1 })}
+                  onClick={() => selectView({ projectView: 'history', page: 1 })}
                 >
                   Histórico
                 </Button>
@@ -417,13 +440,13 @@ function Projects({ search, update }: Props) {
               key={companyId}
               company={companyId}
               actor={actor}
-              open={(created) => update({ project: created, page: 1 })}
+              open={(created) => selectView({ project: created, page: 1 })}
             />
           )}
           {list.data.projects.length ? (
             <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
               {list.data.projects.map((row) => (
-                <li key={row.id} className={panel}>
+                <li key={row.id} className={`${panel} tw:wrap-anywhere`}>
                   <p>
                     <strong>{row.name}</strong>
                     {row.protocol ? ` · ${row.protocol}` : ''}
@@ -431,7 +454,10 @@ function Projects({ search, update }: Props) {
                   <p>
                     {label(row.planning_status)} · {label(row.execution_status)}
                   </p>
-                  <Button variant="secondary" onClick={() => update({ project: row.id, page: 1 })}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => selectView({ project: row.id, page: 1 })}
+                  >
                     Abrir projeto
                   </Button>
                 </li>
@@ -443,7 +469,7 @@ function Projects({ search, update }: Props) {
           <Pages total={list.data.total} search={search} update={update} />
         </>
       ) : null}
-    </div>
+    </section>
   );
 }
 
@@ -1137,7 +1163,6 @@ export function AdminMapaPage() {
           {result.data.entries.map((entry) => (
             <div key={entry.id} className="tw:grid tw:gap-2">
               <MapaReview
-                key={entry.revision}
                 entry={entry}
                 company={companyId}
                 operations={domainOperations}
@@ -1229,9 +1254,9 @@ export function AdminStaffRosterPage() {
       ) : (
         <>
           {result.data.entries.length ? (
-            <ul className="tw:grid tw:gap-3">
+            <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
               {result.data.entries.map((member) => (
-                <li key={member.id} className={panel}>
+                <li key={member.id} className={`${panel} tw:wrap-anywhere`}>
                   <h2 className="tw:font-semibold">{member.name ?? 'Nome não informado'}</h2>
                   <p>
                     {member.active ? 'Ativo' : 'Inativo'} ·{' '}

@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PartnerPilot, PartnerTimerCommand } from '../../api/modules/partner/pilot';
 import { Button } from '../../components/ds/button/Button';
@@ -16,6 +16,8 @@ export function PartnerTimer({
   company: string;
 }) {
   const formId = useId();
+  const stopButton = useRef<HTMLButtonElement>(null);
+  const feedback = useRef<HTMLParagraphElement>(null);
   const [description, setDescription] = useState('');
   const [targetKey, setTargetKey] = useState('');
   const receipt = useRef<{ command: string; id: string } | null>(null);
@@ -46,6 +48,13 @@ export function PartnerTimer({
       ]);
     },
   });
+  const { isError, data: result } = change;
+  const activeTimer = query.data?.active;
+  useEffect(() => {
+    if (document.activeElement !== document.body) return;
+    if (result?.status === 'active' && activeTimer) stopButton.current?.focus();
+    else if (isError || result) feedback.current?.focus();
+  }, [activeTimer, isError, result]);
 
   if (query.isPending) return <FeedbackState kind="loading">Consultando cronômetro…</FeedbackState>;
   if (query.isError) {
@@ -59,7 +68,6 @@ export function PartnerTimer({
   const { active, targets } = query.data;
   const key = (target: (typeof targets)[number]) => `${target.kind}:${target.id}`;
   const target = targets.find((option) => key(option) === targetKey);
-  const result = change.data;
   return (
     <section
       className="tw:grid tw:gap-3 tw:border-t tw:border-border-default tw:pt-4"
@@ -73,6 +81,7 @@ export function PartnerTimer({
           </p>
           <div>
             <Button
+              ref={stopButton}
               pending={change.isPending}
               onClick={() => change.mutate({ action: 'stop', id: active.id })}
             >
@@ -127,12 +136,20 @@ export function PartnerTimer({
           </div>
         </form>
       )}
-      {change.error && <p role="alert">{change.error.message}</p>}
+      {change.error && (
+        <p ref={feedback} role="alert" tabIndex={-1}>
+          {change.error.message}
+        </p>
+      )}
       {result?.status === 'discarded' && (
-        <p role="status">Trecho descartado: menos de 30 segundos.</p>
+        <p ref={feedback} role="status" tabIndex={-1}>
+          Trecho descartado: menos de 30 segundos.
+        </p>
       )}
       {result?.status === 'stopped' && (
-        <p role="status">Trecho registrado: {result.minutes} min.</p>
+        <p ref={feedback} role="status" tabIndex={-1}>
+          Trecho registrado: {result.minutes} min.
+        </p>
       )}
     </section>
   );

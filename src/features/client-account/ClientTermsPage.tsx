@@ -20,7 +20,7 @@ export function ClientTermsPage() {
   const profile = state.access.profile;
   const company = profile?.company_id ?? undefined;
   return (
-    <section aria-label="Documentos de uso e privacidade" className="tw:min-w-0">
+    <section aria-label="Documentos de uso e privacidade" className="tw:min-w-0 tw:wrap-anywhere">
       <h2 className="tw:my-0 tw:text-section tw:text-brand">{terms.title}</h2>
       <p>Versão {terms.version}. O aceite da versão vigente está confirmado para este acesso.</p>
       <TermsContent terms={terms} />

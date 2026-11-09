@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Comparação dos módulos com a main em 375 e 1366 px
+
+- Compara 20 telas demonstrativas com a main da V2. Ajusta texto longo nos fluxos conectados de Projetos, Equipe, Propostas, Auditoria, Equipe CALI, Mapa de People, Satisfação, DISC, Termos, Privacidade, Agenda e Ocorrências.
+- Corrige colunas do Kanban e da estrutura de Equipe. Mantém foco em navegação de Projetos, confirmação de proposta, triagem do Mapa, resposta de privacidade e operações Partner. [Matriz e limites](HOMOLOGACAO_PATRICIA.md#comparação-dos-módulos-com-a-main-em-375-e-1366-px).
+
 ## Rascunhos, histórico e avisos em desktop e mobile
 
 - Ajusta a quebra de texto em Forms Admin e em Relatórios Admin e Cliente. Relatórios Admin usa duas colunas no desktop e uma no celular.

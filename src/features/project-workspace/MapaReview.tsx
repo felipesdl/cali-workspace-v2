@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { type MapaEntry } from '../../api/modules/project-workspace/admin-read';
 import {
   mapaReviewStatus,
@@ -24,20 +25,34 @@ export function MapaReview({
   operations: DomainOperations | null | undefined;
   saved: () => Promise<void>;
 }) {
+  const [submittedRevision, setSubmittedRevision] = useState<number>();
+  const receipt = useRef<HTMLParagraphElement>(null);
+  const showReceipt = submittedRevision !== undefined && submittedRevision !== entry.revision;
+  useEffect(() => {
+    if (showReceipt && document.activeElement === document.body) receipt.current?.focus();
+  }, [showReceipt]);
+
   const current = mapaReviewStatus.safeParse(
     entry.status === 'em_revisao' ? 'em_andamento' : entry.status,
   );
   return (
-    <article className="tw:grid tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4">
+    <article className="tw:grid tw:min-w-0 tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere">
       <h2>{entry.protocol}</h2>
       <p>
         {formatServerInstant(entry.createdAt)} ·{' '}
         {current.success ? statusLabels[current.data] : entry.status}
       </p>
+      {showReceipt && (
+        <p ref={receipt} role="status" tabIndex={-1} className="tw:m-0 tw:text-caption">
+          Triagem atualizada.
+        </p>
+      )}
       {operations && current.success ? (
         <ActionForm
+          key={entry.revision}
           label="Salvar triagem do Mapa"
           submit={async (fields) => {
+            setSubmittedRevision(undefined);
             const status = mapaReviewStatus.parse(fields.get('status'));
             const id = await operations.reviewMapa(
               company,
@@ -47,6 +62,7 @@ export function MapaReview({
               String(fields.get('opinion') ?? ''),
             );
             await saved();
+            setSubmittedRevision(entry.revision);
             return id;
           }}
         >

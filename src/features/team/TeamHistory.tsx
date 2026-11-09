@@ -63,13 +63,13 @@ export function TeamHistory({
     Math.ceil(Math.max(history.total, history.snapshotCount) / teamPageSize),
   );
   return (
-    <div className="tw:grid tw:gap-4">
+    <div className="tw:grid tw:min-w-0 tw:gap-4 tw:wrap-anywhere">
       <section aria-label="Movimentações" className="tw:grid tw:gap-2">
         <h3 className="tw:font-bold">Movimentações</h3>
         {history.events.length === 0 && (
           <FeedbackState kind="empty">Nenhuma movimentação nesta página.</FeedbackState>
         )}
-        <ul className="tw:divide-y tw:divide-border-default">
+        <ul className="tw:m-0 tw:list-none tw:divide-y tw:divide-border-default tw:p-0">
           {history.events.map((event) => (
             <li key={event.id} className="tw:flex tw:flex-wrap tw:justify-between tw:gap-2 tw:py-2">
               <span>
@@ -88,7 +88,7 @@ export function TeamHistory({
         {history.confirmed && history.snapshots.length === 0 && (
           <FeedbackState kind="empty">Nenhuma ficha confirmada nesta página.</FeedbackState>
         )}
-        <ul className="tw:divide-y tw:divide-border-default">
+        <ul className="tw:m-0 tw:list-none tw:divide-y tw:divide-border-default tw:p-0">
           {history.snapshots.map((snapshot) => (
             <li key={snapshot.member_id} className="tw:py-2">
               <strong>{snapshot.full_name}</strong> · {snapshot.job_title} · {snapshot.department} ·{' '}
@@ -137,15 +137,15 @@ export function TeamStructure({ rows }: { rows: z.infer<typeof teamStructure> })
     );
   const departments = [...new Set(rows.map((row) => row.department))];
   return (
-    <div className="tw:sm:grid-cols-2 tw:grid tw:gap-4">
+    <div className="tw:grid tw:min-w-0 tw:gap-4 tw:wrap-anywhere tw:wide:grid-cols-2">
       {departments.map((department) => (
         <section
           key={department}
-          className="tw:rounded-control tw:border tw:border-border-default tw:p-3"
+          className="tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:p-3"
           aria-label={department}
         >
           <h3 className="tw:mb-2 tw:font-bold">{department}</h3>
-          <ul className="tw:grid tw:gap-2">
+          <ul className="tw:m-0 tw:grid tw:list-none tw:gap-2 tw:p-0">
             {rows
               .filter((row) => row.department === department)
               .map((group) => (
