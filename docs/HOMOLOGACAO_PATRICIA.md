@@ -166,7 +166,22 @@ As rotas conectadas foram executadas com sessão e serviços sintéticos locais.
 
 Capturas locais em `cali-fase6-formularios`. A regressão automatizada cobre foco, conservação de valores e identificador após falha e reset após sucesso. Os serviços locais simulam as respostas da API. Escrita, autorização e comportamento de produção continuam separados das evidências visuais. Rollback de frontend.
 
-A fase 6 permanece aberta para os demais percursos e para o aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
+### Regressão em 1366 e 375 px
+
+A referência para esta rodada é 1366 × 768 no desktop e 375 × 812 no celular. O navegador integrado executou as rotas da V2 com sessões e serviços sintéticos em loopback. O teste comparou a largura da página com a da janela e exercitou os controles de cada percurso.
+
+| Percurso | Resultado nas duas larguras |
+| --- | --- |
+| Agenda Cliente | A leitura recuperou após falha. A solicitação manteve o formulário e a mensagem longa dentro da página. O reenvio conservou o identificador, e o foco acompanhou erro e sucesso. |
+| Ocorrências Cliente | O erro longo coube na página. Reenviar abriu a conversa com foco no botão de voltar. |
+| Forms Admin | A nova tentativa recuperou a consulta e exibiu a lista vazia. |
+| Documentos Admin | A retirada exigiu confirmação. Após retirar a revisão sintética, o foco foi para a mensagem persistente de confirmação. |
+| Empresas e acessos Admin | O foco começou em Cancelar, voltou ao acionador ao cancelar e chegou à ação de reautorizar após revogar. |
+| Horas Cliente | O extrato recuperou após falha. A descrição longa ampliava a página a 2.256 px no desktop e agora quebra dentro da seção. |
+| Forms público | Título, descrição, legenda e opções longas ampliavam a página a 2.634 px no desktop. Após o ajuste, a página coube, a validação obrigatória bloqueou o envio vazio e o reenvio após falha levou o foco ao recibo. O formulário encerrado ficou sem ação de envio. |
+| Proposta por link | As condições longas ampliavam a página a 2.042 px no desktop. Após o ajuste, a página coube, a leitura recuperou após falha e o aceite sintético levou o foco à confirmação. |
+
+Capturas locais em `cali-fase6-duas-larguras`. O lote altera apresentação e foco. Rollback por reversão do commit de frontend. As oito rotas passaram na regressão local. A matriz ainda exige revisão dos demais estados e formulários, paridade dos percursos restantes com a main da V2 e aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
 
 ## Mensagem para enviar junto do link
 

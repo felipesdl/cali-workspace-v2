@@ -66,7 +66,6 @@ export function CompanyAccessPanel({
                 </span>
                 {enrolled && (
                   <PilotAccessAction
-                    key={enrolled.revokedAt ?? 'active'}
                     companyId={companyId}
                     inviteId={access.id}
                     revokedAt={enrolled.revokedAt}

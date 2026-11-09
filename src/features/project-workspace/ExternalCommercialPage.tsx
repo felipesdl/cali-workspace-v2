@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
@@ -8,6 +9,8 @@ const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL
 
 export function ExternalCommercialPage() {
   const { adminRead } = useRouteContext({ from: '__root__' });
+  const receiptRef = useRef<HTMLParagraphElement>(null);
+  const justAccepted = useRef(false);
   const token = window.location.hash.slice(1);
   const enabled = adminRead && /^[a-f0-9]{64}$/.test(token);
   const result = useQuery({
@@ -19,8 +22,14 @@ export function ExternalCommercialPage() {
     retry: false,
   });
   const offer = result.data;
+  const acceptedAt = offer?.acceptedAt;
+  useEffect(() => {
+    if (!acceptedAt || !justAccepted.current) return;
+    justAccepted.current = false;
+    if (document.activeElement === document.body) receiptRef.current?.focus();
+  }, [acceptedAt]);
   return (
-    <main className="tw:mx-auto tw:grid tw:max-w-2xl tw:gap-4 tw:p-6 tw:text-copy">
+    <main className="tw:mx-auto tw:grid tw:max-w-2xl tw:min-w-0 tw:gap-4 tw:p-6 tw:wrap-anywhere tw:text-copy tw:mobile:p-4">
       <h1 className="tw:text-section tw:text-brand">Proposta CALI de homologação</h1>
       {enabled && result.isPending && (
         <FeedbackState kind="loading">Carregando proposta…</FeedbackState>
@@ -44,7 +53,9 @@ export function ExternalCommercialPage() {
           {offer.publicNotes && <p>{offer.publicNotes}</p>}
           <p>Validade: {formatServerInstant(offer.deadline)} (Brasília)</p>
           {offer.acceptedAt ? (
-            <p role="status">Aceite de teste registrado.</p>
+            <p ref={receiptRef} role="status" tabIndex={-1}>
+              Aceite de teste registrado.
+            </p>
           ) : (
             <ActionForm
               label="Confirmar aceite de teste"
@@ -52,6 +63,7 @@ export function ExternalCommercialPage() {
                 const accepted = await adminRead.externalCommercialOffer(token, true);
                 if (!accepted?.acceptedAt)
                   throw new Error('Link de teste indisponível ou vencido.');
+                justAccepted.current = true;
                 await result.refetch();
                 return accepted;
               }}

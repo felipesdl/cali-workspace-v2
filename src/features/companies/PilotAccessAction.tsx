@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   usePilotInviteChange,
   type PilotAccessChange,
@@ -19,6 +19,13 @@ export function PilotAccessAction({
   const trigger = useRef<HTMLButtonElement>(null);
   const [draft, setDraft] = useState<PilotAccessChange | null>(null);
   const confirm = draft?.revokedAt === revokedAt ? draft : null;
+  const { isSuccess } = change;
+  if (draft && !confirm) setDraft(null);
+  useEffect(() => {
+    if (isSuccess && !confirm && document.activeElement === document.body) {
+      trigger.current?.focus();
+    }
+  }, [isSuccess, confirm]);
   const action = revokedAt ? 'Reautorizar' : 'Revogar';
   return (
     <div className="tw:mt-3 tw:grid tw:gap-2">

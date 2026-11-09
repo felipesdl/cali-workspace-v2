@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Regressão em 1366 e 375 px
+
+- Contém textos longos no Forms público, no extrato de Horas e na proposta por link. O Forms mantém as opções e seus rótulos na largura útil.
+- Preserva o foco após enviar resposta pública, aceitar proposta, retirar documento e revogar acesso. O navegador integrado conferiu oito rotas em 1366 × 768 e 375 × 812 com serviços sintéticos. [Evidências e limites](HOMOLOGACAO_PATRICIA.md#regressão-em-1366-e-375-px).
+
 ## Formulários conectados em 375 px
 
 - Contém largura e espaçamento nos formulários, empilha as datas da Agenda no celular e mantém campos e identificador ao repetir uma gravação após falha.

@@ -587,7 +587,7 @@ function Hours({ search, update }: Props) {
                 paused={result.data.capacityHistory.paused}
               />
             )}
-          <section className={panel}>
+          <section className={`${panel} tw:wrap-anywhere`}>
             <h2 className="tw:font-semibold">Extrato de atuação</h2>
             <p>
               Total dos lançamentos exibíveis no mês: <Minutes value={result.data.minutes} />

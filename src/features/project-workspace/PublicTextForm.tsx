@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { getRouteApi, useRouteContext } from '@tanstack/react-router';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
@@ -19,6 +19,10 @@ export function PublicTextFormPage() {
 function PublicTextForm({ slug }: { slug: string }) {
   const { domainOperations } = useRouteContext({ from: '__root__' });
   const [sent, setSent] = useState(false);
+  const receiptRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (sent && document.activeElement === document.body) receiptRef.current?.focus();
+  }, [sent]);
   const [branchAnswers, setBranchAnswers] = useState<Record<string, string>>({});
   const enabled = domainOperations && /^[a-z0-9-]{1,100}$/.test(slug);
   const result = useQuery({
@@ -46,7 +50,7 @@ function PublicTextForm({ slug }: { slug: string }) {
   }
 
   return (
-    <main className="tw:mx-auto tw:grid tw:max-w-2xl tw:gap-4 tw:p-6 tw:text-copy">
+    <main className="tw:mx-auto tw:grid tw:max-w-2xl tw:min-w-0 tw:gap-4 tw:p-6 tw:wrap-anywhere tw:text-copy tw:mobile:p-4">
       <h1 className="tw:text-section tw:text-brand">
         {form?.status === 'open' ? form.title : 'Formulário CALI'}
       </h1>
@@ -60,7 +64,11 @@ function PublicTextForm({ slug }: { slug: string }) {
       )}
       {(!enabled || (result.isSuccess && !form)) && <p>Formulário indisponível.</p>}
       {form?.status === 'closed' && <p>Este formulário encerrou a coleta.</p>}
-      {sent && <p role="status">Resposta registrada. Obrigado pela participação.</p>}
+      {sent && (
+        <p ref={receiptRef} role="status" tabIndex={-1}>
+          Resposta registrada. Obrigado pela participação.
+        </p>
+      )}
       {domainOperations && form?.status === 'open' && !sent && (
         <>
           {form.description && <p className="tw:whitespace-pre-line">{form.description}</p>}
@@ -183,14 +191,14 @@ function PublicQuestion({
   }
   if (kind === 'multi_choice')
     return (
-      <fieldset className="tw:grid tw:gap-1">
+      <fieldset className="tw:m-0 tw:grid tw:min-w-0 tw:gap-2 tw:border-0 tw:p-0">
         <legend>
           {label}
           {required && ' *'}
         </legend>
         {question.options?.map((option) => (
-          <label key={option} className="tw:flex tw:gap-2">
-            <input type="checkbox" name={id} value={option} />
+          <label key={option} className="tw:flex tw:items-start tw:gap-2">
+            <input className="tw:shrink-0" type="checkbox" name={id} value={option} />
             {option}
           </label>
         ))}

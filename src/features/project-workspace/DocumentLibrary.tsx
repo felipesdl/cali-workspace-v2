@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PdfDownload } from './PdfDownload';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -168,6 +168,13 @@ function DocumentItem({
 }) {
   const [showHistory, setShowHistory] = useState(false);
   const [withdrawn, setWithdrawn] = useState(false);
+  const withdrawalReceipt = useRef<HTMLParagraphElement>(null);
+  const showWithdrawalReceipt = withdrawn && !item.publishedRevision;
+  useEffect(() => {
+    if (showWithdrawalReceipt && document.activeElement === document.body) {
+      withdrawalReceipt.current?.focus();
+    }
+  }, [showWithdrawalReceipt]);
   const latestPublished = item.publishedRevision === item.revisionId;
   return (
     <li className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere">
@@ -204,7 +211,6 @@ function DocumentItem({
           {item.publishedRevision && (
             <ActionForm
               label="Retirar versão publicada"
-              saved={() => setWithdrawn(true)}
               submit={async (values) => {
                 if (!values.has('confirmWithdrawal')) throw new Error('Confirme a retirada.');
                 const result = await operations.publication(
@@ -214,6 +220,7 @@ function DocumentItem({
                   null,
                 );
                 await refresh();
+                setWithdrawn(true);
                 return result;
               }}
             >
@@ -227,8 +234,13 @@ function DocumentItem({
               )}
             </ActionForm>
           )}
-          {withdrawn && !item.publishedRevision && (
-            <p role="status" className="tw:m-0 tw:text-caption">
+          {showWithdrawalReceipt && (
+            <p
+              ref={withdrawalReceipt}
+              role="status"
+              tabIndex={-1}
+              className="tw:m-0 tw:text-caption"
+            >
               Versão retirada. O histórico continua disponível para a CALI.
             </p>
           )}
