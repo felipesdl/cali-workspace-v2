@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Fechamento da 4A no piloto
+
+- Marcos interativos, lista por frente, Kanban Admin e histórico direto. Admin e Cliente A conferiram o projeto; B recebeu projeto indisponível. [Evidências](contracts/PHASE_4_READ.md#fechamento-de-projetos-no-piloto).
+
 ## Cronograma, leitura de relatórios e lotes de anexos
 
 - Cronograma cronológico instalado no CALI MAPA. Cliente e Admin ganharam visões dedicadas de relatórios. Cinco anexos de 10 MiB passaram em PostgreSQL descartável. Candidatas de anexos e admissão da Equipe CALI compiladas com rollback no staging. [Evidências e pendências](contracts/PHASE_4_READ.md#cronograma-relatórios-e-lote-completo-de-anexos).

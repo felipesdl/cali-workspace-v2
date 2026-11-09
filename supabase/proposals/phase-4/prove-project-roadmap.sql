@@ -22,6 +22,7 @@ begin
   assert result#>>'{items,total}'='26';
   assert jsonb_array_length(result#>'{items,rows}')=25;
   assert result#>>'{items,rows,0,id}'=early::text;
+  assert result#>>'{items,rows,0,workstream_name}'='Frente fictícia';
   assert cali_workspace.v2_read_pilot_project(a,project,'roadmap',2)#>>'{items,rows,0,id}'=late::text;
   assert cali_workspace.v2_read_pilot_project(a,project,'deliverables',1)#>>'{items,rows,0,id}'=late::text;
   assert cali_workspace.v2_read_pilot_project(b,project,'roadmap',1) is null;

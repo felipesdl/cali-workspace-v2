@@ -72,6 +72,7 @@ export const projectDetail = z.object({
         updated_at: z.string().nullable().optional(),
         description: z.string().nullable().optional(),
         workstream_id: z.uuid().nullable().optional(),
+        workstream_name: z.string().nullable().optional(),
         complexity: z.enum(['MC1', 'MC2', 'MC3']).nullable().optional(),
         sort_order: z.number().int().optional(),
       }),

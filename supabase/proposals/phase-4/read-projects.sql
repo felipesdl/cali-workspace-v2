@@ -57,13 +57,15 @@ begin
       'items',(
         with matched as (
           select d.id,d.title as name,d.protocol,d.status,d.execution_status,d.due_at,d.sort_order,d.updated_at,
-            d.description,d.workstream_id,d.complexity
+            d.description,d.workstream_id,d.complexity,w.name as workstream_name
           from cali_workspace.deliverables d
+          left join cali_workspace.project_workstreams w
+            on w.id=d.workstream_id and w.company_id=d.company_id and w.project_id=d.project_id
           where p_section in ('deliverables','roadmap') and d.company_id=p_company_id and d.project_id=p.id
             and (admin or cali_workspace.client_can_view_deliverable(d.id))
           union all
           select w.id,w.name,w.protocol,w.status,w.execution_status,null::timestamptz,w.sort_order,w.updated_at,
-            w.objective,null::uuid,null::text
+            w.objective,null::uuid,null::text,null::text
           from cali_workspace.project_workstreams w
           where p_section='workstreams' and w.company_id=p_company_id and w.project_id=p.id
         ), page as (

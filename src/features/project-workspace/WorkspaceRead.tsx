@@ -2,6 +2,8 @@ import { Fragment, useState } from 'react';
 import { ClientReportReading } from './ClientReportReading';
 import { AdminReportWorkspace } from './AdminReportWorkspace';
 import { ProjectJournalPanel } from './ProjectJournalPanel';
+import { ProjectRoadmap } from './ProjectRoadmap';
+import { ProjectDeliverableList } from './ProjectDeliverableList';
 import { workspaceLabel as label } from './workspace-labels';
 import { WorkspacePagination } from './WorkspacePagination';
 import {
@@ -271,27 +273,24 @@ function Projects({ search, update }: Props) {
                 </Button>
               </nav>
               {projectView === 'history' ? (
-                <ProjectJournalPanel scope={{ company: companyId, actor, project }} admin={admin} />
-              ) : projectView === 'roadmap' && projectData.items.rows.length ? (
-                <ol aria-label="Marcos do cronograma" className="tw:grid tw:gap-3">
-                  {projectData.items.rows.map((row) => (
-                    <li
-                      key={row.id}
-                      className="tw:grid tw:gap-1 tw:border-l-2 tw:border-brand tw:pl-3"
-                    >
-                      <p>{row.due_at ? formatServerInstant(row.due_at) : 'Sem prazo definido'}</p>
-                      <strong>{row.name}</strong>
-                      <p>
-                        {label(row.status)} · {label(row.execution_status)}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
+                <ProjectJournalPanel
+                  scope={{ company: companyId, actor, project }}
+                  admin={admin}
+                  standalone
+                />
+              ) : projectView === 'roadmap' ? (
+                <ProjectRoadmap data={projectData} actor={actor} admin={admin} />
               ) : projectData.items.rows.length ? (
-                <ul className="tw:grid tw:gap-3">
-                  {projectData.items.rows.map((row) => (
+                <ProjectDeliverableList
+                  rows={projectData.items.rows}
+                  grouped={section === 'deliverables'}
+                  admin={admin}
+                  renderRow={(row) => (
                     <li key={row.id}>
                       <strong>{row.name}</strong>
+                      {row.protocol && (
+                        <p className="tw:text-caption tw:text-muted-copy">{row.protocol}</p>
+                      )}
                       <p>
                         {label(row.status)} · {label(row.execution_status)}
                         {row.due_at ? ` · Prazo ${formatServerInstant(row.due_at)}` : ''}
@@ -391,8 +390,8 @@ function Projects({ search, update }: Props) {
                           />
                         )}
                     </li>
-                  ))}
-                </ul>
+                  )}
+                />
               ) : (
                 <FeedbackState kind="empty">Nenhum item nesta página.</FeedbackState>
               )}

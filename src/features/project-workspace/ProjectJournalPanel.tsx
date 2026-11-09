@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { HourLink } from './HourLink';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
@@ -310,11 +310,15 @@ export function ProjectJournalPanel({
   admin,
   delivery,
   canOperate = false,
+  summary,
+  standalone = false,
 }: {
   scope: ProjectJournalScope;
   admin: boolean;
   delivery?: Delivery;
   canOperate?: boolean;
+  summary?: ReactNode;
+  standalone?: boolean;
 }) {
   const { projectJournal } = useRouteContext({ from: '__root__' });
   const [open, setOpen] = useState(false);
@@ -324,35 +328,46 @@ export function ProjectJournalPanel({
     delivery?.id ?? '',
     Boolean(delivery && canOperate && !['approved', 'cancelled'].includes(delivery.status)),
   );
-  if (!projectJournal) return null;
+  if (!projectJournal) return summary ?? null;
   const sections = delivery ? deliverySections : projectSections;
+  const content = (open || standalone) && (
+    <div className="tw:my-3 tw:grid tw:gap-3">
+      <div className="tw:flex tw:flex-wrap tw:gap-2" aria-label="Seções do detalhe">
+        {sections.map((key) => (
+          <Button
+            key={key}
+            variant="secondary"
+            aria-pressed={key === section}
+            onClick={() => setSection(key)}
+          >
+            {sectionLabels[key]}
+          </Button>
+        ))}
+      </div>
+      <JournalContent
+        key={section}
+        scope={scope}
+        admin={admin}
+        delivery={delivery}
+        section={section}
+        submit={submit}
+      />
+    </div>
+  );
+  if (standalone) {
+    return (
+      <section aria-label="Histórico do projeto">
+        <h3 className="tw:text-section tw:font-semibold">Histórico do projeto</h3>
+        {content}
+      </section>
+    );
+  }
   return (
     <details onToggle={(event) => setOpen(event.currentTarget.open)}>
-      <summary>{delivery ? 'Detalhes de ' + delivery.name : 'Histórico do projeto'}</summary>
-      {open && (
-        <div className="tw:my-3 tw:grid tw:gap-3">
-          <div className="tw:flex tw:flex-wrap tw:gap-2" aria-label="Seções do detalhe">
-            {sections.map((key) => (
-              <Button
-                key={key}
-                variant="secondary"
-                aria-pressed={key === section}
-                onClick={() => setSection(key)}
-              >
-                {sectionLabels[key]}
-              </Button>
-            ))}
-          </div>
-          <JournalContent
-            key={section}
-            scope={scope}
-            admin={admin}
-            delivery={delivery}
-            section={section}
-            submit={submit}
-          />
-        </div>
-      )}
+      <summary>
+        {summary ?? (delivery ? 'Detalhes de ' + delivery.name : 'Histórico do projeto')}
+      </summary>
+      {content}
     </details>
   );
 }
