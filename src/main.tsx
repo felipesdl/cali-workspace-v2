@@ -1,3 +1,4 @@
+import { createNotificationsService } from './api/modules/notifications/service';
 import { createOwnProfileService } from './api/modules/access/own-profile';
 import { createPartnerOtpQa, createPartnerPilot } from './api/modules/partner/pilot';
 import { createProjectJournal } from './api/modules/project-workspace/project-journal';
@@ -74,6 +75,7 @@ try {
           access,
           companies: composeCompaniesService(client),
           ownProfile: client ? createOwnProfileService(client) : null,
+          notifications: team && client ? createNotificationsService(client) : null,
           partnerPilot:
             team &&
             client &&

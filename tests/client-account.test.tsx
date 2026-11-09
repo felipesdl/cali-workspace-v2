@@ -12,6 +12,7 @@ import { createHostedCompaniesService } from '../src/api/modules/companies/hoste
 import { type OwnProfileService } from '../src/api/modules/access/own-profile';
 import { type WorkspaceAccessState } from '../src/api/modules/access/session';
 import { type CompanyAccount } from '../src/api/modules/companies/schemas';
+import { type NotificationsService } from '../src/api/modules/notifications/schemas';
 import { companyKeys } from '../src/api/modules/companies/keys';
 const actorId = '20000000-0000-4000-8000-000000000001';
 const companyId = '10000000-0000-4000-8000-000000000001';
@@ -42,6 +43,7 @@ async function openApp(
     initial?: WorkspaceAccessState;
     read?: () => Promise<CompanyAccount | null>;
     ownProfile?: OwnProfileService;
+    notifications?: NotificationsService;
   } = {},
 ) {
   const request = vi.fn(async () => {
@@ -73,6 +75,7 @@ async function openApp(
       access: null,
       companies,
       ownProfile: options.ownProfile,
+      notifications: options.notifications,
     },
   });
   await act(async () => {
@@ -280,5 +283,52 @@ describe('consulta Cliente de empresa e termos', () => {
     render(<App router={router} />);
     await waitFor(() => expect(router.state.location.pathname).toBe('/cliente'));
     expect(screen.queryByRole('region', { name: 'Dados da minha empresa' })).toBeNull();
+  });
+});
+
+describe('notificações do Cliente', () => {
+  it('mantém o contador após falha e confirma leitura somente após resposta do servidor', async () => {
+    const title = 'Aviso sintético';
+    const id = '30000000-0000-4000-8000-000000000001';
+    const instant = '2026-11-09T12:00:00Z';
+    let readAt: string | null = null;
+    const notifications: NotificationsService = {
+      list: async () => ({
+        unread: readAt ? 0 : 1,
+        entries: [
+          {
+            id,
+            title,
+            body: null,
+            createdAt: instant,
+            readAt,
+            companyId,
+            entityType: null,
+            entityId: null,
+          },
+        ],
+      }),
+      markRead: vi
+        .fn(async () => {
+          readAt = instant;
+          return 1;
+        })
+        .mockRejectedValueOnce(new Error('Falha sintética')),
+    };
+    const { user } = await openApp({ notifications });
+    const trigger = await screen.findByRole('button', { name: 'Notificações, 1 não lidas' });
+    await user.click(trigger);
+    const action = await screen.findByRole('button', { name: `Marcar como lida: ${title}` });
+    await user.click(action);
+    await screen.findByText('Não foi possível registrar a leitura. Tente novamente.');
+    expect(screen.queryByText('Leitura registrada.')).toBeNull();
+    expect(trigger.getAttribute('aria-label')).toBe('Notificações, 1 não lidas');
+    await user.click(action);
+    await screen.findByText('Leitura registrada.');
+    expect(notifications.markRead).toHaveBeenLastCalledWith(id);
+    expect(trigger.getAttribute('aria-label')).toBe('Notificações');
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('region', { name: 'Notificações' })).toBeNull();
+    expect(document.activeElement).toBe(trigger);
   });
 });

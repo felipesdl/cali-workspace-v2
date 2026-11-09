@@ -1,3 +1,5 @@
+import { workspaceRole } from '../api/modules/access/schemas';
+import { NotificationInbox } from '../features/notifications/NotificationInbox';
 import { phase4CatalogFromPath, phase4CatalogLinks } from './phase4-navigation';
 import { workspaceSearch } from '../api/modules/project-workspace/schemas';
 import { type ReactNode } from 'react';
@@ -32,12 +34,27 @@ export function WorkspaceLayout({
   children: ReactNode;
   navigation?: readonly WorkspaceModuleLink[];
 }) {
-  const { session, team, disc, projectWorkspace, domainOperations, adminRead, ownProfile } =
-    useRouteContext({
-      from: '__root__',
-    });
+  const {
+    session,
+    team,
+    disc,
+    projectWorkspace,
+    domainOperations,
+    adminRead,
+    ownProfile,
+    notifications,
+  } = useRouteContext({
+    from: '__root__',
+  });
   const state = useWorkspaceSession();
-  const admin = state.phase === 'resolved' && state.access.profile?.role === 'admin';
+  const profile =
+    state.phase === 'resolved' && state.access.status === 'ready' ? state.access.profile : null;
+  const admin = profile?.role === workspaceRole.Admin;
+  const recipient =
+    profile?.active &&
+    (profile.role === workspaceRole.Admin || profile.role === workspaceRole.Client)
+      ? { id: profile.id, role: profile.role, company_id: profile.company_id }
+      : null;
   const selectedCompany = useMatches({
     select: (matches) => {
       const match = matches[matches.length - 1];
@@ -152,9 +169,18 @@ export function WorkspaceLayout({
       title={title}
       area={admin ? 'Backoffice / CALI RH' : 'Área da empresa'}
       actions={
-        <Button variant="secondary" onClick={() => void session?.signOut()}>
-          Sair
-        </Button>
+        <div className="tw:relative tw:flex tw:shrink-0 tw:items-center tw:gap-2">
+          {notifications && recipient && (
+            <NotificationInbox
+              key={`${recipient.id}:${recipient.role}:${recipient.company_id}`}
+              service={notifications}
+              recipient={recipient}
+            />
+          )}
+          <Button variant="secondary" onClick={() => void session?.signOut()}>
+            Sair
+          </Button>
+        </div>
       }
       modules={modules}
     >

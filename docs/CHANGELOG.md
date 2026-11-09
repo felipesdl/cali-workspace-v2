@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Sino conectado no CALI MAPA
+
+- Conecta notificações próprias de Admin e Cliente com aceite vigente. Registra leitura individual ou em lote e abre Projeto e Ocorrência pelos destinos tipados do piloto.
+- Homologa o sino em 375 e 1366 px e a marcação individual de um item sintético. [Prova no CALI MAPA](HOMOLOGACAO_PATRICIA.md#sino-conectado-no-cali-mapa) e [contrato com rollback](flows/WORKSPACE_HOURS_TEAM.md#sino-conectado-na-v2).
+
 ## Homologação de prioridades, perfil e notificações
 
 - Homologa Minha conta com Admin e Cliente e Prioridades com Admin no CALI MAPA em 375 e 1366 px. A/B retornaram estados vazios nas prioridades. [Evidência](HOMOLOGACAO_PATRICIA.md#prioridades-minha-conta-e-guarda-de-sessão-no-cali-mapa).

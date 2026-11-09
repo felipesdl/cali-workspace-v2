@@ -137,4 +137,10 @@ A [guarda instalada no CALI MAPA](../../supabase/proposals/notifications/session
 
 A aplicação foi verificada por catálogo e leitura própria na Data API com Admin e Cliente. Marcações, sessão ausente, expirada, removida ou de outro usuário, corte do piloto e reversão foram testados em PostgreSQL descartável. O [teste focado](../../supabase/proposals/notifications/test-session-guard.sql) usa um predicado sintético para o corte compartilhado. Executar com `psql -X -v ON_ERROR_STOP=1 -f supabase/proposals/notifications/test-session-guard.sql` apenas em PostgreSQL vazio e descartável. O [rollback](../../supabase/proposals/notifications/rollback-session-guard.sql) remove as políticas novas, restaura os corpos anteriores e preserva as marcações feitas. Nenhuma notificação foi marcada ou enviada no CALI MAPA durante o teste.
 
-O sino da V2 ainda depende de consulta própria com aceite vigente, tratamento do resultado da marcação e validação do acesso ao destino. A guarda de sessão não altera o contrato de aceite.
+### Sino conectado na V2
+
+O [contrato da caixa própria](../../supabase/proposals/notifications/inbox.sql) foi instalado no CALI MAPA. Os leitores e a marcação da V2 exigem sessão viva, aceite vigente, perfil ativo e destinatário da sessão. Para Cliente, incluem avisos sem empresa ou da empresa corrente. Admin lê e marca as próprias notificações mesmo quando a política legada permite acesso mais amplo à tabela. A lista traz até 25 avisos recentes e o total de não lidas de todo o recorte. Marcação individual e em lote retornam a quantidade alterada e preservam datas existentes.
+
+O sino usa botões e feedback do design system. A leitura só é confirmada após resposta do servidor. Projeto e Ocorrência têm destinos tipados no piloto, que voltam a autorizar o objeto. Demais tipos aparecem sem atalho específico. A URL legada não é retornada pela nova RPC.
+
+O [ensaio da caixa](../../supabase/proposals/notifications/test-inbox.sql) cobre destinatário, empresa corrente, marcação, aceite, sessão e rollback com fixtures. O [rollback da caixa](../../supabase/proposals/notifications/rollback-inbox.sql) remove o contrato novo, preservando dados, leituras registradas e guarda legada. Para desligar a UI, reverter o commit do sino antes de retirar as RPCs.

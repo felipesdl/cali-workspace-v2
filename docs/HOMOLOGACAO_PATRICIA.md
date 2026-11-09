@@ -285,7 +285,13 @@ A UI reaproveita o escopo de Projetos, o seletor, os rótulos de situação e o 
 
 Em 09/11/2026, a V2 local conectada ao CALI MAPA abriu Minha conta com sessões reais de Admin e Cliente A. Ambas exibiram os seis campos esperados e o papel da sessão em 375 × 812 e 1366 × 768. Na Visão executiva, Admin alternou A/B nas duas larguras. As consultas de projetos e ocorrências concluíram e os dois blocos ficaram vazios nas duas empresas. Os atalhos com itens permanecem cobertos pela prova sintética anterior. Perfil e prioridades tiveram uma coluna em 375 px e duas em 1366 px, sem rolagem horizontal.
 
-Após instalar a guarda de notificações, Admin e Cliente A consultaram a contagem própria pela Data API no navegador. As duas consultas retornaram HTTP 200 com linhas visíveis. As duas políticas e as permissões foram conferidas no catálogo. Marcação e cenários de sessão inválida ficaram no PostgreSQL descartável. O [contrato de sessão e rollback](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) separa as evidências. O aceite da Patrícia, a edição de perfil e o sino conectado continuam pendentes.
+Após instalar a guarda de notificações, Admin e Cliente A consultaram a contagem própria pela Data API no navegador. As duas consultas retornaram HTTP 200 com linhas visíveis. As duas políticas e as permissões foram conferidas no catálogo. Marcação e cenários de sessão inválida ficaram no PostgreSQL descartável. O [contrato de sessão e rollback](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) separa as evidências. A rodada seguinte cobre o sino conectado. O aceite da Patrícia e a edição de perfil continuam pendentes.
+
+### Sino conectado no CALI MAPA
+
+Em 09/11/2026, Admin e Cliente A abriram as notificações próprias na V2 local conectada ao CALI MAPA em 375 × 812 e 1366 × 768. O painel ficou dentro da janela, sem rolagem horizontal. Escape fechou o painel Admin e devolveu o foco ao sino. Cliente A marcou uma notificação sintética. A confirmação recebeu foco, o total de não lidas baixou em uma e a leitura persistiu ao reabrir. O atalho abriu o detalhe da ocorrência no Cliente. A alteração de leitura não dispara o gatilho de e-mail, vinculado a inserção ou atualização de `email_required`.
+
+A marcação em lote e as recusas por sessão, aceite, destinatário e empresa foram exercitadas em PostgreSQL descartável. O [contrato da caixa](flows/WORKSPACE_HOURS_TEAM.md#sino-conectado-na-v2) registra o recorte e a reversão.
 
 ## Mensagem para enviar junto do link
 

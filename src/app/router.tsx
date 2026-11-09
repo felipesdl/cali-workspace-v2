@@ -1,3 +1,4 @@
+import { type NotificationsService } from '../api/modules/notifications/schemas';
 import { type OwnProfileService } from '../api/modules/access/own-profile';
 import type { PartnerPilot } from '../api/modules/partner/pilot';
 import { type ProjectJournal } from '../api/modules/project-workspace/project-journal';
@@ -54,6 +55,7 @@ const rootRoute = createRootRouteWithContext<{
   partnerPilot?: PartnerPilot | null;
   companies: CompaniesService;
   ownProfile?: OwnProfileService | null;
+  notifications?: NotificationsService | null;
   team?: TeamService | null;
   monthly?: TeamMonthlyService | null;
   disc?: DiscService | null;
@@ -397,6 +399,7 @@ export function createAppRouter(
     partnerPilot?: PartnerPilot | null;
     companies: CompaniesService;
     ownProfile?: OwnProfileService | null;
+    notifications?: NotificationsService | null;
     team?: TeamService | null;
     monthly?: TeamMonthlyService | null;
     disc?: DiscService | null;
@@ -420,6 +423,7 @@ export function createAppRouter(
       partnerPilot: services?.partnerPilot ?? null,
       companies: services?.companies ?? companiesService,
       ownProfile: services?.ownProfile ?? null,
+      notifications: services?.notifications ?? null,
       team: services?.team ?? null,
       monthly: services?.monthly ?? null,
       disc: services?.disc ?? null,
