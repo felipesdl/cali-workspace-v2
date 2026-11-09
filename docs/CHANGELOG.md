@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Navegação compartilhada e leitura publicada na fase 6
+
+- Admin, Cliente e Partner usam lateral no desktop, menu recolhido em telas estreitas e Inter local. Teclado, foco e seleção da empresa foram conferidos no CALI MAPA. Partner foi conferido com dados sintéticos locais.
+- Relatórios Cliente exibe o contexto ao lado da leitura em desktop e abaixo no celular. [Comparação e pendências](HOMOLOGACAO_PATRICIA.md#navegação-compartilhada-e-leitura-publicada).
+
 ## Cruzamento dos pilotos e comparação visual da fase 6
 
 - O atalho “Ir ao conteúdo” agora leva o foco ao conteúdo principal no Admin e no Cliente. Confirmado no navegador integrado.

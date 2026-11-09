@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import {
@@ -20,6 +20,7 @@ import { PartnerItemDetail } from './PartnerItemDetail';
 import { PartnerHoursQueue } from './PartnerHoursQueue';
 import { PartnerTimer } from './PartnerTimer';
 import { PartnerReviewQueue } from './PartnerReviewQueue';
+import { WorkspaceFrame } from '../../app/WorkspaceFrame';
 
 const labels = {
   projects: 'Projetos',
@@ -94,7 +95,6 @@ function PartnerItems({
     );
   return (
     <section className={panel} aria-label={labels[module]}>
-      <h2 className="tw:text-section tw:font-semibold">{labels[module]}</h2>
       {result.data.rows.length ? (
         <ul className="tw:grid tw:gap-3">
           {result.data.rows.map((row) => {
@@ -168,43 +168,60 @@ function PartnerItems({
   );
 }
 
-function PartnerModules({ api, access }: { api: PartnerPilot; access: Ready }) {
+function PartnerModules({
+  api,
+  access,
+  actions,
+}: {
+  api: PartnerPilot;
+  access: Ready;
+  actions?: ReactNode;
+}) {
   const [selected, setSelected] = useState<PartnerModule>();
   const available = partnerModule.options.filter((module) => access.modules.includes(module));
   const active = selected && available.includes(selected) ? selected : available[0];
   return (
-    <>
-      <section className={panel} aria-label="Empresa atribuída">
-        <p className="tw:text-caption tw:font-semibold tw:text-brand">EMPRESA ATRIBUÍDA</p>
-        <h2 className="tw:text-section tw:font-semibold">{access.companyName}</h2>
-        {active && (
-          <nav className="tw:flex tw:flex-wrap tw:gap-2" aria-label="Módulos da Equipe CALI">
-            {available.map((module) => (
-              <Button
-                key={module}
-                variant="secondary"
-                aria-pressed={active === module}
-                onClick={() => setSelected(module)}
-              >
-                {labels[module]}
-              </Button>
-            ))}
-          </nav>
+    <WorkspaceFrame
+      title={active ? labels[active] : 'Equipe CALI'}
+      actions={actions}
+      navigation={
+        active &&
+        available.map((module) => (
+          <Button
+            key={module}
+            variant="secondary"
+            aria-pressed={active === module}
+            onClick={() => setSelected(module)}
+          >
+            {labels[module]}
+          </Button>
+        ))
+      }
+    >
+      <div className="tw:grid tw:gap-4">
+        <section className={panel} aria-label="Empresa atribuída">
+          <p className="tw:m-0 tw:text-caption tw:font-semibold tw:text-brand">Empresa atribuída</p>
+          <h2 className="tw:m-0 tw:text-section tw:font-semibold">{access.companyName}</h2>
+        </section>
+        {active ? (
+          <PartnerItems key={active} api={api} access={access} module={active} />
+        ) : (
+          <FeedbackState kind="empty">Nenhum módulo de homologação atribuído.</FeedbackState>
         )}
-      </section>
-      {active ? (
-        <PartnerItems key={active} api={api} access={access} module={active} />
-      ) : (
-        <FeedbackState kind="empty">Nenhum módulo de homologação atribuído.</FeedbackState>
-      )}
-      {(available.includes('projects') || available.includes('records')) && (
-        <PartnerReviewQueue api={api} company={access.company} actor={access.actor} admin={false} />
-      )}
-    </>
+        {(available.includes('projects') || available.includes('records')) && (
+          <PartnerReviewQueue
+            api={api}
+            company={access.company}
+            actor={access.actor}
+            admin={false}
+          />
+        )}
+      </div>
+    </WorkspaceFrame>
   );
 }
 
-function PartnerGate({ api }: { api: PartnerPilot }) {
+function PartnerGate({ api, actions }: { api: PartnerPilot; actions?: ReactNode }) {
   const { access } = useRouteContext({ from: '__root__' });
   const [agreedHash, setAgreedHash] = useState<string>();
   const cache = useQueryClient();
@@ -229,17 +246,31 @@ function PartnerGate({ api }: { api: PartnerPilot }) {
     onSuccess: () => query.refetch(),
   });
 
+  const accessFrame = (content: ReactNode) => (
+    <WorkspaceFrame title="Equipe CALI" actions={actions}>
+      {content}
+    </WorkspaceFrame>
+  );
   if (query.isPending)
-    return <FeedbackState kind="loading">Confirmando acesso da Equipe CALI…</FeedbackState>;
+    return accessFrame(
+      <FeedbackState kind="loading">Confirmando acesso da Equipe CALI…</FeedbackState>,
+    );
   if (query.isError)
-    return (
+    return accessFrame(
       <FeedbackState kind="error" onRetry={() => void query.refetch()}>
         Não foi possível confirmar o acesso.
-      </FeedbackState>
+      </FeedbackState>,
     );
   const state = query.data;
   if (state.status === 'ready')
-    return <PartnerModules key={state.actor + state.company} api={api} access={state} />;
+    return (
+      <PartnerModules
+        key={state.actor + state.company}
+        api={api}
+        access={state}
+        actions={actions}
+      />
+    );
 
   let content;
   switch (state.status) {
@@ -294,11 +325,11 @@ function PartnerGate({ api }: { api: PartnerPilot }) {
         <FeedbackState kind="error">Seu acesso à Equipe CALI está indisponível.</FeedbackState>
       );
   }
-  return (
+  return accessFrame(
     <section className={panel} aria-label="Acesso da Equipe CALI">
       {content}
       {confirmation.isError && <p role="alert">{confirmation.error.message}</p>}
-    </section>
+    </section>,
   );
 }
 
@@ -313,26 +344,22 @@ export function PartnerWorkspace() {
     return (
       <FeedbackState kind="empty">A Equipe CALI está indisponível neste ambiente.</FeedbackState>
     );
+  if (signedOut)
+    return (
+      <WorkspaceFrame title="Equipe CALI">
+        <FeedbackState kind="empty">Sessão encerrada.</FeedbackState>
+      </WorkspaceFrame>
+    );
   return (
-    <div className="tw:min-h-screen tw:bg-ivory tw:text-body tw:text-copy">
-      <header className="tw:border-b tw:border-border-default tw:bg-panel tw:px-6 tw:py-4 tw:font-bold tw:text-brand">
-        CALI · WORKSPACE
-      </header>
-      <main className="tw:mx-auto tw:grid tw:max-w-5xl tw:gap-4 tw:p-6">
-        <div className="tw:flex tw:flex-wrap tw:items-center tw:justify-between tw:gap-3">
-          <h1 className="tw:text-section tw:font-bold tw:text-brand">Equipe CALI</h1>
-          {session && !signedOut && (
-            <Button variant="secondary" onClick={() => void logout()}>
-              Sair da sessão
-            </Button>
-          )}
-        </div>
-        {signedOut ? (
-          <FeedbackState kind="empty">Sessão encerrada.</FeedbackState>
-        ) : (
-          <PartnerGate api={partnerPilot} />
-        )}
-      </main>
-    </div>
+    <PartnerGate
+      api={partnerPilot}
+      actions={
+        session && (
+          <Button variant="secondary" onClick={() => void logout()}>
+            Sair da sessão
+          </Button>
+        )
+      }
+    />
   );
 }

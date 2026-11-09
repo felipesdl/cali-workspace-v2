@@ -36,6 +36,12 @@
   }
 }
 
+@custom-variant wide {
+  @media (width > 1000px) {
+    @slot;
+  }
+}
+
 @custom-variant mobile {
   @media (max-width: 600px) {
     @slot;

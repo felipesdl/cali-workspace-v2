@@ -98,7 +98,14 @@ Comparação no navegador integrado a **1440 × 900** e **390 × 844**. A [publi
 | Projetos Partner | A 83 abre o módulo no shell próprio, com cronograma e contexto da carteira. A V2 abre módulos atribuídos em botões e uma lista de projetos. As duas capturas couberam em 390 px. | Reconciliar a hierarquia visual e as entradas de projeto preservando somente as operações autorizadas na fase 5. |
 | Teclado | Ativar “Ir ao conteúdo” alterava o hash e mantinha o foco no corpo. O ajuste tornou o alvo focável; a repetição levou o foco ao conteúdo principal. Navegar a Horas por teclado manteve o foco no novo título. | Manter essa prova ao ajustar o shell. As telas amostradas couberam em 390 px; diálogos, contraste e demais percursos ainda pedem cobertura. |
 
-A fase 6 segue aberta para corrigir o shell e a tipografia, comparar Relatórios em estados equivalentes e ampliar a revisão às demais telas e diálogos antes do aceite da Patrícia. Os servidores temporários foram desligados. Acervo legado e Google/Meet ficam para o rollout.
+### Navegação compartilhada e leitura publicada
+
+- Admin, Cliente e Partner usam a mesma estrutura de navegação. Acima de 1000 px, a lista de módulos fica na lateral com o item atual destacado. Até 1000 px, abre pelo botão Menu principal. A lateral usa rótulos para manter os módulos identificáveis e a marca usa a folha da publicação 83. Inter é servido com o frontend.
+- Em 1440 e 390 px, Projetos Admin e Cliente A abriram com as sessões do CALI MAPA. Em 390 px, o título apareceu a 77 px do topo nos dois papéis, antes a 324 e 289 px. O documento coube na largura observada. Escape fechou o menu e devolveu o foco ao botão. Em Admin, a navegação por teclado para Horas preservou a empresa, fechou o menu e focou o título. No Cliente, a mesma navegação abriu Relatórios. O atalho ao conteúdo levou o foco ao elemento principal.
+- Partner foi conferido com fixture local da interface real em 390 px. Projetos e Ocorrências apareceram entre os módulos atribuídos, a troca fechou o menu e focou o título de Ocorrências. As provas de autorização da fase 5 continuam vinculadas na matriz acima.
+- Relatórios Cliente foi comparado com a leitura publicada da 83 e uma publicação sintética na V2. A V2 manteve versão, protocolo e data ao lado do artigo em 1440 px e abaixo em 390 px. A ida ao arquivo e a reabertura da leitura passaram. A 83 apresenta o documento com capa e composição editorial próprias. Essa paridade e a revisão visual das ações com a mesma versão do PDF continuam abertas. [Prova funcional do PDF e da revisão](contracts/PHASE_4_READ.md#fechamento-de-relatórios-no-piloto).
+
+A fase 6 segue aberta para revisar a composição de Projetos e Relatórios, os demais módulos e diálogos antes do aceite da Patrícia. Os servidores temporários foram desligados. Acervo legado e Google/Meet ficam para o rollout.
 
 ## Mensagem para enviar junto do link
 

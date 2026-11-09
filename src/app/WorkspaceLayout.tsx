@@ -1,10 +1,11 @@
 import { phase4CatalogFromPath, phase4CatalogLinks } from './phase4-navigation';
 import { workspaceSearch } from '../api/modules/project-workspace/schemas';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Link, useMatches, useRouteContext } from '@tanstack/react-router';
 import { isPilotCompany } from '../api/modules/companies/onboarding';
 import { teamSearchSchema } from '../api/modules/team/schemas';
 import { Button } from '../components/ds/button/Button';
+import { WorkspaceFrame } from './WorkspaceFrame';
 import { useWorkspaceSession } from '../api/modules/access/hooks/useWorkspaceSession';
 
 const companyScopedAdminPaths = new Set([
@@ -29,8 +30,6 @@ export function WorkspaceLayout({
   children: ReactNode;
   navigation?: ReactNode;
 }) {
-  const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => heading.current?.focus(), [title]);
   const { session, team, disc, projectWorkspace, domainOperations, adminRead } = useRouteContext({
     from: '__root__',
   });
@@ -51,22 +50,19 @@ export function WorkspaceLayout({
     companyId: admin ? selectedCompany : undefined,
   });
   return (
-    <div className="tw:min-h-screen tw:bg-ivory tw:text-body tw:text-copy">
-      <a className="tw:sr-only tw:focus:not-sr-only" href="#workspace-content">
-        Ir ao conteúdo
-      </a>
-      <header className="tw:flex tw:flex-wrap tw:items-center tw:justify-between tw:gap-4 tw:border-b tw:border-border-default tw:bg-panel tw:px-6 tw:py-4">
-        <span className="tw:text-section tw:font-bold tw:tracking-widest tw:text-brand">
-          CALI · WORKSPACE
-        </span>
-        <nav
-          aria-label="Navegação principal"
-          className="tw:flex tw:flex-wrap tw:items-center tw:gap-4"
-        >
+    <WorkspaceFrame
+      title={title}
+      actions={
+        <Button variant="secondary" onClick={() => void session?.signOut()}>
+          Sair
+        </Button>
+      }
+      navigation={
+        <>
           {navigation}
           {admin && (
             <Link
-              className="tw:text-brand tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+              activeOptions={{ exact: true, includeSearch: false }}
               to="/admin/clientes"
               search={{ q: '', status: 'all' }}
             >
@@ -75,7 +71,7 @@ export function WorkspaceLayout({
           )}
           {admin && team && (
             <Link
-              className="tw:text-brand tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+              activeOptions={{ exact: true, includeSearch: false }}
               to="/admin/equipe"
               search={teamSearchSchema.parse({ companyId: selectedCompany })}
             >
@@ -86,7 +82,7 @@ export function WorkspaceLayout({
             <Link
               to="/admin/perfil"
               search={{}}
-              className="tw:text-brand tw:underline tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
+              activeOptions={{ exact: true, includeSearch: false }}
             >
               Perfil comportamental
             </Link>
@@ -94,14 +90,14 @@ export function WorkspaceLayout({
           {projectWorkspace && (
             <>
               <Link
-                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                activeOptions={{ exact: true, includeSearch: false }}
                 to={admin ? '/admin/projetos' : '/cliente/entregaveis'}
                 search={workspaceNavigationSearch}
               >
                 Projetos
               </Link>
               <Link
-                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                activeOptions={{ exact: true, includeSearch: false }}
                 to={admin ? '/admin/horas' : '/cliente/horas'}
                 search={workspaceNavigationSearch}
               >
@@ -110,7 +106,7 @@ export function WorkspaceLayout({
               {phase4CatalogLinks.map((item) => (
                 <Link
                   key={item.module}
-                  className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                  activeOptions={{ exact: true, includeSearch: false }}
                   to={admin ? item.admin : item.client}
                   search={workspaceNavigationSearch}
                 >
@@ -121,7 +117,7 @@ export function WorkspaceLayout({
           )}
           {admin && domainOperations && (
             <Link
-              className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
+              activeOptions={{ exact: true, includeSearch: false }}
               to="/admin/privacidade"
               search={workspaceNavigationSearch}
             >
@@ -130,7 +126,7 @@ export function WorkspaceLayout({
           )}
           {admin && domainOperations && (
             <Link
-              className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
+              activeOptions={{ exact: true, includeSearch: false }}
               to="/admin/formularios"
               search={workspaceNavigationSearch}
             >
@@ -138,45 +134,42 @@ export function WorkspaceLayout({
             </Link>
           )}
           {!admin && adminRead && domainOperations && (
-            <Link
-              className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
-              to="/cliente/propostas"
-            >
+            <Link activeOptions={{ exact: true, includeSearch: false }} to="/cliente/propostas">
               Propostas
             </Link>
           )}
           {admin && adminRead && (
             <>
               <Link
-                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                activeOptions={{ exact: true, includeSearch: false }}
                 to="/admin/propostas"
                 search={workspaceNavigationSearch}
               >
                 Propostas
               </Link>
               <Link
-                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                activeOptions={{ exact: true, includeSearch: false }}
                 to="/admin/mapa-people"
                 search={workspaceNavigationSearch}
               >
                 Mapa de People
               </Link>
               <Link
-                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                activeOptions={{ exact: true, includeSearch: false }}
                 to="/admin/equipe-cali"
                 search={workspaceNavigationSearch}
               >
                 Equipe CALI
               </Link>
               <Link
-                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                activeOptions={{ exact: true, includeSearch: false }}
                 to="/admin/auditoria"
                 search={workspaceNavigationSearch}
               >
                 Auditoria
               </Link>
               <Link
-                className="tw:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
+                activeOptions={{ exact: true, includeSearch: false }}
                 to="/admin/satisfacao"
                 search={workspaceNavigationSearch}
               >
@@ -184,26 +177,10 @@ export function WorkspaceLayout({
               </Link>
             </>
           )}
-          <Button variant="secondary" onClick={() => void session?.signOut()}>
-            Sair
-          </Button>
-        </nav>
-      </header>
-      <main
-        id="workspace-content"
-        tabIndex={-1}
-        className="tw:mx-auto tw:max-w-6xl tw:p-6 tw:mobile:p-4"
-      >
-        <h1
-          ref={heading}
-          tabIndex={-1}
-          id="workspace-title"
-          className="tw:mb-6 tw:text-section tw:font-bold tw:text-brand"
-        >
-          {title}
-        </h1>
-        {children}
-      </main>
-    </div>
+        </>
+      }
+    >
+      {children}
+    </WorkspaceFrame>
   );
 }

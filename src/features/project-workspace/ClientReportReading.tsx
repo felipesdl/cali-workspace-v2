@@ -68,10 +68,10 @@ export function ClientReportReading({
           <WorkspacePagination total={data.total} page={page} change={changePage} />
         </>
       ) : current ? (
-        <div className="tw:lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] tw:grid tw:items-start tw:gap-4">
+        <div className="tw:grid tw:items-start tw:gap-4 tw:wide:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <article
             aria-labelledby="executive-report-title"
-            className="tw:lg:p-8 tw:grid tw:min-w-0 tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5"
+            className="tw:grid tw:min-w-0 tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5 tw:wide:p-8"
           >
             <header className="tw:grid tw:gap-2 tw:border-b tw:border-border-default tw:pb-4">
               <p className="tw:text-caption tw:font-semibold tw:tracking-wide tw:text-brand">

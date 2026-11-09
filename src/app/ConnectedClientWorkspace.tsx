@@ -34,29 +34,18 @@ export function ConnectedClientWorkspace() {
       navigation={
         <>
           {navigation.map((item) => (
-            <Link
-              key={item.to}
-              className="tw:text-brand tw:underline-offset-4 tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
-              activeOptions={{ exact: true, includeSearch: false }}
-              activeProps={{ 'aria-current': 'page', className: 'tw:font-semibold tw:underline' }}
-              to={item.to}
-            >
+            <Link key={item.to} activeOptions={{ exact: true, includeSearch: false }} to={item.to}>
               {item.label}
             </Link>
           ))}
           {disc && (
-            <Link
-              to="/cliente/perfil"
-              className="tw:text-brand tw:underline-offset-4 tw:focus-visible:outline-2 tw:focus-visible:outline-focus"
-            >
+            <Link to="/cliente/perfil" activeOptions={{ exact: true, includeSearch: false }}>
               Perfil comportamental
             </Link>
           )}
           {team && (
             <Link
-              className="tw:text-brand tw:underline-offset-4 tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-offset-3 tw:focus-visible:outline-focus"
               activeOptions={{ exact: true, includeSearch: false }}
-              activeProps={{ 'aria-current': 'page', className: 'tw:font-semibold tw:underline' }}
               to={clientPaths.team}
               search={teamSearchSchema.parse({})}
             >

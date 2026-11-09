@@ -68,11 +68,24 @@ describe('guardas preparadas no roteador', () => {
       await router.load();
     });
     render(<App router={router} />);
-    await userEvent.click(await screen.findByRole('link', { name: 'Horas' }));
+    const user = userEvent.setup();
+    const menu = await screen.findByRole('button', { name: 'Menu principal' });
+    const hoursLink = await screen.findByRole('link', { name: 'Horas' });
+    expect(menu.getAttribute('aria-expanded')).toBe('false');
+    await user.click(menu);
+    expect(menu.getAttribute('aria-expanded')).toBe('true');
+    await user.tab();
+    await user.keyboard('{Escape}');
+    expect(menu.getAttribute('aria-expanded')).toBe('false');
+    expect(document.activeElement).toBe(menu);
+    await user.click(menu);
+    await user.click(hoursLink);
     const heading = await screen.findByRole('heading', { name: 'Horas', level: 1 });
     expect(router.state.location.pathname).toBe('/admin/horas');
     expect(router.state.location.search).toEqual({ companyId, section: 'deliverables', page: 1 });
     expect(document.activeElement).toBe(heading);
+    expect(menu.getAttribute('aria-expanded')).toBe('false');
+    expect(hoursLink.getAttribute('aria-current')).toBe('page');
     await act(async () => history.back());
     await waitFor(() => {
       expect(router.state.location.search).toMatchObject({ companyId, project, page: 3 });

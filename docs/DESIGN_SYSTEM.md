@@ -49,7 +49,7 @@ São valores de referência, não certificação de acessibilidade. Definir pare
 
 ## Tipografia, densidade e movimento
 
-- Inter é a fonte atual, carregada via Google Fonts; manter fallback de sistema e decidir hospedagem/cache na fundação.
+- O shell conectado usa Inter local (Latin, pesos 400 a 700) com fallback de sistema. A licença acompanha o arquivo. A prévia legada ainda usa Google Fonts.
 - Declarar escala única de títulos, corpo, auxiliar e dados tabulares. Não continuar adicionando valores independentes de 9–13 px para caber conteúdo.
 - Conflito a homologar: PRODUCT_RULES oficial recomenda corpo de 16 px; V2 define raiz de 13 px e auxiliares menores. Proposta: corpo legível de 16 px e variante compacta explícita para tabelas, validada nas quatro larguras, sem encolher globalmente a interface.
 - Proposta de escala: 4/8/12/16/24/32 px; referência de separação entre cards de 14–16 px, com padrão técnico proposto de 16 px e alinhamento conferido no layout. Raios gerais de 4/8/12 px são proposta; fotos/logos têm regra específica de 7 px.
