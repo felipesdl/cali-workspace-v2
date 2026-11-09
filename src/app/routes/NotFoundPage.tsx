@@ -1,10 +1,16 @@
 import { Link } from '@tanstack/react-router';
+import { recoveryLinkClass, RouteStatusPage } from './RouteStatusPage';
 
 export function NotFoundPage() {
   return (
-    <main style={{ padding: 24 }}>
-      <h1>Página não encontrada</h1>
-      <Link to="/cliente">Voltar ao início</Link>
-    </main>
+    <RouteStatusPage
+      title="Página não encontrada"
+      kind="empty"
+      message="Confira o endereço ou volte ao início do seu Workspace."
+    >
+      <Link to="/" replace className={recoveryLinkClass}>
+        Voltar ao início
+      </Link>
+    </RouteStatusPage>
   );
 }

@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Recuperação de navegação e atalho mensal
+
+- Corrige o retorno de endereço inexistente e falha de rota para resolver a área pela sessão. Aplica o padrão de mensagem e foco ao erro de rota e callback.
+- No Início Cliente, devolve o foco após repetir a consulta da referência mensal. [Validação em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#recuperação-de-navegação-e-atalho-mensal).
+
 ## Revalidação de formulários Admin e Cliente
 
 - Reutiliza a composição de ações de Acesso em filtros e formulários de Empresas e Equipe. Mantém dimensões iguais e intervalo de 12 px. Remove a moldura nativa dos agrupamentos de Equipe.

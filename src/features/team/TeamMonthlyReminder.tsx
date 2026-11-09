@@ -1,18 +1,39 @@
 import { Link } from '@tanstack/react-router';
+import { useEffect, useRef, type RefObject } from 'react';
 import { useTeamMonthly } from '../../api/modules/team/useTeamMonthly';
 import { writeMonthOptions } from '../../api/modules/team/maintenance';
 import { teamSearchSchema, teamViews } from '../../api/modules/team/schemas';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 
-export function TeamMonthlyReminder() {
+export function TeamMonthlyReminder({
+  fallbackFocus,
+}: {
+  fallbackFocus: RefObject<HTMLHeadingElement>;
+}) {
   const reference = writeMonthOptions()[1];
   const monthly = useTeamMonthly({ month: reference });
+  const referenceLink = useRef<HTMLAnchorElement>(null);
+  const errorRegion = useRef<HTMLDivElement>(null);
+  const restoreFocus = useRef(false);
+  useEffect(() => {
+    if (!restoreFocus.current || monthly.state.isFetching) return;
+    restoreFocus.current = false;
+    if (document.activeElement === document.body) {
+      (referenceLink.current ?? errorRegion.current ?? fallbackFocus.current)?.focus();
+    }
+  });
+  function retry() {
+    restoreFocus.current = true;
+    void monthly.state.refetch();
+  }
   if (!monthly.enabled || monthly.admin || monthly.state.isPending) return null;
   if (monthly.state.isError)
     return (
-      <FeedbackState kind="error" onRetry={() => void monthly.state.refetch()}>
-        Não foi possível verificar a conferência mensal da equipe.
-      </FeedbackState>
+      <div ref={errorRegion} tabIndex={-1}>
+        <FeedbackState kind="error" onRetry={retry}>
+          Não foi possível verificar a conferência mensal da equipe.
+        </FeedbackState>
+      </div>
     );
   if (!monthly.state.data || monthly.state.data.review) return null;
   return (
@@ -26,6 +47,7 @@ export function TeamMonthlyReminder() {
         o quadro e as vagas, inclusive se não houve mudanças.
       </p>
       <Link
+        ref={referenceLink}
         to="/cliente/equipe"
         search={teamSearchSchema.parse({ view: teamViews.Monthly, month: reference })}
         className="tw:text-brand tw:underline tw:underline-offset-4 tw:visited:text-brand tw:focus-visible:outline-2 tw:focus-visible:outline-focus"

@@ -242,6 +242,19 @@ O navegador integrado percorreu 20 rotas demonstrativas e 21 rotas com composiç
 
 Capturas locais em `cali-fase6-revalidacao`. A revisão cobre os percursos listados. Evidência autenticada do CALI MAPA e aceite da Patrícia têm registros próprios. Rollback por reversão do commit de frontend.
 
+### Recuperação de navegação e atalho mensal
+
+Rodada local no navegador integrado em 375 × 812 e 1366 × 768, com sessão e serviços sintéticos. A referência visual dos componentes é o design system aplicado na fase 6.
+
+| Percurso | Resultado nas duas larguras |
+| --- | --- |
+| Endereço inexistente | O título recebeu foco. Voltar ao início abriu Empresas e acessos para Admin, Seu Workspace para Cliente e entrada por código para sessão encerrada. O retorno usa a resolução de sessão da rota inicial. |
+| Falha de rota e callback de acesso | A falha sintética na entrada de Projetos mostrou mensagem e retorno à área Admin. Um callback recusado mostrou erro com recuperação para entrada por código. A mensagem ficou a 12 px da ação, dentro da largura útil. O código desta fixture não é credencial. |
+| Início Cliente e dados mensais | Após falha de consulta, a nova tentativa devolveu o foco ao atalho e abriu Dados do mês na mesma referência exibida. Com referência já confirmada, o foco voltou ao título Sua empresa no Workspace. Uma segunda falha manteve a ação de recuperação alcançável. |
+| Navegação Admin | Abrir Horas por teclado a partir de Projetos preservou a empresa selecionada e levou o foco ao título. A versão mobile usou o botão Menu principal. |
+
+Capturas locais em `cali-fase6-navegacao`. A prova automatizada cobre o retorno por papel. Rollback por reversão do commit. O recorte cobre atalhos existentes, estados de recuperação e continuidade do contexto. A visão inicial Admin completa, o localizador e as notificações conectadas ainda exigem cobertura própria em FLOW-04 e FLOW-14. Callback real no domínio de homologação e aceite da Patrícia seguem em suas etapas.
+
 ## Mensagem para enviar junto do link
 
 > Patrícia, a V2 está pronta para esta rodada de homologação em ambiente de teste. Vamos conferir acesso, empresas, Equipe, dados mensais e DISC usando os dados de exemplo. Te mando o link e os acessos de teste pelo canal combinado. Para cada ponto que você quiser ajustar, me diga a tela, o que tentou fazer e o que esperava ver.

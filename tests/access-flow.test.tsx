@@ -267,10 +267,12 @@ describe('composição e ciclo de vida após extração', () => {
     expect(
       await screen.findByRole('heading', { name: 'Não foi possível concluir o acesso' }),
     ).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Solicitar novo código' }).getAttribute('href')).toBe(
-      '/acesso',
-    );
+    const retry = screen.getByRole('link', { name: 'Solicitar novo código' });
     expect(api.completeCallback).toHaveBeenCalledWith('synthetic-code');
+    await userEvent.click(retry);
+    await waitFor(() => expect(router.state.location.pathname).toBe('/acesso'));
+    expect(router.state.location.search).toEqual({ reason: 'signed_out', returnTo: '/cliente' });
+    expect(api.completeCallback).toHaveBeenCalledTimes(1);
   });
 
   it('callback bem-sucedido retorna aos termos sem liberar a empresa antes do aceite', async () => {

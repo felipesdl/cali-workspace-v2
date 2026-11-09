@@ -4,6 +4,7 @@ import { createMemoryHistory } from '@tanstack/react-router';
 import { describe, expect, it } from 'vitest';
 import { App } from '../src/app/App';
 import { createAppRouter } from '../src/app/router';
+import { createSessionController } from '../src/app/session/controller';
 import { createQueryClient } from '../src/api/query-client';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
 
@@ -90,5 +91,46 @@ describe('navegação e formulário de empresas', () => {
       await router.history.push('/rota-inexistente');
     });
     expect(await screen.findByRole('heading', { name: 'Página não encontrada' })).toBeTruthy();
+  });
+
+  it.each([
+    { role: 'admin' as const, home: '/admin/clientes' },
+    { role: 'client' as const, home: '/cliente' },
+  ])('retorna à área do papel $role após um link inexistente', async ({ role, home }) => {
+    const cache = createQueryClient();
+    const session = createSessionController(
+      {
+        read: async () => ({
+          status: 'ready',
+          profile: {
+            id: '20000000-0000-4000-8000-000000000001',
+            company_id: role === 'client' ? mockCompanyIds.Aurora : null,
+            role,
+            active: true,
+          },
+          companyStatus: role === 'client' ? 'active' : null,
+          termsAccepted: true,
+          terms: {
+            version: 'qa',
+            contentHash: 'a'.repeat(64),
+            title: 'Termos sintéticos',
+            content: 'Fixture de navegação',
+          },
+        }),
+        signOut: async () => {},
+      },
+      cache,
+    );
+    const router = createAppRouter(
+      createMemoryHistory({ initialEntries: ['/rota-inexistente'] }),
+      cache,
+      session,
+    );
+    await router.load();
+    render(<App router={router} />);
+    const heading = await screen.findByRole('heading', { name: 'Página não encontrada' });
+    expect(document.activeElement).toBe(heading);
+    await userEvent.click(await screen.findByRole('link', { name: 'Voltar ao início' }));
+    await waitFor(() => expect(router.state.location.pathname).toBe(home));
   });
 });
