@@ -183,6 +183,19 @@ A referência para esta rodada é 1366 × 768 no desktop e 375 × 812 no celular
 
 Capturas locais em `cali-fase6-duas-larguras`. O lote altera apresentação e foco. Rollback por reversão do commit de frontend. As oito rotas passaram na regressão local. A matriz ainda exige revisão dos demais estados e formulários, paridade dos percursos restantes com a main da V2 e aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
 
+### Rascunhos, histórico e avisos em desktop e mobile
+
+O navegador integrado executou quatro percursos da V2 com sessão e serviços sintéticos locais em 1366 × 768 e 375 × 812. Nas duas larguras, a página ficou dentro da janela depois das correções.
+
+| Percurso | Prova |
+| --- | --- |
+| Forms Admin | Título e perguntas sem espaços quebram dentro do cartão. A edição preservou o título após erro, atualizou a revisão ao reenviar e levou o foco à confirmação mesmo com a substituição dos campos. |
+| Relatórios Admin | Título, resumo e histórico ficaram dentro da janela. Edição e histórico aparecem lado a lado no desktop e em sequência no celular. A criação simulada conservou o identificador no reenvio e o novo rascunho abriu pelo histórico. |
+| Relatórios Cliente | Leitura e histórico comportam títulos longos. Abrir um relatório pelo histórico levou o foco ao título selecionado. |
+| Avisos Admin | A publicação simulada conservou o identificador no reenvio, exibiu o aviso na lista e levou o foco à confirmação. |
+
+O histórico Admin usava variantes de largura ausentes do design system. O ajuste usa a variante `wide` já adotada na V2. Capturas locais em `cali-fase6-rascunhos`. Teste automatizado cobre a troca de revisão do editor de Forms. Escopo de interface e serviços em memória. Rollback por reversão do commit de frontend.
+
 ## Mensagem para enviar junto do link
 
 > Patrícia, a V2 está pronta para esta rodada de homologação em ambiente de teste. Vamos conferir acesso, empresas, Equipe, dados mensais e DISC usando os dados de exemplo. Te mando o link e os acessos de teste pelo canal combinado. Para cada ponto que você quiser ajustar, me diga a tela, o que tentou fazer e o que esperava ver.

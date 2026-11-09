@@ -59,7 +59,7 @@ export function ReportCurationSections({ sections }: { sections: ReportCuration 
       {filled.map(({ key, label }) => (
         <div key={label}>
           <dt className="tw:font-semibold">{label}</dt>
-          <dd className="tw:break-words tw:whitespace-pre-line">{sections[key]}</dd>
+          <dd className="tw:wrap-anywhere tw:whitespace-pre-line">{sections[key]}</dd>
         </div>
       ))}
     </dl>

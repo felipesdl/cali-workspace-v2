@@ -51,7 +51,7 @@ export function AdminReportWorkspace({
   return (
     <section
       aria-label="Edição e histórico de relatórios"
-      className="tw:lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] tw:grid tw:items-start tw:gap-4"
+      className="tw:grid tw:items-start tw:gap-4 tw:wrap-anywhere tw:wide:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]"
     >
       <article
         key={current.id}
@@ -72,7 +72,7 @@ export function AdminReportWorkspace({
         {stages.some(({ status }) => status === stage) && (
           <ol
             aria-label="Etapa do fechamento"
-            className="tw:md:grid-cols-4 tw:grid tw:grid-cols-2 tw:gap-2"
+            className="tw:grid tw:grid-cols-2 tw:gap-2 tw:wide:grid-cols-4"
           >
             {stages.map(({ status, label }) => (
               <li
@@ -89,9 +89,7 @@ export function AdminReportWorkspace({
             ))}
           </ol>
         )}
-        {current.summary && (
-          <p className="tw:break-words tw:whitespace-pre-line">{current.summary}</p>
-        )}
+        {current.summary && <p className="tw:whitespace-pre-line">{current.summary}</p>}
         {current.reportSourceCounts && <ReportSources counts={current.reportSourceCounts} />}
         {current.reportVersion && current.reportCuration && (
           <ReportCurationSections sections={current.reportCuration} />
@@ -142,6 +140,7 @@ export function AdminReportWorkspace({
             <li key={entry.id}>
               <Button
                 variant="secondary"
+                className="tw:max-w-full"
                 aria-pressed={current.id === entry.id}
                 onClick={() => select(entry.id)}
               >

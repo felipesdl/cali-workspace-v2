@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { z } from 'zod';
 import type { catalog } from '../../api/modules/project-workspace/schemas';
 import { Button } from '../../components/ds/button/Button';
@@ -33,6 +34,13 @@ export function ClientReportReading({
   toggleList,
 }: Props) {
   const current = report ? data.entries.find((item) => item.id === report) : data.entries[0];
+  const title = useRef<HTMLHeadingElement>(null);
+  const requestedReport = useRef<string>();
+  useEffect(() => {
+    if (showList || !report || requestedReport.current !== report) return;
+    requestedReport.current = undefined;
+    if (document.activeElement === document.body) title.current?.focus();
+  }, [report, showList]);
   return (
     <section aria-label="Leitura executiva" className="tw:grid tw:gap-4">
       <nav aria-label="Exibição dos relatórios" className="tw:flex tw:flex-wrap tw:gap-2">
@@ -58,13 +66,19 @@ export function ClientReportReading({
               {data.entries.map((item) => (
                 <li
                   key={item.id}
-                  className="tw:flex tw:flex-wrap tw:items-center tw:justify-between tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-3"
+                  className="tw:flex tw:min-w-0 tw:flex-wrap tw:items-center tw:justify-between tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-3 tw:wrap-anywhere"
                 >
                   <div>
                     <strong>{item.title}</strong>
                     {item.day && <p>{formatCalendarDate(item.day)}</p>}
                   </div>
-                  <Button variant="secondary" onClick={() => select(item.id)}>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      requestedReport.current = item.id;
+                      select(item.id);
+                    }}
+                  >
                     Abrir relatório
                   </Button>
                 </li>
@@ -86,7 +100,9 @@ export function ClientReportReading({
                 Leitura executiva
               </p>
               <h2
+                ref={title}
                 id="executive-report-title"
+                tabIndex={-1}
                 className="tw:m-0 tw:text-section tw:font-bold tw:wrap-anywhere"
               >
                 {current.title}

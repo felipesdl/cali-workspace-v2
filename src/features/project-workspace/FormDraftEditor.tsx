@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   formQuestionKind,
@@ -96,26 +96,52 @@ export function NewFormDraft({ company, actor, operations, saved }: Scope & { sa
   );
 }
 
-export function FormDraftEditor({ company, actor, operations, id }: Scope & { id: string }) {
+export function FormDraftEditor({
+  company,
+  actor,
+  operations,
+  id,
+}: Omit<Scope, 'operations'> & {
+  id: string;
+  operations: Pick<DomainOperations, 'formDraft' | 'editFormDraft'>;
+}) {
   const [open, setOpen] = useState(false);
+  const [savedVersion, setSavedVersion] = useState<string>();
+  const receipt = useRef<HTMLParagraphElement>(null);
   const cache = useQueryClient();
   const key = ['phase4-form-draft', actor, company, id];
   const query = useQuery({
     queryKey: key,
     queryFn: open ? ({ signal }) => operations.formDraft(company, id, signal) : skipToken,
   });
+  const currentVersion = query.data?.updatedAt;
+  const showReceipt = open && savedVersion !== undefined && currentVersion === savedVersion;
+  useEffect(() => {
+    if (showReceipt && document.activeElement === document.body) receipt.current?.focus();
+  }, [showReceipt]);
+
   async function save(draft: FormDraft, change: FormDraftChange) {
+    setSavedVersion(undefined);
     const saved = await operations.editFormDraft(company, draft, change);
     await Promise.all([
       cache.invalidateQueries({ queryKey: key }),
       cache.invalidateQueries({ queryKey: ['phase4-forms', actor, company] }),
     ]);
+    const nextVersion = cache.getQueryData<FormDraft>(key)?.updatedAt;
+    if (nextVersion !== draft.updatedAt) setSavedVersion(nextVersion);
     return saved;
   }
   return (
     <div className="tw:grid tw:gap-3">
       <div>
-        <Button variant="secondary" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <Button
+          variant="secondary"
+          aria-expanded={open}
+          onClick={() => {
+            setSavedVersion(undefined);
+            setOpen(!open);
+          }}
+        >
           {open ? 'Fechar rascunho' : 'Editar rascunho'}
         </Button>
       </div>
@@ -129,6 +155,11 @@ export function FormDraftEditor({ company, actor, operations, id }: Scope & { id
       )}
       {open && query.isSuccess && !query.data && (
         <p>Este formulário não está disponível para edição.</p>
+      )}
+      {showReceipt && (
+        <p ref={receipt} role="status" tabIndex={-1} className="tw:m-0 tw:text-caption">
+          Rascunho atualizado.
+        </p>
       )}
       {open && query.data && (
         <DraftContent key={query.data.updatedAt} draft={query.data} save={save} />

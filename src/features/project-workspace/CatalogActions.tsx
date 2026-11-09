@@ -389,7 +389,7 @@ export function FormAdministration({ company, actor }: Scope) {
       {forms.data?.map((form) => (
         <article
           key={form.id}
-          className="tw:grid tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4"
+          className="tw:grid tw:min-w-0 tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere"
         >
           <h2>{form.title}</h2>
           <p>

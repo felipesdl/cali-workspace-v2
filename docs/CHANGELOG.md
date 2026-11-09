@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Rascunhos, histórico e avisos em desktop e mobile
+
+- Ajusta a quebra de texto em Forms Admin e em Relatórios Admin e Cliente. Relatórios Admin usa duas colunas no desktop e uma no celular.
+- Mantém a confirmação da edição de Forms após recarregar a revisão e leva o foco ao relatório aberto pelo histórico Cliente. O navegador também conferiu falha e reenvio em Avisos Admin. [Evidências](HOMOLOGACAO_PATRICIA.md#rascunhos-histórico-e-avisos-em-desktop-e-mobile).
+
 ## Regressão em 1366 e 375 px
 
 - Contém textos longos no Forms público, no extrato de Horas e na proposta por link. O Forms mantém as opções e seus rótulos na largura útil.
