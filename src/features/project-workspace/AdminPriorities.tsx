@@ -1,3 +1,4 @@
+import { AdminPortfolioSummary } from './AdminPortfolioSummary';
 import { AdminMonthlySummary } from './AdminMonthlySummary';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { getRouteApi, Link, useRouteContext } from '@tanstack/react-router';
@@ -19,7 +20,7 @@ const linkStyle =
 export function AdminPriorities({ companies }: { companies: readonly Company[] }) {
   const search = overviewRoute.useSearch();
   const navigate = overviewRoute.useNavigate();
-  const { domainOperations } = useRouteContext({ from: '__root__' });
+  const { domainOperations, adminPortfolio } = useRouteContext({ from: '__root__' });
   const { service, admin, actor, companyId } = useProjectWorkspaceScope(search);
   const projects = useQuery({
     queryKey: ['projects', actor, companyId, firstPage],
@@ -165,6 +166,9 @@ export function AdminPriorities({ companies }: { companies: readonly Company[] }
         )}
       </section>
       {companyId && <AdminMonthlySummary service={service} actor={actor} companyId={companyId} />}
+      {!companyId && adminPortfolio && (
+        <AdminPortfolioSummary service={adminPortfolio} actor={actor} />
+      )}
     </>
   );
 }

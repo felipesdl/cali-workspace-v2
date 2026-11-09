@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Resumo global da carteira Admin
+
+- Conecta Horas, Agenda, prioridades e Satisfação da carteira inteira, com seleção de mês e resumo individual quando há uma empresa selecionada.
+- Valida em localhost ligado ao CALI MAPA em 375 e 1366 px e confirma recusa ao Cliente. [Prova](HOMOLOGACAO_PATRICIA.md#agregados-globais-da-carteira-em-localhost) e [contrato](flows/WORKSPACE_HOURS_TEAM.md#flow-04--prioridades-e-navegação-contextual).
+
 ## Perfil próprio, prioridades e resumo mensal
 
 - Conecta edição parcial do próprio nome, cargo, telefone e WhatsApp. Preserva foto, assinatura e dados de acesso. Detecta conflito por campo e mantém o rascunho ao repetir uma falha.

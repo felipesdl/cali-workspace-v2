@@ -1,3 +1,4 @@
+import { createAdminPortfolio } from './api/modules/project-workspace/admin-portfolio';
 import { createNotificationsService } from './api/modules/notifications/service';
 import { createOwnProfileService } from './api/modules/access/own-profile';
 import { createPartnerOtpQa, createPartnerPilot } from './api/modules/partner/pilot';
@@ -92,6 +93,7 @@ try {
           monthly: team && client ? createHostedTeamMonthly(client) : null,
           disc: team && client ? createHostedDisc(client) : null,
           projectWorkspace: phase4 ? createProjectWorkspace(phase4, reportRelease) : null,
+          adminPortfolio: phase4 ? createAdminPortfolio(phase4) : null,
           projectJournal: phase4 ? createProjectJournal(phase4, Boolean(phase4Write)) : null,
           projectOperations: phase4Write ? createProjectOperations(phase4Write) : null,
           hourOperations: phase4Write ? createHourOperations(phase4Write) : null,

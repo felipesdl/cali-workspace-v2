@@ -1,3 +1,4 @@
+import { type AdminPortfolioService } from '../api/modules/project-workspace/admin-portfolio';
 import { type NotificationsService } from '../api/modules/notifications/schemas';
 import { type OwnProfileService } from '../api/modules/access/own-profile';
 import type { PartnerPilot } from '../api/modules/partner/pilot';
@@ -67,6 +68,7 @@ const rootRoute = createRootRouteWithContext<{
   documentOperations?: DocumentOperations | null;
   agendaOperations?: AgendaOperations | null;
   adminRead?: AdminReadService | null;
+  adminPortfolio?: AdminPortfolioService | null;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -411,6 +413,7 @@ export function createAppRouter(
     documentOperations?: DocumentOperations | null;
     agendaOperations?: AgendaOperations | null;
     adminRead?: AdminReadService | null;
+    adminPortfolio?: AdminPortfolioService | null;
   },
 ) {
   return createRouter({
@@ -435,6 +438,7 @@ export function createAppRouter(
       documentOperations: services?.documentOperations ?? null,
       agendaOperations: services?.agendaOperations ?? null,
       adminRead: services?.adminRead ?? null,
+      adminPortfolio: services?.adminPortfolio ?? null,
     },
     defaultPreload: false,
   });

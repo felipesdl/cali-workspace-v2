@@ -267,6 +267,8 @@ A preparação do ambiente de homologação ainda exige domínio de teste proteg
 
 ## Preview protegido para homologação
 
+Nesta rodada, o aceite técnico usa localhost conectado ao CALI MAPA. A conferência externa ficará com Felipe. O roteiro a seguir descreve a preparação do preview quando necessário.
+
 A primeira dependência externa é identificar o projeto da V2 no provedor e reservar a origem HTTPS de preview com proteção de acesso. O repositório não listou deployments no GitHub nesta conferência. A árvore local não possui vínculo com o projeto Vercel. O painel integrado do Vercel exigiu login. O endereço publicado usado como referência visual não serve como destino de staging. O build local respondeu com o HTML de entrada em seis rotas, incluindo Minha conta Admin/Cliente, Projetos, Documentos e callback. Os ativos JavaScript e CSS também responderam. Essa prova cobre o fallback HTTP, sem autenticação no domínio externo.
 
 | Ordem | Preparação | Prova esperada |

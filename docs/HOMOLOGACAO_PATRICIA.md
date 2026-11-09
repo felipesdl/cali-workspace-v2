@@ -303,6 +303,14 @@ O filtro de Equipe e a capacidade de Horas foram medidos nas rotas conectadas. A
 
 A preparação do preview foi detalhada no [runbook de homologação](RUNBOOK.md#preview-protegido-para-homologação). O domínio protegido e a prova autenticada fora do loopback continuam pendentes. A Patrícia ainda não recebeu acesso.
 
+### Agregados globais da carteira em localhost
+
+A V2 em localhost conectada ao CALI MAPA exibiu o Resumo da carteira com Admin. Em 375 × 812, os totais ficaram em uma coluna. Em 1366 × 768, ficaram em quatro. Nas duas larguras, o documento coube no viewport. Trocar o mês por teclado atualizou horas e agenda. Selecionar a empresa A substituiu o resumo global pelo mensal e, ao limpar a empresa, o resumo global reapareceu no mesmo mês.
+
+Em novembro, a carteira de teste mostrou 27 min, quatro eventos, zero prioridades e satisfação 4,0/5 com quatro avaliações. Em outubro, exibiu 17 h 58 min e dois avisos. A sessão Cliente recebeu HTTP 403 na mesma consulta, sem projeção de dados. O teste SQL descartável cobriu recusas, meses, contagem e rollback.
+
+Nesta rodada, Felipe definiu localhost como referência interna e ficou com a conferência do ambiente externo. A equipe técnica registra o [roteiro do preview protegido](RUNBOOK.md#preview-protegido-para-homologação) para quando for usado. O aceite da Patrícia continua posterior à validação interna.
+
 ## Mensagem para enviar junto do link
 
 > Patrícia, a V2 está pronta para esta rodada de homologação em ambiente de teste. Vamos conferir acesso, empresas, Equipe, dados mensais e DISC usando os dados de exemplo. Te mando o link e os acessos de teste pelo canal combinado. Para cada ponto que você quiser ajustar, me diga a tela, o que tentou fazer e o que esperava ver.
