@@ -105,7 +105,13 @@ Comparação no navegador integrado a **1440 × 900** e **390 × 844**. A [publi
 - Partner foi conferido com fixture local da interface real em 390 px. Projetos e Ocorrências apareceram entre os módulos atribuídos, a troca fechou o menu e focou o título de Ocorrências. As provas de autorização da fase 5 continuam vinculadas na matriz acima.
 - Relatórios Cliente foi comparado com a leitura publicada da 83 e uma publicação sintética na V2. A V2 manteve versão, protocolo e data ao lado do artigo em 1440 px e abaixo em 390 px. A ida ao arquivo e a reabertura da leitura passaram. A 83 apresenta o documento com capa e composição editorial próprias. Essa paridade e a revisão visual das ações com a mesma versão do PDF continuam abertas. [Prova funcional do PDF e da revisão](contracts/PHASE_4_READ.md#fechamento-de-relatórios-no-piloto).
 
-A fase 6 segue aberta para revisar a composição de Projetos e Relatórios, os demais módulos e diálogos antes do aceite da Patrícia. Os servidores temporários foram desligados. Acervo legado e Google/Meet ficam para o rollout.
+### Composição de Projetos e Relatórios
+
+- **Projetos, Admin e Cliente.** O detalhe agrupa protocolo, nome, situação, datas e revisão em um cabeçalho bordô. A aba ativa se destaca e o cronograma usa o espaço abaixo do cabeçalho. Novo projeto e Gerenciar projeto abrem os formulários sob demanda. No navegador, Admin e Cliente A abriram o cronograma no CALI MAPA em 1440 e 390 px. A largura do documento acompanhou a janela. Admin abriu e fechou as duas áreas por teclado sem gravar dados.
+- **Revisão pendente.** A fixture local apresentou o prazo vencido junto da revisão e manteve Aprovar cronograma e Pedir ajuste disponíveis ao Cliente. A transição em banco permanece coberta pelas provas da [fase 4A](contracts/PHASE_4_READ.md#fechamento-de-projetos-no-piloto).
+- **Relatórios Cliente.** A leitura publicada ganhou abertura com marca e período, resumo identificado e contexto da revisão. Uma fixture local mostrou a revisão 2 e o protocolo CALI-EXEC-2026-000002 em 1440 e 390 px. O navegador baixou o PDF com os mesmos bytes da fixture, registrou ciência na revisão 2 e reabriu o relatório pelo arquivo. A prova hospedada do PDF e da retirada continua na [fase 4D](contracts/PHASE_4_READ.md#fechamento-de-relatórios-no-piloto).
+
+A fase 6 segue aberta para ampliar a revisão aos demais módulos e diálogos antes do aceite da Patrícia. Os servidores temporários foram desligados. Acervo legado e Google/Meet ficam para o rollout.
 
 ## Mensagem para enviar junto do link
 

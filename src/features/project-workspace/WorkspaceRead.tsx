@@ -5,6 +5,7 @@ import { ClientReportReading } from './ClientReportReading';
 import { AdminReportWorkspace } from './AdminReportWorkspace';
 import { ProjectJournalPanel } from './ProjectJournalPanel';
 import { ProjectRoadmap } from './ProjectRoadmap';
+import { ProjectOverview } from './ProjectOverview';
 import { ProjectDeliverableList } from './ProjectDeliverableList';
 import { recordStatusLabel, workspaceLabel as label } from './workspace-labels';
 import { WorkspacePagination } from './WorkspacePagination';
@@ -140,7 +141,7 @@ function Pages({ total, search, update }: Props & { total: number }) {
 
 function Projects({ search, update }: Props) {
   const { service, actor, companyId, admin, connected } = useScope(search);
-  const { documentOperations } = useRouteContext({ from: '__root__' });
+  const { documentOperations, projectOperations } = useRouteContext({ from: '__root__' });
   const { page, section, project, projectView } = search;
   const readSection = projectView === 'roadmap' ? 'roadmap' : section;
   const list = useQuery({
@@ -184,70 +185,22 @@ function Projects({ search, update }: Props) {
             </Button>
           </div>
           {projectData ? (
-            <section className={panel}>
-              <div className="tw:grid tw:gap-1 tw:border-b tw:border-border-default tw:pb-4">
-                {projectData.project.protocol && (
-                  <p className="tw:text-caption tw:text-muted-copy">
-                    {projectData.project.protocol}
-                  </p>
-                )}
-                <h2 className="tw:text-section tw:font-semibold">{projectData.project.name}</h2>
-              </div>
-              <p>{projectData.project.description}</p>
-              <p>
-                {label(projectData.project.planning_status)} ·{' '}
-                {label(projectData.project.execution_status)}
-              </p>
-              {(projectData.project.roadmap_start_date || projectData.project.roadmap_end_date) && (
-                <p>
-                  Início {formatCalendarDate(projectData.project.roadmap_start_date ?? '')} · Fim{' '}
-                  {formatCalendarDate(projectData.project.roadmap_end_date ?? '')}
-                </p>
-              )}
-              {projectData.review && (
-                <p>
-                  Revisão {projectData.review.number} · {label(projectData.review.status)}
-                  {projectData.review.dueAt && (
-                    <> · Prazo {formatServerInstant(projectData.review.dueAt)} (Brasília)</>
-                  )}
-                  {projectData.review.pastDue && <> · Prazo de resposta vencido</>}
-                </p>
-              )}
-              {admin &&
-                ['draft', 'adjustment_requested'].includes(projectData.project.planning_status) && (
-                  <EditProject
-                    scope={{ company: companyId, actor, project }}
-                    plan={projectData.project}
-                  />
-                )}
-              <ProjectActions
-                key={project}
-                company={companyId}
-                actor={actor}
-                project={project}
-                planning={projectData.project.planning_status}
-                review={projectData.review}
-                admin={admin}
-              />
-              {admin && ['active', 'rebriefing'].includes(projectData.project.planning_status) && (
-                <LifecycleActions
-                  company={companyId}
-                  actor={actor}
-                  project={project}
-                  execution={projectData.project.execution_status}
-                />
-              )}
-              <nav aria-label="Gestão do projeto" className="tw:my-4 tw:flex tw:flex-wrap tw:gap-2">
+            <section className="tw:grid tw:min-w-0 tw:gap-4">
+              <ProjectOverview project={projectData.project} review={projectData.review} />
+              <nav
+                aria-label="Gestão do projeto"
+                className="tw:flex tw:flex-wrap tw:gap-2 tw:border-b tw:border-border-default tw:pb-3"
+              >
                 <Button
                   aria-pressed={projectView === 'roadmap'}
-                  variant="secondary"
+                  variant={projectView === 'roadmap' ? 'primary' : 'secondary'}
                   onClick={() => update({ projectView: 'roadmap', page: 1 })}
                 >
                   Cronograma
                 </Button>
                 <Button
                   aria-pressed={!projectView && section === 'deliverables'}
-                  variant="secondary"
+                  variant={!projectView && section === 'deliverables' ? 'primary' : 'secondary'}
                   onClick={() =>
                     update({ projectView: undefined, section: 'deliverables', page: 1 })
                   }
@@ -256,7 +209,7 @@ function Projects({ search, update }: Props) {
                 </Button>
                 <Button
                   aria-pressed={!projectView && section === 'workstreams'}
-                  variant="secondary"
+                  variant={!projectView && section === 'workstreams' ? 'primary' : 'secondary'}
                   onClick={() =>
                     update({ projectView: undefined, section: 'workstreams', page: 1 })
                   }
@@ -265,12 +218,61 @@ function Projects({ search, update }: Props) {
                 </Button>
                 <Button
                   aria-pressed={projectView === 'history'}
-                  variant="secondary"
+                  variant={projectView === 'history' ? 'primary' : 'secondary'}
                   onClick={() => update({ projectView: 'history', page: 1 })}
                 >
                   Histórico
                 </Button>
               </nav>
+              {admin &&
+                projectOperations &&
+                (['draft', 'adjustment_requested'].includes(projectData.project.planning_status) ||
+                  (['active', 'rebriefing'].includes(projectData.project.planning_status) &&
+                    projectData.project.execution_status !== 'cancelled')) && (
+                  <details className={panel}>
+                    <summary className="tw:cursor-pointer tw:font-semibold tw:text-brand">
+                      Gerenciar projeto
+                    </summary>
+                    <div className="tw:mt-3 tw:grid tw:gap-3">
+                      {['draft', 'adjustment_requested'].includes(
+                        projectData.project.planning_status,
+                      ) && (
+                        <EditProject
+                          scope={{ company: companyId, actor, project }}
+                          plan={projectData.project}
+                        />
+                      )}
+                      <ProjectActions
+                        key={project}
+                        company={companyId}
+                        actor={actor}
+                        project={project}
+                        planning={projectData.project.planning_status}
+                        review={projectData.review}
+                        admin
+                      />
+                      {['active', 'rebriefing'].includes(projectData.project.planning_status) && (
+                        <LifecycleActions
+                          company={companyId}
+                          actor={actor}
+                          project={project}
+                          execution={projectData.project.execution_status}
+                        />
+                      )}
+                    </div>
+                  </details>
+                )}
+              {!admin && (
+                <ProjectActions
+                  key={project}
+                  company={companyId}
+                  actor={actor}
+                  project={project}
+                  planning={projectData.project.planning_status}
+                  review={projectData.review}
+                  admin={false}
+                />
+              )}
               {projectView === 'history' ? (
                 <ProjectJournalPanel
                   scope={{ company: companyId, actor, project }}
@@ -413,7 +415,7 @@ function Projects({ search, update }: Props) {
             />
           )}
           {list.data.projects.length ? (
-            <ul className="tw:grid tw:gap-3">
+            <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
               {list.data.projects.map((row) => (
                 <li key={row.id} className={panel}>
                   <p>

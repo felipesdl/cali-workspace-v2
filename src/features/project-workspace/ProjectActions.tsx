@@ -22,33 +22,38 @@ export function CreateProject({
   const submit = useProjectAction(company, actor);
   if (!submit) return null;
   return (
-    <ActionForm
-      label="Criar rascunho"
-      saved={open}
-      submit={(fields, id) =>
-        submit({
-          kind: 'create-project',
-          id,
-          name: value(fields, 'name'),
-          description: value(fields, 'description'),
-          start: value(fields, 'start'),
-        })
-      }
-    >
-      {(prefix) => (
-        <>
-          <Field id={prefix + 'name'} label="Nome do projeto">
-            <input id={prefix + 'name'} name="name" required maxLength={180} />
-          </Field>
-          <Field id={prefix + 'start'} label="Início planejado">
-            <input id={prefix + 'start'} name="start" type="date" required />
-          </Field>
-          <Field id={prefix + 'description'} label="Objetivo">
-            <textarea id={prefix + 'description'} name="description" maxLength={8000} />
-          </Field>
-        </>
-      )}
-    </ActionForm>
+    <details className="tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-3">
+      <summary className="tw:cursor-pointer tw:font-semibold tw:text-brand">Novo projeto</summary>
+      <div className="tw:mt-3">
+        <ActionForm
+          label="Criar rascunho"
+          saved={open}
+          submit={(fields, id) =>
+            submit({
+              kind: 'create-project',
+              id,
+              name: value(fields, 'name'),
+              description: value(fields, 'description'),
+              start: value(fields, 'start'),
+            })
+          }
+        >
+          {(prefix) => (
+            <>
+              <Field id={prefix + 'name'} label="Nome do projeto">
+                <input id={prefix + 'name'} name="name" required maxLength={180} />
+              </Field>
+              <Field id={prefix + 'start'} label="Início planejado">
+                <input id={prefix + 'start'} name="start" type="date" required />
+              </Field>
+              <Field id={prefix + 'description'} label="Objetivo">
+                <textarea id={prefix + 'description'} name="description" maxLength={8000} />
+              </Field>
+            </>
+          )}
+        </ActionForm>
+      </div>
+    </details>
   );
 }
 

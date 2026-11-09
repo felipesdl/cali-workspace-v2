@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Composição de Projetos e Relatórios na fase 6
+
+- Projetos reúne contexto e revisão no cabeçalho. A gestão Admin abre sob demanda e o Cliente continua com as ações da revisão pendente visíveis.
+- Relatórios Cliente ganhou abertura editorial e seção de resumo. Download e ciência da mesma revisão passaram no navegador com dados sintéticos. [Validação](HOMOLOGACAO_PATRICIA.md#composição-de-projetos-e-relatórios).
+
 ## Navegação compartilhada e leitura publicada na fase 6
 
 - Admin, Cliente e Partner usam lateral no desktop, menu recolhido em telas estreitas e Inter local. Teclado, foco e seleção da empresa foram conferidos no CALI MAPA. Partner foi conferido com dados sintéticos locais.
