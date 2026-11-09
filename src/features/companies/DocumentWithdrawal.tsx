@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { TextArea } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { type CompanyDocument } from '../../api/modules/companies/document-schemas';
 import { useWithdrawCompanyDocument } from '../../api/modules/companies/hooks/useCompanyManagement';
@@ -36,7 +38,7 @@ export function DocumentWithdrawal({
         preservados para consulta administrativa.
       </p>
       <Field id="document-withdraw-reason" label="Motivo da retirada">
-        <textarea
+        <TextArea
           id="document-withdraw-reason"
           autoFocus
           required
@@ -45,7 +47,7 @@ export function DocumentWithdrawal({
           onChange={(event) => setReason(event.target.value)}
         />
       </Field>
-      {withdraw.isError && <p role="alert">{withdraw.error.message}</p>}
+      {withdraw.isError && <FeedbackMessage tone="error">{withdraw.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-3">
         <Button type="submit" disabled={!reason.trim()} pending={withdraw.isPending}>
           Confirmar retirada

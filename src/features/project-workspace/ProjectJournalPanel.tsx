@@ -1,3 +1,4 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useState, type ReactNode } from 'react';
 import { HourLink } from './HourLink';
 import { skipToken, useQuery } from '@tanstack/react-query';
@@ -266,7 +267,7 @@ function DeadlineEditor({
       {(prefix) => (
         <>
           <Field id={prefix + 'due'} label="Novo prazo em Brasília">
-            <input
+            <Input
               id={prefix + 'due'}
               name="due"
               type="datetime-local"
@@ -275,7 +276,7 @@ function DeadlineEditor({
             />
           </Field>
           <Field id={prefix + 'cause'} label="Motivo da revisão">
-            <select id={prefix + 'cause'} name="cause" required defaultValue="">
+            <Select id={prefix + 'cause'} name="cause" required defaultValue="">
               <option value="" disabled>
                 Selecione
               </option>
@@ -284,10 +285,10 @@ function DeadlineEditor({
                   {causeLabels[cause]}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
           <Field id={prefix + 'note'} label="Justificativa">
-            <textarea id={prefix + 'note'} name="note" maxLength={1000} required />
+            <TextArea id={prefix + 'note'} name="note" maxLength={1000} required />
           </Field>
         </>
       )}

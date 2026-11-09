@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { TextArea } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { type AdhesionEvidence } from '../../api/modules/companies/evidence-schemas';
 import { useRetractAdhesionEvidence } from '../../api/modules/companies/hooks/useCompanyManagement';
@@ -35,7 +37,7 @@ export function AdhesionEvidenceRetraction({
         preservados. Esta ação não revoga acessos existentes.
       </p>
       <Field id="evidence-retraction-reason" label="Motivo da retirada da comprovação">
-        <textarea
+        <TextArea
           id="evidence-retraction-reason"
           autoFocus
           required
@@ -44,7 +46,7 @@ export function AdhesionEvidenceRetraction({
           onChange={(event) => setReason(event.target.value)}
         />
       </Field>
-      {retract.isError && <p role="alert">{retract.error.message}</p>}
+      {retract.isError && <FeedbackMessage tone="error">{retract.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-3">
         <Button type="submit" disabled={!reason.trim()} pending={retract.isPending}>
           Confirmar retirada da comprovação

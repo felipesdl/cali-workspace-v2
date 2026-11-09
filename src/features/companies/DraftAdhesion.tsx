@@ -1,3 +1,6 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
+import { CheckboxInput } from '../../components/ds/checkbox/Checkbox';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
@@ -86,7 +89,7 @@ function ReviewForm({
         {confirms && (
           <>
             <Field id="draft-reference" label="Referência da adesão">
-              <input
+              <Input
                 id="draft-reference"
                 autoFocus
                 required
@@ -101,7 +104,7 @@ function ReviewForm({
             {loadDocuments ? (
               <>
                 <Field id="draft-document" label="Contrato ou aditivo no Storage">
-                  <select
+                  <Select
                     id="draft-document"
                     required
                     value={matchingVersion ? document?.document_id : ''}
@@ -120,10 +123,14 @@ function ReviewForm({
                         {option.version}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </Field>
                 {documents.isFetching && <p role="status">Consultando documentos…</p>}
-                {documents.isError && <p role="alert">Não foi possível consultar os documentos.</p>}
+                {documents.isError && (
+                  <FeedbackMessage tone="error">
+                    Não foi possível consultar os documentos.
+                  </FeedbackMessage>
+                )}
                 {documents.isSuccess && documents.data.length === 0 && (
                   <p>Cadastre um contrato ou aditivo para esta empresa no Storage.</p>
                 )}
@@ -142,7 +149,7 @@ function ReviewForm({
               </>
             ) : (
               <Field id="draft-revision" label="Versão informada do documento (opcional)">
-                <input
+                <Input
                   id="draft-revision"
                   maxLength={250}
                   value={revision}
@@ -159,7 +166,7 @@ function ReviewForm({
           id="draft-note"
           label={confirms ? 'Observação da conferência' : 'Motivo da retirada'}
         >
-          <textarea
+          <TextArea
             id="draft-note"
             autoFocus={!confirms}
             required
@@ -173,8 +180,7 @@ function ReviewForm({
         </Field>
         {confirms && (
           <label className="tw:flex tw:items-start tw:gap-2">
-            <input
-              type="checkbox"
+            <CheckboxInput
               checked={checked}
               onChange={(event) => setChecked(event.target.checked)}
             />
@@ -182,7 +188,7 @@ function ReviewForm({
           </label>
         )}
       </fieldset>
-      {mutation.isError && <p role="alert">{mutation.error.message}</p>}
+      {mutation.isError && <FeedbackMessage tone="error">{mutation.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-2">
         <Button
           type="submit"

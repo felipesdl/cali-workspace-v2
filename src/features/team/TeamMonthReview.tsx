@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useId, useState } from 'react';
 import { z } from 'zod';
 import {
@@ -117,7 +119,7 @@ function ReviewEditor({
             key={job.vacancy_code}
           >
             <Field id={`${id}-${job.vacancy_code}-title`} label="Nome da vaga">
-              <input
+              <Input
                 id={`${id}-${job.vacancy_code}-title`}
                 value={job.title}
                 required
@@ -126,7 +128,7 @@ function ReviewEditor({
               />
             </Field>
             <Field id={`${id}-${job.vacancy_code}-department`} label="Departamento">
-              <input
+              <Input
                 id={`${id}-${job.vacancy_code}-department`}
                 value={job.department ?? ''}
                 maxLength={180}
@@ -136,7 +138,7 @@ function ReviewEditor({
               />
             </Field>
             <Field id={`${id}-${job.vacancy_code}-opened`} label="Aberta em">
-              <input
+              <Input
                 id={`${id}-${job.vacancy_code}-opened`}
                 type="date"
                 required
@@ -146,7 +148,7 @@ function ReviewEditor({
               />
             </Field>
             <Field id={`${id}-${job.vacancy_code}-status`} label="Situação da vaga">
-              <select
+              <Select
                 id={`${id}-${job.vacancy_code}-status`}
                 value={job.status}
                 onChange={(event) => {
@@ -162,11 +164,11 @@ function ReviewEditor({
                     {label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </Field>
             {job.status !== vacancyStatus.Open && (
               <Field id={`${id}-${job.vacancy_code}-closed`} label="Encerrada em">
-                <input
+                <Input
                   id={`${id}-${job.vacancy_code}-closed`}
                   type="date"
                   required
@@ -216,7 +218,7 @@ function ReviewEditor({
       </fieldset>
       {needsReason && (
         <Field id={`${id}-reason`} label="Motivo da revisão">
-          <textarea
+          <TextArea
             id={`${id}-reason`}
             name="reason"
             required
@@ -270,7 +272,7 @@ export function TeamMonthReview({
       className="tw:grid tw:gap-4 tw:border-t tw:border-border-default tw:pt-4"
     >
       <h3 className="tw:m-0 tw:text-section tw:font-bold">Confirmação mensal</h3>
-      {message && <p role="status">{message}</p>}
+      {message && <FeedbackMessage tone="success">{message}</FeedbackMessage>}
       {data.review ? (
         <p>
           Referência confirmada em {formatServerInstant(data.review.confirmedAt)}. Revisão{' '}

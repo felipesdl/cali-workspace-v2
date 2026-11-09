@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { registerWorkspaceAdhesionSchema } from '../../api/modules/access/adhesion';
@@ -43,7 +45,7 @@ export function AdhesionReferenceForm({
           const error = field.state.meta.errors[0]?.message;
           return (
             <Field id="adhesion-reference" label="Referência da formalização" error={error}>
-              <input
+              <Input
                 id="adhesion-reference"
                 autoFocus
                 required
@@ -62,7 +64,7 @@ export function AdhesionReferenceForm({
         Informe onde a formalização pode ser conferida. O registro da referência não valida o
         documento nem substitui o aceite individual dos termos.
       </p>
-      {register.isError && <p role="alert">{register.error.message}</p>}
+      {register.isError && <FeedbackMessage tone="error">{register.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-3">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, submitting]) => (

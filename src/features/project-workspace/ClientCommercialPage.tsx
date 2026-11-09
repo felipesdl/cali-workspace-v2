@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useEffect, useRef } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
@@ -39,9 +40,9 @@ function ReceivedOffer({
       {offer.publicNotes && <p>{offer.publicNotes}</p>}
       <p>Validade: {formatServerInstant(offer.acceptBy)} (Brasília)</p>
       {acceptedAt && (
-        <p ref={receipt} role="status" tabIndex={-1}>
+        <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
           Proposta aceita em {formatServerInstant(acceptedAt)} (Brasília).
-        </p>
+        </FeedbackMessage>
       )}
       {offer.canAccept && (
         <ActionForm

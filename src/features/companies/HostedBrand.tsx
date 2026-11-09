@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select } from '../../components/ds/field/Controls';
 import { useId, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import {
@@ -73,7 +75,7 @@ function BrandEditor({
             <form.Field name="service">
               {(field) => (
                 <Field id={`${prefix}-service`} label="Trocar serviço">
-                  <select
+                  <Select
                     id={`${prefix}-service`}
                     value={field.state.value}
                     onChange={(event) =>
@@ -88,7 +90,7 @@ function BrandEditor({
                         {service}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </Field>
               )}
             </form.Field>
@@ -103,7 +105,7 @@ function BrandEditor({
                     const message = field.state.meta.errors[0]?.message;
                     return (
                       <Field id={id} label={contactFields[name].label} error={message}>
-                        <input
+                        <Input
                           id={id}
                           type={contactFields[name].type}
                           value={field.state.value}
@@ -214,7 +216,9 @@ export function HostedBrand({ companyId }: { companyId: string }) {
           >
             Editar serviço, contato e logo
           </Button>
-          {update.isSuccess && <p role="status">Serviço, contato e logo salvos.</p>}
+          {update.isSuccess && (
+            <FeedbackMessage tone="success">Serviço, contato e logo salvos.</FeedbackMessage>
+          )}
         </>
       )}
     </section>

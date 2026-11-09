@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { FileInput } from '../../components/ds/field/FileInput';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
 import { Field } from '../../components/ds/field/Field';
@@ -46,7 +48,7 @@ export function NoticeCover({
           alt="Capa do aviso"
         />
       )}
-      {cover.isError && <p role="status">Capa indisponível.</p>}
+      {cover.isError && <FeedbackMessage tone="error">Capa indisponível.</FeedbackMessage>}
       {editable && (
         <details>
           <summary>Editar capa do aviso</summary>
@@ -60,10 +62,9 @@ export function NoticeCover({
           >
             {(prefix) => (
               <Field id={prefix + 'cover'} label="Imagem da capa">
-                <input
+                <FileInput
                   id={prefix + 'cover'}
                   name="cover"
-                  type="file"
                   accept="image/png,image/jpeg"
                   required
                 />

@@ -1,3 +1,4 @@
+import { Input, Select } from '../../components/ds/field/Controls';
 import { companyFilterSchema, companyStatus } from '../../api/modules/companies/schemas';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
@@ -21,7 +22,7 @@ export function CompanyFilters() {
           const error = field.state.meta.errors[0]?.message;
           return (
             <Field id="company-search" label="Nome da empresa" error={error}>
-              <input
+              <Input
                 id="company-search"
                 name={field.name}
                 value={field.state.value}
@@ -38,7 +39,7 @@ export function CompanyFilters() {
       <form.Field name="status">
         {(field) => (
           <Field id="company-status" label="Situação">
-            <select
+            <Select
               id="company-status"
               name={field.name}
               value={field.state.value}
@@ -52,7 +53,7 @@ export function CompanyFilters() {
                   {companyStatusLabels[status]}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
         )}
       </form.Field>

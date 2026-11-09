@@ -43,7 +43,8 @@ it('anuncia a revisão salva mesmo quando a nova versão substitui os campos', a
   await waitFor(() => expect(document.activeElement).toBe(error));
   expect(title.value).toBe('Rascunho atualizado');
   await user.click(submit);
-  const receipt = await screen.findByText('Rascunho atualizado.');
+  const receipt = await screen.findByRole('status');
+  expect(receipt.textContent).toBe('Rascunho atualizado.');
   await waitFor(() => expect(document.activeElement).toBe(receipt));
   expect(title.isConnected).toBe(false);
   expect(screen.getByLabelText<HTMLInputElement>('Título', { exact: true }).value).toBe(

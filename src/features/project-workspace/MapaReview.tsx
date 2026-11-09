@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Select, TextArea } from '../../components/ds/field/Controls';
 import { useEffect, useRef, useState } from 'react';
 import { type MapaEntry } from '../../api/modules/project-workspace/admin-read';
 import {
@@ -43,9 +45,9 @@ export function MapaReview({
         {current.success ? statusLabels[current.data] : entry.status}
       </p>
       {showReceipt && (
-        <p ref={receipt} role="status" tabIndex={-1} className="tw:m-0 tw:text-caption">
+        <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
           Triagem atualizada.
-        </p>
+        </FeedbackMessage>
       )}
       {operations && current.success ? (
         <ActionForm
@@ -69,16 +71,16 @@ export function MapaReview({
           {(prefix) => (
             <>
               <Field id={prefix + 'status'} label="Situação">
-                <select id={prefix + 'status'} name="status" defaultValue={current.data}>
+                <Select id={prefix + 'status'} name="status" defaultValue={current.data}>
                   {mapaReviewStatus.options.map((status) => (
                     <option key={status} value={status}>
                       {statusLabels[status]}
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
               <Field id={prefix + 'opinion'} label="Parecer interno">
-                <textarea
+                <TextArea
                   id={prefix + 'opinion'}
                   name="opinion"
                   maxLength={4000}

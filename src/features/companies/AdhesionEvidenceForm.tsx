@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Select, TextArea } from '../../components/ds/field/Controls';
 import { type WorkspaceAdhesionRecord } from '../../api/modules/access/adhesion';
 import { type CompanyDocument } from '../../api/modules/companies/document-schemas';
 import { Button } from '../../components/ds/button/Button';
@@ -41,7 +43,7 @@ export function AdhesionEvidenceForm({
               label="Referência a comprovar"
               error={field.state.meta.errors[0]?.message}
             >
-              <select
+              <Select
                 id="evidence-reference-id"
                 autoFocus
                 required
@@ -61,14 +63,14 @@ export function AdhesionEvidenceForm({
                     {item.evidenceReference}
                   </option>
                 ))}
-              </select>
+              </Select>
             </Field>
           )}
         </form.Field>
         <form.Field name="documentVersionId">
           {(field) => (
             <Field id="evidence-document-version" label="Arquivo vinculado (opcional)">
-              <select
+              <Select
                 id="evidence-document-version"
                 value={field.state.value}
                 onChange={(event) => {
@@ -84,7 +86,7 @@ export function AdhesionEvidenceForm({
                       {item.file.fileName} · versão {item.version}
                     </option>
                   ))}
-              </select>
+              </Select>
             </Field>
           )}
         </form.Field>
@@ -95,7 +97,7 @@ export function AdhesionEvidenceForm({
               label="Como a adesão foi conferida"
               error={field.state.meta.errors[0]?.message}
             >
-              <textarea
+              <TextArea
                 id="evidence-review-note"
                 rows={4}
                 required
@@ -124,7 +126,7 @@ export function AdhesionEvidenceForm({
           )}
         </form.Field>
       </fieldset>
-      {confirm.isError && <p role="alert">{confirm.error.message}</p>}
+      {confirm.isError && <FeedbackMessage tone="error">{confirm.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-3">
         <form.Subscribe
           selector={(state) =>

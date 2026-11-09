@@ -1,3 +1,4 @@
+import { Input } from '../../components/ds/field/Controls';
 import { type z } from 'zod';
 import { teamChange, type teamHistory, type teamStructure } from '../../api/modules/team/history';
 import { teamPageSize, type TeamSearch } from '../../api/modules/team/schemas';
@@ -33,7 +34,7 @@ export function HistoryFilters({
   return (
     <div className="tw:mb-3 tw:flex tw:flex-wrap tw:items-end tw:gap-3">
       <Field id="team-history-month" label="Mês de referência">
-        <input
+        <Input
           id="team-history-month"
           type="month"
           value={month.slice(0, 7)}

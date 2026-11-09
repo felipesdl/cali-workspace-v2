@@ -1,3 +1,6 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
+import { FileInput } from '../../components/ds/field/FileInput';
 import { useState } from 'react';
 import {
   extraExpenseKind,
@@ -30,7 +33,7 @@ function amountInCents(fields: FormData) {
 function AmountField({ id }: { id: string }) {
   return (
     <Field id={id} label="Valor em reais">
-      <input id={id} name="amount" inputMode="decimal" maxLength={10} required />
+      <Input id={id} name="amount" inputMode="decimal" maxLength={10} required />
     </Field>
   );
 }
@@ -84,7 +87,7 @@ export function AgendaExtraAdmin({
             <>
               <AmountField id={prefix + 'amount'} />
               <Field id={prefix + 'note'} label="Condições do orçamento">
-                <textarea
+                <TextArea
                   id={prefix + 'note'}
                   name="note"
                   minLength={5}
@@ -115,7 +118,7 @@ export function AgendaExtraAdmin({
           {(prefix) => (
             <>
               <Field id={prefix + 'kind'} label="Tipo de despesa">
-                <select
+                <Select
                   id={prefix + 'kind'}
                   value={kind}
                   onChange={(event) => setKind(extraExpenseKind.parse(event.target.value))}
@@ -125,13 +128,13 @@ export function AgendaExtraAdmin({
                       {expenseLabels[option]}
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
               <AmountField id={prefix + 'amount'} />
               {kind === 'extra_hours' && (
                 <>
                   <Field id={prefix + 'hours'} label="Quantidade de horas">
-                    <input
+                    <Input
                       id={prefix + 'hours'}
                       name="hours"
                       type="number"
@@ -142,7 +145,7 @@ export function AgendaExtraAdmin({
                     />
                   </Field>
                   <Field id={prefix + 'approval'} label="Registro do orçamento aprovado">
-                    <textarea
+                    <TextArea
                       id={prefix + 'approval'}
                       name="approval"
                       minLength={5}
@@ -153,7 +156,7 @@ export function AgendaExtraAdmin({
                 </>
               )}
               <Field id={prefix + 'note'} label="Observação">
-                <textarea id={prefix + 'note'} name="note" maxLength={2000} />
+                <TextArea id={prefix + 'note'} name="note" maxLength={2000} />
               </Field>
             </>
           )}
@@ -194,10 +197,9 @@ export function AgendaExtraAdmin({
                 >
                   {(prefix) => (
                     <Field id={prefix + 'pdf'} label="Comprovante em PDF">
-                      <input
+                      <FileInput
                         id={prefix + 'pdf'}
                         name="pdf"
-                        type="file"
                         accept="application/pdf,.pdf"
                         required
                       />
@@ -209,7 +211,9 @@ export function AgendaExtraAdmin({
           ))}
         </ul>
       )}
-      {protocol && <p role="status">Despesa registrada. Protocolo {protocol}.</p>}
+      {protocol && (
+        <FeedbackMessage tone="success">Despesa registrada. Protocolo {protocol}.</FeedbackMessage>
+      )}
     </div>
   );
 }

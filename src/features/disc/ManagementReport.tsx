@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useEffect, useRef } from 'react';
 import { type DiscManagement, type DiscStyle } from '../../api/modules/disc/schemas';
 import { Button } from '../../components/ds/button/Button';
@@ -151,9 +152,9 @@ export function ManagementReport({
             Baixar PDF aprovado
           </Button>
           {download.isError && (
-            <p role="alert" className="tw:m-0 tw:text-action-primary">
+            <FeedbackMessage tone="error">
               Não foi possível baixar o PDF. Tente novamente.
-            </p>
+            </FeedbackMessage>
           )}
         </footer>
       )}
@@ -283,9 +284,9 @@ export function DiscPdfDownloadButton({
         Baixar relatório interno PDF
       </Button>
       {download.isError && (
-        <p role="alert" className="tw:m-0 tw:text-caption tw:text-action-primary">
+        <FeedbackMessage tone="error">
           Não foi possível baixar o relatório. Tente novamente.
-        </p>
+        </FeedbackMessage>
       )}
     </div>
   );

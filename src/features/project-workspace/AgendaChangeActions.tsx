@@ -1,3 +1,4 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import {
   type AgendaOperations,
   type AppointmentChange,
@@ -16,7 +17,7 @@ const changeStatus = { pending: 'Em análise', approved: 'Aprovada', declined: '
 function Reason({ prefix, label }: { prefix: string; label: string }) {
   return (
     <Field id={prefix + 'reason'} label={label}>
-      <textarea id={prefix + 'reason'} name="reason" minLength={5} maxLength={2000} required />
+      <TextArea id={prefix + 'reason'} name="reason" minLength={5} maxLength={2000} required />
     </Field>
   );
 }
@@ -72,7 +73,7 @@ export function AgendaChangeActions({
                     <>
                       {change.action === 'reschedule' && (
                         <Field id={prefix + 'slot'} label="Novo horário">
-                          <select id={prefix + 'slot'} name="slot" defaultValue="" required>
+                          <Select id={prefix + 'slot'} name="slot" defaultValue="" required>
                             <option value="" disabled>
                               Selecione
                             </option>
@@ -82,7 +83,7 @@ export function AgendaChangeActions({
                                 {formatServerInstant(slot.endsAt)}
                               </option>
                             ))}
-                          </select>
+                          </Select>
                         </Field>
                       )}
                       <Reason prefix={prefix} label="Explique a decisão" />
@@ -160,7 +161,7 @@ export function AgendaChangeActions({
                   {options.map(({ id, number: index }) => (
                     <div key={id} className="tw:sm:grid-cols-2 tw:grid tw:gap-2">
                       <Field id={prefix + 'start' + index} label={`Início da opção ${index}`}>
-                        <input
+                        <Input
                           id={prefix + 'start' + index}
                           name={`start${index}`}
                           type="datetime-local"
@@ -168,7 +169,7 @@ export function AgendaChangeActions({
                         />
                       </Field>
                       <Field id={prefix + 'end' + index} label={`Fim da opção ${index}`}>
-                        <input
+                        <Input
                           id={prefix + 'end' + index}
                           name={`end${index}`}
                           type="datetime-local"

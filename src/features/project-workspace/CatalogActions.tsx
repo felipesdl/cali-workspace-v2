@@ -1,9 +1,11 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { FormDraftEditor, NewFormDraft } from './FormDraftEditor';
 import { FormTriage } from './FormTriage';
 import { FileDownload } from './FileDownload';
 import { PdfDownload } from './PdfDownload';
 import { formatServerInstant } from '../../lib/dates';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useRouteContext } from '@tanstack/react-router';
 import { Button } from '../../components/ds/button/Button';
@@ -53,20 +55,20 @@ export function PublishNotice({ company, actor }: Scope) {
       {(prefix) => (
         <>
           <Field id={prefix + 'category'} label="Categoria">
-            <select id={prefix + 'category'} name="category">
+            <Select id={prefix + 'category'} name="category">
               <option value="comunicado">Comunicado</option>
               <option value="feriado">Feriado</option>
               <option value="atendimento">Atendimento</option>
-            </select>
+            </Select>
           </Field>
           <Field id={prefix + 'title'} label="Título">
-            <input id={prefix + 'title'} name="title" maxLength={180} required />
+            <Input id={prefix + 'title'} name="title" maxLength={180} required />
           </Field>
           <Field id={prefix + 'body'} label="Mensagem">
-            <textarea id={prefix + 'body'} name="body" maxLength={6000} required />
+            <TextArea id={prefix + 'body'} name="body" maxLength={6000} required />
           </Field>
           <Field id={prefix + 'day'} label="Data do aviso">
-            <input id={prefix + 'day'} name="day" type="date" required />
+            <Input id={prefix + 'day'} name="day" type="date" required />
           </Field>
         </>
       )}
@@ -137,10 +139,10 @@ export function CreateReportDraft({ company, actor }: Scope) {
       {(prefix) => (
         <>
           <Field id={prefix + 'month'} label="Mês do relatório">
-            <input id={prefix + 'month'} name="month" type="month" required />
+            <Input id={prefix + 'month'} name="month" type="month" required />
           </Field>
           <Field id={prefix + 'title'} label="Título do relatório">
-            <input id={prefix + 'title'} name="title" maxLength={180} required />
+            <Input id={prefix + 'title'} name="title" maxLength={180} required />
           </Field>
           <ReportSummary prefix={prefix} />
         </>
@@ -152,7 +154,7 @@ export function CreateReportDraft({ company, actor }: Scope) {
 function ReportSummary({ prefix, summary }: { prefix: string; summary?: string }) {
   return (
     <Field id={prefix + 'summary'} label="Resumo executivo">
-      <textarea
+      <TextArea
         id={prefix + 'summary'}
         name="summary"
         defaultValue={summary}
@@ -257,7 +259,7 @@ export function ReportDraftActions({
         >
           {(prefix) => (
             <Field id={prefix + 'reason'} label="Motivo da reabertura">
-              <textarea
+              <TextArea
                 id={prefix + 'reason'}
                 name="reason"
                 minLength={3}
@@ -295,6 +297,26 @@ export function ReportPublicationActions({
 }) {
   const { operations, refresh } = useCatalogActions({ company, actor }, 'reports');
   const cache = useQueryClient();
+  const [lastAction, setLastAction] = useState<{
+    version: number;
+    kind: 'generate' | 'release' | 'acknowledge';
+  }>();
+  const receipt = useRef<HTMLParagraphElement>(null);
+  const completed = lastAction?.version === version ? lastAction.kind : undefined;
+  const message =
+    completed === 'generate' && pdfReady
+      ? 'PDF da revisão pronto para baixar.'
+      : completed === 'release' && published
+        ? 'Relatório publicado no Workspace.'
+        : acknowledged
+          ? 'Ciência registrada nesta revisão.'
+          : '';
+  useEffect(() => {
+    if (message && completed && document.activeElement === document.body) {
+      receipt.current?.focus();
+    }
+  }, [completed, message]);
+
   if (!operations) return null;
   return (
     <div className="tw:grid tw:gap-2">
@@ -308,6 +330,7 @@ export function ReportPublicationActions({
         <ActionForm
           label="Gerar PDF da revisão"
           submit={async () => {
+            setLastAction(undefined);
             const result = await operations.generateReportPdf(company, id, version);
             await Promise.all([
               refresh(result),
@@ -315,6 +338,7 @@ export function ReportPublicationActions({
                 queryKey: ['phase4-report-approvals', actor, company, id],
               }),
             ]);
+            setLastAction({ version, kind: 'generate' });
             return result;
           }}
         />
@@ -322,16 +346,19 @@ export function ReportPublicationActions({
       {admin && !published && pdfReady && (
         <ActionForm
           label="Publicar no Workspace"
-          submit={async (fields) =>
-            refresh(
+          submit={async (fields) => {
+            setLastAction(undefined);
+            const result = await refresh(
               await operations.releaseReport(
                 company,
                 id,
                 version,
                 previouslyReleased && fields.get('requestAck') === 'on',
               ),
-            )
-          }
+            );
+            setLastAction({ version, kind: 'release' });
+            return result;
+          }}
         >
           {(prefix) =>
             previouslyReleased ? (
@@ -344,15 +371,24 @@ export function ReportPublicationActions({
           }
         </ActionForm>
       )}
-      {!admin && acknowledgmentAvailable && (
+      {!admin && acknowledgmentAvailable && !acknowledged && (
         <ActionForm
           label="Registrar ciência desta revisão"
-          submit={async () =>
-            refresh(await operations.acknowledgeReportRelease(company, id, version))
-          }
+          submit={async () => {
+            setLastAction(undefined);
+            const result = await refresh(
+              await operations.acknowledgeReportRelease(company, id, version),
+            );
+            setLastAction({ version, kind: 'acknowledge' });
+            return result;
+          }}
         />
       )}
-      {!admin && acknowledged && <p role="status">Ciência registrada nesta revisão.</p>}
+      {message && (
+        <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
+          {message}
+        </FeedbackMessage>
+      )}
     </div>
   );
 }

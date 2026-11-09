@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useRef, useState } from 'react';
 import {
   useCompanyAdministration,
@@ -90,9 +91,9 @@ function AdministrationPanel({
         </>
       )}
       {saved && (
-        <p role="status">
+        <FeedbackMessage tone="success">
           {hosted ? 'Ficha administrativa salva.' : 'Ficha administrativa salva na demonstração.'}
-        </p>
+        </FeedbackMessage>
       )}
       {!hosted && <AdministrationHistory companyId={companyId} />}
     </section>

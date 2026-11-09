@@ -1,3 +1,4 @@
+import { TextArea } from '../../components/ds/field/Controls';
 import {
   reportCurationLimit,
   reportCurationSections,
@@ -36,7 +37,7 @@ export function ReportCurationEditor({
           <p>Estas seções acompanham a revisão liberada ao Cliente.</p>
           {reportCurationSections.map(({ key, label }) => (
             <Field key={key} id={prefix + key} label={label}>
-              <textarea
+              <TextArea
                 id={prefix + key}
                 name={key}
                 defaultValue={sections[key]}

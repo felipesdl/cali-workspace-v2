@@ -1,3 +1,5 @@
+import { Input } from '../../components/ds/field/Controls';
+import { FileInput } from '../../components/ds/field/FileInput';
 import { useState } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { type AgendaOperations } from '../../api/modules/project-workspace/agenda';
@@ -74,7 +76,7 @@ export function AgendaMaterials({
                 {(prefix) => (
                   <>
                     <Field id={prefix + 'label'} label="Nome do link">
-                      <input
+                      <Input
                         id={prefix + 'label'}
                         name="label"
                         defaultValue={link?.label ?? ''}
@@ -83,7 +85,7 @@ export function AgendaMaterials({
                       />
                     </Field>
                     <Field id={prefix + 'url'} label="Endereço HTTPS">
-                      <input
+                      <Input
                         id={prefix + 'url'}
                         name="url"
                         type="url"
@@ -110,10 +112,9 @@ export function AgendaMaterials({
               >
                 {(prefix) => (
                   <Field id={prefix + 'pdf'} label="PDF da ata (até 2 MiB)">
-                    <input
+                    <FileInput
                       id={prefix + 'pdf'}
                       name="pdf"
-                      type="file"
                       accept="application/pdf,.pdf"
                       required
                     />

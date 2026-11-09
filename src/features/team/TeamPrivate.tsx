@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select } from '../../components/ds/field/Controls';
 import { useId, useState } from 'react';
 import { z } from 'zod';
 import {
@@ -71,7 +73,7 @@ function PrivateEditor({
         className="tw:grid tw:min-w-0 tw:grid-cols-2 tw:gap-3 tw:mobile:grid-cols-1"
       >
         <Field id={`${prefix}-salary`} label="Remuneração (R$)">
-          <input
+          <Input
             id={`${prefix}-salary`}
             name="salary"
             type="number"
@@ -82,7 +84,7 @@ function PrivateEditor({
           />
         </Field>
         <Field id={`${prefix}-revision`} label="Última revisão salarial">
-          <input
+          <Input
             id={`${prefix}-revision`}
             name="salary_review_date"
             type="date"
@@ -90,7 +92,7 @@ function PrivateEditor({
           />
         </Field>
         <Field id={`${prefix}-gender`} label="Gênero">
-          <select
+          <Select
             id={`${prefix}-gender`}
             name="gender"
             value={identity}
@@ -104,11 +106,11 @@ function PrivateEditor({
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
         {identity === gender.Other && (
           <Field id={`${prefix}-gender-detail`} label="Descrição (opcional)">
-            <input
+            <Input
               id={`${prefix}-gender-detail`}
               name="gender_detail"
               maxLength={120}
@@ -117,7 +119,7 @@ function PrivateEditor({
           </Field>
         )}
         <Field id={`${prefix}-children`} label="Tem filhos">
-          <select
+          <Select
             id={`${prefix}-children`}
             name="has_children"
             defaultValue={original.has_children ?? ''}
@@ -128,7 +130,7 @@ function PrivateEditor({
                 {label}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
         <Checkbox name="declared" required>
           Confirmo que tenho autorização para registrar estes dados.
@@ -214,7 +216,7 @@ function PrivateDetails({ member, onClose }: { member: ProfessionalRecord; onClo
               <dd>{record.has_children ? families[record.has_children] : 'Não informado'}</dd>
             </div>
           </dl>
-          {saved && <p role="status">Dados privados salvos.</p>}
+          {saved && <FeedbackMessage tone="success">Dados privados salvos.</FeedbackMessage>}
           {!member.archived_at && (
             <Button
               variant="secondary"

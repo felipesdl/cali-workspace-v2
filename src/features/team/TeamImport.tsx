@@ -1,3 +1,4 @@
+import { FileInput } from '../../components/ds/field/FileInput';
 import { useState } from 'react';
 import { z } from 'zod';
 import {
@@ -115,9 +116,8 @@ export function TeamImport({
         Baixar modelo CSV
       </a>
       <Field id="team-csv" label="Planilha de equipe">
-        <input
+        <FileInput
           id="team-csv"
-          type="file"
           accept=".csv,text/csv"
           disabled={busy || pending}
           onChange={(event) => {

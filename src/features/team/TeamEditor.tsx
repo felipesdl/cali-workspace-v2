@@ -1,3 +1,4 @@
+import { Input, Select } from '../../components/ds/field/Controls';
 import { parseTerminationReason, teamTerminationCodes } from '../../api/modules/team/termination';
 import { useId, useState } from 'react';
 import { z } from 'zod';
@@ -48,13 +49,13 @@ const professionalInputs = [
 export function TeamMonthField({ id }: { id: string }) {
   return (
     <Field id={id} label="Mês de referência">
-      <select id={id} name="month">
+      <Select id={id} name="month">
         {writeMonthOptions().map((month) => (
           <option key={month} value={`${month}-01`}>
             {month.slice(5)}/{month.slice(0, 4)}
           </option>
         ))}
-      </select>
+      </Select>
     </Field>
   );
 }
@@ -84,17 +85,17 @@ function LeaveFields({ prefix, member }: { prefix: string; member: ProfessionalR
   return (
     <>
       <Field id={`${prefix}-leave-reason`} label="Categoria do afastamento">
-        <select
+        <Select
           id={`${prefix}-leave-reason`}
           name="leave_reason"
           defaultValue={member?.leave_reason ?? ''}
         >
           <option value="">Não informada</option>
           <CatalogOptions labels={teamLeaveLabels} current={member?.leave_reason} />
-        </select>
+        </Select>
       </Field>
       <Field id={`${prefix}-leave-date`} label="Início do afastamento">
-        <input
+        <Input
           id={`${prefix}-leave-date`}
           name="leave_start_date"
           type="date"
@@ -103,7 +104,7 @@ function LeaveFields({ prefix, member }: { prefix: string; member: ProfessionalR
         />
       </Field>
       <Field id={`${prefix}-leave-return`} label="Previsão de retorno">
-        <input
+        <Input
           id={`${prefix}-leave-return`}
           name="expected_return_date"
           type="date"
@@ -141,7 +142,7 @@ function TerminationFields({
   return (
     <>
       <Field id={`${prefix}-termination-date`} label="Data de desligamento">
-        <input
+        <Input
           id={`${prefix}-termination-date`}
           name="termination_date"
           type="date"
@@ -150,7 +151,7 @@ function TerminationFields({
         />
       </Field>
       <Field id={`${prefix}-termination-initiative`} label="Iniciativa do desligamento">
-        <select
+        <Select
           id={`${prefix}-termination-initiative`}
           name="termination_initiative"
           defaultValue={member?.termination_initiative ?? ''}
@@ -161,10 +162,10 @@ function TerminationFields({
               {label}
             </option>
           ))}
-        </select>
+        </Select>
       </Field>
       <Field id={`${prefix}-termination-code`} label="Código eSocial">
-        <select
+        <Select
           id={`${prefix}-termination-code`}
           name="termination_code"
           defaultValue={termination.code}
@@ -178,10 +179,10 @@ function TerminationFields({
               {code} · {entry.label}
             </option>
           ))}
-        </select>
+        </Select>
       </Field>
       <Field id={`${prefix}-termination-reason`} label="Motivo do desligamento">
-        <input
+        <Input
           id={`${prefix}-termination-reason`}
           name="termination_reason"
           maxLength={180}
@@ -189,14 +190,14 @@ function TerminationFields({
         />
       </Field>
       <Field id={`${prefix}-notice`} label="Aviso prévio">
-        <select id={`${prefix}-notice`} name="notice_type" defaultValue={member?.notice_type ?? ''}>
+        <Select id={`${prefix}-notice`} name="notice_type" defaultValue={member?.notice_type ?? ''}>
           <option value="">Não informado</option>
           {Object.entries(noticeLabels).map(([key, label]) => (
             <option key={key} value={key}>
               {label}
             </option>
           ))}
-        </select>
+        </Select>
       </Field>
     </>
   );
@@ -255,7 +256,7 @@ export function TeamEditor({
       >
         {professionalInputs.map(({ key, label, ...props }) => (
           <Field key={key} id={`${prefix}-${key}`} label={label}>
-            <input
+            <Input
               {...props}
               id={`${prefix}-${key}`}
               name={key}
@@ -265,27 +266,27 @@ export function TeamEditor({
           </Field>
         ))}
         <Field id={`${prefix}-contract`} label="Tipo de contratação">
-          <select
+          <Select
             id={`${prefix}-contract`}
             name="employment_type"
             defaultValue={member?.employment_type ?? 'clt'}
           >
             <CatalogOptions labels={teamContractLabels} current={member?.employment_type} />
-          </select>
+          </Select>
         </Field>
         <Field id={`${prefix}-work-model`} label="Modelo de trabalho">
-          <select
+          <Select
             id={`${prefix}-work-model`}
             name="work_model"
             defaultValue={member?.work_model ?? ''}
           >
             <option value="">Não informado</option>
             <CatalogOptions labels={teamWorkModels} current={member?.work_model} />
-          </select>
+          </Select>
         </Field>
         <TeamMonthField id={`${prefix}-month`} />
         <Field id={`${prefix}-status`} label="Situação da pessoa">
-          <select
+          <Select
             id={`${prefix}-status`}
             name="status"
             value={status}
@@ -296,7 +297,7 @@ export function TeamEditor({
                 {teamStatusLabels[value]}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
         <Checkbox name="is_leader" defaultChecked={member?.is_leader}>
           Exerce função de liderança

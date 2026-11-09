@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useRef, useState } from 'react';
 import { type WorkspaceAdhesionRecord } from '../../api/modules/access/adhesion';
 import { type AdhesionEvidence } from '../../api/modules/companies/evidence-schemas';
@@ -110,7 +111,7 @@ export function AdhesionEvidencePanel({
       {action?.kind === 'retract' && (
         <AdhesionEvidenceRetraction evidence={action.evidence} onClose={finish} />
       )}
-      {notice && <p role="status">{notice}</p>}
+      {notice && <FeedbackMessage tone="success">{notice}</FeedbackMessage>}
     </section>
   );
 }

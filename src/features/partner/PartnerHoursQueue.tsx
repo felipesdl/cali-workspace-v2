@@ -1,3 +1,4 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { PartnerPilot } from '../../api/modules/partner/pilot';
@@ -48,10 +49,10 @@ export function PartnerHoursQueue({
           {(prefix) => (
             <>
               <Field id={prefix + 'day'} label="Data">
-                <input id={prefix + 'day'} name="day" type="date" required />
+                <Input id={prefix + 'day'} name="day" type="date" required />
               </Field>
               <Field id={prefix + 'minutes'} label="Minutos">
-                <input
+                <Input
                   id={prefix + 'minutes'}
                   name="minutes"
                   type="number"
@@ -61,7 +62,7 @@ export function PartnerHoursQueue({
                 />
               </Field>
               <Field id={prefix + 'description'} label="Trabalho realizado">
-                <textarea
+                <TextArea
                   id={prefix + 'description'}
                   name="description"
                   minLength={3}
@@ -70,7 +71,7 @@ export function PartnerHoursQueue({
                 />
               </Field>
               <Field id={prefix + 'justification'} label="Justificativa">
-                <textarea
+                <TextArea
                   id={prefix + 'justification'}
                   name="justification"
                   minLength={3}
@@ -123,7 +124,7 @@ export function PartnerHoursQueue({
                       {(prefix) => (
                         <>
                           <Field id={prefix + 'decision'} label="Decisão">
-                            <select
+                            <Select
                               id={prefix + 'decision'}
                               name="decision"
                               required
@@ -134,10 +135,10 @@ export function PartnerHoursQueue({
                               </option>
                               <option value="approve">Aprovar</option>
                               <option value="reject">Recusar</option>
-                            </select>
+                            </Select>
                           </Field>
                           <Field id={prefix + 'note'} label="Motivo, obrigatório ao recusar">
-                            <textarea id={prefix + 'note'} name="note" maxLength={1000} />
+                            <TextArea id={prefix + 'note'} name="note" maxLength={1000} />
                           </Field>
                         </>
                       )}

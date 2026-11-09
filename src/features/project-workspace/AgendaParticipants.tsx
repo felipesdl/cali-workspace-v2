@@ -1,3 +1,4 @@
+import { Input } from '../../components/ds/field/Controls';
 import { type AppointmentParticipant } from '../../api/modules/project-workspace/agenda';
 import { Field } from '../../components/ds/field/Field';
 import { ActionForm } from './ActionForm';
@@ -55,10 +56,10 @@ export function AgendaParticipants({
           {(prefix) => (
             <>
               <Field id={prefix + 'name'} label="Nome do convidado">
-                <input id={prefix + 'name'} name="name" minLength={2} maxLength={140} required />
+                <Input id={prefix + 'name'} name="name" minLength={2} maxLength={140} required />
               </Field>
               <Field id={prefix + 'email'} label="E-mail do convidado">
-                <input id={prefix + 'email'} name="email" type="email" maxLength={254} required />
+                <Input id={prefix + 'email'} name="email" type="email" maxLength={254} required />
               </Field>
               <p>O convidado aparece na agenda do Workspace.</p>
             </>

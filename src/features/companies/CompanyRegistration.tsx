@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { companyBasicFieldsSchema } from '../../api/modules/companies/schemas';
@@ -65,7 +67,7 @@ function RegistrationForm({
               const id = `registration-${name}`;
               return (
                 <Field id={id} label={label} error={error}>
-                  <input
+                  <Input
                     id={id}
                     value={field.state.value}
                     autoFocus={name === 'displayName'}
@@ -88,7 +90,7 @@ function RegistrationForm({
       <p id="registration-help" className="tw:m-0 tw:text-caption tw:text-muted-copy">
         Se a razão social ficar em branco, será usado o nome de apresentação.
       </p>
-      {create.isError && <p role="alert">{create.error.message}</p>}
+      {create.isError && <FeedbackMessage tone="error">{create.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-3">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, submitting]) => (

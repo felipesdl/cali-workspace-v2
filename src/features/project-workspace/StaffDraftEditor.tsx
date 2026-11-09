@@ -1,3 +1,5 @@
+import { Input } from '../../components/ds/field/Controls';
+import { CheckboxInput } from '../../components/ds/checkbox/Checkbox';
 import {
   staffDraftModule,
   type DomainOperations,
@@ -50,7 +52,7 @@ export function StaffDraftEditor({
           {(prefix) => (
             <>
               <Field id={prefix + 'name'} label="Nome fictício">
-                <input
+                <Input
                   id={prefix + 'name'}
                   name="name"
                   minLength={2}
@@ -63,8 +65,7 @@ export function StaffDraftEditor({
                 <legend>Módulos</legend>
                 {staffDraftModule.options.map((module) => (
                   <label key={module} className="tw:flex tw:gap-2">
-                    <input
-                      type="checkbox"
+                    <CheckboxInput
                       name="modules"
                       value={module}
                       defaultChecked={draft?.modules.includes(module)}

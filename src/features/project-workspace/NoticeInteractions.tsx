@@ -1,3 +1,4 @@
+import { Select, TextArea } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
@@ -72,7 +73,7 @@ export function NoticeInteractions({
               >
                 {(prefix) => (
                   <Field id={prefix + 'reaction'} label="Sua reação">
-                    <select
+                    <Select
                       id={prefix + 'reaction'}
                       name="reaction"
                       defaultValue={data.ownReaction ?? ''}
@@ -83,7 +84,7 @@ export function NoticeInteractions({
                           {label}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </Field>
                 )}
               </ActionForm>
@@ -118,7 +119,7 @@ export function NoticeInteractions({
                           >
                             {(prefix) => (
                               <Field id={prefix + 'reason'} label="Motivo da moderação">
-                                <textarea
+                                <TextArea
                                   id={prefix + 'reason'}
                                   name="reason"
                                   required
@@ -170,7 +171,7 @@ export function NoticeInteractions({
               >
                 {(prefix) => (
                   <Field id={prefix + 'body'} label="Comentário para esta empresa">
-                    <textarea id={prefix + 'body'} name="body" required maxLength={2000} />
+                    <TextArea id={prefix + 'body'} name="body" required maxLength={2000} />
                   </Field>
                 )}
               </ActionForm>

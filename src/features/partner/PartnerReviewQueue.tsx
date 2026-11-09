@@ -1,3 +1,4 @@
+import { Select, TextArea } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PartnerPilot, PartnerReviewKind } from '../../api/modules/partner/pilot';
@@ -44,7 +45,7 @@ export function PartnerReviewRequest({
       >
         {(id) => (
           <Field id={id + 'note'} label="Observação para a CALI">
-            <textarea id={id + 'note'} name="note" maxLength={2000} rows={2} />
+            <TextArea id={id + 'note'} name="note" maxLength={2000} rows={2} />
           </Field>
         )}
       </ActionForm>
@@ -111,7 +112,7 @@ export function PartnerReviewQueue({
                     {(id) => (
                       <>
                         <Field id={id + 'decision'} label="Decisão">
-                          <select id={id + 'decision'} name="decision" defaultValue="" required>
+                          <Select id={id + 'decision'} name="decision" defaultValue="" required>
                             <option value="" disabled>
                               Selecione
                             </option>
@@ -121,10 +122,10 @@ export function PartnerReviewQueue({
                                 : 'Encerrar ocorrência'}
                             </option>
                             <option value="return">Devolver para ajustes</option>
-                          </select>
+                          </Select>
                         </Field>
                         <Field id={id + 'note'} label="Motivo da devolução ou observação">
-                          <textarea id={id + 'note'} name="note" maxLength={2000} rows={2} />
+                          <TextArea id={id + 'note'} name="note" maxLength={2000} rows={2} />
                         </Field>
                       </>
                     )}

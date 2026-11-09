@@ -119,7 +119,8 @@ describe('ficha administrativa na jornada Admin demonstrativa', () => {
     await edit(user);
     const amount = screen.getByLabelText('Valor do contrato (R$)');
     await user.type(amount, '1.234,56');
-    const error = await screen.findByText('Use até duas casas decimais, sem separador de milhar.');
+    const error = await screen.findByRole('alert');
+    expect(error.textContent).toBe('Use até duas casas decimais, sem separador de milhar.');
     expect(amount.getAttribute('aria-describedby')).toBe(error.id);
     expect(amount.getAttribute('aria-invalid')).toBe('true');
     expect(

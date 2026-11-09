@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useRef, useState } from 'react';
 import { type CompanyAccess } from '../../api/modules/companies/schemas';
 import { useChangeCompanyAccess } from '../../api/modules/companies/hooks/useCompanyManagement';
@@ -101,7 +102,7 @@ export function AccessRow({
               ? 'Revogar esta autorização? Os demais acessos da empresa serão preservados.'
               : 'Autorizar novamente este acesso? Nenhum convite será enviado.'}
           </p>
-          {change.isError && <p role="alert">{change.error.message}</p>}
+          {change.isError && <FeedbackMessage tone="error">{change.error.message}</FeedbackMessage>}
           <div className="tw:flex tw:flex-wrap tw:gap-3">
             <Button pending={change.isPending} onClick={() => void confirm()}>
               {mode.kind === 'revoke' ? 'Confirmar revogação' : 'Confirmar reautorização'}
@@ -117,11 +118,7 @@ export function AccessRow({
           </div>
         </div>
       )}
-      {notice && (
-        <p role="status" className="tw:m-0 tw:text-caption">
-          {notice}
-        </p>
-      )}
+      {notice && <FeedbackMessage tone="success">{notice}</FeedbackMessage>}
     </li>
   );
 }

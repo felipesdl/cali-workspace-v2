@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ds/button/Button';
 
@@ -9,14 +10,26 @@ export function FileDownload({
   download: (signal: AbortSignal) => Promise<{ blob: Blob; fileName: string }>;
 }) {
   const pending = useRef<AbortController | null>(null);
+  const restoreFocus = useRef(false);
+  const button = useRef<HTMLButtonElement>(null);
+  const feedback = useRef<HTMLParagraphElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   useEffect(() => () => pending.current?.abort(), []);
+  useEffect(() => {
+    if (busy || !restoreFocus.current) return;
+    restoreFocus.current = false;
+    const focused = document.activeElement;
+    if (focused === document.body || focused === button.current) {
+      (error ? feedback.current : button.current)?.focus();
+    }
+  }, [busy, error]);
 
   async function save() {
     if (pending.current) return;
     const request = new AbortController();
     pending.current = request;
+    restoreFocus.current = true;
     setBusy(true);
     setError('');
     try {
@@ -40,11 +53,20 @@ export function FileDownload({
   }
 
   return (
-    <div>
-      <Button variant="secondary" disabled={busy} onClick={() => void save()}>
+    <div className="tw:grid tw:min-w-0 tw:justify-items-start tw:gap-3 tw:wrap-anywhere">
+      <Button ref={button} variant="secondary" pending={busy} onClick={() => void save()}>
         {busy ? 'Baixando…' : label}
       </Button>
-      {error && <p role="alert">{error}</p>}
+      {error && (
+        <FeedbackMessage
+          ref={feedback}
+          tone="error"
+          tabIndex={-1}
+          className="tw:justify-self-stretch"
+        >
+          {error}
+        </FeedbackMessage>
+      )}
     </div>
   );
 }

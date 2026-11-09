@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { companyAccessFieldsSchema } from '../../api/modules/companies/management-schemas';
@@ -53,7 +55,7 @@ export function AccessName({
           const error = field.state.meta.errors[0]?.message;
           return (
             <Field id={id} label="Nome do acesso" error={error}>
-              <input
+              <Input
                 id={id}
                 autoFocus
                 required
@@ -68,7 +70,7 @@ export function AccessName({
           );
         }}
       </form.Field>
-      {change.isError && <p role="alert">{change.error.message}</p>}
+      {change.isError && <FeedbackMessage tone="error">{change.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-3">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, submitting]) => (

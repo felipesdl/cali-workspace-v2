@@ -1,3 +1,6 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
+import { FileInput } from '../../components/ds/field/FileInput';
 import { useEffect, useRef, useState } from 'react';
 import { PdfDownload } from './PdfDownload';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -73,17 +76,11 @@ function Upload({
         <>
           {!item && !delivery && (
             <Field id={prefix + 'title'} label="Título do documento">
-              <input id={prefix + 'title'} name="title" required maxLength={180} />
+              <Input id={prefix + 'title'} name="title" required maxLength={180} />
             </Field>
           )}
           <Field id={prefix + 'pdf'} label="PDF de até 2 MiB">
-            <input
-              id={prefix + 'pdf'}
-              name="pdf"
-              required
-              type="file"
-              accept="application/pdf,.pdf"
-            />
+            <FileInput id={prefix + 'pdf'} name="pdf" required accept="application/pdf,.pdf" />
           </Field>
         </>
       )}
@@ -167,15 +164,26 @@ function DocumentItem({
   refresh: () => Promise<void>;
 }) {
   const [showHistory, setShowHistory] = useState(false);
-  const [withdrawn, setWithdrawn] = useState(false);
-  const withdrawalReceipt = useRef<HTMLParagraphElement>(null);
-  const showWithdrawalReceipt = withdrawn && !item.publishedRevision;
-  useEffect(() => {
-    if (showWithdrawalReceipt && document.activeElement === document.body) {
-      withdrawalReceipt.current?.focus();
-    }
-  }, [showWithdrawalReceipt]);
+  const [lastAction, setLastAction] = useState<{
+    revision: string;
+    kind: 'publish' | 'withdraw' | 'acknowledge';
+  }>();
+  const receipt = useRef<HTMLParagraphElement>(null);
   const latestPublished = item.publishedRevision === item.revisionId;
+  const completed = lastAction?.revision === item.revisionId ? lastAction.kind : undefined;
+  const message =
+    completed === 'withdraw' && !item.publishedRevision
+      ? 'Versão retirada. O histórico continua disponível para a CALI.'
+      : completed === 'publish' && latestPublished
+        ? `Revisão ${item.number} publicada.`
+        : !admin && item.acknowledged
+          ? 'Ciência registrada para esta revisão.'
+          : '';
+  useEffect(() => {
+    if (message && completed && document.activeElement === document.body) {
+      receipt.current?.focus();
+    }
+  }, [completed, message]);
   return (
     <li className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere">
       <strong>{item.title}</strong>
@@ -197,6 +205,7 @@ function DocumentItem({
             <ActionForm
               label="Publicar revisão mais recente"
               submit={async () => {
+                setLastAction(undefined);
                 const result = await operations.publication(
                   company,
                   item.id,
@@ -204,6 +213,7 @@ function DocumentItem({
                   item.revisionId,
                 );
                 await refresh();
+                setLastAction({ revision: item.revisionId, kind: 'publish' });
                 return result;
               }}
             />
@@ -213,6 +223,7 @@ function DocumentItem({
               label="Retirar versão publicada"
               submit={async (values) => {
                 if (!values.has('confirmWithdrawal')) throw new Error('Confirme a retirada.');
+                setLastAction(undefined);
                 const result = await operations.publication(
                   company,
                   item.id,
@@ -220,7 +231,7 @@ function DocumentItem({
                   null,
                 );
                 await refresh();
-                setWithdrawn(true);
+                setLastAction({ revision: item.revisionId, kind: 'withdraw' });
                 return result;
               }}
             >
@@ -233,16 +244,6 @@ function DocumentItem({
                 </Checkbox>
               )}
             </ActionForm>
-          )}
-          {showWithdrawalReceipt && (
-            <p
-              ref={withdrawalReceipt}
-              role="status"
-              tabIndex={-1}
-              className="tw:m-0 tw:text-caption"
-            >
-              Versão retirada. O histórico continua disponível para a CALI.
-            </p>
           )}
           <div>
             <Button
@@ -257,17 +258,23 @@ function DocumentItem({
             <History company={company} actor={actor} operations={operations} item={item} />
           )}
         </>
-      ) : item.acknowledged ? (
-        <p>Ciência registrada para esta revisão.</p>
       ) : (
-        <ActionForm
-          label="Registrar ciência desta revisão"
-          submit={async () => {
-            const result = await operations.acknowledge(company, item.id, item.revisionId);
-            await refresh();
-            return result;
-          }}
-        />
+        !item.acknowledged && (
+          <ActionForm
+            label="Registrar ciência desta revisão"
+            submit={async () => {
+              const result = await operations.acknowledge(company, item.id, item.revisionId);
+              await refresh();
+              setLastAction({ revision: item.revisionId, kind: 'acknowledge' });
+              return result;
+            }}
+          />
+        )
+      )}
+      {message && (
+        <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
+          {message}
+        </FeedbackMessage>
       )}
     </li>
   );

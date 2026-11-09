@@ -1,0 +1,23 @@
+:root select.cali-select:not([multiple]):not([size]) {
+  --select-inset: var(--space-3);
+  --select-chevron-half: 6px;
+  appearance: none;
+  padding-inline-start: var(--select-inset);
+  padding-inline-end: calc(2 * var(--select-inset) + 2 * var(--select-chevron-half));
+  background-image:
+    linear-gradient(45deg, transparent 41%, currentColor 42% 58%, transparent 59%),
+    linear-gradient(-45deg, transparent 41%, currentColor 42% 58%, transparent 59%);
+  background-position:
+    right calc(var(--select-inset) + var(--select-chevron-half)) center,
+    right var(--select-inset) center;
+  background-repeat: no-repeat;
+  background-size: var(--select-chevron-half) var(--select-chevron-half);
+}
+
+@media (forced-colors: active) {
+  :root select.cali-select:not([multiple]):not([size]) {
+    appearance: auto;
+    padding-inline-end: var(--select-inset);
+    background-image: none;
+  }
+}

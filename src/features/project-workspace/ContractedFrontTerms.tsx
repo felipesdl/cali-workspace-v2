@@ -1,3 +1,4 @@
+import { Input, Select } from '../../components/ds/field/Controls';
 import { type FrontTerms } from '../../api/modules/project-workspace/schemas';
 import { formatCalendarDate } from '../../lib/dates';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -110,23 +111,23 @@ export function ActivateContractedFront({ company, actor }: Scope) {
             </p>
           )}
           <Field id={prefix + 'front'} label="Frente e modalidade">
-            <select id={prefix + 'front'} name="front" required>
+            <Select id={prefix + 'front'} name="front" required>
               <option value="">Selecione</option>
               {options.map((item) => (
                 <option key={optionValue(item)} value={optionValue(item)}>
                   {item.title} · {modeLabels[item.mode]}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
           <Field id={prefix + 'scope'} label="Escopo contratado">
-            <input id={prefix + 'scope'} name="scope" maxLength={240} />
+            <Input id={prefix + 'scope'} name="scope" maxLength={240} />
           </Field>
           <Field id={prefix + 'startsOn'} label="Início da vigência">
-            <input id={prefix + 'startsOn'} name="startsOn" type="date" required />
+            <Input id={prefix + 'startsOn'} name="startsOn" type="date" required />
           </Field>
           <Field id={prefix + 'endsOn'} label="Fim da vigência (opcional)">
-            <input id={prefix + 'endsOn'} name="endsOn" type="date" />
+            <Input id={prefix + 'endsOn'} name="endsOn" type="date" />
           </Field>
         </>
       )}

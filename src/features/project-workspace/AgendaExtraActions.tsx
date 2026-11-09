@@ -1,3 +1,4 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import {
   type AgendaExtra,
   type AgendaOperations,
@@ -71,7 +72,7 @@ export function AgendaExtraActions({
                   {offerVisit && <p>As duas opções do pedido serão apresentadas ao Cliente.</p>}
                   {choose && (
                     <Field id={prefix + 'index'} label="Horário">
-                      <select id={prefix + 'index'} name="index" defaultValue="" required>
+                      <Select id={prefix + 'index'} name="index" defaultValue="" required>
                         <option value="" disabled>
                           Selecione
                         </option>
@@ -81,14 +82,14 @@ export function AgendaExtraActions({
                             {formatServerInstant(choice.endsAt)}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </Field>
                   )}
                   {counter &&
                     alternateOptions.map(({ id, number: i }) => (
                       <div key={id} className="tw:grid tw:gap-2">
                         <Field id={prefix + 'start' + i} label={`Início da opção ${i} (Brasília)`}>
-                          <input
+                          <Input
                             id={prefix + 'start' + i}
                             name={'start' + i}
                             type="datetime-local"
@@ -96,7 +97,7 @@ export function AgendaExtraActions({
                           />
                         </Field>
                         <Field id={prefix + 'end' + i} label={`Fim da opção ${i} (Brasília)`}>
-                          <input
+                          <Input
                             id={prefix + 'end' + i}
                             name={'end' + i}
                             type="datetime-local"
@@ -107,18 +108,18 @@ export function AgendaExtraActions({
                     ))}
                   {action === 'fee' && (
                     <Field id={prefix + 'fee'} label="Decisão sobre a taxa">
-                      <select id={prefix + 'fee'} name="fee" defaultValue="" required>
+                      <Select id={prefix + 'fee'} name="fee" defaultValue="" required>
                         <option value="" disabled>
                           Selecione
                         </option>
                         <option value="waive">Sem taxa</option>
                         <option value="charge">Registrar R$ 160,00</option>
-                      </select>
+                      </Select>
                     </Field>
                   )}
                   {action !== 'confirm' && action !== 'book-visit' && (
                     <Field id={prefix + 'note'} label={requiresReason ? 'Motivo' : 'Observação'}>
-                      <textarea
+                      <TextArea
                         id={prefix + 'note'}
                         name="note"
                         required={requiresReason}

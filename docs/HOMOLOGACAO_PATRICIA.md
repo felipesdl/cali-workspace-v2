@@ -215,6 +215,19 @@ O PR também foi exercitado com sessões e serviços sintéticos locais nas duas
 
 Capturas locais em `cali-fase6-paridade`. O teste automatizado de Partner cobre foco ao abrir e voltar do detalhe junto da retirada de conteúdo após corte de acesso simulado. Rollback por reversão do commit de frontend. Esta rodada cobre apresentação e os estados exercitados com fixtures. A validação autenticada continua registrada por piloto, e o aceite da Patrícia segue como etapa própria. Operações de alto impacto, entrega externa e critérios de publicação seguem a matriz e o rollout.
 
+### Campos, ações e mensagens da interface
+
+O navegador integrado conferiu o PR em 375 × 812 e 1366 × 768 com sessões e serviços sintéticos locais.
+
+| Recorte | Resultado |
+| --- | --- |
+| Acesso | Código, MFA e aceite exercitados com falha e recuperação. Quando os termos estão indisponíveis, a sessão autenticada oferece nova consulta. A ação principal e a saída têm a mesma largura e altura nas duas janelas. |
+| Documentos e Relatórios | Publicação e reconhecimento mantêm a confirmação com foco, vinculada à revisão. Falha de download mantém a mensagem focada e a tentativa seguinte entrega o PDF sintético. Documentos preserva o arquivo após falha de gravação e limpa após criar a revisão. |
+| Campos e ações | Os 294 controles JSX encontrados foram migrados, incluindo dez seletores de arquivo. Conferidos o envio nativo de dois PDFs e o reset, o recuo de 12 px da seta do filtro de situação e os botões da página temporária de anexos. Ações da página de QA ficaram lado a lado com dimensões iguais e 12 px entre elas. |
+| Feedback | Sucesso de publicação e falha de download exibiram ícone, cor e foco nas duas larguras. A mensagem de validação de campo ficou a 12 px do seletor de arquivos, sem rolagem horizontal. |
+
+Capturas locais em `cali-fase6-controles`. Escopo de frontend. Rollback por reversão do commit. A homologação autenticada e o aceite da Patrícia seguem registrados separadamente.
+
 ## Mensagem para enviar junto do link
 
 > Patrícia, a V2 está pronta para esta rodada de homologação em ambiente de teste. Vamos conferir acesso, empresas, Equipe, dados mensais e DISC usando os dados de exemplo. Te mando o link e os acessos de teste pelo canal combinado. Para cada ponto que você quiser ajustar, me diga a tela, o que tentou fazer e o que esperava ver.

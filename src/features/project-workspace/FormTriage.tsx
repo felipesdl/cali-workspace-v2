@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select } from '../../components/ds/field/Controls';
 import { PdfDownload } from './PdfDownload';
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -27,7 +29,8 @@ export function FormTriage({
   });
 
   if (triage.isPending) return <p role="status">Carregando respostas…</p>;
-  if (triage.isError || !triage.data) return <p role="alert">Triagem indisponível.</p>;
+  if (triage.isError || !triage.data)
+    return <FeedbackMessage tone="error">Triagem indisponível.</FeedbackMessage>;
   const { stages, responses } = triage.data;
 
   return (
@@ -60,15 +63,15 @@ export function FormTriage({
                     {formatServerInstant(response.submitted_at)}
                   </p>
                   <Field id={prefix + 'stage'} label="Etapa">
-                    <select id={prefix + 'stage'} name="stage" defaultValue={response.stage ?? ''}>
+                    <Select id={prefix + 'stage'} name="stage" defaultValue={response.stage ?? ''}>
                       <option value="">Sem etapa</option>
                       {[...choices].map((stage) => (
                         <option key={stage}>{stage}</option>
                       ))}
-                    </select>
+                    </Select>
                   </Field>
                   <Field id={prefix + 'owner'} label="Responsável">
-                    <input
+                    <Input
                       id={prefix + 'owner'}
                       name="owner"
                       maxLength={120}

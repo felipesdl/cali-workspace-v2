@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
 import { useId, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { usePilotReservations } from '../../api/modules/companies/hooks/usePilotReservations';
@@ -108,7 +110,7 @@ export function PilotInviteReservation({ companyId }: { companyId: string }) {
                   label={name === 'name' ? 'Nome do cliente' : 'E-mail de teste aprovado'}
                   error={error}
                 >
-                  <input
+                  <Input
                     id={fieldId}
                     type={name === 'email' ? 'email' : 'text'}
                     value={field.state.value}
@@ -124,7 +126,11 @@ export function PilotInviteReservation({ companyId }: { companyId: string }) {
           </form.Field>
         ))}
         {reserve.isError && <FeedbackState kind="error">{reserve.error.message}</FeedbackState>}
-        {reserve.isSuccess && <p role="status">Vaga reservada. Aguardando primeiro acesso.</p>}
+        {reserve.isSuccess && (
+          <FeedbackMessage tone="success">
+            Vaga reservada. Aguardando primeiro acesso.
+          </FeedbackMessage>
+        )}
         <Button type="submit" className="tw:justify-self-start" pending={reserve.isPending}>
           Reservar vaga
         </Button>

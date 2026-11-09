@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { z } from 'zod';
@@ -330,11 +332,7 @@ export function DiscRespondentPage() {
                 );
               })}
             </div>
-            {message && (
-              <p role="alert" className="tw:text-body tw:text-action-primary">
-                {message}
-              </p>
-            )}
+            {message && <FeedbackMessage tone="error">{message}</FeedbackMessage>}
             <div className="tw:flex tw:justify-between tw:gap-3">
               <Button
                 variant="secondary"
@@ -355,7 +353,7 @@ export function DiscRespondentPage() {
               Blocos respondidos: {completeCount} de {questionCount}.
             </p>
             <Field id="disc-job-title" label="Cargo ou função (opcional)">
-              <input
+              <Input
                 id="disc-job-title"
                 maxLength={200}
                 value={jobTitle}
@@ -369,11 +367,7 @@ export function DiscRespondentPage() {
               Confirmo novamente o uso de dados sintéticos e concordo com o registro das respostas
               exclusivamente para validar este fluxo.
             </Checkbox>
-            {message && (
-              <p role="alert" className="tw:text-body tw:text-action-primary">
-                {message}
-              </p>
-            )}
+            {message && <FeedbackMessage tone="error">{message}</FeedbackMessage>}
             <div className="tw:flex tw:flex-wrap tw:gap-3">
               <Button variant="secondary" onClick={() => setCurrentIndex(questionCount - 1)}>
                 Voltar ao questionário

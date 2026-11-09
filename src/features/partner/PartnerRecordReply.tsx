@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { TextArea } from '../../components/ds/field/Controls';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type { PartnerPilot } from '../../api/modules/partner/pilot';
@@ -50,7 +52,7 @@ export function PartnerRecordReply({
       }}
     >
       <Field id={id} label="Resposta para o Cliente">
-        <textarea
+        <TextArea
           id={id}
           rows={3}
           value={body}
@@ -66,14 +68,14 @@ export function PartnerRecordReply({
         </Button>
       </div>
       {isError && (
-        <p ref={feedback} role="alert" tabIndex={-1}>
+        <FeedbackMessage ref={feedback} tone="error" tabIndex={-1}>
           {reply.error.message}
-        </p>
+        </FeedbackMessage>
       )}
       {isSuccess && (
-        <p ref={feedback} role="status" tabIndex={-1}>
+        <FeedbackMessage ref={feedback} tone="success" tabIndex={-1}>
           Resposta publicada na conversa.
-        </p>
+        </FeedbackMessage>
       )}
     </form>
   );

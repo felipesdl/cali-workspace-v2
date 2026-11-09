@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useRef, useState } from 'react';
 import {
   useCompanyRegistration,
@@ -77,7 +78,9 @@ function RegistrationPanel({ companyId }: { companyId: string }) {
           </Button>
         </>
       )}
-      {saved && <p role="status">Dados cadastrais salvos na demonstração.</p>}
+      {saved && (
+        <FeedbackMessage tone="success">Dados cadastrais salvos na demonstração.</FeedbackMessage>
+      )}
       <RegistrationHistory companyId={companyId} />
     </section>
   );

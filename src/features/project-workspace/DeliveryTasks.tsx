@@ -1,3 +1,4 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { ActionForm } from './ActionForm';
 import { type JournalSubmit } from './useJournalAction';
 import {
@@ -49,7 +50,7 @@ export function TaskEditor({
       {(prefix) => (
         <>
           <Field id={prefix + 'title'} label="Título da subtarefa">
-            <input
+            <Input
               id={prefix + 'title'}
               name="title"
               required
@@ -59,7 +60,7 @@ export function TaskEditor({
             />
           </Field>
           <Field id={prefix + 'note'} label="Descrição">
-            <textarea
+            <TextArea
               id={prefix + 'note'}
               name="note"
               maxLength={8000}
@@ -67,7 +68,7 @@ export function TaskEditor({
             />
           </Field>
           <Field id={prefix + 'due'} label="Prazo da subtarefa em Brasília">
-            <input
+            <Input
               id={prefix + 'due'}
               name="due"
               type="datetime-local"
@@ -75,7 +76,7 @@ export function TaskEditor({
             />
           </Field>
           <Field id={prefix + 'complexity'} label="Complexidade">
-            <select
+            <Select
               id={prefix + 'complexity'}
               name="complexity"
               defaultValue={task?.complexity ?? ''}
@@ -84,10 +85,10 @@ export function TaskEditor({
               {deliveryComplexity.options.map((level) => (
                 <option key={level}>{level}</option>
               ))}
-            </select>
+            </Select>
           </Field>
           <Field id={prefix + 'assignee'} label="Responsável CALI">
-            <select id={prefix + 'assignee'} name="assignee" defaultValue={task?.assignee ?? ''}>
+            <Select id={prefix + 'assignee'} name="assignee" defaultValue={task?.assignee ?? ''}>
               <option value="">Sem responsável</option>
               {task?.assignee && !assignees.some((member) => member.id === task.assignee) && (
                 <option value={task.assignee}>Responsável anterior indisponível</option>
@@ -97,10 +98,10 @@ export function TaskEditor({
                   {member.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
           <Field id={prefix + 'estimate'} label="Estimativa em minutos">
-            <input
+            <Input
               id={prefix + 'estimate'}
               type="number"
               name="estimate"
@@ -154,7 +155,7 @@ export function TaskActions({
         >
           {(prefix) => (
             <Field id={prefix + 'status'} label="Situação da subtarefa">
-              <select id={prefix + 'status'} name="status" required defaultValue="">
+              <Select id={prefix + 'status'} name="status" required defaultValue="">
                 <option value="" disabled>
                   Selecione
                 </option>
@@ -168,7 +169,7 @@ export function TaskActions({
                       {workspaceLabel(status)}
                     </option>
                   ))}
-              </select>
+              </Select>
             </Field>
           )}
         </ActionForm>
@@ -193,7 +194,7 @@ export function TaskActions({
         >
           {(prefix) => (
             <Field id={prefix + 'note'} label="Descreva o ajuste da subtarefa">
-              <textarea id={prefix + 'note'} name="note" required minLength={10} maxLength={4000} />
+              <TextArea id={prefix + 'note'} name="note" required minLength={10} maxLength={4000} />
             </Field>
           )}
         </ActionForm>

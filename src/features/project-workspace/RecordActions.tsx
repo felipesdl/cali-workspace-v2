@@ -1,3 +1,5 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
+import { FileInput } from '../../components/ds/field/FileInput';
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useRouteContext } from '@tanstack/react-router';
@@ -47,7 +49,7 @@ export function OpenRecord({
       {(prefix) => (
         <>
           <Field id={prefix + 'title'} label="Assunto">
-            <input id={prefix + 'title'} name="title" required minLength={2} maxLength={180} />
+            <Input id={prefix + 'title'} name="title" required minLength={2} maxLength={180} />
           </Field>
           <MessageFields prefix={prefix} admin={admin} />
         </>
@@ -78,15 +80,14 @@ function MessageFields({
   return (
     <>
       <Field id={prefix + 'message'} label="Mensagem">
-        <textarea id={prefix + 'message'} name="message" required maxLength={6000} />
+        <TextArea id={prefix + 'message'} name="message" required maxLength={6000} />
       </Field>
       {admin && <Checkbox name="internal">Somente para a CALI</Checkbox>}
       {attachmentsEnabled && (
         <Field id={prefix + 'attachment'} label={attachmentLabel}>
-          <input
+          <FileInput
             id={prefix + 'attachment'}
             name="attachment"
-            type="file"
             multiple={attachmentBatchesEnabled}
             accept={
               attachmentBatchesEnabled
@@ -245,7 +246,7 @@ export function RecordConversation({
                           >
                             {(prefix) => (
                               <Field id={prefix + 'reason'} label="Motivo da retirada">
-                                <textarea
+                                <TextArea
                                   id={prefix + 'reason'}
                                   name="reason"
                                   required
@@ -333,7 +334,7 @@ export function RecordConversation({
             >
               {(prefix) => (
                 <Field id={prefix + 'state'} label="Nova situação">
-                  <select id={prefix + 'state'} name="next" required defaultValue="">
+                  <Select id={prefix + 'state'} name="next" required defaultValue="">
                     <option value="" disabled>
                       Selecione
                     </option>
@@ -349,7 +350,7 @@ export function RecordConversation({
                           {value}
                         </option>
                       ))}
-                  </select>
+                  </Select>
                 </Field>
               )}
             </ActionForm>

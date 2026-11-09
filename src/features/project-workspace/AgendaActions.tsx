@@ -1,3 +1,4 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
@@ -76,19 +77,19 @@ export function AgendaActions({
           {(prefix) => (
             <>
               <Field id={prefix + 'title'} label="Assunto">
-                <input id={prefix + 'title'} name="title" minLength={2} maxLength={160} required />
+                <Input id={prefix + 'title'} name="title" minLength={2} maxLength={160} required />
               </Field>
               <Field id={prefix + 'purpose'} label="Finalidade">
-                <textarea id={prefix + 'purpose'} name="purpose" maxLength={2000} />
+                <TextArea id={prefix + 'purpose'} name="purpose" maxLength={2000} />
               </Field>
               <Field id={prefix + 'mode'} label="Formato">
-                <select id={prefix + 'mode'} name="mode">
+                <Select id={prefix + 'mode'} name="mode">
                   <option value="remote">Online</option>
                   <option value="in_person">Presencial</option>
-                </select>
+                </Select>
               </Field>
               <Field id={prefix + 'location'} label="Endereço para encontro presencial">
-                <input id={prefix + 'location'} name="location" maxLength={400} />
+                <Input id={prefix + 'location'} name="location" maxLength={400} />
               </Field>
               <p>Use o horário de Brasília. Encontro presencial precisa de duas opções.</p>
               {[
@@ -97,7 +98,7 @@ export function AgendaActions({
               ].map(({ id, index }) => (
                 <div key={id} className="tw:grid tw:grid-cols-2 tw:gap-3 tw:mobile:grid-cols-1">
                   <Field id={prefix + 'start' + index} label={`Início da opção ${index}`}>
-                    <input
+                    <Input
                       id={prefix + 'start' + index}
                       name={`start${index}`}
                       type="datetime-local"
@@ -105,7 +106,7 @@ export function AgendaActions({
                     />
                   </Field>
                   <Field id={prefix + 'end' + index} label={`Fim da opção ${index}`}>
-                    <input
+                    <Input
                       id={prefix + 'end' + index}
                       name={`end${index}`}
                       type="datetime-local"
@@ -187,7 +188,7 @@ export function AgendaActions({
               >
                 {(prefix) => (
                   <Field id={prefix + 'minutes'} label="Texto da ata">
-                    <textarea
+                    <TextArea
                       id={prefix + 'minutes'}
                       name="minutes"
                       defaultValue={item.minutes ?? ''}
@@ -218,7 +219,7 @@ export function AgendaActions({
                 {(prefix) => (
                   <>
                     <Field id={prefix + 'start'} label="Início da reposição (Brasília)">
-                      <input id={prefix + 'start'} name="start" type="datetime-local" required />
+                      <Input id={prefix + 'start'} name="start" type="datetime-local" required />
                     </Field>
                     <AppointmentNote prefix={prefix} />
                     <p>A reposição tem a mesma duração do encontro anterior.</p>
@@ -259,7 +260,7 @@ export function AgendaActions({
                   {(prefix) => (
                     <>
                       <Field id={prefix + 'category'} label="Motivo">
-                        <select id={prefix + 'category'} name="category" required defaultValue="">
+                        <Select id={prefix + 'category'} name="category" required defaultValue="">
                           <option value="" disabled>
                             Selecione
                           </option>
@@ -268,10 +269,10 @@ export function AgendaActions({
                               {absenceLabels[category]}
                             </option>
                           ))}
-                        </select>
+                        </Select>
                       </Field>
                       <Field id={prefix + 'note'} label="Justificativa interna">
-                        <textarea
+                        <TextArea
                           id={prefix + 'note'}
                           name="note"
                           required
@@ -324,7 +325,7 @@ export function AgendaActions({
                 {(prefix) => (
                   <>
                     <Field id={prefix + 'index'} label="Horário">
-                      <select id={prefix + 'index'} name="index" required defaultValue="">
+                      <Select id={prefix + 'index'} name="index" required defaultValue="">
                         <option value="" disabled>
                           Selecione
                         </option>
@@ -334,7 +335,7 @@ export function AgendaActions({
                             {formatServerInstant(slot.endsAt)}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </Field>
                     {offer && <AppointmentNote prefix={prefix} />}
                   </>
@@ -378,7 +379,7 @@ export function AgendaActions({
 function AppointmentNote({ prefix }: { prefix: string }) {
   return (
     <Field id={prefix + 'note'} label="Observação">
-      <textarea id={prefix + 'note'} name="note" maxLength={2000} />
+      <TextArea id={prefix + 'note'} name="note" maxLength={2000} />
     </Field>
   );
 }

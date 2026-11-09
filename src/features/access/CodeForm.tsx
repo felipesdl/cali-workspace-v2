@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
+import { useState, type ReactNode } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { z } from 'zod';
 import { type HostedAccessApi } from '../../api/modules/access/api';
 import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { CodeInput } from './CodeInput';
+import { AccessActions } from './AccessActions';
 
 const errorMessage = (error: Error) =>
   error instanceof z.ZodError
@@ -16,20 +19,22 @@ export function CodeForm({
   onConfirmed,
   codeLength = 6,
   qa = false,
+  exitAction,
 }: {
   api: Pick<HostedAccessApi, 'verifyCode'> & Partial<Pick<HostedAccessApi, 'requestCode'>>;
   onConfirmed: () => void | Promise<void>;
   codeLength?: 6 | 8;
   qa?: boolean;
+  exitAction?: ReactNode;
 }) {
   const [sent, setSent] = useState(false);
   const verifyOnly = !api.requestCode;
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string }>();
   const [retryAt, setRetryAt] = useState(0);
   const form = useForm({
     defaultValues: { email: '', code: '' },
     onSubmit: async ({ value }) => {
-      setMessage('');
+      setMessage(undefined);
       try {
         if (sent || verifyOnly) {
           await api.verifyCode(value.email, value.code);
@@ -40,13 +45,15 @@ export function CodeForm({
           setRetryAt(Date.now() + 120000);
         }
       } catch (error) {
-        setMessage(
-          error instanceof Error
-            ? qa && !(error instanceof z.ZodError)
-              ? error.message
-              : errorMessage(error)
-            : 'Não foi possível concluir o acesso.',
-        );
+        setMessage({
+          tone: 'error',
+          text:
+            error instanceof Error
+              ? qa && !(error instanceof z.ZodError)
+                ? error.message
+                : errorMessage(error)
+              : 'Não foi possível concluir o acesso.',
+        });
       }
     },
   });
@@ -69,7 +76,7 @@ export function CodeForm({
       <form.Field name="email">
         {(field) => (
           <Field id="access-email" label="E-mail">
-            <input
+            <Input
               id="access-email"
               type="email"
               autoComplete="email"
@@ -90,51 +97,64 @@ export function CodeForm({
                 value={field.state.value}
                 onChange={field.handleChange}
                 length={codeLength}
+                autoFocus={sent}
               />
             </Field>
           )}
         </form.Field>
       )}
-      {message && <p role="alert">{message}</p>}
+      {message && <FeedbackMessage tone={message.tone}>{message.text}</FeedbackMessage>}
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(pending) => (
           <>
-            <Button type="submit" pending={pending}>
-              {sent || verifyOnly ? 'Confirmar código' : 'Receber código'}
-            </Button>
-            {sent && (
-              <Button
-                variant="secondary"
-                disabled={pending}
-                onClick={() => {
-                  form.setFieldValue('code', '');
-                  setSent(false);
-                  setMessage('');
-                }}
-              >
-                Usar outro e-mail
+            <AccessActions>
+              <Button type="submit" pending={pending}>
+                {sent || verifyOnly ? 'Confirmar código' : 'Receber código'}
               </Button>
-            )}
+              {exitAction}
+            </AccessActions>
             {sent && (
-              <Button
-                variant="secondary"
-                disabled={pending}
-                onClick={async () => {
-                  if (Date.now() < retryAt) {
-                    setMessage('Aguarde dois minutos antes de solicitar outro código.');
-                    return;
-                  }
-                  try {
-                    setRetryAt(Date.now() + 120000);
-                    await api.requestCode?.(form.state.values.email);
-                    setMessage('Solicitação enviada. Confira seu e-mail.');
-                  } catch {
-                    setMessage('Não foi possível reenviar. Aguarde e tente novamente.');
-                  }
-                }}
-              >
-                Solicitar novo código
-              </Button>
+              <AccessActions>
+                <Button
+                  variant="secondary"
+                  disabled={pending}
+                  onClick={() => {
+                    form.setFieldValue('code', '');
+                    setSent(false);
+                    setMessage(undefined);
+                  }}
+                >
+                  Usar outro e-mail
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={pending}
+                  onClick={async () => {
+                    if (Date.now() < retryAt) {
+                      setMessage({
+                        tone: 'error',
+                        text: 'Aguarde dois minutos antes de solicitar outro código.',
+                      });
+                      return;
+                    }
+                    try {
+                      setRetryAt(Date.now() + 120000);
+                      await api.requestCode?.(form.state.values.email);
+                      setMessage({
+                        tone: 'success',
+                        text: 'Solicitação enviada. Confira seu e-mail.',
+                      });
+                    } catch {
+                      setMessage({
+                        tone: 'error',
+                        text: 'Não foi possível reenviar. Aguarde e tente novamente.',
+                      });
+                    }
+                  }}
+                >
+                  Solicitar novo código
+                </Button>
+              </AccessActions>
             )}
           </>
         )}

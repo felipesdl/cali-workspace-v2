@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, TextArea } from '../../components/ds/field/Controls';
 import { useId, useState } from 'react';
 import { z } from 'zod';
 import { type TeamSearch } from '../../api/modules/team/schemas';
@@ -118,7 +120,7 @@ function MetricsEditor({
       >
         {numericFields.map((field) => (
           <Field key={field.key} id={`${id}-${field.key}`} label={field.label}>
-            <input
+            <Input
               id={`${id}-${field.key}`}
               name={field.key}
               type="number"
@@ -138,7 +140,7 @@ function MetricsEditor({
             key={row.id}
           >
             <Field id={`${id}-${row.id}-name`} label="Departamento">
-              <input
+              <Input
                 id={`${id}-${row.id}-name`}
                 value={row.name}
                 required
@@ -153,7 +155,7 @@ function MetricsEditor({
               />
             </Field>
             <Field id={`${id}-${row.id}-count`} label="Pessoas">
-              <input
+              <Input
                 id={`${id}-${row.id}-count`}
                 value={row.count}
                 type="number"
@@ -187,7 +189,7 @@ function MetricsEditor({
         </Button>
       </fieldset>
       <Field id={`${id}-notes`} label="Observações do mês">
-        <textarea
+        <TextArea
           id={`${id}-notes`}
           name="notes"
           maxLength={5000}
@@ -197,7 +199,7 @@ function MetricsEditor({
       </Field>
       {record && (
         <Field id={`${id}-reason`} label="Motivo da correção">
-          <textarea
+          <TextArea
             id={`${id}-reason`}
             name="reason"
             required
@@ -288,14 +290,14 @@ export function TeamMonthly({
       <h2 className="tw:m-0 tw:text-section tw:font-bold tw:text-brand">Dados do mês</h2>
       <p className="tw:m-0 tw:text-caption tw:text-muted-copy">{data.companyName}</p>
       <Field id="team-metrics-month" label="Mês de referência">
-        <input
+        <Input
           type="month"
           id="team-metrics-month"
           value={month.month.slice(0, 7)}
           onChange={(event) => navigate({ month: event.currentTarget.value || undefined, page: 1 })}
         />
       </Field>
-      {message && <p role="status">{message}</p>}
+      {message && <FeedbackMessage tone="success">{message}</FeedbackMessage>}
       {editing ? (
         <MetricsEditor
           record={data.metrics}

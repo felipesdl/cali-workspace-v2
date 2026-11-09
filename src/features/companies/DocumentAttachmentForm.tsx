@@ -1,3 +1,6 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select } from '../../components/ds/field/Controls';
+import { FileInput } from '../../components/ds/field/FileInput';
 import {
   type CompanyDocument,
   companyDocumentType,
@@ -40,7 +43,7 @@ export function DocumentAttachmentForm({
         <form.Field name="documentType">
           {(field) => (
             <Field id="contract-document-type" label="Tipo do documento">
-              <select
+              <Select
                 id="contract-document-type"
                 autoFocus={!previous}
                 disabled={Boolean(previous)}
@@ -55,7 +58,7 @@ export function DocumentAttachmentForm({
               >
                 <option value="contract">Contrato</option>
                 <option value="addendum">Aditivo contratual</option>
-              </select>
+              </Select>
             </Field>
           )}
         </form.Field>
@@ -66,7 +69,7 @@ export function DocumentAttachmentForm({
               label="Data do documento"
               error={field.state.meta.errors[0]?.message}
             >
-              <input
+              <Input
                 id="contract-document-date"
                 autoFocus={Boolean(previous)}
                 type="date"
@@ -81,9 +84,8 @@ export function DocumentAttachmentForm({
           )}
         </form.Field>
         <Field id="contract-document-file" label="Arquivo do documento" error={fileError}>
-          <input
+          <FileInput
             id="contract-document-file"
-            type="file"
             accept=".pdf,.doc,.docx,image/png,image/jpeg,image/webp,image/avif,image/svg+xml"
             aria-describedby={fileError ? 'contract-document-file-error' : 'contract-file-help'}
             onChange={(event) => {
@@ -97,7 +99,7 @@ export function DocumentAttachmentForm({
           {file ? `Selecionado: ${file.name}` : 'Nenhum arquivo selecionado.'}
         </p>
       </fieldset>
-      {attach.isError && <p role="alert">{attach.error.message}</p>}
+      {attach.isError && <FeedbackMessage tone="error">{attach.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-3">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, pending]) => (

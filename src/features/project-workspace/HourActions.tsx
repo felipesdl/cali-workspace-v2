@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useRouteContext } from '@tanstack/react-router';
 import {
@@ -5,7 +7,7 @@ import {
   type HourCorrection,
 } from '../../api/modules/project-workspace/operations';
 import { Button } from '../../components/ds/button/Button';
-import { Checkbox } from '../../components/ds/checkbox/Checkbox';
+import { CheckboxInput, Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { Field } from '../../components/ds/field/Field';
 import { formatServerInstant } from '../../lib/dates';
 import { useState } from 'react';
@@ -79,7 +81,7 @@ export function HourEntryCorrection({
   function reason(prefix: string) {
     return (
       <Field id={prefix + 'reason'} label="Justificativa interna">
-        <textarea id={prefix + 'reason'} name="reason" required minLength={3} maxLength={1000} />
+        <TextArea id={prefix + 'reason'} name="reason" required minLength={3} maxLength={1000} />
       </Field>
     );
   }
@@ -107,10 +109,10 @@ export function HourEntryCorrection({
           {(prefix) => (
             <>
               <Field id={prefix + 'day'} label="Data do trabalho">
-                <input id={prefix + 'day'} name="day" type="date" defaultValue={day} required />
+                <Input id={prefix + 'day'} name="day" type="date" defaultValue={day} required />
               </Field>
               <Field id={prefix + 'minutes'} label="Duração em minutos">
-                <input
+                <Input
                   id={prefix + 'minutes'}
                   name="minutes"
                   type="number"
@@ -121,7 +123,7 @@ export function HourEntryCorrection({
                 />
               </Field>
               <Field id={prefix + 'description'} label="Descrição da atividade">
-                <input
+                <Input
                   id={prefix + 'description'}
                   name="description"
                   defaultValue={description}
@@ -207,7 +209,7 @@ export function HourActions({
       <>
         {!delivery && (
           <Field id={prefix + 'project'} label="Projeto">
-            <select id={prefix + 'project'} name="project">
+            <Select id={prefix + 'project'} name="project">
               <option value="">Sem projeto</option>
               {projects.data?.projects
                 .filter(
@@ -221,14 +223,14 @@ export function HourActions({
                     {project.name}
                   </option>
                 ))}
-            </select>
+            </Select>
           </Field>
         )}
         <Field id={prefix + 'description'} label="Descrição da atividade">
-          <input id={prefix + 'description'} name="description" required maxLength={1000} />
+          <Input id={prefix + 'description'} name="description" required maxLength={1000} />
         </Field>
         <label className="tw:flex tw:items-center tw:gap-2">
-          <input name="visible" type="checkbox" /> Visível ao Cliente quando o mês estiver liberado
+          <CheckboxInput name="visible" /> Visível ao Cliente quando o mês estiver liberado
         </label>
       </>
     );
@@ -255,7 +257,7 @@ export function HourActions({
           )}
           {context.isPending && <p role="status">Carregando vínculo…</p>}
           {(context.isError || context.data === null) && (
-            <p role="alert">Vínculo indisponível para horas.</p>
+            <FeedbackMessage tone="error">Vínculo indisponível para horas.</FeedbackMessage>
           )}
           {context.data && !context.data.canStart && (
             <p>Retome a execução para iniciar um timer neste vínculo.</p>
@@ -270,7 +272,11 @@ export function HourActions({
           </Link>
         </div>
       )}
-      {projects.isError && <p role="alert">Não foi possível listar os projetos para vínculo.</p>}
+      {projects.isError && (
+        <FeedbackMessage tone="error">
+          Não foi possível listar os projetos para vínculo.
+        </FeedbackMessage>
+      )}
       {(projects.data?.total ?? 0) > 25 && (
         <div className="tw:flex tw:gap-2">
           <Button variant="secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>
@@ -306,10 +312,10 @@ export function HourActions({
             <>
               {fields(prefix)}
               <Field id={prefix + 'date'} label="Data do trabalho">
-                <input id={prefix + 'date'} name="date" type="date" required />
+                <Input id={prefix + 'date'} name="date" type="date" required />
               </Field>
               <Field id={prefix + 'minutes'} label="Duração em minutos">
-                <input
+                <Input
                   id={prefix + 'minutes'}
                   name="minutes"
                   type="number"
@@ -319,13 +325,15 @@ export function HourActions({
                 />
               </Field>
               <Field id={prefix + 'note'} label="Justificativa interna">
-                <textarea id={prefix + 'note'} name="note" required maxLength={1000} />
+                <TextArea id={prefix + 'note'} name="note" required maxLength={1000} />
               </Field>
             </>
           )}
         </ActionForm>
       )}
-      {timers.isError && <p role="alert">Não foi possível carregar os timers.</p>}
+      {timers.isError && (
+        <FeedbackMessage tone="error">Não foi possível carregar os timers.</FeedbackMessage>
+      )}
       {timers.isSuccess && timers.data.length === 0 && (!delivery || context.data?.canStart) && (
         <ActionForm
           key={`timer:${delivery ?? ''}:${task ?? ''}`}

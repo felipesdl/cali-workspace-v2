@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select } from '../../components/ds/field/Controls';
 import { TeamImport } from './TeamImport';
 import { HistoryFilters, TeamHistory, TeamStructure } from './TeamHistory';
 import { useState } from 'react';
@@ -39,7 +41,7 @@ function CompanySelect({
     );
   return (
     <Field id="team-company" label="Empresa de homologação">
-      <select
+      <Select
         id="team-company"
         value={search.companyId ?? ''}
         onChange={(event) =>
@@ -58,7 +60,7 @@ function CompanySelect({
               {company.displayName}
             </option>
           ))}
-      </select>
+      </Select>
     </Field>
   );
 }
@@ -85,16 +87,16 @@ function DirectoryFilters({
       }}
     >
       <Field id="team-search" label="Buscar por nome, cargo, área ou código">
-        <input id="team-search" name="q" type="search" defaultValue={search.q} maxLength={120} />
+        <Input id="team-search" name="q" type="search" defaultValue={search.q} maxLength={120} />
       </Field>
       <Field id="team-status" label="Situação">
-        <select id="team-status" name="status" defaultValue={search.status}>
+        <Select id="team-status" name="status" defaultValue={search.status}>
           {Object.entries(teamStatusLabels).map(([key, label]) => (
             <option key={key} value={key}>
               {label}
             </option>
           ))}
-        </select>
+        </Select>
       </Field>
       <Button type="submit" variant="secondary">
         Aplicar filtros
@@ -236,9 +238,7 @@ function TeamPage({
   return (
     <div className="tw:grid tw:gap-4">
       {confirmation && confirmation.companyId === team.companyId && team.enabled && (
-        <p role="status" className="tw:text-brand">
-          {confirmation.message}
-        </p>
+        <FeedbackMessage tone="success">{confirmation.message}</FeedbackMessage>
       )}
       {admin && (
         <div className={panel}>

@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -80,8 +82,8 @@ export function EmailCommercialOffer({
 }) {
   const [link, setLink] = useState<string>();
   return link ? (
-    <div className="tw:grid tw:gap-2" role="status">
-      <p>Envio confirmado pelo simulador de e-mail.</p>
+    <div className="tw:grid tw:gap-2">
+      <FeedbackMessage tone="success">Envio confirmado pelo simulador de e-mail.</FeedbackMessage>
       <a className="tw:text-brand tw:underline" href={link} target="_blank" rel="noreferrer">
         Abrir link do e-mail de teste
       </a>
@@ -200,7 +202,7 @@ function DraftFields({
               </p>
               {pricing.scopeMode && (
                 <Field id={prefix + 'scopeMode'} label="Escopo do cálculo">
-                  <select
+                  <Select
                     id={prefix + 'scopeMode'}
                     value={scopeMode}
                     onChange={(event) => {
@@ -210,12 +212,12 @@ function DraftFields({
                   >
                     <option value={commercialScopeMode.enum.integral}>Integral</option>
                     <option value={commercialScopeMode.enum.prioritized}>Priorizado</option>
-                  </select>
+                  </Select>
                   {prioritized && <span>Usa a base do pacote sem adicionais.</span>}
                 </Field>
               )}
               <Field id={prefix + 'extras'} label="Adicionais em reais">
-                <input
+                <Input
                   id={prefix + 'extras'}
                   name="extras"
                   type="number"
@@ -230,7 +232,7 @@ function DraftFields({
               </Field>
               {pricing.scopeMode && (
                 <Field id={prefix + 'manualFinalAmount'} label="Valor final manual em reais">
-                  <input
+                  <Input
                     id={prefix + 'manualFinalAmount'}
                     name="manualFinalAmount"
                     type="number"
@@ -246,7 +248,7 @@ function DraftFields({
                 </Field>
               )}
               <Field id={prefix + 'discount'} label="Desconto em porcentagem">
-                <input
+                <Input
                   id={prefix + 'discount'}
                   name="discount"
                   type="number"
@@ -259,7 +261,7 @@ function DraftFields({
                 />
               </Field>
               <Field id={prefix + 'months'} label="Duração em meses">
-                <input
+                <Input
                   id={prefix + 'months'}
                   name="months"
                   type="number"
@@ -290,7 +292,7 @@ function DraftFields({
           {(prefix) => (
             <>
               <Field id={prefix + 'terms'} label="Condições de pagamento">
-                <textarea
+                <TextArea
                   id={prefix + 'terms'}
                   name="terms"
                   maxLength={2000}
@@ -299,7 +301,7 @@ function DraftFields({
                 />
               </Field>
               <Field id={prefix + 'notes'} label="Observações da proposta">
-                <textarea
+                <TextArea
                   id={prefix + 'notes'}
                   name="notes"
                   maxLength={4000}
@@ -308,7 +310,7 @@ function DraftFields({
                 />
               </Field>
               <Field id={prefix + 'validity'} label="Validade em dias">
-                <input
+                <Input
                   id={prefix + 'validity'}
                   name="validity"
                   type="number"

@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useRef, useState } from 'react';
 import {
   useCompanyDocuments,
@@ -97,9 +98,9 @@ function DocumentPanel({ companyId }: { companyId: string }) {
       {action?.kind === 'withdraw' && (
         <DocumentWithdrawal document={action.document} onClose={finish} />
       )}
-      {notice && <p role="status">{notice}</p>}
-      {download.message && <p role="status">{download.message}</p>}
-      {download.error && <p role="alert">{download.error.message}</p>}
+      {notice && <FeedbackMessage tone="success">{notice}</FeedbackMessage>}
+      {download.message && <FeedbackMessage tone="success">{download.message}</FeedbackMessage>}
+      {download.error && <FeedbackMessage tone="error">{download.error.message}</FeedbackMessage>}
       <DocumentHistory companyId={companyId} />
     </section>
   );

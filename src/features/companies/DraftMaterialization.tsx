@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '../../components/ds/button/Button';
@@ -18,9 +19,7 @@ export function DraftMaterialization({
   if (linkedCompany) {
     return (
       <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-2">
-        <p role="status" className="tw:m-0">
-          Empresa criada na carteira.
-        </p>
+        <FeedbackMessage tone="success">Empresa criada na carteira.</FeedbackMessage>
         <Button variant="secondary" onClick={() => openCompany(linkedCompany)}>
           Abrir na carteira
         </Button>
@@ -35,7 +34,7 @@ export function DraftMaterialization({
           Confirme a inclusão desta empresa na carteira. A adesão e os acessos têm etapas próprias.
         </p>
       )}
-      {mutation.isError && <p role="alert">{mutation.error.message}</p>}
+      {mutation.isError && <FeedbackMessage tone="error">{mutation.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-2">
         {confirming ? (
           <>

@@ -1,3 +1,7 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
+import { FileInput } from '../../components/ds/field/FileInput';
+import { CheckboxInput } from '../../components/ds/checkbox/Checkbox';
 import { useEffect, useRef, useState } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { getRouteApi, useRouteContext } from '@tanstack/react-router';
@@ -65,9 +69,9 @@ function PublicTextForm({ slug }: { slug: string }) {
       {(!enabled || (result.isSuccess && !form)) && <p>Formulário indisponível.</p>}
       {form?.status === 'closed' && <p>Este formulário encerrou a coleta.</p>}
       {sent && (
-        <p ref={receiptRef} role="status" tabIndex={-1}>
+        <FeedbackMessage ref={receiptRef} tone="success" tabIndex={-1}>
           Resposta registrada. Obrigado pela participação.
-        </p>
+        </FeedbackMessage>
       )}
       {domainOperations && form?.status === 'open' && !sent && (
         <>
@@ -161,7 +165,7 @@ function PublicQuestion({
     const options = Array.from({ length: scaleMax - scaleMin + 1 }, (_, i) => scaleMin + i);
     return (
       <Field id={inputId} label={label}>
-        <select id={inputId} name={id} required={required} defaultValue="">
+        <Select id={inputId} name={id} required={required} defaultValue="">
           <option value="">Selecione</option>
           {options.map((score) => {
             const endpoint = score === scaleMin ? minLabel : score === scaleMax ? maxLabel : '';
@@ -171,20 +175,14 @@ function PublicQuestion({
               </option>
             );
           })}
-        </select>
+        </Select>
       </Field>
     );
   }
   if (kind === 'file') {
     return (
       <Field id={inputId} label={label}>
-        <input
-          id={inputId}
-          name={id}
-          type="file"
-          accept=".pdf,application/pdf"
-          required={required}
-        />
+        <FileInput id={inputId} name={id} accept=".pdf,application/pdf" required={required} />
         <span>PDF de até 2 MiB</span>
       </Field>
     );
@@ -198,7 +196,7 @@ function PublicQuestion({
         </legend>
         {question.options?.map((option) => (
           <label key={option} className="tw:flex tw:items-start tw:gap-2">
-            <input className="tw:shrink-0" type="checkbox" name={id} value={option} />
+            <CheckboxInput className="tw:shrink-0" name={id} value={option} />
             {option}
           </label>
         ))}
@@ -207,7 +205,7 @@ function PublicQuestion({
   if (kind === 'single_choice' || kind === 'yes_no')
     return (
       <Field id={inputId} label={label}>
-        <select
+        <Select
           id={inputId}
           name={id}
           required={required}
@@ -218,15 +216,15 @@ function PublicQuestion({
           {(kind === 'yes_no' ? ['Sim', 'Não'] : (question.options ?? [])).map((option) => (
             <option key={option}>{option}</option>
           ))}
-        </select>
+        </Select>
       </Field>
     );
   return (
     <Field id={inputId} label={label}>
       {kind === 'long_text' ? (
-        <textarea id={inputId} name={id} required={required} maxLength={5000} />
+        <TextArea id={inputId} name={id} required={required} maxLength={5000} />
       ) : (
-        <input id={inputId} name={id} required={required} {...inputSettings[kind]} />
+        <Input id={inputId} name={id} required={required} {...inputSettings[kind]} />
       )}
     </Field>
   );

@@ -72,6 +72,29 @@ function fixture(fail = false, signedOut = false) {
 }
 
 describe('aceite explícito na jornada de acesso', () => {
+  it('recupera os termos indisponíveis sem pedir novo código para a sessão atual', async () => {
+    const { router, api } = fixture();
+    const read = api.read;
+    let unavailable = true;
+    api.read = async (signal) => {
+      const current = await read(signal);
+      if (!unavailable) return current;
+      unavailable = false;
+      return { ...current, status: 'terms_unavailable', terms: null };
+    };
+    await act(async () => {
+      await router.load();
+    });
+    render(<App router={router} />);
+
+    expect(
+      await screen.findByText('Os termos estão indisponíveis no momento. Tente novamente.'),
+    ).toBeTruthy();
+    expect(screen.queryByRole('form', { name: 'Acesso por código' })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+    expect(await screen.findByRole('button', { name: 'Aceitar e continuar' })).toBeTruthy();
+  });
+
   it('envia somente versão/hash e entra apenas após confirmação de servidor', async () => {
     const { router, acceptTerms } = fixture();
     await act(async () => {

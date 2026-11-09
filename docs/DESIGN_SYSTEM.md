@@ -1,6 +1,6 @@
 # Design system CALI
 
-Estado: **regras confirmadas; tokens, Button, Field, Checkbox e FeedbackState implementados no recorte; demais contratos propostos**. Atualização: 02/11/2026. Fonte visual vigente: [main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2). [Regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios; a adoção inicial atende empresas, sem migrar todas as prévias nem homologar o DS completo.
+Estado: **tokens, ações, controles de formulário e feedback implementados. Demais contratos conforme o catálogo**. Atualização de 09/11/2026. Fonte visual vigente em [main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2). As [regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios.
 
 Este documento é dono de tokens, primitivas e seus contratos. Composição de telas, hierarquia de ações, escolha de página/drawer/modal e continuidade de tarefas pertencem a [UX/UI](UX_UI.md). Usar o [Catálogo de fluxos](FLOW_CATALOG.md) para aplicar essas peças a uma jornada concreta.
 
@@ -85,6 +85,14 @@ Reutilizar esse vocabulário entre componentes que compartilhem a mesma hierarqu
 
 `CodeInput` permanece em `features/access`: compartilha o contrato nativo de seis dígitos/autocomplete entre código de acesso e MFA; sua semântica não exige uma primitiva genérica do DS. HTML estrutural/semântico continua permitido; criar componente por tarefa, comportamento ou padrão recorrente, sem wrappers vazios.
 
+## Controles, ações e mensagens — 09/11
+
+- Formulários usam `Input`, `Select`, `TextArea`, `FileInput` e `CheckboxInput` nos tipos existentes, também nas demonstrações. As primitivas preservam as semânticas nativas. `Field` organiza rótulo, controle e validação. O rótulo fica a 8 px do controle, e a mensagem de validação fica a 12 px do controle. O consumidor mantém a associação com `aria-describedby` e `aria-invalid`.
+- `Select` de escolha única usa 12 px de recuo para o texto e para a seta. Reserva espaço para o ícone e mantém a lista nativa. O modo de cores forçadas usa a seta do sistema.
+- `FileInput` mostra a ação em português e os nomes dos arquivos. Mantém seleção simples ou múltipla, `accept`, validação obrigatória e envio por `FormData`. O reset do formulário limpa a seleção e o rótulo.
+- `FeedbackMessage` usa texto, ícone e borda para distinguir sucesso em verde (`status`) e erro em vermelho (`alert`). Carregamento, vazio e informação usam a apresentação neutra. `FeedbackState` mantém o botão de nova tentativa fora da mensagem anunciada.
+- Em Acesso, ação principal e saída têm a mesma largura e altura quando cabem lado a lado, com 12 px entre elas. A cor distingue a ação principal da secundária.
+
 ## Ficha administrativa — 02/11
 
 O cadastro administrativo reutiliza Button, Field e FeedbackState. Field passa a aplicar a mesma aparência/token a textarea nativa, preservando label/erro e descrições no consumidor. Grupos são fieldsets com legend, grid de duas colunas/uma no mobile; consulta usa details/summary nativos por assunto. Controles recorrentes de texto, data, seleção e observação ficam no componente de campos da feature, com configuração tipada e sem wrappers sem comportamento. Foco inicia no primeiro campo e retorna ao título da ficha ao salvar/cancelar/descartar; pendente desabilita os fieldsets. Não há overlay, tabs ou paleta paralela.
@@ -100,7 +108,7 @@ Field explicita herança da família tipográfica nos controles nativos, incluin
 | `Button`/`IconButton` | Variantes, tamanho/densidade, disabled, pending, nome acessível, bloqueio de duplo envio | Todos os fluxos |
 | `PageShell`/`PageHeader`/`FilterBar` | Slots, título único, ações/filtros responsivos | Equipe, Horas, Admin |
 | `Tabs` | Controlado, identificadores estáveis; navegação ou painel local explicitamente definidos | Equipe e Projetos |
-| `Field`/`TextInput`/`Select`/`TextArea` | Label, ajuda, erro associado, required/disabled; sem placeholder como único label | Busca e formulários |
+| `Field`/`Input`/`Select`/`TextArea`/`FileInput`/`CheckboxInput` | Label, ajuda, erro associado, required/disabled; sem placeholder como único label | Busca e formulários |
 | `Badge`/`StatusBadge` | Texto + semântica, sem inferir permissão; estados oficiais mapeados por domínio | Entregas, ocorrências, avisos |
 | `Dialog`/`Drawer` | Título, foco inicial/contenção/retorno, Escape, overlay, scroll e ação pendente | Pessoa, documento, ocorrência |
 | `Popover`/`DropdownMenu` | Dono único de posicionamento, colisão, teclado e fechamento | Perfil, notificações, flyout |

@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select } from '../../components/ds/field/Controls';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { PartnerPilot, PartnerTimerCommand } from '../../api/modules/partner/pilot';
@@ -99,7 +101,7 @@ export function PartnerTimer({
           }}
         >
           <Field id={`${formId}-description`} label="Descrição da atividade">
-            <input
+            <Input
               id={`${formId}-description`}
               value={description}
               required
@@ -110,7 +112,7 @@ export function PartnerTimer({
             />
           </Field>
           <Field id={`${formId}-target`} label="Vínculo do cronômetro">
-            <select
+            <Select
               id={`${formId}-target`}
               value={targetKey}
               disabled={change.isPending}
@@ -123,7 +125,7 @@ export function PartnerTimer({
                 </option>
               ))}
               {targetKey && !target && <option value={targetKey}>Vínculo indisponível</option>}
-            </select>
+            </Select>
           </Field>
           <div>
             <Button
@@ -137,9 +139,9 @@ export function PartnerTimer({
         </form>
       )}
       {change.error && (
-        <p ref={feedback} role="alert" tabIndex={-1}>
+        <FeedbackMessage ref={feedback} tone="error" tabIndex={-1}>
           {change.error.message}
-        </p>
+        </FeedbackMessage>
       )}
       {result?.status === 'discarded' && (
         <p ref={feedback} role="status" tabIndex={-1}>
@@ -147,9 +149,9 @@ export function PartnerTimer({
         </p>
       )}
       {result?.status === 'stopped' && (
-        <p ref={feedback} role="status" tabIndex={-1}>
+        <FeedbackMessage ref={feedback} tone="success" tabIndex={-1}>
           Trecho registrado: {result.minutes} min.
-        </p>
+        </FeedbackMessage>
       )}
     </section>
   );

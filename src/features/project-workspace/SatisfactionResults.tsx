@@ -1,3 +1,4 @@
+import { Select, TextArea } from '../../components/ds/field/Controls';
 import {
   type FollowupTheme,
   type SatisfactionEntry,
@@ -56,7 +57,7 @@ export function SatisfactionResults({
               {(prefix) => (
                 <>
                   <Field id={prefix + 'theme'} label="Tema">
-                    <select
+                    <Select
                       id={prefix + 'theme'}
                       name="theme"
                       defaultValue={entry.followup?.theme ?? ''}
@@ -67,10 +68,10 @@ export function SatisfactionResults({
                           {label}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </Field>
                   <Field id={prefix + 'note'} label="Anotação interna">
-                    <textarea
+                    <TextArea
                       id={prefix + 'note'}
                       name="note"
                       maxLength={2000}

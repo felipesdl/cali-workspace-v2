@@ -1,3 +1,4 @@
+import { FileInput } from '../../components/ds/field/FileInput';
 import { type CompanyLogo } from '../../api/modules/companies/registration-schemas';
 import { type useLogoSelection } from './hooks/useLogoSelection';
 import { LogoPreview } from './LogoPreview';
@@ -24,9 +25,8 @@ export function LogoPicker({
       </legend>
       <LogoPreview logo={value} alt="Prévia da logo da empresa" />
       <Field id="registration-logo-file" label="Selecionar logo" error={message}>
-        <input
+        <FileInput
           id="registration-logo-file"
-          type="file"
           accept="image/png,image/jpeg,image/webp,image/avif,image/svg+xml"
           aria-invalid={Boolean(message)}
           aria-describedby={message ? 'registration-logo-file-error' : 'registration-logo-help'}

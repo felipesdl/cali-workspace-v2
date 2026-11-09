@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useId, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { useHostedRegistration } from '../../api/modules/companies/hooks/useHostedRegistration';
@@ -89,17 +91,17 @@ function RegistrationEditor({
               return (
                 <Field id={id} label={fields[name]} error={message}>
                   {name === 'has_branches' ? (
-                    <select {...props} onChange={(event) => field.handleChange(event.target.value)}>
+                    <Select {...props} onChange={(event) => field.handleChange(event.target.value)}>
                       <option value="no">Não</option>
                       <option value="yes">Sim</option>
-                    </select>
+                    </Select>
                   ) : name === 'branches' ? (
-                    <textarea
+                    <TextArea
                       {...props}
                       onChange={(event) => field.handleChange(event.target.value)}
                     />
                   ) : (
-                    <input
+                    <Input
                       {...props}
                       inputMode={name === 'monthly_hours_contracted' ? 'decimal' : undefined}
                       onChange={(event) => field.handleChange(event.target.value)}
@@ -191,7 +193,7 @@ export function HostedRegistration({ companyId }: { companyId: string }) {
           )}
         </>
       )}
-      {saved && <p role="status">Cadastro complementar salvo.</p>}
+      {saved && <FeedbackMessage tone="success">Cadastro complementar salvo.</FeedbackMessage>}
     </section>
   );
 }

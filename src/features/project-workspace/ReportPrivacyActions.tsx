@@ -1,3 +1,6 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
+import { CheckboxInput } from '../../components/ds/checkbox/Checkbox';
 import { useEffect, useRef, useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
@@ -106,7 +109,7 @@ function CompanyDataActions({
         <summary>Exportação de dados da empresa</summary>
         <div className="tw:grid tw:gap-2">
           <Field id="company-export-recipient" label="Destinatário autorizado">
-            <input
+            <Input
               id="company-export-recipient"
               value={recipient}
               maxLength={200}
@@ -117,8 +120,7 @@ function CompanyDataActions({
             />
           </Field>
           <label>
-            <input
-              type="checkbox"
+            <CheckboxInput
               checked={confirmed}
               onChange={(event) => setConfirmed(event.currentTarget.checked)}
             />
@@ -264,7 +266,7 @@ export function PrivacyActions({
           {(prefix) => (
             <>
               <Field id={prefix + 'kind'} label="Tipo de pedido">
-                <select id={prefix + 'kind'} name="kind" required defaultValue="">
+                <Select id={prefix + 'kind'} name="kind" required defaultValue="">
                   <option value="" disabled>
                     Selecione
                   </option>
@@ -273,10 +275,10 @@ export function PrivacyActions({
                       {label}
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
               <Field id={prefix + 'details'} label="Descrição do pedido">
-                <textarea
+                <TextArea
                   id={prefix + 'details'}
                   name="details"
                   required
@@ -306,9 +308,9 @@ export function PrivacyActions({
           <p className="tw:whitespace-pre-line">{request.details}</p>
           {request.answer && <p className="tw:whitespace-pre-line">{request.answer}</p>}
           {answeredId === request.id && (
-            <p ref={receipt} role="status" tabIndex={-1} className="tw:m-0 tw:text-caption">
+            <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
               Resposta registrada.
-            </p>
+            </FeedbackMessage>
           )}
           {admin && request.status === 'open' && (
             <ActionForm
@@ -328,7 +330,7 @@ export function PrivacyActions({
             >
               {(prefix) => (
                 <Field id={prefix + 'answer'} label="Resposta">
-                  <textarea
+                  <TextArea
                     id={prefix + 'answer'}
                     name="answer"
                     required
@@ -373,7 +375,7 @@ export function ReportReadiness({ company, actor }: { company: string; actor?: s
   return (
     <section aria-label="Preparação do relatório" className="tw:grid tw:gap-2">
       <Field id="report-readiness-month" label="Mês para verificar preparação">
-        <input
+        <Input
           id="report-readiness-month"
           type="month"
           value={month}
@@ -381,7 +383,9 @@ export function ReportReadiness({ company, actor }: { company: string; actor?: s
         />
       </Field>
       {month && result.isPending && <p role="status">Verificando o período…</p>}
-      {result.isError && <p role="alert">Não foi possível consultar a preparação.</p>}
+      {result.isError && (
+        <FeedbackMessage tone="error">Não foi possível consultar a preparação.</FeedbackMessage>
+      )}
       {result.data && (
         <p>
           {result.data.mode === 'official'
@@ -401,7 +405,8 @@ export function ReportAcknowledgment({ company, report }: { company: string; rep
   const [protocol, setProtocol] = useState('');
   if (!domainOperations) return null;
   const operations = domainOperations;
-  if (protocol) return <p role="status">Ciência registrada · {protocol}</p>;
+  if (protocol)
+    return <FeedbackMessage tone="success">Ciência registrada · {protocol}</FeedbackMessage>;
   return (
     <ActionForm
       label="Registrar ciência do relatório"

@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { useForm } from '@tanstack/react-form';
 import { companyAccessFieldsSchema } from '../../api/modules/companies/management-schemas';
@@ -49,7 +51,7 @@ export function NewAccess({
               const id = `new-access-${name}`;
               return (
                 <Field id={id} label={label} error={error}>
-                  <input
+                  <Input
                     id={id}
                     type={name === 'email' ? 'email' : 'text'}
                     autoFocus={name === 'name'}
@@ -68,7 +70,7 @@ export function NewAccess({
           </form.Field>
         ))}
       </div>
-      {add.isError && <p role="alert">{add.error.message}</p>}
+      {add.isError && <FeedbackMessage tone="error">{add.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-3">
         <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting] as const}>
           {([canSubmit, submitting]) => (

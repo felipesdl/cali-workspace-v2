@@ -19,6 +19,12 @@
   --color-border-default: var(--border-default);
   --color-action-primary: var(--action-primary);
   --color-focus: var(--focus-ring);
+  --color-feedback-success: var(--feedback-success-text);
+  --color-feedback-success-surface: var(--feedback-success-surface);
+  --color-feedback-success-border: var(--feedback-success-border);
+  --color-feedback-error: var(--feedback-error-text);
+  --color-feedback-error-surface: var(--feedback-error-surface);
+  --color-feedback-error-border: var(--feedback-error-border);
   --radius-control: var(--radius-control);
   --radius-media: var(--radius-media);
   --text-body: var(--font-size-body);

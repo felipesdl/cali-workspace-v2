@@ -8,6 +8,12 @@
   --border-default: #ded5ca;
   --action-primary: var(--color-brand-burgundy);
   --focus-ring: var(--color-brand-burgundy);
+  --feedback-success-text: #215943;
+  --feedback-success-surface: #eaf6ef;
+  --feedback-success-border: #367b60;
+  --feedback-error-text: #842d38;
+  --feedback-error-surface: #fbedef;
+  --feedback-error-border: #b84d51;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;

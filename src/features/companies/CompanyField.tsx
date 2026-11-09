@@ -1,3 +1,4 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { Field } from '../../components/ds/field/Field';
 type Base<Name extends string> = { name: Name; label: string; help?: string };
 export type CompanyFieldDefinition<Name extends string> = Base<Name> &
@@ -37,18 +38,18 @@ export function CompanyField({
   function control() {
     if (definition.control === 'select')
       return (
-        <select {...common} onChange={(event) => onChange(event.target.value)}>
+        <Select {...common} onChange={(event) => onChange(event.target.value)}>
           {definition.options.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
-        </select>
+        </Select>
       );
     if (definition.control === 'suggestion')
       return (
         <>
-          <input
+          <Input
             {...common}
             list={`${id}-options`}
             autoComplete="off"
@@ -64,7 +65,7 @@ export function CompanyField({
         </>
       );
     if (definition.control === 'textarea')
-      return <textarea {...common} rows={3} onChange={(event) => onChange(event.target.value)} />;
+      return <TextArea {...common} rows={3} onChange={(event) => onChange(event.target.value)} />;
     const modes = {
       text: 'text',
       email: 'email',
@@ -75,7 +76,7 @@ export function CompanyField({
     const type =
       definition.control === 'date' || definition.control === 'email' ? definition.control : 'text';
     return (
-      <input
+      <Input
         {...common}
         type={type}
         inputMode={modes[definition.control]}

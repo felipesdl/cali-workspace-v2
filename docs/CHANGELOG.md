@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Campos, ações e mensagens da interface
+
+- Migra os controles de formulário para o design system. Localiza o seletor de arquivos, alinha a seta do select e padroniza as ações de acesso.
+- Diferencia sucesso e falha com cor, borda e ícone e separa a validação do campo por 12 px. Mantém nova tentativa de consultar termos e foco nos recibos de publicação e download. [Validação em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#campos-ações-e-mensagens-da-interface).
+
 ## Comparação dos módulos com a main em 375 e 1366 px
 
 - Compara 20 telas demonstrativas com a main da V2. Ajusta texto longo nos fluxos conectados de Projetos, Equipe, Propostas, Auditoria, Equipe CALI, Mapa de People, Satisfação, DISC, Termos, Privacidade, Agenda e Ocorrências.

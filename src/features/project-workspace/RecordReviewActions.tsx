@@ -1,3 +1,4 @@
+import { Select, TextArea } from '../../components/ds/field/Controls';
 import {
   type RecordFeedback,
   type RecordReopen,
@@ -27,7 +28,7 @@ function Note({
 }) {
   return (
     <Field id={prefix + 'note'} label={label}>
-      <textarea
+      <TextArea
         id={prefix + 'note'}
         name="note"
         required={required}
@@ -76,7 +77,7 @@ export function RecordReviewActions({
           {(prefix) => (
             <>
               <Field id={prefix + 'score'} label="Nota de 1 a 5">
-                <select
+                <Select
                   id={prefix + 'score'}
                   name="score"
                   required
@@ -90,7 +91,7 @@ export function RecordReviewActions({
                       {score}
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
               <Note
                 prefix={prefix}

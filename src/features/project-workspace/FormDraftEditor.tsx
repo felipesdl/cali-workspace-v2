@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useEffect, useRef, useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -78,10 +80,10 @@ export function NewFormDraft({ company, actor, operations, saved }: Scope & { sa
       {(prefix) => (
         <>
           <Field id={prefix + 'title'} label="Título do formulário">
-            <input id={prefix + 'title'} name="title" required maxLength={160} />
+            <Input id={prefix + 'title'} name="title" required maxLength={160} />
           </Field>
           <Field id={prefix + 'slug'} label="Identificador do endereço">
-            <input
+            <Input
               id={prefix + 'slug'}
               name="slug"
               required
@@ -157,9 +159,9 @@ export function FormDraftEditor({
         <p>Este formulário não está disponível para edição.</p>
       )}
       {showReceipt && (
-        <p ref={receipt} role="status" tabIndex={-1} className="tw:m-0 tw:text-caption">
+        <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
           Rascunho atualizado.
-        </p>
+        </FeedbackMessage>
       )}
       {open && query.data && (
         <DraftContent key={query.data.updatedAt} draft={query.data} save={save} />
@@ -189,7 +191,7 @@ function QuestionFields({
         id={prefix + 'label'}
         label={kind === 'statement' ? 'Texto do bloco' : 'Texto da pergunta'}
       >
-        <textarea
+        <TextArea
           id={prefix + 'label'}
           name="label"
           defaultValue={label}
@@ -199,7 +201,7 @@ function QuestionFields({
       </Field>
       {hasChoices(kind) && (
         <Field id={prefix + 'options'} label="Opções, uma por linha">
-          <textarea
+          <TextArea
             id={prefix + 'options'}
             name="options"
             required
@@ -210,7 +212,7 @@ function QuestionFields({
       {kind === 'scale' &&
         scaleFields.map(({ name, label, defaultValue, numeric }) => (
           <Field key={name} id={prefix + name} label={label}>
-            <input
+            <Input
               id={prefix + name}
               name={name}
               defaultValue={scale?.[name] ?? defaultValue}
@@ -252,7 +254,7 @@ function DraftContent({
         {(prefix) => (
           <>
             <Field id={prefix + 'title'} label="Título">
-              <input
+              <Input
                 id={prefix + 'title'}
                 name="title"
                 required
@@ -261,7 +263,7 @@ function DraftContent({
               />
             </Field>
             <Field id={prefix + 'description'} label="Descrição">
-              <textarea
+              <TextArea
                 id={prefix + 'description'}
                 name="description"
                 maxLength={1200}
@@ -329,7 +331,7 @@ function DraftContent({
           {(prefix) => (
             <>
               <Field id={prefix + 'kind'} label="Tipo de resposta">
-                <select
+                <Select
                   id={prefix + 'kind'}
                   name="kind"
                   value={kind}
@@ -346,7 +348,7 @@ function DraftContent({
                         {questionLabels[kind]}
                       </option>
                     ))}
-                </select>
+                </Select>
               </Field>
               <QuestionFields prefix={prefix} kind={kind} required />
             </>
@@ -392,7 +394,7 @@ function QuestionBranch({
             const name = 'route-' + index;
             return (
               <Field key={option} id={prefix + name} label={'Se responder ' + option}>
-                <select
+                <Select
                   id={prefix + name}
                   name={name}
                   defaultValue={question.logic?.find((rule) => rule.when === option)?.goTo ?? ''}
@@ -404,7 +406,7 @@ function QuestionBranch({
                     </option>
                   ))}
                   <option value={FORM_BRANCH_END}>Encerrar perguntas</option>
-                </select>
+                </Select>
               </Field>
             );
           })

@@ -1,3 +1,4 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { type AgendaOperations } from '../../api/modules/project-workspace/agenda';
 import { Checkbox } from '../../components/ds/checkbox/Checkbox';
@@ -40,7 +41,7 @@ export function AgendaExtraRequest({
       {(prefix) => (
         <>
           <Field id={prefix + 'mode'} label="Formato adicional">
-            <select
+            <Select
               id={prefix + 'mode'}
               value={mode}
               onChange={(event) =>
@@ -49,18 +50,18 @@ export function AgendaExtraRequest({
             >
               <option value="remote">Online</option>
               <option value="in_person">Visita presencial</option>
-            </select>
+            </Select>
           </Field>
           <Field id={prefix + 'title'} label="Assunto">
-            <input id={prefix + 'title'} name="title" minLength={2} maxLength={149} required />
+            <Input id={prefix + 'title'} name="title" minLength={2} maxLength={149} required />
           </Field>
           <Field id={prefix + 'purpose'} label="Finalidade">
-            <textarea id={prefix + 'purpose'} name="purpose" maxLength={2000} />
+            <TextArea id={prefix + 'purpose'} name="purpose" maxLength={2000} />
           </Field>
           {visit ? (
             <>
               <Field id={prefix + 'location'} label="Endereço da visita">
-                <input
+                <Input
                   id={prefix + 'location'}
                   name="location"
                   minLength={5}
@@ -81,10 +82,10 @@ export function AgendaExtraRequest({
             </>
           ) : (
             <Field id={prefix + 'duration'} label="Duração e valor">
-              <select id={prefix + 'duration'} name="duration">
+              <Select id={prefix + 'duration'} name="duration">
                 <option value="60">1 hora · R$ 200,00</option>
                 <option value="90">1h30 · R$ 300,00</option>
-              </select>
+              </Select>
             </Field>
           )}
           {options.map((option, index) => (
@@ -93,11 +94,11 @@ export function AgendaExtraRequest({
               id={prefix + option}
               label={`Início da opção ${index + 1} (Brasília)`}
             >
-              <input id={prefix + option} name={option} type="datetime-local" required />
+              <Input id={prefix + option} name={option} type="datetime-local" required />
             </Field>
           ))}
           <Field id={prefix + 'ackName'} label="Nome completo">
-            <input id={prefix + 'ackName'} name="ackName" minLength={5} maxLength={160} required />
+            <Input id={prefix + 'ackName'} name="ackName" minLength={5} maxLength={160} required />
           </Field>
           <Checkbox name="ack" required>
             Li e aceito o valor e as condições. O pedido depende da confirmação da CALI.

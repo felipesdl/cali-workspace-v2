@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouteContext } from '@tanstack/react-router';
@@ -338,7 +339,9 @@ function PartnerGate({ api, actions }: { api: PartnerPilot; actions?: ReactNode 
   return accessFrame(
     <section className={panel} aria-label="Acesso da Equipe CALI">
       {content}
-      {confirmation.isError && <p role="alert">{confirmation.error.message}</p>}
+      {confirmation.isError && (
+        <FeedbackMessage tone="error">{confirmation.error.message}</FeedbackMessage>
+      )}
     </section>,
   );
 }

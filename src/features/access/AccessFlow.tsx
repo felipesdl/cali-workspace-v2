@@ -1,8 +1,12 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { type HostedAccessApi } from '../../api/modules/access/api';
 import { type SessionController, type SessionState } from '../../app/session/controller';
+import { accessReasonMessages } from '../../app/session/access-reason';
 import { type WorkspaceAccessState } from '../../api/modules/access/session';
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
+import { AccessActions } from './AccessActions';
 import { CodeForm } from './CodeForm';
 import { MfaForm } from './MfaForm';
 import { TermsAcceptance } from './TermsAcceptance';
@@ -25,8 +29,9 @@ type AccessStepProps = {
   state: SessionState;
   access: WorkspaceAccessState | null;
   acceptance: ReturnType<typeof useTermsAcceptance>;
+  exitAction: ReactNode;
 };
-function AccessStep({ api, session, state, access, acceptance }: AccessStepProps) {
+function AccessStep({ api, session, state, access, acceptance, exitAction }: AccessStepProps) {
   switch (state.phase) {
     case 'loading':
     case 'idle':
@@ -41,28 +46,44 @@ function AccessStep({ api, session, state, access, acceptance }: AccessStepProps
   switch (access?.status) {
     case 'blocked':
       return (
-        <FeedbackState kind="error">
-          Seu acesso está indisponível. Entre em contato com a CALI.
-        </FeedbackState>
+        <>
+          <FeedbackState kind="error">
+            Seu acesso está indisponível. Entre em contato com a CALI.
+          </FeedbackState>
+          <AccessActions>{exitAction}</AccessActions>
+        </>
       );
     case 'mfa_required':
       return (
         <MfaForm
           api={api}
+          exitAction={exitAction}
           onConfirmed={async () => {
             await session.refresh();
           }}
         />
       );
     case 'terms_required':
-      if (access.terms) return <TermsAcceptance terms={access.terms} {...acceptance} />;
+      if (access.terms)
+        return <TermsAcceptance terms={access.terms} exitAction={exitAction} {...acceptance} />;
       break;
+    case 'terms_unavailable':
+      return (
+        <>
+          <FeedbackState kind="error">{accessReasonMessages.terms_unavailable}</FeedbackState>
+          <AccessActions>
+            <Button onClick={() => void session.refresh()}>Tentar novamente</Button>
+            {exitAction}
+          </AccessActions>
+        </>
+      );
     case 'ready':
       return <FeedbackState kind="loading">Abrindo seu Workspace…</FeedbackState>;
   }
   return (
     <CodeForm
       api={api}
+      exitAction={exitAction}
       onConfirmed={async () => {
         await session.refresh();
       }}
@@ -81,15 +102,32 @@ export function AccessFlow({
 }) {
   const { state, access } = useAccessFlow(session, returnTo);
   const acceptance = useTermsAcceptance(api, session, access);
+  const exitAction = (access?.profile || access?.status === 'blocked') && (
+    <Button variant="secondary" onClick={() => void session.signOut()}>
+      Sair
+    </Button>
+  );
+  const heading = useRef<HTMLHeadingElement>(null);
+  const status = access?.status;
+  useEffect(() => {
+    if (status && status !== 'ready' && document.activeElement === document.body) {
+      heading.current?.focus();
+    }
+  }, [status]);
   return (
-    <main className="tw:grid tw:min-h-screen tw:place-items-center tw:bg-ivory tw:p-6 tw:text-body tw:text-copy tw:mobile:p-4">
+    <main className="workspace-frame tw:box-border tw:grid tw:min-h-dvh tw:place-items-center tw:bg-ivory tw:p-6 tw:text-body tw:text-copy tw:mobile:p-4">
       <section
-        className="tw:box-border tw:w-full tw:max-w-2xl tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-6 tw:mobile:p-4"
+        className="tw:box-border tw:w-full tw:max-w-2xl tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-6 tw:wrap-anywhere tw:mobile:p-4"
         aria-labelledby="access-title"
         aria-busy={acceptance.busy || state.phase === 'loading'}
       >
         <p className="tw:mb-6 tw:font-bold tw:tracking-widest tw:text-brand">CALI · WORKSPACE</p>
-        <h1 id="access-title" className="tw:text-section tw:font-bold tw:text-brand">
+        <h1
+          ref={heading}
+          id="access-title"
+          tabIndex={-1}
+          className="tw:text-section tw:font-bold tw:text-brand"
+        >
           {accessTitle(access?.status)}
         </h1>
         <AccessStep
@@ -98,15 +136,9 @@ export function AccessFlow({
           state={state}
           access={access}
           acceptance={acceptance}
+          exitAction={exitAction}
         />
-        {acceptance.message && <p role="alert">{acceptance.message}</p>}
-        {(access?.profile || access?.status === 'blocked') && (
-          <div className="tw:mt-6">
-            <Button variant="secondary" onClick={() => void session.signOut()}>
-              Sair
-            </Button>
-          </div>
-        )}
+        {acceptance.message && <FeedbackMessage tone="error">{acceptance.message}</FeedbackMessage>}
       </section>
     </main>
   );

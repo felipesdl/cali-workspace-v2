@@ -1,3 +1,6 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
+import { type ReactNode } from 'react';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { useForm } from '@tanstack/react-form';
 import { type HostedAccessApi } from '../../api/modules/access/api';
@@ -5,15 +8,18 @@ import { Button } from '../../components/ds/button/Button';
 import { Field } from '../../components/ds/field/Field';
 import { CodeInput } from './CodeInput';
 import { useMfaEnrollment } from './hooks/useMfaEnrollment';
+import { AccessActions } from './AccessActions';
 
 export function MfaForm({
   api,
   onConfirmed,
   audience = 'Admin',
+  exitAction,
 }: {
   api: HostedAccessApi;
   onConfirmed: () => Promise<void>;
   audience?: 'Admin' | 'Partner';
+  exitAction?: ReactNode;
 }) {
   const { factor, enrollment, loading, failed, message, setMessage, setEnrollment, retry, enroll } =
     useMfaEnrollment(api);
@@ -31,12 +37,22 @@ export function MfaForm({
       }
     },
   });
-  if (loading) return <FeedbackState kind="loading">Consultando autenticador…</FeedbackState>;
+  if (loading)
+    return (
+      <>
+        <FeedbackState kind="loading">Consultando autenticador…</FeedbackState>
+        {exitAction && <AccessActions>{exitAction}</AccessActions>}
+      </>
+    );
   if (failed)
     return (
-      <FeedbackState kind="error" onRetry={retry}>
-        Não foi possível consultar o autenticador.
-      </FeedbackState>
+      <>
+        <FeedbackState kind="error">Não foi possível consultar o autenticador.</FeedbackState>
+        <AccessActions>
+          <Button onClick={retry}>Tentar novamente</Button>
+          {exitAction}
+        </AccessActions>
+      </>
     );
   return (
     <div className="tw:mt-4 tw:grid tw:gap-4">
@@ -45,9 +61,12 @@ export function MfaForm({
         bloqueado.
       </p>
       {!factor && (
-        <Button pending={loading} onClick={() => void enroll()}>
-          Configurar autenticador
-        </Button>
+        <AccessActions>
+          <Button pending={loading} onClick={() => void enroll()}>
+            Configurar autenticador
+          </Button>
+          {exitAction}
+        </AccessActions>
       )}
       {enrollment && (
         <div className="tw:grid tw:gap-3">
@@ -59,7 +78,7 @@ export function MfaForm({
             height={220}
           />
           <Field id="totp-secret" label="Chave para configuração manual">
-            <input
+            <Input
               id="totp-secret"
               type="password"
               readOnly
@@ -81,20 +100,28 @@ export function MfaForm({
           <form.Field name="code">
             {(field) => (
               <Field id="mfa-code" label="Código do autenticador">
-                <CodeInput id="mfa-code" value={field.state.value} onChange={field.handleChange} />
+                <CodeInput
+                  id="mfa-code"
+                  value={field.state.value}
+                  onChange={field.handleChange}
+                  autoFocus
+                />
               </Field>
             )}
           </form.Field>
           <form.Subscribe selector={(s) => s.isSubmitting}>
             {(pending) => (
-              <Button type="submit" pending={pending}>
-                Confirmar autenticador
-              </Button>
+              <AccessActions>
+                <Button type="submit" pending={pending}>
+                  Confirmar autenticador
+                </Button>
+                {exitAction}
+              </AccessActions>
             )}
           </form.Subscribe>
         </form>
       )}
-      {message && <p role="alert">{message}</p>}
+      {message && <FeedbackMessage tone="error">{message}</FeedbackMessage>}
     </div>
   );
 }

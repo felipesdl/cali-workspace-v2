@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { ActionForm } from './ActionForm';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -41,13 +43,13 @@ export function CreateProject({
           {(prefix) => (
             <>
               <Field id={prefix + 'name'} label="Nome do projeto">
-                <input id={prefix + 'name'} name="name" required maxLength={180} />
+                <Input id={prefix + 'name'} name="name" required maxLength={180} />
               </Field>
               <Field id={prefix + 'start'} label="Início planejado">
-                <input id={prefix + 'start'} name="start" type="date" required />
+                <Input id={prefix + 'start'} name="start" type="date" required />
               </Field>
               <Field id={prefix + 'description'} label="Objetivo">
-                <textarea id={prefix + 'description'} name="description" maxLength={8000} />
+                <TextArea id={prefix + 'description'} name="description" maxLength={8000} />
               </Field>
             </>
           )}
@@ -88,7 +90,7 @@ function AddItem({
       {(prefix) => (
         <>
           <Field id={prefix + 'kind'} label="Tipo de item">
-            <select
+            <Select
               id={prefix + 'kind'}
               value={kind}
               onChange={(event) =>
@@ -97,25 +99,25 @@ function AddItem({
             >
               <option value="workstream">Frente</option>
               <option value="deliverable">Entregável</option>
-            </select>
+            </Select>
           </Field>
           <Field id={prefix + 'name'} label="Nome do item">
-            <input id={prefix + 'name'} name="name" required maxLength={180} />
+            <Input id={prefix + 'name'} name="name" required maxLength={180} />
           </Field>
           {kind === 'deliverable' && (
             <>
               <Field id={prefix + 'front'} label="Frente">
-                <select id={prefix + 'front'} name="workstream">
+                <Select id={prefix + 'front'} name="workstream">
                   <option value="">Sem frente</option>
                   {choices.map((choice) => (
                     <option key={choice.id} value={choice.id}>
                       {choice.name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </Field>
               <Field id={prefix + 'due'} label="Prazo em horário de Brasília">
-                <input id={prefix + 'due'} name="due" type="datetime-local" required />
+                <Input id={prefix + 'due'} name="due" type="datetime-local" required />
               </Field>
             </>
           )}
@@ -147,7 +149,7 @@ function DraftActions({
   return (
     <div className="tw:grid tw:gap-3">
       {choices.isError ? (
-        <p role="alert">Não foi possível carregar as frentes.</p>
+        <FeedbackMessage tone="error">Não foi possível carregar as frentes.</FeedbackMessage>
       ) : (
         <AddItem project={project} choices={choices.data?.items.rows ?? []} submit={submit} />
       )}
@@ -256,13 +258,13 @@ export function ProjectActions({
               uma nova revisão para o Cliente.
             </p>
             <Field id={prefix + 'decision'} label="Decisão">
-              <select id={prefix + 'decision'} name="decision" required defaultValue="">
+              <Select id={prefix + 'decision'} name="decision" required defaultValue="">
                 <option value="" disabled>
                   Selecione
                 </option>
                 <option value="accept">Acolher ajuste</option>
                 <option value="reject">Recusar ajuste</option>
-              </select>
+              </Select>
             </Field>
             <ReviewNote prefix={prefix} />
           </>
@@ -275,7 +277,7 @@ export function ProjectActions({
 function ReviewNote({ prefix, minimum = 3 }: { prefix: string; minimum?: number }) {
   return (
     <Field id={prefix + 'note'} label="Justificativa">
-      <textarea id={prefix + 'note'} name="note" required minLength={minimum} maxLength={4000} />
+      <TextArea id={prefix + 'note'} name="note" required minLength={minimum} maxLength={4000} />
     </Field>
   );
 }
@@ -342,7 +344,7 @@ export function DeliveryActions({
         {(prefix) => (
           <>
             <Field id={prefix + 'status'} label="Próxima situação">
-              <select id={prefix + 'status'} name="status" required defaultValue="">
+              <Select id={prefix + 'status'} name="status" required defaultValue="">
                 <option value="" disabled>
                   Selecione
                 </option>
@@ -353,13 +355,13 @@ export function DeliveryActions({
                       {label}
                     </option>
                   ))}
-              </select>
+              </Select>
             </Field>
             <Field
               id={prefix + 'note'}
               label="Motivo para espera, revisão de escopo ou cancelamento"
             >
-              <textarea id={prefix + 'note'} name="note" maxLength={4000} />
+              <TextArea id={prefix + 'note'} name="note" maxLength={4000} />
             </Field>
           </>
         )}
@@ -382,7 +384,7 @@ export function DeliveryActions({
         {(prefix) => (
           <>
             <Field id={prefix + 'score'} label="Avaliação de 1 a 5">
-              <select id={prefix + 'score'} name="score" required defaultValue="">
+              <Select id={prefix + 'score'} name="score" required defaultValue="">
                 <option value="" disabled>
                   Selecione
                 </option>
@@ -391,10 +393,10 @@ export function DeliveryActions({
                     {score}
                   </option>
                 ))}
-              </select>
+              </Select>
             </Field>
             <Field id={prefix + 'note'} label="Comentário obrigatório para notas de 1 a 3">
-              <textarea id={prefix + 'note'} name="note" maxLength={4000} />
+              <TextArea id={prefix + 'note'} name="note" maxLength={4000} />
             </Field>
           </>
         )}
@@ -465,7 +467,7 @@ export function LifecycleActions({
       {(prefix) => (
         <>
           <Field id={prefix + 'action'} label="Ação">
-            <select id={prefix + 'action'} name="action" required defaultValue="">
+            <Select id={prefix + 'action'} name="action" required defaultValue="">
               <option value="" disabled>
                 Selecione
               </option>
@@ -474,11 +476,11 @@ export function LifecycleActions({
                   {label}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
           <ReviewNote prefix={prefix} minimum={4} />
           <Field id={prefix + 'resume'} label="Data planejada de retomada">
-            <input id={prefix + 'resume'} name="resume" type="date" />
+            <Input id={prefix + 'resume'} name="resume" type="date" />
           </Field>
         </>
       )}

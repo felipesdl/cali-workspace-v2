@@ -1,3 +1,4 @@
+import { Input, Select } from '../../components/ds/field/Controls';
 import { PartnerHoursQueue } from '../partner/PartnerHoursQueue';
 import { PartnerReviewQueue } from '../partner/PartnerReviewQueue';
 import { Fragment, useEffect, useRef, useState } from 'react';
@@ -105,7 +106,7 @@ function CompanySelect({ search, update }: Props) {
     );
   return (
     <Field id="operations-company" label="Empresa de homologação">
-      <select
+      <Select
         id="operations-company"
         value={search.companyId ?? ''}
         onChange={(event) =>
@@ -130,7 +131,7 @@ function CompanySelect({ search, update }: Props) {
               {company.displayName}
             </option>
           ))}
-      </select>
+      </Select>
     </Field>
   );
 }
@@ -547,7 +548,7 @@ function currentMonth() {
 function MonthSelect({ month, update }: { month: string; update: Props['update'] }) {
   return (
     <Field id="phase4-month" label="Mês de referência">
-      <input
+      <Input
         id="phase4-month"
         type="month"
         value={month.slice(0, 7)}
@@ -971,7 +972,7 @@ function AdminAudit({ search, update }: Props) {
       <AdminDailyPreview actor={actor} />
       <CompanySelect search={search} update={update} />
       <Field id="audit-month" label="Mês da auditoria">
-        <input
+        <Input
           id="audit-month"
           type="month"
           value={month?.slice(0, 7) ?? ''}

@@ -1,13 +1,15 @@
+import { Input } from '../../components/ds/field/Controls';
 type CodeInputProps = {
   id: string;
   value: string;
   onChange: (value: string) => void;
   length?: 6 | 8;
+  autoFocus?: boolean;
 };
 
-export function CodeInput({ id, value, onChange, length = 6 }: CodeInputProps) {
+export function CodeInput({ id, value, onChange, length = 6, autoFocus }: CodeInputProps) {
   return (
-    <input
+    <Input
       id={id}
       inputMode="numeric"
       autoComplete="one-time-code"
@@ -15,6 +17,7 @@ export function CodeInput({ id, value, onChange, length = 6 }: CodeInputProps) {
       minLength={length}
       maxLength={length}
       required
+      autoFocus={autoFocus}
       value={value}
       onChange={(event) => onChange(event.target.value)}
     />

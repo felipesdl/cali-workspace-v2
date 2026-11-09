@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from '@tanstack/react-form';
@@ -56,7 +58,7 @@ function CompanyBasicsEditor({
               const id = `company-${name}`;
               return (
                 <Field id={id} label={label} error={error}>
-                  <input
+                  <Input
                     id={id}
                     name={name}
                     autoFocus={name === 'displayName'}
@@ -85,8 +87,10 @@ function CompanyBasicsEditor({
         Se a razão social ficar em branco, será usado o nome de apresentação.
       </p>
       {update.isError && (
-        <div role="alert">
-          <p>{update.error.message}</p>
+        <div className="tw:grid tw:justify-items-start tw:gap-2">
+          <FeedbackMessage tone="error" className="tw:justify-self-stretch">
+            {update.error.message}
+          </FeedbackMessage>
           <Button variant="secondary" onClick={onReload}>
             Descartar rascunho e recarregar
           </Button>
@@ -187,7 +191,7 @@ export function CompanyBasics({
             </Button>
           </>
         ))}
-      {saved && <p role="status">Dados da empresa salvos.</p>}
+      {saved && <FeedbackMessage tone="success">Dados da empresa salvos.</FeedbackMessage>}
     </section>
   );
 }

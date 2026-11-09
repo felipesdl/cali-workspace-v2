@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input } from '../../components/ds/field/Controls';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCompaniesScope } from '../../api/modules/companies/hooks/useCompaniesScope';
@@ -40,7 +42,7 @@ function NewDraft({
       }}
     >
       <Field id="draft-name" label="Nome de apresentação">
-        <input
+        <Input
           id="draft-name"
           autoFocus
           required
@@ -51,7 +53,7 @@ function NewDraft({
         />
       </Field>
       <Field id="draft-legal-name" label="Razão social">
-        <input
+        <Input
           id="draft-legal-name"
           maxLength={200}
           disabled={mutation.isPending}
@@ -59,7 +61,7 @@ function NewDraft({
           onChange={(event) => setLegalName(event.target.value)}
         />
       </Field>
-      {mutation.isError && <p role="alert">{mutation.error.message}</p>}
+      {mutation.isError && <FeedbackMessage tone="error">{mutation.error.message}</FeedbackMessage>}
       <div className="tw:flex tw:flex-wrap tw:gap-2">
         <Button type="submit" pending={mutation.isPending} disabled={!displayName.trim()}>
           Salvar rascunho
@@ -157,11 +159,11 @@ function Drafts({
           )}
         </div>
       )}
-      {prepare.isError && <p role="alert">{prepare.error.message}</p>}
+      {prepare.isError && <FeedbackMessage tone="error">{prepare.error.message}</FeedbackMessage>}
       {list.isPending && <p role="status">Carregando rascunhos…</p>}
       {list.isError && (
         <div>
-          <p role="alert">Não foi possível consultar os rascunhos.</p>
+          <FeedbackMessage tone="error">Não foi possível consultar os rascunhos.</FeedbackMessage>
           <Button variant="secondary" onClick={() => void list.refetch()}>
             Tentar novamente
           </Button>
@@ -200,13 +202,15 @@ function Drafts({
       {selected && detail.isPending && <p role="status">Carregando comprovação…</p>}
       {detail.isError && (
         <div>
-          <p role="alert">Não foi possível consultar a comprovação.</p>
+          <FeedbackMessage tone="error">Não foi possível consultar a comprovação.</FeedbackMessage>
           <Button variant="secondary" onClick={() => void detail.refetch()}>
             Recarregar comprovação
           </Button>
         </div>
       )}
-      {selected && detail.isSuccess && !detail.data && <p role="alert">Rascunho indisponível.</p>}
+      {selected && detail.isSuccess && !detail.data && (
+        <FeedbackMessage tone="error">Rascunho indisponível.</FeedbackMessage>
+      )}
       {selected && detail.isSuccess && detail.data && (
         <>
           {import.meta.env.DEV && draftCompanyId && isPilotCompany(draftCompanyId) && (
@@ -218,7 +222,9 @@ function Drafts({
               >
                 Preparar contrato sintético de teste
               </Button>
-              {prepareDocument.isError && <p role="alert">{prepareDocument.error.message}</p>}
+              {prepareDocument.isError && (
+                <FeedbackMessage tone="error">{prepareDocument.error.message}</FeedbackMessage>
+              )}
             </div>
           )}
           <DraftAdhesion

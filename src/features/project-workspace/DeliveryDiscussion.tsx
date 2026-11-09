@@ -1,3 +1,4 @@
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { type ProjectJournalEntry } from '../../api/modules/project-workspace/project-journal';
 import { type JournalSubmit } from './useJournalAction';
 import { ActionForm } from './ActionForm';
@@ -55,7 +56,7 @@ export function Discussion({
           {(prefix) => (
             <>
               <Field id={prefix + 'note'} label="Mensagem">
-                <textarea id={prefix + 'note'} name="note" required maxLength={5000} />
+                <TextArea id={prefix + 'note'} name="note" required maxLength={5000} />
               </Field>
               {admin && <Checkbox name="internal">Nota interna da CALI</Checkbox>}
             </>
@@ -101,13 +102,13 @@ export function Dependencies({
                 >
                   {(prefix) => (
                     <Field id={prefix + 'status'} label="Situação da dependência">
-                      <select id={prefix + 'status'} name="status" required defaultValue="">
+                      <Select id={prefix + 'status'} name="status" required defaultValue="">
                         <option value="" disabled>
                           Selecione
                         </option>
                         <option value="received">Recebida</option>
                         <option value="cancelled">Cancelada</option>
-                      </select>
+                      </Select>
                     </Field>
                   )}
                 </ActionForm>
@@ -137,10 +138,10 @@ export function Dependencies({
           {(prefix) => (
             <>
               <Field id={prefix + 'title'} label="Retorno necessário">
-                <input id={prefix + 'title'} name="title" maxLength={200} required />
+                <Input id={prefix + 'title'} name="title" maxLength={200} required />
               </Field>
               <Field id={prefix + 'day'} label="Prazo do retorno">
-                <input id={prefix + 'day'} name="day" type="date" required />
+                <Input id={prefix + 'day'} name="day" type="date" required />
               </Field>
             </>
           )}

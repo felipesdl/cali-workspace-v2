@@ -1,3 +1,5 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
 import { useRef, useState, type FormEvent } from 'react';
 import {
   DISC_PILOT_COMPANY_IDS,
@@ -120,7 +122,7 @@ export function AdminDiscPage({ campaignId, onCampaignChange }: AdminDiscPagePro
         <>
           <div className="tw:grid tw:grid-cols-[minmax(12rem,1fr)_auto] tw:items-end tw:gap-3">
             <Field id="disc-campaign" label="Campanha">
-              <select
+              <Select
                 id="disc-campaign"
                 value={selectedId ?? ''}
                 onChange={(event) => selectCampaign(event.target.value || null)}
@@ -131,7 +133,7 @@ export function AdminDiscPage({ campaignId, onCampaignChange }: AdminDiscPagePro
                     {campaign.title} · {campaign.organization}
                   </option>
                 ))}
-              </select>
+              </Select>
             </Field>
             {disc.processJobs.isPending ? (
               <Button disabled pending>
@@ -410,7 +412,7 @@ function CreateCampaign({
       <h3 className="tw:m-0 tw:text-body tw:font-semibold">Criar campanha DISC</h3>
       <div className="tw:tablet:grid-cols-2 tw:grid tw:grid-cols-1 tw:gap-4">
         <Field id="disc-title" label="Nome da campanha">
-          <input
+          <Input
             id="disc-title"
             required
             value={title}
@@ -418,7 +420,7 @@ function CreateCampaign({
           />
         </Field>
         <Field id="disc-company" label="Vínculo da empresa">
-          <select
+          <Select
             id="disc-company"
             value={companyId ?? ''}
             onChange={(event) => setCompanyId(event.target.value || null)}
@@ -426,10 +428,10 @@ function CreateCampaign({
             <option value="">Sem conta vinculada</option>
             <option value={DISC_PILOT_COMPANY_IDS[0]}>Empresa A · piloto</option>
             <option value={DISC_PILOT_COMPANY_IDS[1]}>Empresa B · piloto</option>
-          </select>
+          </Select>
         </Field>
         <Field id="disc-organization" label="Organização">
-          <input
+          <Input
             id="disc-organization"
             required
             value={organization}
@@ -437,7 +439,7 @@ function CreateCampaign({
           />
         </Field>
         <Field id="disc-goal" label="Resultado que a empresa busca">
-          <textarea
+          <TextArea
             id="disc-goal"
             required
             value={goal}
@@ -445,7 +447,7 @@ function CreateCampaign({
           />
         </Field>
         <Field id="disc-purpose" label="Objetivo do levantamento">
-          <textarea
+          <TextArea
             id="disc-purpose"
             required
             value={purpose}
@@ -453,7 +455,7 @@ function CreateCampaign({
           />
         </Field>
         <Field id="disc-focal-name" label="Pessoa focal">
-          <input
+          <Input
             id="disc-focal-name"
             required
             value={focalName}
@@ -461,7 +463,7 @@ function CreateCampaign({
           />
         </Field>
         <Field id="disc-focal-email" label="E-mail da pessoa focal">
-          <input
+          <Input
             id="disc-focal-email"
             type="email"
             required
@@ -525,7 +527,7 @@ function CampaignHeader({
           className="tw:grid tw:grid-cols-[minmax(12rem,1fr)_auto] tw:items-end tw:gap-3"
         >
           <Field id="disc-campaign-reopen-reason" label="Motivo da reabertura">
-            <input
+            <Input
               id="disc-campaign-reopen-reason"
               required
               minLength={3}
@@ -587,7 +589,7 @@ function InvitePanel({
         className="tw:tablet:grid-cols-[1fr_1fr_auto] tw:grid tw:grid-cols-1 tw:items-end tw:gap-3"
       >
         <Field id="disc-invite-name" label="Nome do respondente">
-          <input
+          <Input
             id="disc-invite-name"
             required
             value={name}
@@ -595,7 +597,7 @@ function InvitePanel({
           />
         </Field>
         <Field id="disc-invite-email" label="E-mail do respondente">
-          <input
+          <Input
             id="disc-invite-email"
             type="email"
             required
@@ -737,11 +739,11 @@ function ManagementEditor({
         </p>
       </div>
       {conflict && (
-        <div className="tw:grid tw:gap-2 tw:border-l-2 tw:border-brand tw:pl-4" role="alert">
-          <p className="tw:m-0">
+        <div className="tw:grid tw:gap-2">
+          <FeedbackMessage tone="error">
             A campanha mudou desde a leitura desta revisão. Seu rascunho local foi preservado e não
             será enviado.
-          </p>
+          </FeedbackMessage>
           <p className="tw:m-0 tw:text-caption">
             Recarregar descarta o rascunho local e traz a revisão atual do servidor.
           </p>
@@ -757,7 +759,7 @@ function ManagementEditor({
       )}
       <form onSubmit={(event) => void persist(event)} className="tw:grid tw:gap-3">
         <Field id="disc-management-goal" label="Resultado que a empresa busca">
-          <textarea
+          <TextArea
             id="disc-management-goal"
             value={draft.goal}
             disabled={pending}
@@ -765,7 +767,7 @@ function ManagementEditor({
           />
         </Field>
         <Field id="disc-management-note" label="Parecer da CALI">
-          <textarea
+          <TextArea
             id="disc-management-note"
             value={draft.note}
             disabled={pending}
@@ -774,7 +776,7 @@ function ManagementEditor({
         </Field>
         <div className="tw:tablet:grid-cols-2 tw:grid tw:grid-cols-1 tw:gap-3">
           <Field id="disc-management-moment" label="Momento da análise">
-            <input
+            <Input
               id="disc-management-moment"
               value={draft.moment}
               disabled={pending}
@@ -782,7 +784,7 @@ function ManagementEditor({
             />
           </Field>
           <Field id="disc-management-sector" label="Setor">
-            <input
+            <Input
               id="disc-management-sector"
               value={draft.sector}
               disabled={pending}
@@ -814,7 +816,7 @@ function ManagementEditor({
             className="tw:grid tw:grid-cols-[minmax(12rem,1fr)_auto] tw:items-end tw:gap-3"
           >
             <Field id="disc-management-reopen-reason" label="Motivo para reabrir a gestão">
-              <input
+              <Input
                 id="disc-management-reopen-reason"
                 required
                 minLength={3}
@@ -868,7 +870,7 @@ function ManagementEditor({
           className="tw:tablet:grid-cols-[1fr_1fr_auto] tw:grid tw:grid-cols-1 tw:items-end tw:gap-3"
         >
           <Field id="disc-manager-name" label="Nome do gestor">
-            <input
+            <Input
               id="disc-manager-name"
               required
               disabled={conflict || pending}
@@ -877,7 +879,7 @@ function ManagementEditor({
             />
           </Field>
           <Field id="disc-manager-email" label="E-mail do gestor">
-            <input
+            <Input
               id="disc-manager-email"
               type="email"
               required

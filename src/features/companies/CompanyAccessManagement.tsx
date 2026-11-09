@@ -1,3 +1,4 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
 import { adhesionEvidenceStatus } from '../../api/modules/companies/evidence-schemas';
 import { useRef, useState } from 'react';
 import { companyStatus, type CompanyAccess } from '../../api/modules/companies/schemas';
@@ -35,12 +36,18 @@ export function CompanyAccessManagement({
       </p>
       {evidence.isPending && <p role="status">Confirmando a adesão…</p>}
       {evidence.isError && (
-        <p role="alert">Não foi possível confirmar a adesão para novas autorizações.</p>
+        <FeedbackMessage tone="error">
+          Não foi possível confirmar a adesão para novas autorizações.
+        </FeedbackMessage>
       )}
       {evidence.isSuccess && !hasAdhesion && (
         <p>Novas autorizações exigem comprovação administrativa vigente da adesão desta empresa.</p>
       )}
-      {company.isError && <p role="alert">Não foi possível confirmar a situação da empresa.</p>}
+      {company.isError && (
+        <FeedbackMessage tone="error">
+          Não foi possível confirmar a situação da empresa.
+        </FeedbackMessage>
+      )}
       {company.isSuccess && !companyEligible && (
         <p>Não é possível autorizar novos acessos enquanto a empresa estiver indisponível.</p>
       )}
@@ -69,7 +76,7 @@ export function CompanyAccessManagement({
           }}
         />
       )}
-      {notice && <p role="status">{notice}</p>}
+      {notice && <FeedbackMessage tone="success">{notice}</FeedbackMessage>}
       {accesses.length === 0 ? (
         <p>Nenhum acesso nesta empresa.</p>
       ) : (

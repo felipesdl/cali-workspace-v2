@@ -1,3 +1,6 @@
+import { FeedbackMessage } from '../../components/ds/feedback/FeedbackMessage';
+import { Input, Select, TextArea } from '../../components/ds/field/Controls';
+import { CheckboxInput } from '../../components/ds/checkbox/Checkbox';
 import { toBrasiliaDateTimeInput } from '../../lib/dates';
 import { useId, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -50,7 +53,7 @@ function ItemSelect({
   return (
     <>
       <Field id={id} label={label}>
-        <select
+        <Select
           id={id}
           name={name}
           value={selection}
@@ -66,10 +69,12 @@ function ItemSelect({
               {item.name}
             </option>
           ))}
-        </select>
+        </Select>
       </Field>
       {choices.isError && (
-        <p role="alert">Não foi possível carregar as opções. O vínculo atual foi mantido.</p>
+        <FeedbackMessage tone="error">
+          Não foi possível carregar as opções. O vínculo atual foi mantido.
+        </FeedbackMessage>
       )}
       {(choices.data?.items.total ?? 0) > 25 && (
         <div className="tw:flex tw:gap-2" aria-label={'Páginas de ' + label}>
@@ -120,7 +125,7 @@ export function EditProject({ scope, plan }: { scope: Scope; plan: ProjectDetail
         {(prefix) => (
           <>
             <Field id={prefix + 'name'} label="Nome do projeto">
-              <input
+              <Input
                 id={prefix + 'name'}
                 name="name"
                 required
@@ -130,7 +135,7 @@ export function EditProject({ scope, plan }: { scope: Scope; plan: ProjectDetail
               />
             </Field>
             <Field id={prefix + 'description'} label="Objetivo">
-              <textarea
+              <TextArea
                 id={prefix + 'description'}
                 name="description"
                 maxLength={8000}
@@ -138,7 +143,7 @@ export function EditProject({ scope, plan }: { scope: Scope; plan: ProjectDetail
               />
             </Field>
             <Field id={prefix + 'start'} label="Início planejado">
-              <input
+              <Input
                 id={prefix + 'start'}
                 name="start"
                 type="date"
@@ -198,7 +203,7 @@ export function EditPlanItem({
         {(prefix) => (
           <>
             <Field id={prefix + 'name'} label="Nome do item">
-              <input
+              <Input
                 id={prefix + 'name'}
                 name="name"
                 required
@@ -208,7 +213,7 @@ export function EditPlanItem({
               />
             </Field>
             <Field id={prefix + 'description'} label="Descrição ou objetivo">
-              <textarea
+              <TextArea
                 id={prefix + 'description'}
                 name="description"
                 maxLength={8000}
@@ -216,7 +221,7 @@ export function EditPlanItem({
               />
             </Field>
             <Field id={prefix + 'position'} label="Ordem no cronograma">
-              <input
+              <Input
                 id={prefix + 'position'}
                 name="position"
                 type="number"
@@ -229,7 +234,7 @@ export function EditPlanItem({
             {kind === 'deliverable' && (
               <>
                 <Field id={prefix + 'due'} label="Prazo em horário de Brasília">
-                  <input
+                  <Input
                     id={prefix + 'due'}
                     name="due"
                     type="datetime-local"
@@ -238,7 +243,7 @@ export function EditPlanItem({
                   />
                 </Field>
                 <Field id={prefix + 'complexity'} label="Complexidade">
-                  <select
+                  <Select
                     id={prefix + 'complexity'}
                     name="complexity"
                     defaultValue={item.complexity ?? ''}
@@ -249,7 +254,7 @@ export function EditPlanItem({
                         {option}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </Field>
                 <ItemSelect
                   scope={scope}
@@ -295,7 +300,7 @@ export function EditPlanItem({
                 />
               )}
               <Field id={prefix + 'confirm'} label="Confirme a retirada deste item">
-                <input id={prefix + 'confirm'} type="checkbox" required />
+                <CheckboxInput id={prefix + 'confirm'} required />
               </Field>
             </>
           )}
@@ -352,7 +357,7 @@ export function ScheduleItemRequest({
             {section === 'deliverables' && (
               <>
                 <Field id={prefix + 'action'} label="Ajuste solicitado">
-                  <select
+                  <Select
                     id={prefix + 'action'}
                     value={decision}
                     onChange={(event) =>
@@ -366,11 +371,11 @@ export function ScheduleItemRequest({
                     <option value="reschedule">Outra data</option>
                     <option value="swap_order">Trocar ordem com item equivalente</option>
                     <option value="change_proposal">Proposta diferente</option>
-                  </select>
+                  </Select>
                 </Field>
                 {decision === 'reschedule' && (
                   <Field id={prefix + 'date'} label="Data desejada">
-                    <input id={prefix + 'date'} name="date" type="date" required />
+                    <Input id={prefix + 'date'} name="date" type="date" required />
                   </Field>
                 )}
                 {decision === 'swap_order' && (
@@ -386,7 +391,7 @@ export function ScheduleItemRequest({
               </>
             )}
             <Field id={prefix + 'note'} label="Descreva o ajuste">
-              <textarea id={prefix + 'note'} name="note" required minLength={3} maxLength={4000} />
+              <TextArea id={prefix + 'note'} name="note" required minLength={3} maxLength={4000} />
             </Field>
           </>
         )}
