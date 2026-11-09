@@ -103,10 +103,15 @@ export function AccessRow({
           </p>
           {change.isError && <p role="alert">{change.error.message}</p>}
           <div className="tw:flex tw:flex-wrap tw:gap-3">
-            <Button autoFocus pending={change.isPending} onClick={() => void confirm()}>
+            <Button pending={change.isPending} onClick={() => void confirm()}>
               {mode.kind === 'revoke' ? 'Confirmar revogação' : 'Confirmar reautorização'}
             </Button>
-            <Button variant="secondary" disabled={change.isPending} onClick={() => finish(false)}>
+            <Button
+              autoFocus
+              variant="secondary"
+              disabled={change.isPending}
+              onClick={() => finish(false)}
+            >
               Cancelar alteração
             </Button>
           </div>

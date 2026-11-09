@@ -6,6 +6,7 @@ import {
   type RecordReviewAction,
 } from '../../api/modules/project-workspace/domain-operations';
 import { Field } from '../../components/ds/field/Field';
+import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { Button } from '../../components/ds/button/Button';
 import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { formatServerInstant } from '../../lib/dates';
@@ -156,12 +157,16 @@ export function RecordConversation({
   return (
     <section className="tw:grid tw:gap-3" aria-label="Conversa da ocorrência">
       <div>
-        <Button variant="secondary" onClick={back}>
+        <Button autoFocus variant="secondary" onClick={back}>
           Voltar às ocorrências
         </Button>
       </div>
       {detail.isPending && <p role="status">Carregando ocorrência…</p>}
-      {detail.isError && <p role="alert">Não foi possível carregar a ocorrência.</p>}
+      {detail.isError && (
+        <FeedbackState kind="error" onRetry={() => void detail.refetch()}>
+          Não foi possível carregar a ocorrência.
+        </FeedbackState>
+      )}
       {detail.isSuccess && !data && <p>Ocorrência indisponível.</p>}
       {data && (
         <>

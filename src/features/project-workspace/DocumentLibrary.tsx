@@ -7,6 +7,7 @@ import {
 } from '../../api/modules/project-workspace/documents';
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
+import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 import { Field } from '../../components/ds/field/Field';
 import { ActionForm } from './ActionForm';
 
@@ -166,9 +167,10 @@ function DocumentItem({
   refresh: () => Promise<void>;
 }) {
   const [showHistory, setShowHistory] = useState(false);
+  const [withdrawn, setWithdrawn] = useState(false);
   const latestPublished = item.publishedRevision === item.revisionId;
   return (
-    <li className="tw:grid tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:p-4">
+    <li className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere">
       <strong>{item.title}</strong>
       <p>
         Revisão {item.number} · {item.fileName}
@@ -202,7 +204,9 @@ function DocumentItem({
           {item.publishedRevision && (
             <ActionForm
               label="Retirar versão publicada"
-              submit={async () => {
+              saved={() => setWithdrawn(true)}
+              submit={async (values) => {
+                if (!values.has('confirmWithdrawal')) throw new Error('Confirme a retirada.');
                 const result = await operations.publication(
                   company,
                   item.id,
@@ -212,7 +216,21 @@ function DocumentItem({
                 await refresh();
                 return result;
               }}
-            />
+            >
+              {() => (
+                <Checkbox name="confirmWithdrawal" required>
+                  Confirmo a retirada{' '}
+                  {latestPublished ? `da revisão ${item.number}` : 'da versão publicada'} de{' '}
+                  {item.title}. O Cliente perde acesso a essa publicação e o histórico continua
+                  disponível para a CALI.
+                </Checkbox>
+              )}
+            </ActionForm>
+          )}
+          {withdrawn && !item.publishedRevision && (
+            <p role="status" className="tw:m-0 tw:text-caption">
+              Versão retirada. O histórico continua disponível para a CALI.
+            </p>
           )}
           <div>
             <Button
@@ -278,7 +296,7 @@ export function DocumentLibrary({ company, actor, operations, admin }: Scope & {
       {documents.isSuccess && documents.data.length === 0 && <p>Nenhum PDF nesta página.</p>}
       {documents.data && (
         <>
-          <ul className="tw:grid tw:gap-3">
+          <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
             {documents.data.map((item) => (
               <DocumentItem
                 key={item.id}

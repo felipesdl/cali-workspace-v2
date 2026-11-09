@@ -380,7 +380,11 @@ export function FormAdministration({ company, actor }: Scope) {
         saved={() => setPage(1)}
       />
       {forms.isPending && <p role="status">Carregando formulários…</p>}
-      {forms.isError && <p role="alert">Não foi possível consultar os formulários.</p>}
+      {forms.isError && (
+        <FeedbackState kind="error" onRetry={() => void forms.refetch()}>
+          Não foi possível consultar os formulários.
+        </FeedbackState>
+      )}
       {forms.data?.length === 0 && <p>Nenhum formulário nesta página.</p>}
       {forms.data?.map((form) => (
         <article

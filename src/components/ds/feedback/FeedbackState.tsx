@@ -20,7 +20,7 @@ export function FeedbackState({
 }: FeedbackStateProps) {
   const roles = { loading: 'status', error: 'alert', empty: undefined } as const;
   return (
-    <div role={roles[kind]}>
+    <div className="tw:min-w-0 tw:wrap-anywhere" role={roles[kind]}>
       <p>{children}</p>
       {onRetry && (
         <Button variant={retryVariant} onClick={onRetry}>

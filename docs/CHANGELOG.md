@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Formulários conectados em 375 px
+
+- Contém largura e espaçamento nos formulários, empilha as datas da Agenda no celular e mantém campos e identificador ao repetir uma gravação após falha.
+- Adiciona nova consulta em Agenda, Forms e Ocorrências. Confirmação de retirada de PDF exige ciência do efeito. Confirmação de acesso começa em Cancelar. [Validação](HOMOLOGACAO_PATRICIA.md#formulários-conectados-em-375-px).
+
 ## Diálogos e formulários demonstrativos
 
 - Unifica as 12 superfícies da demonstração em diálogo nativo com nome acessível, foco contido, fechamento por Escape e retorno ao acionador.

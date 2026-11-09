@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   usePilotInviteChange,
   type PilotAccessChange,
@@ -16,12 +16,19 @@ export function PilotAccessAction({
   revokedAt: string | null;
 }) {
   const change = usePilotInviteChange(companyId, inviteId);
+  const trigger = useRef<HTMLButtonElement>(null);
   const [draft, setDraft] = useState<PilotAccessChange | null>(null);
   const confirm = draft?.revokedAt === revokedAt ? draft : null;
   const action = revokedAt ? 'Reautorizar' : 'Revogar';
   return (
     <div className="tw:mt-3 tw:grid tw:gap-2">
-      {confirm && revokedAt && <p>O cliente precisará entrar com um novo código.</p>}
+      {confirm && (
+        <p className="tw:m-0 tw:text-caption tw:wrap-anywhere">
+          {revokedAt
+            ? 'O cliente precisará entrar com um novo código.'
+            : 'Este acesso será bloqueado. Os demais acessos da empresa continuam disponíveis.'}
+        </p>
+      )}
       <div className="tw:flex tw:flex-wrap tw:gap-2">
         {confirm ? (
           <>
@@ -30,10 +37,12 @@ export function PilotAccessAction({
             </Button>
             <Button
               variant="secondary"
+              autoFocus
               disabled={change.isPending}
               onClick={() => {
                 change.reset();
                 setDraft(null);
+                requestAnimationFrame(() => trigger.current?.focus());
               }}
             >
               Cancelar
@@ -41,6 +50,7 @@ export function PilotAccessAction({
           </>
         ) : (
           <Button
+            ref={trigger}
             variant="secondary"
             disabled={change.isPending}
             onClick={() => {

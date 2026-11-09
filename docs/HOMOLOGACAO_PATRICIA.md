@@ -152,6 +152,20 @@ O formulário de Avisos empilha data e horário no celular. Cadastro de Equipe u
 
 A rodada no navegador abriu as 12 superfícies em 375 px e conferiu fechamento e retorno de foco. Novo comunicado foi preenchido e criado em memória, com repetição do cancelamento, clique no fundo e checagem a 1280 px. Capturas locais em `cali-fase6-dialogos`. O lote cobre as prévias da V2. Formulários conectados, estados com erro e confirmação de operações reais permanecem no roteiro da fase 6. Rollback de frontend.
 
+### Formulários conectados em 375 px
+
+As rotas conectadas foram executadas com sessão e serviços sintéticos locais. A revisão incluiu gravação simulada, falha, nova tentativa, cancelamento e resultado confirmado.
+
+| Percurso | Ajuste e prova no navegador |
+| --- | --- |
+| Agenda Cliente | Uma falha sintética com identificador longo ampliava a página de 375 a 2.288 px. O formulário compartilhado agora limita largura e espaçamento, incluindo bordas, e as datas ficam em uma coluna no celular. A página permaneceu em 375 px na falha e no sucesso. A tentativa manteve valores e identificador, o foco chegou à mensagem e o sucesso limpou os campos. Em 1280 px, início e fim ficaram lado a lado. |
+| Agenda Cliente e Forms Admin | A leitura falhou no serviço sintético e recuperou pela ação Tentar novamente. O formulário e a listagem continuaram na largura da página. |
+| Ocorrências Cliente | A falha longa coube na tela. A segunda tentativa abriu a conversa, com foco em Voltar às ocorrências. O erro de leitura também passou a oferecer nova tentativa. |
+| Documentos Admin | A retirada pede confirmação da versão, explica a perda de acesso do Cliente e preserva o histórico. Sem marcar, a validação manteve foco no campo e bloqueou a ação. A retirada simulada exibiu o resultado após a atualização da lista. |
+| Empresas e acessos Admin | A confirmação do piloto descreve o efeito da revogação. Cancelar recebe o foco primeiro e retorna ao acionador. O teste repetiu e confirmou uma revogação fictícia. A confirmação demonstrativa de acesso também começa em Cancelar. |
+
+Capturas locais em `cali-fase6-formularios`. A regressão automatizada cobre foco, conservação de valores e identificador após falha e reset após sucesso. Os serviços locais simulam as respostas da API. Escrita, autorização e comportamento de produção continuam separados das evidências visuais. Rollback de frontend.
+
 A fase 6 permanece aberta para os demais percursos e para o aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
 
 ## Mensagem para enviar junto do link

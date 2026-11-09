@@ -11,6 +11,7 @@ import { AgendaParticipants } from './AgendaParticipants';
 import { AgendaMaterials } from './AgendaMaterials';
 import { appointmentStatusLabel } from './workspace-labels';
 import { absenceCategory } from '../../api/modules/project-workspace/agenda';
+import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { Checkbox } from '../../components/ds/checkbox/Checkbox';
 
 const read = (fields: FormData, name: string) => String(fields.get(name) ?? '');
@@ -94,7 +95,7 @@ export function AgendaActions({
                 { id: 'primary', index: 1 },
                 { id: 'secondary', index: 2 },
               ].map(({ id, index }) => (
-                <div key={id} className="tw:grid tw:grid-cols-2 tw:gap-3">
+                <div key={id} className="tw:grid tw:grid-cols-2 tw:gap-3 tw:mobile:grid-cols-1">
                   <Field id={prefix + 'start' + index} label={`Início da opção ${index}`}>
                     <input
                       id={prefix + 'start' + index}
@@ -118,7 +119,11 @@ export function AgendaActions({
         </ActionForm>
       )}
       {result.isPending && <p role="status">Carregando solicitações…</p>}
-      {result.isError && <p role="alert">Não foi possível consultar as solicitações.</p>}
+      {result.isError && (
+        <FeedbackState kind="error" onRetry={() => void result.refetch()}>
+          Não foi possível consultar as solicitações.
+        </FeedbackState>
+      )}
       {result.data?.map((item) => {
         const offer = admin && item.status === 'submitted';
         const confirm = !admin && item.status === 'client_review';
