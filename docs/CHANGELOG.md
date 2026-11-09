@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Ensaio de retomada da eliminação
+
+- O PostgreSQL descartável retomou após perda do recibo de arquivo e falha no commit do banco, sem repetir a etapa confirmada nem atingir a empresa de controle. CALI MAPA repetiu a lógica com dados fictícios e rollback. [Provas e limites](contracts/PHASE_4_READ.md#retomada-sintética-da-eliminação-após-falha-parcial).
+
 ## Ensaio de convite e corte da Equipe CALI
 
 - Convite, aceite e revogação de vínculo fictício testados no PostgreSQL descartável. CALI MAPA confirmou aceite e corte do destinatário com a mesma sessão; transação revertida, sem e-mail e sem perfil Partner. [Provas e limites](contracts/PHASE_4_READ.md#convite-admissão-e-corte-sintéticos-da-equipe-cali).
