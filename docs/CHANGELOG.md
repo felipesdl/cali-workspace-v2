@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Matriz de destinação na eliminação
+
+- A prova de retomada exige classificação completa e conferência individual dos destinos externos. O ensaio fictício desidentificou e bloqueou o Cliente, reduziu dados livres e preservou a cobrança. [Matriz e evidências](contracts/PHASE_4_READ.md#matriz-de-destinação-para-a-eliminação).
+
 ## Cobertura adicional da prévia de eliminação
 
 - A prévia destaca caminhos fora da lista legada, vínculos externos e dados DISC por empresa, sem expor nomes ou links. Contagens conferidas no CALI MAPA com fixtures revertidas. [Contrato e rollback](contracts/PHASE_4_READ.md#cobertura-adicional-da-prévia-de-eliminação).

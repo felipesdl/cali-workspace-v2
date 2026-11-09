@@ -730,6 +730,26 @@ A tela informa quando a versão anterior do banco não fornece essas contagens. 
 
 Instalar [consulta privada](../../supabase/proposals/phase-4/elimination-coverage-read.sql) e [definição da prévia](../../supabase/proposals/phase-4/data-lifecycle-export.sql) na mesma transação. Rollback do incremento no CALI MAPA: reaplicar a preimagem em `output/runtime/phase4e/privacy-coverage-rollback.sql`, que restaura a prévia anterior e retira a consulta auxiliar. O inventário continua somente leitura e não habilita a eliminação.
 
+### Matriz de destinação para a eliminação
+
+Proposta de engenharia para revisão da CALI. O catálogo do CALI MAPA confirmou o que a rotina legada remove, reduz ou preserva. As decisões novas abaixo foram ensaiadas com fixtures. Campos e prazos definitivos de guarda exigem validação dos responsáveis pela operação e pelos dados.
+
+| Grupo | Tratamento proposto | Critério de conferência |
+| --- | --- | --- |
+| Conteúdo operacional exclusivo | Remover projetos, ocorrências, horas, agenda, Equipe, relatórios e documentos da empresa, com dependências V2 e filas vinculadas. | Resolver a empresa pelo registro dono. Em avisos e outros registros compartilhados, remover somente o vínculo exclusivo e preservar os demais destinatários. |
+| Arquivos exclusivos | Remover o objeto e as versões inventariadas após confirmar propriedade e referência exatas. | Conferir bucket, chave e versão. Caminho isolado, link ou contagem da prévia não serve como recibo. Arquivo compartilhado exige decisão sobre o vínculo. |
+| Identidade Cliente | Revogar sessões, convites, códigos e autorizações. Retirar os identificadores diretos de Auth e perfil. | Limitar a identidade ao vínculo de Cliente da empresa. UUID residual que permite associação exige tratamento como dado vinculado. Admin e Equipe CALI usam seus próprios vínculos. |
+| Cadastro e comprovação da empresa | Reduzir a ficha ao registro mínimo de encerramento. O legado já limpa notas, logos, pasta do Drive e filiais. | Reconciliar adesão, contrato e aditivos com a finalidade de guarda. Separar os documentos eventualmente preservados dos arquivos operacionais. |
+| Cobrança | Preservar os registros necessários de cobrança. O legado lista `billing_records` entre as exceções. | Definir os campos e a guarda aplicáveis. Separar notas livres e anexos da prova financeira antes de definir seu destino. |
+| Segurança, auditoria e direitos | Preservar a trilha mínima de segurança, pedidos de privacidade e o recibo final. | Revisar payloads históricos, textos livres, identificadores e acesso. A presença em uma tabela de auditoria não aprova a guarda de todos os campos. |
+| DISC, Forms, Propostas e Mapa | Remover no ensaio o conteúdo fictício exclusivo. Para uso real, separar por empresa, participante, campanha e finalidade antes de decidir. | Percorrer vínculos indiretos, delegações, anexos, respostas, revisões, filas e resultados. Casos compartilhados, sem vínculo comprovado ou com guarda em aberto impedem concluir o plano. |
+
+O ensaio exige conferência separada de Drive, e-mail, Portal Comercial/Mapa e backup/acervo antes do primeiro passo de arquivo. Cada destino precisa de recibo próprio ou registro de inaplicabilidade. No uso real, a conferência precisa identificar o responsável, o vínculo e a evidência por destino. Caixa de e-mail do destinatário e cópias de recuperação têm tratamento próprio e não podem ser inferidas da remoção local.
+
+A [candidata](../../supabase/proposals/phase-4/elimination-resume-qa.sql) congela a classificação sintética junto ao plano. O [ensaio](../../supabase/proposals/phase-4/prove-elimination-resume-qa.sql) recusa grupo ou destino ausente. Após uma falha e nova tentativa, removeu conteúdo fictício, desativou acesso e retirou o e-mail da identidade de teste, limpou texto livre e preservou a referência da cobrança. A empresa de controle permaneceu intacta. A prova passou no PostgreSQL descartável e no CALI MAPA com rollback.
+
+Para liberar execução operacional, faltam a validação dos campos e da guarda por grupo, a conferência das cópias externas, a revalidação da elegibilidade e da versão do objeto no executor e a integração dos recibos aos serviços reais.
+
 ### Retomada sintética da eliminação após falha parcial
 
 A [candidata privada](../../supabase/proposals/phase-4/elimination-resume-qa.sql) congela referências do ensaio, reserva uma etapa por vez e registra recibos por objeto. A verificação externa precede o primeiro efeito. O banco só encerra a tarefa quando todas as etapas foram confirmadas; a escrita final e o recibo devem compartilhar a mesma transação.

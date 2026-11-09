@@ -82,6 +82,8 @@ Antes de migrar/coletar os campos do recorte, registrar suas finalidades, consum
 
 A [prévia ampliada](contracts/PHASE_4_READ.md#cobertura-adicional-da-prévia-de-eliminação) separa referências a arquivos, vínculos externos e contagens DISC. O inventário não define o destino de cada registro nem comprova existência ou eliminação de cópias externas.
 
+A [matriz de destinação](contracts/PHASE_4_READ.md#matriz-de-destinação-para-a-eliminação) separa remoção, desidentificação, redução cadastral e preservação. Os tratamentos ensaiados usam dados fictícios. Campos, guarda e cópias externas aguardam validação operacional.
+
 O prazo de 45 dias encontrado no código para elegibilidade de eliminação de empresa é uma regra técnica observada daquele caminho. Não constitui prazo geral de guarda dos campos nem comprovação de adequação dos textos de privacidade.
 
 Aceite futuro: informação apresentada coincide com campo/uso; Cliente A não recebe privados de B; logs/e-mails/arquivos respeitam projeções declaradas; versão/aceite conferidos; política de ciclo de vida testada no ambiente isolado autorizado. A revisão do texto e dos prazos deve ser registrada pelos responsáveis, sem presumir aprovação com base apenas na criação deste documento.

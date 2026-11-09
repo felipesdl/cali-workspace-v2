@@ -6,6 +6,7 @@ revoke all on schema cali_phase4_elimination_qa from public,anon,authenticated,s
 create table cali_phase4_elimination_qa.jobs (
   id uuid primary key,
   company_id uuid not null unique,
+  dispositions jsonb not null,
   completed_at timestamptz
 );
 
@@ -13,6 +14,7 @@ create table cali_phase4_elimination_qa.steps (
   job_id uuid not null references cali_phase4_elimination_qa.jobs(id),
   position integer not null check (position>0),
   kind text not null check (kind in ('external','storage','database')),
+  external_scope text check (external_scope in ('drive','email','portal_mapa','backup_acervo')),
   resource_id uuid not null,
   lease_id uuid,
   lease_until timestamptz,
@@ -25,30 +27,53 @@ create table cali_phase4_elimination_qa.steps (
   ),
   primary key (job_id,position),
   unique (job_id,kind,resource_id),
+  check ((kind='external')=(external_scope is not null)),
   check ((lease_id is null)=(lease_until is null)),
   check (receipt is null or lease_id is not null)
 );
 
 -- O ensaio congela referências opacas; o inventário real deve ser reconciliado antes da execução.
 create function cali_phase4_elimination_qa.prepare(
-  p_job uuid,p_company uuid,p_external uuid,p_storage uuid[],p_database uuid
+  p_job uuid,p_company uuid,p_dispositions jsonb,p_external jsonb,p_storage uuid[],p_database uuid
 )
 returns void language plpgsql set search_path=''
 as $$
+declare
+  expected_dispositions constant jsonb := '{
+    "operational_content":"remove",
+    "exclusive_files":"remove",
+    "client_identity":"deidentify_and_revoke",
+    "company_record":"minimize",
+    "billing":"preserve",
+    "audit_and_privacy_requests":"preserve",
+    "synthetic_assessments":"remove"
+  }';
+  external_scopes constant text[] := array['drive','email','portal_mapa','backup_acervo'];
 begin
-  if p_external is null or p_database is null or p_storage is null
+  if p_dispositions is distinct from expected_dispositions then
+    raise exception using errcode='22023',message='Classificação incompleta ou diferente da revisão de ensaio.';
+  end if;
+  if jsonb_typeof(p_external) is distinct from 'object' then
+    raise exception using errcode='22023',message='Destinos externos indisponíveis.';
+  end if;
+  if (select count(*) from jsonb_object_keys(p_external)) <> cardinality(external_scopes)
+    or exists(select 1 from unnest(external_scopes) as scope(name)
+      where jsonb_typeof(p_external->scope.name) is distinct from 'string')
+    or p_database is null or p_storage is null
     or coalesce(array_ndims(p_storage),1)<>1 or cardinality(p_storage)>1000
     or array_position(p_storage,null::uuid) is not null then
     raise exception using errcode='22023',message='Manifesto de ensaio inválido.';
   end if;
-  insert into cali_phase4_elimination_qa.jobs(id,company_id) values(p_job,p_company);
-  insert into cali_phase4_elimination_qa.steps(job_id,position,kind,resource_id)
-  select p_job,1,'external',p_external
+  insert into cali_phase4_elimination_qa.jobs(id,company_id,dispositions)
+  values(p_job,p_company,p_dispositions);
+  insert into cali_phase4_elimination_qa.steps(job_id,position,kind,external_scope,resource_id)
+  select p_job,idx::integer,'external',name,(p_external->>name)::uuid
+  from unnest(external_scopes) with ordinality as destinations(name,idx)
   union all
-  select p_job,1+idx::integer,'storage',resource
+  select p_job,cardinality(external_scopes)+idx::integer,'storage',null,resource
   from unnest(p_storage) with ordinality as objects(resource,idx)
   union all
-  select p_job,2+cardinality(p_storage),'database',p_database;
+  select p_job,1+cardinality(external_scopes)+cardinality(p_storage),'database',null,p_database;
 end;
 $$;
 
