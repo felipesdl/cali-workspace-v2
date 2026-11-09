@@ -1,5 +1,4 @@
 import type { z } from 'zod';
-import oakMark from '../../assets/brand/cali-oak-mark-light.svg';
 import type { catalog } from '../../api/modules/project-workspace/schemas';
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
@@ -77,27 +76,23 @@ export function ClientReportReading({
           <WorkspacePagination total={data.total} page={page} change={changePage} />
         </>
       ) : current ? (
-        <div className="tw:grid tw:items-start tw:gap-4 tw:wide:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="tw:grid tw:items-start tw:gap-4 tw:wide:grid-cols-[minmax(0,1fr)_minmax(15rem,22%)]">
           <article
             aria-labelledby="executive-report-title"
             className="tw:min-w-0 tw:overflow-hidden tw:rounded-control tw:border tw:border-border-default tw:bg-panel"
           >
-            <header className="tw:grid tw:gap-3 tw:border-b-4 tw:border-gold tw:bg-brand tw:p-5 tw:text-panel tw:wide:p-8">
-              <div className="tw:flex tw:items-center tw:gap-2">
-                <img src={oakMark} alt="" width={24} height={24} />
-                <span className="tw:text-caption tw:font-semibold tw:tracking-widest">
-                  CALI WORKSPACE
-                </span>
-              </div>
-              <p className="tw:m-0 tw:text-caption">Relatório executivo</p>
+            <header className="tw:grid tw:gap-3 tw:border-b tw:border-border-default tw:p-5 tw:wide:p-8">
+              <p className="tw:m-0 tw:text-caption tw:font-semibold tw:tracking-widest tw:text-brand">
+                Leitura executiva
+              </p>
               <h2
                 id="executive-report-title"
-                className="tw:m-0 tw:text-section tw:font-semibold tw:wrap-anywhere"
+                className="tw:m-0 tw:text-section tw:font-bold tw:wrap-anywhere"
               >
                 {current.title}
               </h2>
               {current.day && (
-                <p className="tw:m-0 tw:text-caption">
+                <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
                   Referência <time dateTime={current.day}>{formatCalendarDate(current.day)}</time>
                 </p>
               )}
@@ -127,31 +122,30 @@ export function ClientReportReading({
               )}
             </div>
           </article>
-          <aside
-            aria-label="Sobre a leitura"
-            className="tw:grid tw:gap-3 tw:rounded-control tw:border tw:border-l-4 tw:border-border-default tw:border-l-brand tw:bg-panel tw:p-4"
-          >
-            <h3 className="tw:m-0 tw:font-semibold tw:text-brand">Sobre a leitura</h3>
-            <dl className="tw:m-0 tw:grid tw:gap-3 tw:[&_dd]:m-0 tw:[&_dd]:wrap-anywhere tw:[&_dt]:text-caption tw:[&_dt]:text-muted-copy">
-              {current.reportVersion && (
-                <div>
-                  <dt>Versão</dt>
-                  <dd>{current.reportVersion}</dd>
-                </div>
-              )}
-              {current.protocol && (
-                <div>
-                  <dt>Protocolo</dt>
-                  <dd>{current.protocol}</dd>
-                </div>
-              )}
-              {current.instant && (
-                <div>
-                  <dt>Disponível desde</dt>
-                  <dd>{formatServerInstant(current.instant)}</dd>
-                </div>
-              )}
-            </dl>
+          <aside aria-label="Sobre a leitura" className="tw:grid tw:gap-3">
+            <div className="tw:grid tw:gap-3 tw:rounded-control tw:bg-brand tw:p-5 tw:text-panel">
+              <h3 className="tw:m-0 tw:font-semibold">Sobre a leitura</h3>
+              <dl className="tw:m-0 tw:grid tw:gap-3 tw:[&_dd]:m-0 tw:[&_dd]:wrap-anywhere tw:[&_dt]:text-caption">
+                {current.reportVersion && (
+                  <div>
+                    <dt>Versão</dt>
+                    <dd>{current.reportVersion}</dd>
+                  </div>
+                )}
+                {current.protocol && (
+                  <div>
+                    <dt>Protocolo</dt>
+                    <dd>{current.protocol}</dd>
+                  </div>
+                )}
+                {current.instant && (
+                  <div>
+                    <dt>Disponível desde</dt>
+                    <dd>{formatServerInstant(current.instant)}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
             {current.reportVersion ? (
               <ReportPublicationActions
                 key={current.id}

@@ -6,6 +6,7 @@ import { isPilotCompany } from '../api/modules/companies/onboarding';
 import { teamSearchSchema } from '../api/modules/team/schemas';
 import { Button } from '../components/ds/button/Button';
 import { WorkspaceFrame } from './WorkspaceFrame';
+import { WorkspaceNavLabel } from './WorkspaceNavLabel';
 import { useWorkspaceSession } from '../api/modules/access/hooks/useWorkspaceSession';
 
 const companyScopedAdminPaths = new Set([
@@ -52,6 +53,7 @@ export function WorkspaceLayout({
   return (
     <WorkspaceFrame
       title={title}
+      area={admin ? 'Backoffice / CALI RH' : 'Área da empresa'}
       actions={
         <Button variant="secondary" onClick={() => void session?.signOut()}>
           Sair
@@ -66,7 +68,7 @@ export function WorkspaceLayout({
               to="/admin/clientes"
               search={{ q: '', status: 'all' }}
             >
-              Empresas e acessos
+              <WorkspaceNavLabel label="Empresas e acessos" />
             </Link>
           )}
           {admin && team && (
@@ -75,7 +77,7 @@ export function WorkspaceLayout({
               to="/admin/equipe"
               search={teamSearchSchema.parse({ companyId: selectedCompany })}
             >
-              Equipe
+              <WorkspaceNavLabel label="Equipe" />
             </Link>
           )}
           {admin && disc && (
@@ -84,7 +86,7 @@ export function WorkspaceLayout({
               search={{}}
               activeOptions={{ exact: true, includeSearch: false }}
             >
-              Perfil comportamental
+              <WorkspaceNavLabel label="Perfil comportamental" />
             </Link>
           )}
           {projectWorkspace && (
@@ -94,14 +96,14 @@ export function WorkspaceLayout({
                 to={admin ? '/admin/projetos' : '/cliente/entregaveis'}
                 search={workspaceNavigationSearch}
               >
-                Projetos
+                <WorkspaceNavLabel label="Projetos" />
               </Link>
               <Link
                 activeOptions={{ exact: true, includeSearch: false }}
                 to={admin ? '/admin/horas' : '/cliente/horas'}
                 search={workspaceNavigationSearch}
               >
-                Horas
+                <WorkspaceNavLabel label="Horas" />
               </Link>
               {phase4CatalogLinks.map((item) => (
                 <Link
@@ -110,7 +112,7 @@ export function WorkspaceLayout({
                   to={admin ? item.admin : item.client}
                   search={workspaceNavigationSearch}
                 >
-                  {item.title}
+                  <WorkspaceNavLabel label={item.title} />
                 </Link>
               ))}
             </>
@@ -121,7 +123,7 @@ export function WorkspaceLayout({
               to="/admin/privacidade"
               search={workspaceNavigationSearch}
             >
-              Privacidade
+              <WorkspaceNavLabel label="Privacidade" />
             </Link>
           )}
           {admin && domainOperations && (
@@ -130,12 +132,12 @@ export function WorkspaceLayout({
               to="/admin/formularios"
               search={workspaceNavigationSearch}
             >
-              Formulários
+              <WorkspaceNavLabel label="Formulários" />
             </Link>
           )}
           {!admin && adminRead && domainOperations && (
             <Link activeOptions={{ exact: true, includeSearch: false }} to="/cliente/propostas">
-              Propostas
+              <WorkspaceNavLabel label="Propostas" />
             </Link>
           )}
           {admin && adminRead && (
@@ -145,35 +147,35 @@ export function WorkspaceLayout({
                 to="/admin/propostas"
                 search={workspaceNavigationSearch}
               >
-                Propostas
+                <WorkspaceNavLabel label="Propostas" />
               </Link>
               <Link
                 activeOptions={{ exact: true, includeSearch: false }}
                 to="/admin/mapa-people"
                 search={workspaceNavigationSearch}
               >
-                Mapa de People
+                <WorkspaceNavLabel label="Mapa de People" />
               </Link>
               <Link
                 activeOptions={{ exact: true, includeSearch: false }}
                 to="/admin/equipe-cali"
                 search={workspaceNavigationSearch}
               >
-                Equipe CALI
+                <WorkspaceNavLabel label="Equipe CALI" />
               </Link>
               <Link
                 activeOptions={{ exact: true, includeSearch: false }}
                 to="/admin/auditoria"
                 search={workspaceNavigationSearch}
               >
-                Auditoria
+                <WorkspaceNavLabel label="Auditoria" />
               </Link>
               <Link
                 activeOptions={{ exact: true, includeSearch: false }}
                 to="/admin/satisfacao"
                 search={workspaceNavigationSearch}
               >
-                Satisfação
+                <WorkspaceNavLabel label="Satisfação" />
               </Link>
             </>
           )}

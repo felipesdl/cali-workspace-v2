@@ -6,7 +6,7 @@
 - A V2 está em desenvolvimento para o primeiro lançamento operacional. Patrícia confirmou que ainda não usa nenhuma versão e que os dados existentes são de teste. A V1 publicada (`patricia258/app.cali`) serve como referência funcional e de contratos, consultável somente em leitura.
 - Padronização cobre todos os fluxos de Cliente e Admin. Não reduzir o plano a uma tela piloto.
 - Consolidar identidade bordô, marfim e dourado, conforme confirmação de 25/10/2026.
-- Usar a publicação 83 de 26/10/2026 como referência funcional da V1 e aplicar as diferenças aprovadas nas regras vigentes. Homologar a V2 para o primeiro lançamento.
+- Usar a publicação 83 de 26/10/2026 como referência funcional da V1 e aplicar as diferenças aprovadas nas regras vigentes. Para interface, usar a `main` de `patricia258/cali-workspace-v2` e registrar separadamente o que foi observado no domínio publicado. Ver `docs/HOMOLOGACAO_PATRICIA.md`. Homologar a V2 para o primeiro lançamento.
 - Se houver delegação autorizada, usar Luna 6 e conferir resultados na base principal. Resposta de subagente não substitui evidência.
 
 ## Leitura inicial

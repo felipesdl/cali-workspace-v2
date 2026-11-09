@@ -26,7 +26,7 @@ As regras definem resultado e público; não determinam automaticamente schema, 
 | UI-08 | Folha e lima como elementos de marca | Usar assets CALI identificados; não fabricar símbolos como substituto dos oficiais |
 | UI-09 | Alertas de atenção/erro em âmbar ou vermelho, com orientação | Texto informa situação e ação; sucesso e informação mantêm semântica própria; cor não é a única indicação |
 | UI-10 | Cadastros em formulário único dividido em seções | Não criar wizard artificial; etapas funcionais de importação, prévia e confirmação continuam conforme o fluxo |
-| UI-11 | Diálogos no padrão atual CALI, inclusive exclusão | Identificar referência visual na publicação 83 e usar componente comum com foco, teclado e confirmação do objeto/efeito |
+| UI-11 | Diálogos no padrão atual CALI, inclusive exclusão | Identificar referência visual na [main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2) e usar componente comum com foco, teclado e confirmação do objeto/efeito |
 | UI-12 | Cards sem redundância de texto | Evitar repetição desnecessária de título/rótulo; não eliminar palavras indispensáveis ao significado ou à acessibilidade |
 | UI-13 | PDFs usam Inter, sem serifa | Verificar fonte/fallback na geração e coerência com a versão aprovada |
 | UI-14 | Toda entrega já funciona em celular | Mobile participa do aceite de cada fluxo, não de uma fase final de correção |

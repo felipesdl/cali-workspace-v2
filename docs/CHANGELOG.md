@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Revisão visual contra a main da V2
+
+- A lateral padrão dos workspaces conectados usa 56 px no desktop, ícones com nomes acessíveis e opção de expandir os rótulos. O menu recolhe no celular. Cabeçalhos, abas de Projetos e leitura de Relatórios foram alinhados à V2 de referência.
+- A revisão separou a `main` da V2 do domínio publicado. O domínio carregou um arquivo idêntico ao de `app.cali`, ausente na árvore da V2. [Matriz e evidências](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2).
+
 ## Composição de Projetos e Relatórios na fase 6
 
 - Projetos reúne contexto e revisão no cabeçalho. A gestão Admin abre sob demanda e o Cliente continua com as ações da revisão pendente visíveis.

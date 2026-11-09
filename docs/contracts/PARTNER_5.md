@@ -2,6 +2,8 @@
 
 O piloto usa o vínculo da Equipe CALI para dar acesso por empresa e módulo. O papel interno segue a [interface Partner da publicação 83](https://github.com/patricia258/app.cali/blob/f3d3f14043a6abc38636f0340fe831e621d8b357/src/pages/staff/StaffWorkspace.tsx), os [termos vigentes](ACCESS_COMPANIES.md) e a [ficha FLOW-15](../flows/ADMIN_LIFECYCLE.md).
 
+A publicação 83 documenta o papel e as operações de origem. Para o visual vigente, ver a [revisão contra a main da V2](../HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2), que não tem uma tela Partner conectada equivalente.
+
 ## Matriz de trabalho
 
 | Recorte | Regra reconciliada | Situação |

@@ -21,6 +21,7 @@ import { PartnerHoursQueue } from './PartnerHoursQueue';
 import { PartnerTimer } from './PartnerTimer';
 import { PartnerReviewQueue } from './PartnerReviewQueue';
 import { WorkspaceFrame } from '../../app/WorkspaceFrame';
+import { WorkspaceNavLabel } from '../../app/WorkspaceNavLabel';
 
 const labels = {
   projects: 'Projetos',
@@ -31,7 +32,7 @@ const labels = {
   reports: 'Relatórios',
   notices: 'Avisos',
   team: 'Equipe',
-} satisfies Record<PartnerModule, string>;
+} as const satisfies Record<PartnerModule, string>;
 const panel =
   'tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
 
@@ -183,6 +184,7 @@ function PartnerModules({
   return (
     <WorkspaceFrame
       title={active ? labels[active] : 'Equipe CALI'}
+      area="Equipe CALI"
       actions={actions}
       navigation={
         active &&
@@ -193,7 +195,7 @@ function PartnerModules({
             aria-pressed={active === module}
             onClick={() => setSelected(module)}
           >
-            {labels[module]}
+            <WorkspaceNavLabel label={labels[module]} />
           </Button>
         ))
       }

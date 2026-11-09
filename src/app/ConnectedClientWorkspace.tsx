@@ -2,6 +2,7 @@ import { phase4CatalogFromPath } from './phase4-navigation';
 import { teamSearchSchema } from '../api/modules/team/schemas';
 import { Link, Outlet, useMatches, useRouteContext } from '@tanstack/react-router';
 import { WorkspaceLayout } from './WorkspaceLayout';
+import { WorkspaceNavLabel } from './WorkspaceNavLabel';
 import { clientAccountPaths, clientPaths } from './navigation';
 const navigation = [
   { to: clientPaths.overview, label: 'Início' },
@@ -35,12 +36,12 @@ export function ConnectedClientWorkspace() {
         <>
           {navigation.map((item) => (
             <Link key={item.to} activeOptions={{ exact: true, includeSearch: false }} to={item.to}>
-              {item.label}
+              <WorkspaceNavLabel label={item.label} />
             </Link>
           ))}
           {disc && (
             <Link to="/cliente/perfil" activeOptions={{ exact: true, includeSearch: false }}>
-              Perfil comportamental
+              <WorkspaceNavLabel label="Perfil comportamental" />
             </Link>
           )}
           {team && (
@@ -49,7 +50,7 @@ export function ConnectedClientWorkspace() {
               to={clientPaths.team}
               search={teamSearchSchema.parse({})}
             >
-              Equipe
+              <WorkspaceNavLabel label="Equipe" />
             </Link>
           )}
         </>

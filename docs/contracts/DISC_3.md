@@ -44,7 +44,7 @@ Testes locais cobrem questões, contratos, isolamento de conteúdo dos PDFs, det
 
 A cadência temporal está implementada/testada em SQL, mas **não está operando automaticamente**: `config.enabled=false`, nenhum cron novo DISC instalado. O processamento do piloto é manual pelo Admin. A tentativa inicial de worker sem JWT foi recusada automaticamente; a alternativa publicada preservou JWT obrigatório. O incremento autenticado e o worker v7 estão publicados no piloto. A execução temporária passou e o cron foi removido.
 
-Coleta real, finalidade/guarda, textos de consentimento/relatórios/e-mails e artefatos finais precisam de validação CALI. A composição simplificada é funcional para homologação; paridade visual com a publicação 83 e lançamento continuam pendentes. Forms e Mapa pertencem a 4E e não foram convertidos em DISC.
+Coleta real, finalidade/guarda, textos de consentimento/relatórios/e-mails e artefatos finais precisam de validação CALI. A composição simplificada é funcional para homologação; paridade visual com a [main da V2](../HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2) nos percursos equivalentes e lançamento continuam pendentes. Forms e Mapa pertencem a 4E e não foram convertidos em DISC.
 
 ## Publicação restrita do PDF — 05/11/2026
 

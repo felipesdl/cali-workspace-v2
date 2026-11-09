@@ -73,6 +73,8 @@ const adminSatisfaction = getRouteApi('/admin/satisfacao');
 const adminCommercial = getRouteApi('/admin/propostas');
 const clientHours = getRouteApi('/cliente/horas');
 const panel = 'tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4';
+const projectSectionButton =
+  'tw:rounded-none tw:border-0 tw:border-b-2 tw:border-transparent tw:bg-transparent tw:px-2 tw:aria-pressed:border-brand tw:aria-pressed:font-semibold';
 type Props = { search: WorkspaceSearch; update: (change: Partial<WorkspaceSearch>) => void };
 
 function useScope(search: WorkspaceSearch) {
@@ -186,21 +188,22 @@ function Projects({ search, update }: Props) {
           </div>
           {projectData ? (
             <section className="tw:grid tw:min-w-0 tw:gap-4">
-              <ProjectOverview project={projectData.project} review={projectData.review} />
               <nav
                 aria-label="Gestão do projeto"
-                className="tw:flex tw:flex-wrap tw:gap-2 tw:border-b tw:border-border-default tw:pb-3"
+                className="tw:flex tw:flex-wrap tw:gap-x-4 tw:border-b tw:border-border-default"
               >
                 <Button
                   aria-pressed={projectView === 'roadmap'}
-                  variant={projectView === 'roadmap' ? 'primary' : 'secondary'}
+                  variant="secondary"
+                  className={projectSectionButton}
                   onClick={() => update({ projectView: 'roadmap', page: 1 })}
                 >
                   Cronograma
                 </Button>
                 <Button
                   aria-pressed={!projectView && section === 'deliverables'}
-                  variant={!projectView && section === 'deliverables' ? 'primary' : 'secondary'}
+                  variant="secondary"
+                  className={projectSectionButton}
                   onClick={() =>
                     update({ projectView: undefined, section: 'deliverables', page: 1 })
                   }
@@ -209,7 +212,8 @@ function Projects({ search, update }: Props) {
                 </Button>
                 <Button
                   aria-pressed={!projectView && section === 'workstreams'}
-                  variant={!projectView && section === 'workstreams' ? 'primary' : 'secondary'}
+                  variant="secondary"
+                  className={projectSectionButton}
                   onClick={() =>
                     update({ projectView: undefined, section: 'workstreams', page: 1 })
                   }
@@ -218,12 +222,14 @@ function Projects({ search, update }: Props) {
                 </Button>
                 <Button
                   aria-pressed={projectView === 'history'}
-                  variant={projectView === 'history' ? 'primary' : 'secondary'}
+                  variant="secondary"
+                  className={projectSectionButton}
                   onClick={() => update({ projectView: 'history', page: 1 })}
                 >
                   Histórico
                 </Button>
               </nav>
+              <ProjectOverview project={projectData.project} review={projectData.review} />
               {admin &&
                 projectOperations &&
                 (['draft', 'adjustment_requested'].includes(projectData.project.planning_status) ||

@@ -6,11 +6,13 @@ import '../styles/workspace-frame.css';
 
 export function WorkspaceFrame({
   title,
+  area,
   navigation,
   actions,
   children,
 }: {
   title: string;
+  area?: string;
   navigation?: ReactNode;
   actions?: ReactNode;
   children: ReactNode;
@@ -28,10 +30,9 @@ export function WorkspaceFrame({
   return (
     <div
       className={`workspace-frame tw:min-h-screen tw:bg-ivory tw:text-body tw:text-copy ${
-        navigation
-          ? 'tw:grid tw:grid-cols-[13rem_minmax(0,1fr)] tw:grid-rows-[auto_1fr] tw:compact:block'
-          : ''
+        navigation ? 'workspace-frame-with-nav' : ''
       }`}
+      data-menu-open={menuOpen}
       onKeyDown={(event) => {
         if (menuOpen && event.key === 'Escape' && !event.defaultPrevented) {
           event.preventDefault();
@@ -45,13 +46,14 @@ export function WorkspaceFrame({
       >
         Ir ao conteúdo
       </a>
-      <header className="tw:col-start-2 tw:row-start-1 tw:flex tw:min-h-15 tw:items-center tw:justify-between tw:gap-2 tw:border-b tw:border-border-default tw:bg-panel tw:px-6 tw:mobile:px-4">
+      <header className="tw:col-start-2 tw:row-start-1 tw:flex tw:min-h-15 tw:items-center tw:justify-between tw:gap-2 tw:border-b tw:border-border-default tw:bg-panel tw:px-8 tw:mobile:px-4">
         <div className="tw:flex tw:min-w-0 tw:items-center tw:gap-3">
           {navigation && (
-            <div className="tw:hidden tw:compact:block">
+            <div>
               <Button
                 ref={menuButton}
                 variant="secondary"
+                className="workspace-menu-toggle"
                 aria-label="Menu principal"
                 aria-controls="workspace-navigation"
                 aria-expanded={menuOpen}
@@ -72,13 +74,9 @@ export function WorkspaceFrame({
         {actions}
       </header>
       {navigation && (
-        <aside
-          className={`tw:sticky tw:top-0 tw:col-start-1 tw:row-span-2 tw:row-start-1 tw:h-dvh tw:overflow-y-auto tw:bg-brand tw:text-panel tw:compact:static tw:compact:h-auto tw:compact:max-h-[65dvh] ${
-            menuOpen ? '' : 'tw:compact:hidden'
-          }`}
-        >
-          <div className="tw:flex tw:h-15 tw:items-center tw:px-4 tw:compact:hidden">
-            <img src={oakMark} width={28} height={28} alt="" />
+        <aside className="workspace-rail tw:text-panel">
+          <div className="workspace-rail-brand tw:flex tw:h-15 tw:items-center tw:justify-center">
+            <img src={oakMark} width={24} height={24} alt="" />
           </div>
           <nav
             id="workspace-navigation"
@@ -105,15 +103,19 @@ export function WorkspaceFrame({
       <main
         id="workspace-content"
         tabIndex={-1}
-        className="tw:col-start-2 tw:row-start-2 tw:mx-auto tw:box-border tw:w-full tw:max-w-6xl tw:min-w-0 tw:p-6 tw:mobile:p-4"
+        className="tw:col-start-2 tw:row-start-2 tw:mx-auto tw:box-border tw:w-full tw:max-w-[1480px] tw:min-w-0 tw:px-8 tw:py-7 tw:mobile:p-4"
       >
+        {area && <p className="workspace-eyebrow tw:mt-0 tw:mb-1">{area}</p>}
         <h1
           ref={heading}
           tabIndex={-1}
           id="workspace-title"
-          className="tw:mt-0 tw:mb-6 tw:w-fit tw:text-section tw:font-bold tw:text-brand"
+          className="workspace-page-title tw:mt-0 tw:mb-6 tw:w-fit tw:font-bold tw:text-copy"
         >
           {title}
+          <span aria-hidden="true" className="tw:text-gold">
+            .
+          </span>
         </h1>
         {children}
       </main>

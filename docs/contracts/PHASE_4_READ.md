@@ -1,6 +1,6 @@
 # Fase 4 — Consultas de homologação
 
-Primeiro incremento da fase 4. A publicação 83 continua como referência de interface e comportamento; a composição simplificada serve para validar os contratos do piloto. Paridade e aceite final seguem no [roteiro da Patrícia](../HOMOLOGACAO_PATRICIA.md).
+Primeiro incremento da fase 4. A publicação 83 é a referência funcional histórica. A [main da V2](../HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2) é a base visual vigente; a composição simplificada serve para validar os contratos do piloto. Paridade e aceite final seguem no [roteiro da Patrícia](../HOMOLOGACAO_PATRICIA.md).
 
 Em 05/11/2026, leitura somente do catálogo do CALI MAPA conferiu colunas, políticas, gatilhos e corpos de RPCs. O incremento usa quatro novas RPCs em propostas SQL, sem mudar tabelas, grants legados ou gatilhos. A aplicação e a prova hospedada estão registradas no lote de leitura ao fim deste documento.
 
@@ -215,7 +215,7 @@ O lote foi aplicado em uma transação em 07/11/2026. O catálogo confirmou `EXE
 
 A homologação encontrou perda de vínculo quando a opção provisória do seletor era substituída pela lista de frentes. Seleção passou a manter o valor durante a carga, com teste de regressão. O vínculo do registro sintético foi corrigido pela interface e conferido no banco. Nenhum dado fora do piloto foi alterado.
 
-A bateria suspensa de Auth/Edge/Docker não foi retomada. O PostgreSQL descartável usa apenas socket local e encerra ao terminar. Subtarefas, conversa e dependências foram homologadas no lote seguinte. Paridade com a publicação 83 permanece no aceite final. Arquivos legados permanecem protegidos pela recusa de reabertura; nenhum conteúdo legado foi migrado implicitamente.
+A bateria suspensa de Auth/Edge/Docker não foi retomada. O PostgreSQL descartável usa apenas socket local e encerra ao terminar. Subtarefas, conversa e dependências foram homologadas no lote seguinte. Paridade visual com a main da V2 permanece no aceite final. Arquivos legados permanecem protegidos pela recusa de reabertura; nenhum conteúdo legado foi migrado implicitamente.
 
 Rollback operacional: desligar `VITE_CALI_PHASE4_WRITE`, retirar somente as RPCs novas de Projetos/PDF por `rollback-projects.sql` e manter registros, PDFs, aprovações e inscrições sintéticas. A projeção estendida é compatível com o leitor anterior. A supressão de e-mails do piloto permanece para impedir lembretes futuros dos testes. O rollback geral de escrita não deve ser usado para retirar apenas este lote, pois alcança Forms e outros recortes já homologados.
 

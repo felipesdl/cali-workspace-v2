@@ -24,7 +24,7 @@ Na rodada final, usar empresas e dados de teste no CALI MAPA. Felipe prepara o a
 3. **Equipe e dados mensais.** Cadastrar ou editar um registro fictício, lançar um mês pelo Cliente, revisar e confirmar como Admin. Conferir persistência após recarga, indicadores e retirada da pendência.
 4. **DISC.** Responder um convite sintético, conferir o PDF do respondente, revisar o avaliador interno como Admin e aprovar ou retirar um relatório de gestão. Confirmar que o Cliente enxerga somente a gestão liberada para a própria empresa.
 5. **Operação.** Percorrer os fluxos da tabela abaixo com as contas de teste preparadas. Executar os itens pendentes internamente antes de incluí-los no aceite com Patrícia.
-6. **Aceite.** Para cada problema, registrar papel, tela, ação, resultado esperado e observado. Registrar em separado os ajustes de layout em relação à publicação 83.
+6. **Aceite.** Para cada problema, registrar papel, tela, ação, resultado esperado e observado. Registrar em separado os ajustes de layout em relação à main da V2 e ao domínio publicado, com a fonte de cada evidência.
 
 Encerrar verificando cron DISC desligado e ausente, fila conferida e provisionamento temporário desligado, caso usado. Guardar a versão testada e os resultados no PR de acompanhamento.
 
@@ -88,6 +88,8 @@ As provas de escrita e corte abaixo foram registradas nos pilotos. A fase 6 cruz
 
 ### Revisão visual contra a publicação 83
 
+Registro histórico. A [revisão contra a main da V2](#revisão-visual-contra-a-main-da-v2) substitui esta referência para o aceite visual.
+
 Comparação no navegador integrado a **1440 × 900** e **390 × 844**. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) foi servida localmente no SHA fixado, com fixtures do repositório e API de teste somente leitura. V2 Admin e Cliente usaram o CALI MAPA. V2 Partner usou uma fixture local com a interface real, pois a identidade de homologação foi removida após a fase 5. Capturas guardadas como evidência local.
 
 | Tela | Diferença observada | Critério para fechar |
@@ -111,7 +113,25 @@ Comparação no navegador integrado a **1440 × 900** e **390 × 844**. A [publi
 - **Revisão pendente.** A fixture local apresentou o prazo vencido junto da revisão e manteve Aprovar cronograma e Pedir ajuste disponíveis ao Cliente. A transição em banco permanece coberta pelas provas da [fase 4A](contracts/PHASE_4_READ.md#fechamento-de-projetos-no-piloto).
 - **Relatórios Cliente.** A leitura publicada ganhou abertura com marca e período, resumo identificado e contexto da revisão. Uma fixture local mostrou a revisão 2 e o protocolo CALI-EXEC-2026-000002 em 1440 e 390 px. O navegador baixou o PDF com os mesmos bytes da fixture, registrou ciência na revisão 2 e reabriu o relatório pelo arquivo. A prova hospedada do PDF e da retirada continua na [fase 4D](contracts/PHASE_4_READ.md#fechamento-de-relatórios-no-piloto).
 
-A fase 6 segue aberta para ampliar a revisão aos demais módulos e diálogos antes do aceite da Patrícia. Os servidores temporários foram desligados. Acervo legado e Google/Meet ficam para o rollout.
+### Revisão visual contra a main da V2
+
+Em 09/11/2026, Felipe definiu a `main` da V2 como base visual do PR #2 e indicou [app.calirh.com](https://app.calirh.com/) para conferir o que está publicado.
+
+- **Código da V2.** A `main` do GitHub foi verificada no [commit c9baea7](https://github.com/patricia258/cali-workspace-v2/commit/c9baea7903a9bbd26d1f89321c789e60e1a542d3). O build da árvore foi servido em loopback. É uma demonstração com interfaces Cliente e Admin. O GitHub da V2 não retornou registros de deploy.
+- **Domínio publicado.** A sessão Admin existente permitiu leitura. O HTML carregou `/assets/index-D3-QXOYI.js` e `/report-print-ready-v64.js`. O blob do segundo arquivo servido é `74da2232b7613fbc8d5cded6adc2bc04900fb422`, idêntico ao [arquivo em app.cali@773c9d4](https://github.com/patricia258/app.cali/blob/773c9d4256df40a302e34a83ad756eb1eead2cf9/public/report-print-ready-v64.js) e ausente da árvore de `c9baea7`. O GitHub registrava `7615653486` como deploy de produção de `app.cali` nesse SHA. A Visão geral publicada também difere da prévia Admin local. A ligação exata do projeto e do alias no painel Vercel exige acesso à conta. A publicação 83 segue como histórico funcional.
+- **PR #2.** Rotas reais Cliente de Projetos e Relatórios renderizadas em navegador com serviços sintéticos locais. A prévia demonstrativa já reutilizava os componentes principais da main. As correções foram na composição conectada.
+
+| Recorte | Comparação e resultado | Limite |
+| --- | --- | --- |
+| Navegação e cabeçalho | A main da V2 e o Admin publicado usam lateral compacta com ícones. O PR conectado usava lateral textual de 208 px. A lateral passou a 56 px com ícones, nomes acessíveis e expansão dos rótulos. Cabeçalho segue título em grafite e ponto dourado. O ajuste é compartilhado por Admin, Cliente e Partner. | Mantém as entradas de cada papel. Visão geral, busca, atalhos e notificações da publicação ainda exigem comparação de percurso e contrato. |
+| Projetos | Na main da V2, abas sublinhadas acima do resumo e painel de leitura branco. O PR tinha botões preenchidos e cabeçalho bordô. A rota passou para abas sublinhadas e resumo branco, preservando datas, situação e revisão vencida. A publicação atual também foi aberta em Projetos Admin. | Cronograma interativo, Kanban, gestão Admin e o histórico seguem com suas provas funcionais. A revisão visual de cada estado e diálogo continua aberta. |
+| Relatórios | A main da V2 usa leitura branca e contexto lateral bordô. O PR tinha capa bordô e contexto branco. As superfícies e proporções foram realinhadas. A rota Cliente preserva arquivo, protocolo, versão e ações existentes fora da caixa escura. A publicação atual também foi aberta em Relatórios Admin. | Comparação da composição Cliente com publicação sintética local. PDF e ciência da mesma revisão têm evidência nos lotes anteriores. |
+| Demais módulos | Equipe, Horas, Calendário, Ocorrências, Documentos e Avisos foram inventariados na demonstração Cliente da main e abertos no Admin publicado. Contas, Equipe CALI e Auditoria também abriram no Admin publicado. | O inventário identifica equivalências e diferenças de papel. Paridade de estados, diálogos, formulários e módulos sem equivalente na main continua aberta. |
+| Partner | A lateral compartilhada recebe o mesmo tratamento com os módulos atribuídos. A árvore da main da V2 não tem o workspace conectado Partner. | Sem comparação de ponta a ponta com Partner publicado nesta rodada. A prova funcional permanece no contrato da fase 5. |
+
+Capturas locais em `cali-main-v2`. Projetos Admin e Cliente e Relatórios Cliente conferidos em 1280 px e 390 px. No desktop a lateral expandiu para 208 px, e Escape recolheu o menu. Em 390 px, abrir o menu e selecionar Projetos fechou a navegação, manteve o foco no título e não causou rolagem horizontal. A inspeção online foi somente leitura. Os servidores temporários foram encerrados. Rollback do lote é de frontend.
+
+A fase 6 permanece aberta para os demais percursos e para o aceite da Patrícia. Acervo legado e Google/Meet ficam para o rollout.
 
 ## Mensagem para enviar junto do link
 

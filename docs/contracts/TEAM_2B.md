@@ -1,6 +1,6 @@
 # Fase 2B — Equipe
 
-Plano autorizado em 04/11/2026. Domínio [FLOW-08](../flows/WORKSPACE_HOURS_TEAM.md). Base de paridade: [publicação 83](../BASELINE_REFERENCE_2026-10-26.md). Escopo de homologação inicial: Admin e empresas sintéticas A/B no CALI MAPA. A V1 publicada serve como referência em leitura.
+Plano autorizado em 04/11/2026. Domínio [FLOW-08](../flows/WORKSPACE_HOURS_TEAM.md). Referência funcional: [publicação 83](../BASELINE_REFERENCE_2026-10-26.md). Para interface, ver a [main da V2](../HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2). Escopo de homologação inicial: Admin e empresas sintéticas A/B no CALI MAPA. A V1 publicada serve como referência em leitura.
 
 ## Aceite e sequência
 
@@ -48,6 +48,6 @@ Cliente A autenticado no navegador integrado reativou `QA-2B-A-ADMIN`, alterou o
 
 Dois Clientes equivalentes da mesma empresa foram provados no PostgreSQL descartável. O segundo alterou a ficha e leu os dados privados. Após revogá-lo, a sessão antiga perdeu a leitura e o primeiro manteve a ficha atualizada. A rodada autenticada de Equipe no CALI MAPA cobre Admin e Clientes A/B. A prova de dois Clientes da mesma empresa permanece restrita ao banco descartável.
 
-A composição atual serve à validação funcional. Em 05/11, Felipe confirmou a continuidade dos testes com essa interface simplificada e adiou sua substituição. A homologação funcional da 2B pode avançar nesse formato. A paridade visual continua obrigatória antes do lançamento, comparando navegação, layout e Equipe de cada perfil com a rota correspondente da publicação 83 e aplicando as diferenças de regra aprovadas. A interface final exige implementação e conferência próprias. A ampliação para dados reais exige validação do conteúdo de finalidade, necessidade e guarda no [inventário de privacidade](../DATA_PRIVACY.md).
+A composição atual serve à validação funcional. Em 05/11, Felipe confirmou a continuidade dos testes com essa interface simplificada e adiou sua substituição. A homologação funcional da 2B pode avançar nesse formato. A paridade visual continua obrigatória antes do lançamento, comparando navegação, layout e Equipe de cada perfil com as telas equivalentes da [main da V2](../HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2) e aplicando as diferenças de regra aprovadas. A interface final exige implementação e conferência próprias. A ampliação para dados reais exige validação do conteúdo de finalidade, necessidade e guarda no [inventário de privacidade](../DATA_PRIVACY.md).
 
 Rollback do banco retira os endpoints V2 na ordem [histórico](../../supabase/proposals/team-2b/rollback-history.sql), [importação](../../supabase/proposals/team-2b/rollback-import.sql), [privados](../../supabase/proposals/team-2b/rollback-private-fields.sql), [manutenção](../../supabase/proposals/team-2b/rollback-maintenance.sql) e [diretório](../../supabase/proposals/team-2b/rollback-directory.sql). Dados e trilhas ficam preservados. A SPA anterior volta a mostrar Equipe como módulo em preparação.
