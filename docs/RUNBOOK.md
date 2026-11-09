@@ -4,16 +4,16 @@ Atualização: 01/11/2026. Fase 1 iniciada na branch local `codex/fase-1-base`, 
 
 ## Backup, restauração e ambientes — DEC-28
 
-Felipe confirmou em 07/11/2026 que o CALI MAPA é o staging de testes. Lotes autorizados no staging seguem com preflight, rollback e validação sintética. Backup integral, exportação do Storage e restauração da captura hospedada ficam dispensados nesse ambiente. Não existe backup integral pré-alterações comprovado. A Management API consultada nessa data retornou lista vazia de backups, objeto vazio de metadados físicos, PITR desligado e mecanismo WAL-G habilitado. Nenhum arquivo de backup foi baixado ou restaurado nessa consulta. Um backup futuro preservará o estado da sua captura, não o estado anterior às mudanças.
+Felipe confirmou em 09/11/2026 que o CALI MAPA atual é produção, já online e com dados de produção. Concluir os ajustes e validar esse ambiente antes de criar a homologação separada. A dispensa de backup e restauração prevista para staging na versão anterior da DEC-28 não se aplica a produção. Não existe backup integral pré-alterações comprovado. A consulta histórica à Management API retornou lista vazia de backups, objeto vazio de metadados físicos, PITR desligado e mecanismo WAL-G habilitado. Nenhum arquivo de backup foi baixado ou restaurado nessa consulta. Um backup futuro preservará o estado da sua captura, não o estado anterior às mudanças.
 
-Para preparar o primeiro lançamento em produção, seguir o plano de separação e recuperação:
+Para concluir os ajustes no ambiente atual e preparar a homologação, seguir o plano de separação e recuperação:
 
 1. Inventariar em leitura o estado efetivo: schemas, dados, funções, triggers, RLS, grants, roles, extensões, agendas, Auth, Storage, Edge Functions, destinos e configurações. Correlacionar horário e commit de código com a captura; a `main` sozinha não identifica o estado do banco. Registrar cobertura e exclusões.
 2. Preservar banco e arquivos do Storage, com manifesto, contagens e hashes dos artefatos. Registrar configuração e revisões dos serviços; tratar segredos por procedimento protegido, sem imprimi-los ou versioná-los. Dados Auth e outros conteúdos privados exigem destino com acesso restrito. O [backup de banco do Supabase](https://supabase.com/docs/guides/platform/backups) não inclui os bytes dos objetos do Storage; não chamar exportação somente do schema de backup completo.
 3. Restaurar em destino isolado, com envios e agendamentos externos bloqueados. Conferir cobertura e integridade, funções/permissões, objetos do Storage e referências; validar acesso por atores sintéticos sem copiar sessões de uso para o novo ambiente. Registrar evidência, limitações, tempo de recuperação e limpeza do destino. Falha de restauração mantém o gate aberto. Este ensaio é distinto da bateria Auth/Edge/Docker suspensa, que não será retomada implicitamente.
 4. Consolidar baseline efetiva e cadeia ordenada de migrations a partir do inventário e dos SQLs já aplicados. Propostas históricas não constituem automaticamente uma cadeia reproduzível; não reaplicar `candidate.sql` em schema existente nem executar rollbacks para tentar fabricar o passado. Provar criação limpa e atualização em isolamento.
-5. Destinar o CALI MAPA atual a staging e preparar produção em projeto separado, após validar destino, recursos e custos. Separar URLs/chaves, Auth, usuários, Storage, funções, segredos, callbacks, agendas e canais de e-mail. Staging mantém dados sintéticos e destinatários controlados. Produção recebe somente dados/configurações iniciais explicitamente aprovados, sem fixtures ou tokens do piloto. Não substituir a configuração do app publicado durante essa preparação.
-6. Promover código e as mesmas migrations validadas de staging para produção, com conferência de destino, backup atual, rollback compatível e autorização de publicação. Registrar commit, versão de schema, worker e configurações por ambiente. Não usar cópia indiscriminada de dados de produção para teste.
+5. Concluir os ajustes autorizados no CALI MAPA atual com conferência de destino, recuperação e rollback compatíveis com cada mudança. Registrar commit, versão de schema, funções e configuração efetiva após a validação.
+6. Depois da validação de produção, provisionar homologação em projeto separado a partir dessa revisão de código e schema, com configuração equivalente. Usar URLs, chaves, Auth, usuários, Storage, funções, segredos, callbacks, agendas e canais de e-mail próprios, com dados sintéticos e destinatários controlados. Para as próximas versões, validar o mesmo código e as mesmas migrations em homologação antes de promover para produção.
 
 O ensaio local já executado com `sh scripts/rehearse-phase4-recovery.sh` restaurou fixtures em um segundo PostgreSQL descartável. Conferiu hashes, contagens, função, grants e bytes de um arquivo sintético. O encerramento removeu os clusters e arquivos temporários. A prova se limita às fixtures do ensaio.
 
@@ -265,17 +265,32 @@ O JavaScript inicial passou de 1.061,90 para 926,16 kB antes de gzip e de 306,88
 A preparação do ambiente de homologação ainda exige domínio de teste protegido, fallback para URLs diretas, origens e redirects conferidos, callback autenticado, observabilidade e separação operacional de staging e produção. Registrar os resultados no [roteiro de homologação](HOMOLOGACAO_PATRICIA.md).
 
 
+## Candidata da V2 para o domínio de produção
+
+A opção `VITE_CALI_RELEASE_CORE=true` conecta edição da própria conta, notificações próprias e resumo global da carteira Admin no build publicado. A configuração exige o projeto CALI MAPA e a origem exata `https://app.calirh.com`. A carteira global funciona sem carregar a área piloto de Projetos. As notificações mostram os atalhos de detalhe somente quando a rota correspondente estiver disponível. A flag controla a composição do frontend. Os contratos do servidor continuam responsáveis por sessão, papel, aceite e vínculo. A configuração padrão mantém a opção desativada.
+
+A conferência em leitura de 09/11/2026 encontrou:
+
+| Superfície | Evidência | Trabalho antes de ativar |
+| --- | --- | --- |
+| Site atual | O domínio respondeu pelo Vercel e serviu `index-D3-QXOYI.js` com referência ao CALI MAPA. O arquivo `report-print-ready-v64.js` bate com o blob de `app.cali@773c9d4`. O GitHub da V2 não listou deploys. | Identificar o projeto e a revisão que receberão a V2 no Vercel. Registrar o deploy atual como alvo de rollback. |
+| Catálogo de dados | Os 180 nomes de RPC chamados literalmente nos adaptadores inventariados estão nos schemas `cali_workspace` ou `public`. Perfil próprio, notificações, Equipe e carteira Admin têm execução autenticada e recusam o papel anônimo no catálogo. As quatro RPCs abertas correspondem a superfícies públicas do DISC, proposta e formulário. | Confirmar as permissões e o comportamento com sessões reais antes da ativação. Equipe ainda exige vínculo com a lista de empresas do piloto. Sua liberação operacional requer contrato de servidor e validação próprios. |
+| Acesso e rotas | `workspace-access` aceitou o domínio no preflight CORS. `/admin/equipe`, `/cliente/perfil` e `/auth/callback` responderam HTTP 200 com o HTML da publicação atual. Auth tem Site URL em outra origem e o callback da V2 não consta como entrada exata na lista de redirects. | Conferir a entrada existente com wildcard, definir o redirect exato sem interromper o fluxo atual e provar login, MFA e callback no build candidato. |
+| Edge e canais | Acesso piloto, PDF privado piloto e DISC piloto responderam 403 para o domínio. PDF executivo, OTP QA de Partner, e-mail Comercial, devolutiva do Mapa e worker de resumo Admin responderam 404. | Preparar somente as funções necessárias ao rollout, com origem exata, JWT conforme o contrato e teste controlado. OTP QA, simuladores e agendadores de teste ficam fora da configuração de produção. |
+
+O inventário conferiu metadados e preflight HTTP. O funcionamento com sessão real e a revisão efetivamente publicada da V2 ficam para o lote de validação. Reverter a composição candidata removendo `VITE_CALI_RELEASE_CORE` e reconstruindo o frontend, ou reapontando para o deploy anterior se a candidata já estiver publicada. Nenhum SQL, flag remota ou deploy foi aplicado neste lote.
+
 ## Preview protegido para homologação
 
-Nesta rodada, o aceite técnico usa localhost conectado ao CALI MAPA. A conferência externa ficará com Felipe. O roteiro a seguir descreve a preparação do preview quando necessário.
+A rodada anterior usou localhost conectado ao CALI MAPA e a conferência externa ficou com Felipe. O roteiro a seguir se aplica ao preview futuro da homologação separada, após validar os ajustes na produção atual.
 
 A primeira dependência externa é identificar o projeto da V2 no provedor e reservar a origem HTTPS de preview com proteção de acesso. O repositório não listou deployments no GitHub nesta conferência. A árvore local não possui vínculo com o projeto Vercel. O painel integrado do Vercel exigiu login. O endereço publicado usado como referência visual não serve como destino de staging. O build local respondeu com o HTML de entrada em seis rotas, incluindo Minha conta Admin/Cliente, Projetos, Documentos e callback. Os ativos JavaScript e CSS também responderam. Essa prova cobre o fallback HTTP, sem autenticação no domínio externo.
 
 | Ordem | Preparação | Prova esperada |
 | --- | --- | --- |
 | 1 | Vincular a revisão candidata do PR ao projeto de preview. Habilitar proteção no provedor e conceder acesso somente aos participantes autorizados. | Uma sessão sem autorização recebe a tela de proteção antes de carregar a V2. Produção e preview têm URLs distintas. |
-| 2 | Fixar a URL HTTPS exata e apontar o preview para CALI MAPA. Configurar somente URL e chave pública no frontend. | Sem fallback para o banco de produção. URL direta recebe o HTML da V2 e mantém o caminho original. |
+| 2 | Fixar a URL HTTPS exata e apontar o preview para o projeto separado de homologação. Configurar somente URL e chave pública no frontend. | Sem fallback para o banco de produção. URL direta recebe o HTML da V2 e mantém o caminho original. |
 | 3 | Adaptar os gates de loopback dos módulos e autorizar a origem exata nas funções usadas. Conferir Acesso Admin, Acesso A/B, PDF privado, PDF executivo e DISC. Alinhar redirects de Auth e links emitidos pelas funções. | Login e MFA, convite de teste, aceite, callback e download funcionam na origem definida. Um domínio fora da lista é recusado. |
 | 4 | Executar a regressão interna da revisão candidata em 375 e 1366 px. Preparar atores e dados sintéticos. Manter desligados os agendadores e fluxos de envio que não fazem parte da rodada. | Perfil, isolamento A/B, operação, PDF e rollback têm evidência na mesma revisão. A Patrícia recebe acesso apenas após o fechamento interno. |
 
-Reversão do preview: retirar a revisão candidata e remover a origem específica dos redirects e das funções que receberam configuração de homologação. A guarda de sessão, o aceite e as políticas de dados permanecem no CALI MAPA. [Roteiro de homologação](HOMOLOGACAO_PATRICIA.md).
+Reversão do preview: retirar a revisão candidata e remover sua origem dos redirects e das funções configuradas no projeto de homologação. [Roteiro de homologação](HOMOLOGACAO_PATRICIA.md).

@@ -36,7 +36,9 @@ export function AdminPriorities({ companies }: { companies: readonly Company[] }
         ? ({ signal }) => service.catalog(companyId, 'records', null, firstPage, signal)
         : skipToken,
   });
-  if (!service || !admin) return null;
+  if (!admin) return null;
+  if (!service)
+    return adminPortfolio ? <AdminPortfolioSummary service={adminPortfolio} actor={actor} /> : null;
   const pilotCompanies = companies.filter((company) => isPilotCompany(company.id));
   const adjustments = projects.data?.projects.filter(
     (project) =>

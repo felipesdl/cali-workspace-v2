@@ -15,7 +15,7 @@ import { createProjectWorkspace } from './api/modules/project-workspace/service'
 import { createHostedDisc } from './api/modules/disc/service';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { readEnvironment } from './config/environment';
+import { readEnvironment, resolveCaliRuntime } from './config/environment';
 import { App } from './app/App';
 import { createAppRouter } from './app/router';
 import { createSessionController } from './app/session/controller';
@@ -34,6 +34,7 @@ const root = createRoot(rootElement);
 
 try {
   const environment = readEnvironment(import.meta.env);
+  const runtime = resolveCaliRuntime(environment, import.meta.env.DEV, window.location.origin);
   const cache = createQueryClient();
   const client =
     environment.mode === 'supabase'
@@ -45,9 +46,8 @@ try {
           client,
           environment.url,
           environment.publishableKey,
-          import.meta.env.DEV &&
+          runtime.pilot &&
             import.meta.env.VITE_CALI_PILOT_ACCESS === 'true' &&
-            environment.url === 'https://kqtbfeeqbcllwvlkbrkq.supabase.co' &&
             window.location.hostname === '127.0.0.1' &&
             ['5181', '5182'].includes(window.location.port)
             ? 'workspace-access-pilot'
@@ -55,13 +55,8 @@ try {
         )
       : null;
   const session = access ? createSessionController(access, cache) : null;
-  const team =
-    client &&
-    environment.mode === 'supabase' &&
-    import.meta.env.DEV &&
-    environment.url === 'https://kqtbfeeqbcllwvlkbrkq.supabase.co'
-      ? createHostedTeam(client)
-      : null;
+  const team = client && runtime.pilot ? createHostedTeam(client) : null;
+  const accountOperations = Boolean(team) || runtime.releaseCore;
   const phase4 = team && client && import.meta.env.VITE_CALI_PHASE4_READ === 'true' ? client : null;
   const phase4Write = import.meta.env.VITE_CALI_PHASE4_WRITE === 'true' ? phase4 : null;
   const reportRelease = Boolean(
@@ -75,8 +70,8 @@ try {
       ? {
           access,
           companies: composeCompaniesService(client),
-          ownProfile: client ? createOwnProfileService(client, Boolean(team)) : null,
-          notifications: team && client ? createNotificationsService(client) : null,
+          ownProfile: client ? createOwnProfileService(client, accountOperations) : null,
+          notifications: accountOperations && client ? createNotificationsService(client) : null,
           partnerPilot:
             team &&
             client &&
@@ -93,7 +88,8 @@ try {
           monthly: team && client ? createHostedTeamMonthly(client) : null,
           disc: team && client ? createHostedDisc(client) : null,
           projectWorkspace: phase4 ? createProjectWorkspace(phase4, reportRelease) : null,
-          adminPortfolio: phase4 ? createAdminPortfolio(phase4) : null,
+          adminPortfolio:
+            client && (phase4 || runtime.releaseCore) ? createAdminPortfolio(client) : null,
           projectJournal: phase4 ? createProjectJournal(phase4, Boolean(phase4Write)) : null,
           projectOperations: phase4Write ? createProjectOperations(phase4Write) : null,
           hourOperations: phase4Write ? createHourOperations(phase4Write) : null,

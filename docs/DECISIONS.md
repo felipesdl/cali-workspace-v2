@@ -14,6 +14,8 @@ Em 07/11/2026, Felipe reiterou que o CALI MAPA é usado para testes e continuar�
 
 A revisão do gerador DISC e o teste temporário da agenda foram exceções específicas antes dessa revisão da DEC-28. O histórico de publicação e reversão fica no [contrato DISC](contracts/DISC_3.md).
 
+Em 09/11/2026, Felipe corrigiu a classificação do ambiente. O CALI MAPA atual está online, contém os dados de produção e permanece como produção. A homologação separada será criada depois de concluir os ajustes e validar o estado atual. Sua base será a versão de código, schema e configuração reconciliada da produção, com contas, dados, arquivos, segredos e destinos de comunicação próprios. Esta revisão substitui a ordem anterior e a classificação do CALI MAPA como staging. A dispensa anterior de backup e restauração se referia ao staging e não se estende a produção. [Procedimento vigente](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+
 ## DEC-27 — Desenvolvimento no backend hospedado e atores de teste
 
 Em 01/11/2026, Felipe esclareceu que a plataforma ainda não foi lançada e autorizou continuar a implementação no mesmo ambiente hospedado, incluindo criação de contas e manipulação de dados sintéticos para verificar GET/POST. Esta decisão substitui a restrição anterior de somente leitura do backend neste recorte; o repositório `patricia258/app.cali` continua referência somente em leitura. Não autoriza apagar dados existentes, publicar a aplicação, executar automaticamente a baseline local sobre o banco hospedado ou ampliar permissões para contornar falhas.

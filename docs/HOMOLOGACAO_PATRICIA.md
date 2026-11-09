@@ -2,14 +2,14 @@
 
 Patrícia participa do aceite final, após a conclusão de todo o escopo combinado da V2, a validação interna e a preparação do ambiente de homologação. Até lá, este roteiro é material de preparação. A versão atual usa telas simplificadas para os testes internos.
 
-Na rodada final, usar empresas e dados de teste no CALI MAPA. Felipe prepara o ambiente, acompanha a rodada e registra o aceite por tarefa. Completar a lista abaixo com os módulos que ainda estão em implementação antes de compartilhar o acesso.
+Na rodada final, usar empresas e dados de teste no projeto separado de homologação. A DEC-28 prevê esse projeto após a validação dos ajustes no CALI MAPA atual, que é produção. Felipe prepara o ambiente, acompanha a rodada e registra o aceite por tarefa.
 
 ## Preparar antes de enviar o acesso
 
 | Item | Ação de Felipe ou da equipe técnica |
 | --- | --- |
 | Link da V2 | Definir a URL de homologação. Hoje Equipe, dados mensais, DISC e as consultas piloto da fase 4 dependem do modo de desenvolvimento, e o acesso A/B, arquivos privados e DISC aceitam origens locais específicas. Para Patrícia testar do próprio computador via link, preparar um preview protegido, adaptar os gates ao domínio de teste, configurar origens e callbacks e trocar os links locais nos e-mails. Conferir login, link de convite e PDF nessa URL antes do envio. |
-| Banco e acesso | Apontar o frontend para o CALI MAPA em modo Supabase, com URL e chave pública. Conferir serviços de login, arquivos e DISC já instalados, Auth, aceite vigente e documentos sintéticos. Preparar a conta Admin de Patrícia com MFA e os vínculos Cliente A/B com endereços de teste aprovados. Conferir revogação ou suspensão anterior antes de reautorizar um vínculo. |
+| Banco e acesso | Apontar o frontend para o projeto de homologação em modo Supabase, com URL e chave pública. Conferir serviços de login, arquivos e DISC, Auth, aceite vigente e documentos sintéticos. Preparar a conta Admin de Patrícia com MFA e os vínculos Cliente A/B com endereços de teste aprovados. Conferir revogação ou suspensão anterior antes de reautorizar um vínculo. |
 | Homologação acompanhada no ambiente local | Servir a V2 em `127.0.0.1:5173` para Admin e em `127.0.0.1:5181` e `127.0.0.1:5182` para os Clientes A/B, com `VITE_CALI_PILOT_ACCESS=true` nas duas instâncias Cliente. Esses endereços abrem na máquina que executa os servidores. |
 | E-mails de acesso e DISC | Conferir remetente, provedor e destinatários permitidos antes de solicitar códigos ou processar campanhas sintéticas. Patrícia recebe os próprios códigos pelo canal autorizado. Combinar com ela os destinatários de cada teste. |
 | Provisionamento de novos Clientes | Ligar somente se o roteiro incluir convite para uma conta nova. Requer destinatário aprovado, `CALI_PILOT_PROVISIONING=true` na Edge e `VITE_CALI_PILOT_PROVISIONING=true` na ficha Admin de desenvolvimento. Ao terminar, suspender provisionamento e revogar o vínculo temporário conforme o runbook. |

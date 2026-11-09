@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Preparação do núcleo da V2 para produção
+
+- Separa a edição de Minha conta, as notificações próprias e o resumo global Admin dos módulos que ainda dependem do piloto. A configuração é optativa e restrita ao domínio oficial e ao backend CALI MAPA.
+- Registra o artefato servido, as RPCs, os bloqueios de origem e as dependências do callback em [candidata de produção e inventário](RUNBOOK.md#candidata-da-v2-para-o-domínio-de-produção). Validação autenticada e publicação continuam pendentes.
+
 ## Resumo global da carteira Admin
 
 - Conecta Horas, Agenda, prioridades e Satisfação da carteira inteira, com seleção de mês e resumo individual quando há uma empresa selecionada.

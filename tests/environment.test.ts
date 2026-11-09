@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readEnvironment } from '../src/config/environment';
+import { readEnvironment, resolveCaliRuntime } from '../src/config/environment';
 const hosted = {
   VITE_SUPABASE_URL: 'https://example.supabase.co',
   VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test',
@@ -23,5 +23,39 @@ describe('configuração explícita de dados', () => {
     { ...hosted, VITE_SUPABASE_URL: 'https://example.supabase.co/?secret=x' },
   ])('recusa configuração incompleta, ambígua ou privilegiada: %j', (value) => {
     expect(() => readEnvironment(value)).toThrow('Configuração de ambiente inválida');
+  });
+});
+
+describe('núcleo publicado do CALI MAPA', () => {
+  const caliMap = { ...hosted, VITE_SUPABASE_URL: 'https://kqtbfeeqbcllwvlkbrkq.supabase.co' };
+  const origin = 'https://app.calirh.com';
+
+  it('exige ativação explícita e não liga o piloto no build publicado', () => {
+    expect(resolveCaliRuntime(readEnvironment(caliMap), false, origin)).toEqual({
+      pilot: false,
+      releaseCore: false,
+    });
+    const environment = readEnvironment({ ...caliMap, VITE_CALI_RELEASE_CORE: 'true' });
+    expect(resolveCaliRuntime(environment, false, origin)).toEqual({
+      pilot: false,
+      releaseCore: true,
+    });
+    expect(resolveCaliRuntime(environment, true, 'http://127.0.0.1:5173')).toEqual({
+      pilot: true,
+      releaseCore: false,
+    });
+    expect(resolveCaliRuntime(environment, false, 'https://preview.example.com')).toEqual({
+      pilot: false,
+      releaseCore: false,
+    });
+  });
+
+  it('recusa ativação com fixtures ou outro projeto Supabase', () => {
+    expect(() => readEnvironment({ VITE_CALI_RELEASE_CORE: 'true' })).toThrow(
+      'Configuração de ambiente inválida',
+    );
+    expect(() => readEnvironment({ ...hosted, VITE_CALI_RELEASE_CORE: 'true' })).toThrow(
+      'Configuração de ambiente inválida',
+    );
   });
 });

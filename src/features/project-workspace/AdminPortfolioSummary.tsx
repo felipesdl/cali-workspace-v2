@@ -61,10 +61,7 @@ export function AdminPortfolioSummary({
       <h2 id="admin-global-summary" className="tw:m-0 tw:text-section tw:font-bold tw:text-brand">
         Resumo da carteira
       </h2>
-      <p className="tw:m-0">
-        Horas e agenda seguem o mês selecionado. Escolha uma empresa para abrir os detalhes do
-        piloto.
-      </p>
+      <p className="tw:m-0">Horas e agenda seguem o mês selecionado.</p>
       <div className="tw:max-w-xs">
         <MonthSelect
           month={month}

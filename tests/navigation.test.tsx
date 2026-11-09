@@ -6,6 +6,9 @@ import { App } from '../src/app/App';
 import { createAppRouter } from '../src/app/router';
 import { createSessionController } from '../src/app/session/controller';
 import { createQueryClient } from '../src/api/query-client';
+import { createHostedAccessApi } from '../src/api/modules/access/api';
+import { composeCompaniesService } from '../src/api/modules/companies/api';
+import { createWorkspaceClient } from '../src/api/supabase';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
 
 async function openApp(entry = '/admin/clientes') {
@@ -24,6 +27,63 @@ async function openApp(entry = '/admin/clientes') {
 }
 
 describe('navegação e formulário de empresas', () => {
+  it('mostra a carteira Admin sem habilitar a área de Projetos do piloto', async () => {
+    const cache = createQueryClient();
+    const session = createSessionController(
+      {
+        read: async () => ({
+          status: 'ready',
+          profile: {
+            id: '20000000-0000-4000-8000-000000000001',
+            company_id: null,
+            role: 'admin',
+            active: true,
+          },
+          companyStatus: null,
+          termsAccepted: true,
+          terms: {
+            version: 'qa',
+            contentHash: 'a'.repeat(64),
+            title: 'Termos sintéticos',
+            content: 'Fixture de navegação',
+          },
+        }),
+        signOut: async () => {},
+      },
+      cache,
+    );
+    const url = 'https://example.supabase.co';
+    const key = 'sb_publishable_test';
+    const router = createAppRouter(
+      createMemoryHistory({ initialEntries: ['/admin'] }),
+      cache,
+      session,
+      {
+        access: createHostedAccessApi(createWorkspaceClient(url, key), url, key),
+        companies: composeCompaniesService(null),
+        adminPortfolio: {
+          read: async (month) => ({
+            month,
+            hoursMinutes: 120,
+            calendarEvents: 0,
+            calendarNotices: 0,
+            projectAdjustments: 0,
+            recordsInProgress: 0,
+            satisfactionAverage: null,
+            satisfactionCount: 0,
+          }),
+        },
+      },
+    );
+    await act(async () => {
+      await router.load();
+    });
+    render(<App router={router} />);
+    expect(await screen.findByRole('heading', { name: 'Resumo da carteira' })).toBeTruthy();
+    expect(await screen.findByText('Horas registradas')).toBeTruthy();
+    expect(screen.queryByLabelText('Empresa de homologação')).toBeNull();
+  });
+
   it('abre acesso por URL direta sem visitar lista antes', async () => {
     await openApp(`/admin/clientes?companyId=${mockCompanyIds.Aurora}`);
     expect(

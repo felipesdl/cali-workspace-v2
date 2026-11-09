@@ -14,13 +14,14 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 
 ## Recuperação e separação de ambientes — prioridade atual
 
-DEC-28 foi revisada em 07/11/2026. CALI MAPA é staging de testes. Os lotes autorizados seguem com preflight, rollback e prova sintética, com backup e restauração dispensados. Recuperação e separação de ambientes integram a preparação da produção. [Cobertura, ordem e aceite](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+DEC-28 foi revisada em 09/11/2026. O CALI MAPA atual é produção e já está online. Primeiro concluir os ajustes e validar o estado de produção. Depois criar a homologação separada a partir da versão reconciliada do código, schema e configuração. [Cobertura, ordem e aceite](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
 
 - [ ] Definir a captura do ambiente de produção, incluindo banco, arquivos do Storage, versões dos serviços e configurações, com cobertura e guarda protegida.
 - [ ] Restaurar em destino isolado, bloquear comunicações externas e conferir integridade/permissões/arquivos; registrar prova de recuperação.
 - [ ] Consolidar baseline efetiva e migrations ordenadas, com criação limpa e atualização reproduzíveis.
-- [ ] Formalizar CALI MAPA como staging e preparar projeto de produção separado, sem fixtures, com configuração, Auth, Storage, funções, segredos e canais próprios; conferir recursos/custos antes de provisionar.
-- [ ] Definir promoção staging/produção por commit e migration, backups, rollback e autorização de lançamento.
+- [ ] Concluir os ajustes pendentes no CALI MAPA e registrar a revisão de código, schema, configuração e validação de produção.
+- [ ] Criar homologação após validar a produção. Usar projeto separado, configuração equivalente, Auth, Storage, funções, segredos e canais próprios e dados sintéticos.
+- [ ] Definir promoção das próximas versões de homologação para produção por commit e migration, com critérios de recuperação, rollback e autorização.
 
 O ensaio de recuperação com fixtures passou localmente. A separação dos projetos de staging e produção segue planejada.
 
@@ -352,7 +353,9 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 **7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. DEC-28 mantém a recuperação no preparo de produção. No release, comprovar a restauração e confirmar os projetos separados. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
 
-**Preparação 7:** [preview local](RUNBOOK.md#prova-local-do-build-e-das-urls) conferiu URLs diretas, callback como rota HTTP e ativos. O build carrega os módulos de demonstração sob demanda. Hosting de teste e callback autenticado seguem pendentes.
+**Preparação 7:** [preview local](RUNBOOK.md#prova-local-do-build-e-das-urls) conferiu URLs diretas, callback como rota HTTP e ativos. O build carrega os módulos de demonstração sob demanda. O callback autenticado no domínio publicado ainda exige prova. O hosting da homologação separada fica para depois da validação dos ajustes em produção.
+
+**Lotes 1 e 2 da preparação 7:** [candidata de produção e inventário](RUNBOOK.md#candidata-da-v2-para-o-domínio-de-produção) registram a configuração explícita do núcleo da V2, o artefato online, os contratos do CALI MAPA e as lacunas de origem e callback. Equipe e as demais operações limitadas ao piloto continuam pendentes de liberação operacional. A validação autenticada no domínio corresponde ao lote seguinte.
 
 ## Referências anteriores e tarefa para IA
 

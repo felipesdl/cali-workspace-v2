@@ -1,5 +1,8 @@
 import { z } from 'zod';
 
+const caliMapBackend = 'https://kqtbfeeqbcllwvlkbrkq.supabase.co';
+const caliProductionOrigin = 'https://app.calirh.com';
+
 const environmentSchema = z
   .object({
     VITE_DATA_MODE: z.enum(['demo', 'supabase']).optional(),
@@ -7,11 +10,13 @@ const environmentSchema = z
     VITE_API_URL: z.literal('').optional(),
     VITE_SUPABASE_URL: z.string().optional(),
     VITE_SUPABASE_PUBLISHABLE_KEY: z.string().optional(),
+    VITE_CALI_RELEASE_CORE: z.enum(['true', 'false']).optional(),
   })
   .transform((input, context) => {
     const configured = Boolean(input.VITE_SUPABASE_URL || input.VITE_SUPABASE_PUBLISHABLE_KEY);
     const mode = input.VITE_DATA_MODE ?? (configured ? 'supabase' : 'demo');
-    if (mode === 'demo' && (configured || input.VITE_DEMO_MODE === 'false')) {
+    const releaseCore = input.VITE_CALI_RELEASE_CORE === 'true';
+    if (mode === 'demo' && (configured || input.VITE_DEMO_MODE === 'false' || releaseCore)) {
       context.addIssue({ code: 'custom', message: 'Configuração demonstrativa contraditória.' });
       return z.NEVER;
     }
@@ -39,7 +44,17 @@ const environmentSchema = z
       context.addIssue({ code: 'custom', message: 'URL Supabase hospedada inválida.' });
       return z.NEVER;
     }
-    return { mode, VITE_DATA_MODE: mode, url: target.origin, publishableKey: key } as const;
+    if (releaseCore && target.origin !== caliMapBackend) {
+      context.addIssue({ code: 'custom', message: 'A configuração de release exige o CALI MAPA.' });
+      return z.NEVER;
+    }
+    return {
+      mode,
+      VITE_DATA_MODE: mode,
+      url: target.origin,
+      publishableKey: key,
+      releaseCore,
+    } as const;
   });
 
 // eslint-disable-next-line no-restricted-syntax -- Entrada externa; o schema valida antes de compor os serviços.
@@ -53,3 +68,16 @@ export function readEnvironment(input: unknown) {
 }
 
 export type AppEnvironment = z.infer<typeof environmentSchema>;
+
+export function resolveCaliRuntime(
+  environment: AppEnvironment,
+  development: boolean,
+  origin: string,
+) {
+  const isCaliMap = environment.mode === 'supabase' && environment.url === caliMapBackend;
+  return {
+    pilot: isCaliMap && development,
+    releaseCore:
+      isCaliMap && !development && environment.releaseCore && origin === caliProductionOrigin,
+  };
+}
