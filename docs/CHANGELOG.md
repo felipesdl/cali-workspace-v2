@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Fechamento da 4C no piloto
+
+- Cinco anexos de 10 MiB homologados no CALI MAPA. A tentativa inválida ficou sem publicação parcial. A correção gravou uma mensagem, com download em A, isolamento de B e retirada auditada. [Evidências](contracts/PHASE_4_READ.md#fechamento-de-interações-no-piloto).
+
 ## Fechamento da 4A no piloto
 
 - Marcos interativos, lista por frente, Kanban Admin e histórico direto. Admin e Cliente A conferiram o projeto; B recebeu projeto indisponível. [Evidências](contracts/PHASE_4_READ.md#fechamento-de-projetos-no-piloto).
