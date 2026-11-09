@@ -1,5 +1,9 @@
 # Registro de mudanças
 
+## Prova de remoção condicional no CALI MAPA
+
+- No S3 do staging, If-Match antigo não protegeu o substituto e VersionId retornou NotSupported. Os buckets descartáveis foram removidos e conferidos no catálogo. [Evidências](contracts/PHASE_4_READ.md#prova-da-remoção-condicional-no-cali-mapa).
+
 ## Conferência dos alvos de eliminação
 
 - A candidata confere fechamento, elegibilidade, identidade e versão de objetos. Inventário agregado de destinos externos atualizado no CALI MAPA. [Evidências e pendências](contracts/PHASE_4_READ.md#conferência-dos-destinos-e-do-alvo).

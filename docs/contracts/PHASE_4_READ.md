@@ -770,7 +770,18 @@ O catálogo confirmou os campos abaixo. A proposta reduz o registro ao necessár
 
 A [conferência privada do alvo](../../supabase/proposals/phase-4/elimination-target-read.sql) revalida o fechamento original e a elegibilidade vigente, depois compara bucket, caminho, UUID e versão. Detecta troca de objeto, mudança de versão e movimentação. Uma ausência no snapshot fica separada do recibo de remoção. A consulta agrega somente os metadados necessários ao resultado. No PostgreSQL descartável, a [prova](../../supabase/proposals/phase-4/prove-elimination-target-read.sql) confirmou esses casos, a reabertura da empresa e a rejeição de versão ausente. No CALI MAPA, a definição compilou, recusou um ID de empresa fictício inexistente e foi revertida.
 
-A API REST de remoção recebe caminhos. A tabela oficial de compatibilidade S3 documenta condicionais de leitura, mas não documenta uma condição equivalente para `DeleteObject` no serviço hospedado. Entre consultar metadados e remover por caminho, um novo objeto pode ocupar o mesmo nome. O próximo ensaio de transporte precisa comprovar remoção condicional no serviço escolhido ou bloquear todas as escritas concorrentes nessa chave, inclusive escritores com acesso privilegiado, até registrar o recibo. O SQL acessa metadados em leitura. [Remoção no Storage](https://supabase.com/docs/guides/storage/management/delete-objects) e [compatibilidade S3](https://supabase.com/docs/guides/storage/s3/compatibility).
+#### Prova da remoção condicional no CALI MAPA
+
+A API REST recebe caminhos. A configuração do CALI MAPA mostrou S3 habilitado e a capacidade de versionamento de objetos desligada. Os ensaios usaram dois buckets privados descartáveis, cada um com um arquivo alvo e um arquivo de controle. As versões foram lidas do catálogo, e o resultado foi conferido com `HeadObject`. [Remoção no Storage](https://supabase.com/docs/guides/storage/management/delete-objects) e [compatibilidade S3](https://supabase.com/docs/guides/storage/s3/compatibility).
+
+| Tentativa | Resultado observado |
+| --- | --- |
+| `DeleteObject` com `If-Match` do conteúdo anterior após sobrescrever o alvo | Sucesso. O substituto desapareceu e o controle permaneceu. O serviço não protegeu a substituição. |
+| `DeleteObject` com `VersionId` anterior e com o atual, após sobrescrever com os mesmos bytes | As duas chamadas retornaram `NotSupported`. A versão interna mudou, o ETag permaneceu igual e os dois arquivos permaneceram até a limpeza. |
+
+A limpeza inicial via REST deixou o primeiro bucket presente. A limpeza via S3 removeu os objetos restantes dos dois buckets. O catálogo confirmou ambos ausentes. A prova se limita ao transporte S3 e à configuração ensaiada.
+
+Para um executor, a revalidação por SQL continua útil como prévia. A remoção precisa aplicar a identidade e a versão aprovadas no próprio ato, ou usar uma chave protegida contra substituição durante todo o intervalo até o recibo. A prova de uma chave protegida precisa abranger os caminhos de escrita privilegiados, upload, sobrescrita e movimentação. A operação permanece desabilitada.
 
 Para liberar execução operacional, faltam a validação da guarda por grupo, a confirmação das cópias com os responsáveis pelos destinos e a integração com um transporte que preserve o alvo aprovado.
 
