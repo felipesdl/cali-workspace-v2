@@ -74,7 +74,7 @@ try {
       ? {
           access,
           companies: composeCompaniesService(client),
-          ownProfile: client ? createOwnProfileService(client) : null,
+          ownProfile: client ? createOwnProfileService(client, Boolean(team)) : null,
           notifications: team && client ? createNotificationsService(client) : null,
           partnerPilot:
             team &&

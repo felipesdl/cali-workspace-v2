@@ -1,3 +1,4 @@
+import { AdminMonthlySummary } from './AdminMonthlySummary';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { getRouteApi, Link, useRouteContext } from '@tanstack/react-router';
 import { isPilotCompany } from '../../api/modules/companies/onboarding';
@@ -42,108 +43,74 @@ export function AdminPriorities({ companies }: { companies: readonly Company[] }
   );
   const inProgress = records.data?.entries.filter((record) => record.status === 'in_progress');
   return (
-    <section
-      aria-labelledby="admin-priorities-title"
-      className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
-    >
-      <h2 id="admin-priorities-title" className="tw:m-0 tw:text-section tw:font-bold tw:text-brand">
-        Prioridades operacionais
-      </h2>
-      <p className="tw:m-0">
-        Acompanhe ajustes solicitados em projetos e ocorrências em atendimento.
-      </p>
-      <Field id="priorities-company" label="Empresa de homologação">
-        <Select
-          id="priorities-company"
-          value={companyId ?? ''}
-          onChange={(event) =>
-            void navigate({ search: { companyId: event.currentTarget.value || undefined } })
-          }
+    <>
+      <section
+        aria-labelledby="admin-priorities-title"
+        className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
+      >
+        <h2
+          id="admin-priorities-title"
+          className="tw:m-0 tw:text-section tw:font-bold tw:text-brand"
         >
-          <option value="">Selecione uma empresa</option>
-          {pilotCompanies.map((company) => (
-            <option key={company.id} value={company.id}>
-              {company.displayName}
-            </option>
-          ))}
-        </Select>
-      </Field>
-      {companyId && (
-        <div className="tw:grid tw:min-w-0 tw:gap-4 tw:wide:grid-cols-2">
-          <section className="tw:grid tw:min-w-0 tw:content-start tw:gap-2">
-            <h3 className="tw:m-0 tw:text-body tw:font-semibold">Ajustes em projetos</h3>
-            {projects.isPending && (
-              <FeedbackState kind="loading">Carregando projetos…</FeedbackState>
-            )}
-            {projects.isError && (
-              <FeedbackState kind="error" onRetry={() => void projects.refetch()}>
-                Não foi possível consultar os projetos.
-              </FeedbackState>
-            )}
-            {projects.isSuccess && (
-              <>
-                <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
-                  Primeira página da lista de projetos. Consulte Projetos para ver a lista completa.
-                </p>
-                {!adjustments?.length && (
-                  <FeedbackState kind="empty">Nenhum ajuste nesta página.</FeedbackState>
-                )}
-                <ul className={listStyle}>
-                  {adjustments?.map((project) => (
-                    <li key={project.id}>
-                      <Link
-                        to="/admin/projetos"
-                        search={workspaceSearch.parse({
-                          companyId,
-                          project: project.id,
-                          projectView: 'roadmap',
-                        })}
-                        className={linkStyle}
-                      >
-                        <strong className="tw:block">{project.name}</strong>
-                        <span className="tw:text-caption tw:text-muted-copy">
-                          {workspaceLabel(project.planning_status)}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </section>
-          {domainOperations && (
+          Prioridades operacionais
+        </h2>
+        <p className="tw:m-0">
+          Acompanhe ajustes solicitados em projetos e ocorrências em atendimento.
+        </p>
+        <Field id="priorities-company" label="Empresa de homologação">
+          <Select
+            id="priorities-company"
+            value={companyId ?? ''}
+            onChange={(event) =>
+              void navigate({
+                search: { ...search, companyId: event.currentTarget.value || undefined },
+              })
+            }
+          >
+            <option value="">Selecione uma empresa</option>
+            {pilotCompanies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.displayName}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        {companyId && (
+          <div className="tw:grid tw:min-w-0 tw:gap-4 tw:wide:grid-cols-2">
             <section className="tw:grid tw:min-w-0 tw:content-start tw:gap-2">
-              <h3 className="tw:m-0 tw:text-body tw:font-semibold">Ocorrências em atendimento</h3>
-              {records.isPending && (
-                <FeedbackState kind="loading">Carregando ocorrências…</FeedbackState>
+              <h3 className="tw:m-0 tw:text-body tw:font-semibold">Ajustes em projetos</h3>
+              {projects.isPending && (
+                <FeedbackState kind="loading">Carregando projetos…</FeedbackState>
               )}
-              {records.isError && (
-                <FeedbackState kind="error" onRetry={() => void records.refetch()}>
-                  Não foi possível consultar as ocorrências.
+              {projects.isError && (
+                <FeedbackState kind="error" onRetry={() => void projects.refetch()}>
+                  Não foi possível consultar os projetos.
                 </FeedbackState>
               )}
-              {records.isSuccess && (
+              {projects.isSuccess && (
                 <>
                   <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
-                    Primeira página da lista de ocorrências. Consulte Ocorrências para ver a lista
+                    Primeira página da lista de projetos. Consulte Projetos para ver a lista
                     completa.
                   </p>
-                  {!inProgress?.length && (
-                    <FeedbackState kind="empty">
-                      Nenhuma ocorrência em atendimento nesta página.
-                    </FeedbackState>
+                  {!adjustments?.length && (
+                    <FeedbackState kind="empty">Nenhum ajuste nesta página.</FeedbackState>
                   )}
                   <ul className={listStyle}>
-                    {inProgress?.map((record) => (
-                      <li key={record.id}>
+                    {adjustments?.map((project) => (
+                      <li key={project.id}>
                         <Link
-                          to="/admin/registros"
-                          search={workspaceSearch.parse({ companyId, record: record.id })}
+                          to="/admin/projetos"
+                          search={workspaceSearch.parse({
+                            companyId,
+                            project: project.id,
+                            projectView: 'roadmap',
+                          })}
                           className={linkStyle}
                         >
-                          <strong className="tw:block">{record.title}</strong>
+                          <strong className="tw:block">{project.name}</strong>
                           <span className="tw:text-caption tw:text-muted-copy">
-                            {recordStatusLabel(record.status ?? '')}
+                            {workspaceLabel(project.planning_status)}
                           </span>
                         </Link>
                       </li>
@@ -152,9 +119,52 @@ export function AdminPriorities({ companies }: { companies: readonly Company[] }
                 </>
               )}
             </section>
-          )}
-        </div>
-      )}
-    </section>
+            {domainOperations && (
+              <section className="tw:grid tw:min-w-0 tw:content-start tw:gap-2">
+                <h3 className="tw:m-0 tw:text-body tw:font-semibold">Ocorrências em atendimento</h3>
+                {records.isPending && (
+                  <FeedbackState kind="loading">Carregando ocorrências…</FeedbackState>
+                )}
+                {records.isError && (
+                  <FeedbackState kind="error" onRetry={() => void records.refetch()}>
+                    Não foi possível consultar as ocorrências.
+                  </FeedbackState>
+                )}
+                {records.isSuccess && (
+                  <>
+                    <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
+                      Primeira página da lista de ocorrências. Consulte Ocorrências para ver a lista
+                      completa.
+                    </p>
+                    {!inProgress?.length && (
+                      <FeedbackState kind="empty">
+                        Nenhuma ocorrência em atendimento nesta página.
+                      </FeedbackState>
+                    )}
+                    <ul className={listStyle}>
+                      {inProgress?.map((record) => (
+                        <li key={record.id}>
+                          <Link
+                            to="/admin/registros"
+                            search={workspaceSearch.parse({ companyId, record: record.id })}
+                            className={linkStyle}
+                          >
+                            <strong className="tw:block">{record.title}</strong>
+                            <span className="tw:text-caption tw:text-muted-copy">
+                              {recordStatusLabel(record.status ?? '')}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </section>
+            )}
+          </div>
+        )}
+      </section>
+      {companyId && <AdminMonthlySummary service={service} actor={actor} companyId={companyId} />}
+    </>
   );
 }

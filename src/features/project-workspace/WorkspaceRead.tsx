@@ -1,3 +1,5 @@
+import { Minutes } from './Minutes';
+import { MonthSelect } from './WorkspaceMonthSelect';
 import { Input, Select } from '../../components/ds/field/Controls';
 import { PartnerHoursQueue } from '../partner/PartnerHoursQueue';
 import { PartnerReviewQueue } from '../partner/PartnerReviewQueue';
@@ -58,7 +60,7 @@ import {
 import { Button } from '../../components/ds/button/Button';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import { Field } from '../../components/ds/field/Field';
-import { formatCalendarDate, formatServerInstant } from '../../lib/dates';
+import { currentBrasiliaMonth, formatCalendarDate, formatServerInstant } from '../../lib/dates';
 import { phase4CatalogFromPath } from '../../app/phase4-navigation';
 import { ClientModulePending } from '../client-account/ClientModulePending';
 
@@ -458,16 +460,6 @@ function Projects({ search, update }: Props) {
   );
 }
 
-function Minutes({ value }: { value: number }) {
-  const absolute = Math.abs(value);
-  return (
-    <>
-      {value < 0 ? '−' : ''}
-      {Math.floor(absolute / 60)} h {absolute % 60} min
-    </>
-  );
-}
-
 function HourCapacity({
   contractedMinutes,
   consumedMinutes,
@@ -482,7 +474,7 @@ function HourCapacity({
   return (
     <section className={panel}>
       <h2 className="tw:font-semibold">Capacidade do mês</h2>
-      <dl className="tw:sm:grid-cols-2 tw:mt-2 tw:grid tw:gap-2">
+      <dl className="tw:mt-2 tw:grid tw:gap-2 tw:wide:grid-cols-2">
         <div>
           <dt>Franquia contratada</dt>
           <dd>
@@ -520,34 +512,9 @@ function HourCapacity({
   );
 }
 
-function currentMonth() {
-  const formatter = new Intl.DateTimeFormat('sv-SE', {
-    year: 'numeric',
-    month: '2-digit',
-    timeZone: 'America/Sao_Paulo',
-  });
-  return `${formatter.format(new Date())}-01`;
-}
-
-function MonthSelect({ month, update }: { month: string; update: Props['update'] }) {
-  return (
-    <Field id="phase4-month" label="Mês de referência">
-      <Input
-        id="phase4-month"
-        type="month"
-        value={month.slice(0, 7)}
-        onChange={(event) => {
-          const value = event.currentTarget.value;
-          if (/^\d{4}-(0[1-9]|1[0-2])$/.test(value)) update({ month: `${value}-01`, page: 1 });
-        }}
-      />
-    </Field>
-  );
-}
-
 function Hours({ search, update }: Props) {
   const { service, actor, companyId, admin, connected } = useProjectWorkspaceScope(search);
-  const month = search.month ?? currentMonth();
+  const month = search.month ?? currentBrasiliaMonth();
   const result = useQuery({
     queryKey: ['hours', actor, companyId, month, search.page],
     queryFn:
@@ -692,7 +659,7 @@ function Catalog({ search, update, module }: Props & { module: CatalogModule }) 
   const { domainOperations, documentOperations } = useRouteContext({ from: '__root__' });
   const statusLabel = module === 'records' ? recordStatusLabel : label;
   const record = module === 'records' && domainOperations ? search.record : undefined;
-  const month = module === 'calendar' ? (search.month ?? currentMonth()) : null;
+  const month = module === 'calendar' ? (search.month ?? currentBrasiliaMonth()) : null;
   const result = useQuery({
     queryKey: ['phase4-catalog', actor, companyId, module, month, search.page],
     queryFn:

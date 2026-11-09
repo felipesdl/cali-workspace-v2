@@ -34,3 +34,12 @@ export function toBrasiliaDateTimeInput(instant: string | null) {
   }).format(new Date(instant));
   return parts.replace(' ', 'T');
 }
+
+export function currentBrasiliaMonth() {
+  const formatter = new Intl.DateTimeFormat('sv-SE', {
+    year: 'numeric',
+    month: '2-digit',
+    timeZone: 'America/Sao_Paulo',
+  });
+  return `${formatter.format(new Date())}-01`;
+}

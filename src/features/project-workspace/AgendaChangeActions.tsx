@@ -159,7 +159,7 @@ export function AgendaChangeActions({
                     a duração original e 48 horas em dias de semana de antecedência.
                   </p>
                   {options.map(({ id, number: index }) => (
-                    <div key={id} className="tw:sm:grid-cols-2 tw:grid tw:gap-2">
+                    <div key={id} className="tw:grid tw:gap-2 tw:wide:grid-cols-2">
                       <Field id={prefix + 'start' + index} label={`Início da opção ${index}`}>
                         <Input
                           id={prefix + 'start' + index}

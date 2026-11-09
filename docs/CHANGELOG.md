@@ -1,5 +1,10 @@
 # Registro de mudanças
 
+## Perfil próprio, prioridades e resumo mensal
+
+- Conecta edição parcial do próprio nome, cargo, telefone e WhatsApp. Preserva foto, assinatura e dados de acesso. Detecta conflito por campo e mantém o rascunho ao repetir uma falha.
+- Homologa os atalhos de Projeto e Ocorrência em A/B e conecta os totais mensais de Horas e Agenda. Corrige as grades de Equipe, Horas e remarcação de Agenda com o breakpoint CALI. [Prova em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#edição-de-minha-conta-e-resumo-mensal-admin).
+
 ## Sino conectado no CALI MAPA
 
 - Conecta notificações próprias de Admin e Cliente com aceite vigente. Registra leitura individual ou em lote e abre Projeto e Ocorrência pelos destinos tipados do piloto.

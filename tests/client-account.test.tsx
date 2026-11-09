@@ -332,3 +332,49 @@ describe('notificações do Cliente', () => {
     expect(document.activeElement).toBe(trigger);
   });
 });
+
+describe('edição do perfil próprio', () => {
+  it('preserva o rascunho após falha e envia somente o campo modificado', async () => {
+    const profile = {
+      id: actorId,
+      full_name: 'Pessoa sintética',
+      job_title: 'Analista',
+      email: 'perfil@example.invalid',
+      phone: null,
+      whatsapp: null,
+    };
+    const update = vi
+      .fn<NonNullable<OwnProfileService['update']>>()
+      .mockRejectedValueOnce(new Error('Falha sintética'))
+      .mockResolvedValueOnce({
+        status: 'saved',
+        profile: { ...profile, job_title: 'Coordenadora' },
+      });
+    const { user } = await openApp({
+      entry: '/cliente/minha-conta',
+      ownProfile: { read: async () => profile, update },
+    });
+    await user.click(await screen.findByRole('button', { name: 'Editar perfil' }));
+    const job = screen.getByRole('textbox', { name: 'Cargo' });
+    await user.clear(job);
+    await user.type(job, 'Coordenadora');
+    await user.click(screen.getByRole('button', { name: 'Salvar perfil' }));
+    await screen.findByText('Não foi possível salvar seu perfil. Tente novamente.');
+    expect((job as HTMLInputElement).value).toBe('Coordenadora');
+    await user.click(screen.getByRole('button', { name: 'Salvar perfil' }));
+    await screen.findByText('Perfil atualizado.');
+    expect(update).toHaveBeenCalledTimes(2);
+    expect(update).toHaveBeenLastCalledWith(
+      actorId,
+      {
+        full_name: 'Pessoa sintética',
+        job_title: 'Analista',
+        phone: null,
+        whatsapp: null,
+      },
+      { job_title: 'Coordenadora' },
+    );
+    expect(screen.getByText('perfil@example.invalid')).toBeTruthy();
+    expect(screen.getByText('Coordenadora')).toBeTruthy();
+  });
+});

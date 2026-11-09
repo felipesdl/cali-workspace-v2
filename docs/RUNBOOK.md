@@ -263,3 +263,17 @@ O build servido pelo Vite em loopback respondeu HTTP 200 com o mesmo HTML de ent
 O JavaScript inicial passou de 1.061,90 para 926,16 kB antes de gzip e de 306,88 para 275,20 kB após gzip. O CSS inicial passou de 141,15 para 14,68 kB antes de gzip. O Vite continua sinalizando o tamanho do JavaScript principal. No build de demonstração separado, o navegador abriu Admin e carregou Cliente pelo botão de troca. Reverter os imports sob demanda restaura o empacotamento anterior.
 
 A preparação do ambiente de homologação ainda exige domínio de teste protegido, fallback para URLs diretas, origens e redirects conferidos, callback autenticado, observabilidade e separação operacional de staging e produção. Registrar os resultados no [roteiro de homologação](HOMOLOGACAO_PATRICIA.md).
+
+
+## Preview protegido para homologação
+
+A primeira dependência externa é identificar o projeto da V2 no provedor e reservar a origem HTTPS de preview com proteção de acesso. O repositório não listou deployments no GitHub nesta conferência. A árvore local não possui vínculo com o projeto Vercel. O painel integrado do Vercel exigiu login. O endereço publicado usado como referência visual não serve como destino de staging. O build local respondeu com o HTML de entrada em seis rotas, incluindo Minha conta Admin/Cliente, Projetos, Documentos e callback. Os ativos JavaScript e CSS também responderam. Essa prova cobre o fallback HTTP, sem autenticação no domínio externo.
+
+| Ordem | Preparação | Prova esperada |
+| --- | --- | --- |
+| 1 | Vincular a revisão candidata do PR ao projeto de preview. Habilitar proteção no provedor e conceder acesso somente aos participantes autorizados. | Uma sessão sem autorização recebe a tela de proteção antes de carregar a V2. Produção e preview têm URLs distintas. |
+| 2 | Fixar a URL HTTPS exata e apontar o preview para CALI MAPA. Configurar somente URL e chave pública no frontend. | Sem fallback para o banco de produção. URL direta recebe o HTML da V2 e mantém o caminho original. |
+| 3 | Adaptar os gates de loopback dos módulos e autorizar a origem exata nas funções usadas. Conferir Acesso Admin, Acesso A/B, PDF privado, PDF executivo e DISC. Alinhar redirects de Auth e links emitidos pelas funções. | Login e MFA, convite de teste, aceite, callback e download funcionam na origem definida. Um domínio fora da lista é recusado. |
+| 4 | Executar a regressão interna da revisão candidata em 375 e 1366 px. Preparar atores e dados sintéticos. Manter desligados os agendadores e fluxos de envio que não fazem parte da rodada. | Perfil, isolamento A/B, operação, PDF e rollback têm evidência na mesma revisão. A Patrícia recebe acesso apenas após o fechamento interno. |
+
+Reversão do preview: retirar a revisão candidata e remover a origem específica dos redirects e das funções que receberam configuração de homologação. A guarda de sessão, o aceite e as políticas de dados permanecem no CALI MAPA. [Roteiro de homologação](HOMOLOGACAO_PATRICIA.md).

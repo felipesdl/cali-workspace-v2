@@ -1,16 +1,12 @@
-import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
+import {
+  ownProfile,
+  ownProfileUpdate,
+  type OwnProfilePatch,
+  type OwnProfileValues,
+} from './own-profile-schemas';
 
-const ownProfile = z.object({
-  id: z.uuid(),
-  full_name: z.string().nullable(),
-  job_title: z.string().nullable(),
-  email: z.string().nullable(),
-  phone: z.string().nullable(),
-  whatsapp: z.string().nullable(),
-});
-
-export function createOwnProfileService(client: WorkspaceClient) {
+export function createOwnProfileService(client: WorkspaceClient, canEdit = false) {
   return {
     async read(actor: string, signal: AbortSignal) {
       const { data, error } = await client
@@ -24,7 +20,21 @@ export function createOwnProfileService(client: WorkspaceClient) {
       if (result && result.id !== actor) throw new Error('Perfil incompatível com a sessão.');
       return result;
     },
+    update: canEdit
+      ? async (actor: string, expected: OwnProfileValues, patch: OwnProfilePatch) => {
+          const { data, error } = await client.rpc('v2_update_own_profile', {
+            p_expected: expected,
+            p_patch: patch,
+          });
+          if (error) throw new Error('Não foi possível salvar seu perfil. Tente novamente.');
+          const result = ownProfileUpdate.parse(data);
+          if (result.status === 'saved' && result.profile.id !== actor)
+            throw new Error('Perfil incompatível com a sessão.');
+          return result;
+        }
+      : undefined,
   };
 }
 
-export type OwnProfileService = ReturnType<typeof createOwnProfileService>;
+type Service = ReturnType<typeof createOwnProfileService>;
+export type OwnProfileService = Pick<Service, 'read'> & Partial<Pick<Service, 'update'>>;

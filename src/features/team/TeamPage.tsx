@@ -75,7 +75,7 @@ function DirectoryFilters({
   return (
     <form
       aria-label="Filtrar equipe"
-      className="tw:sm:grid-cols-[1fr_1fr_auto] tw:mb-4 tw:grid tw:items-end tw:gap-3"
+      className="tw:mb-4 tw:grid tw:items-end tw:gap-3 tw:wide:grid-cols-[1fr_1fr_auto]"
       onSubmit={(event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);

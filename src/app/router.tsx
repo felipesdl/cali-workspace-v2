@@ -227,7 +227,7 @@ const adminChildren = [
   createRoute({
     getParentRoute: () => adminRoute,
     path: '/',
-    validateSearch: workspaceSearch.pick({ companyId: true }),
+    validateSearch: workspaceSearch.pick({ companyId: true, month: true }),
   }),
   createRoute({
     getParentRoute: () => adminRoute,
