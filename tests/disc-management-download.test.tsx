@@ -1,15 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { DiscManagement } from '../src/api/modules/disc/schemas';
-import { ManagementReport } from '../src/features/disc/ManagementReport';
+import type { DiscManagement } from '../src/api/shared/disc/schemas';
+import { ManagementReport } from '../src/components/disc/ManagementReport';
 
 const { downloadMutation, useDiscDownload } = vi.hoisted(() => {
   const downloadMutation = vi.fn();
   return { downloadMutation, useDiscDownload: vi.fn() };
 });
 
-vi.mock('../src/api/modules/disc/hooks', () => ({ useDiscDownload }));
+vi.mock('../src/api/shared/disc/hooks', () => ({ useDiscDownload }));
 
 const report: DiscManagement = {
   id: '1577c6df-08ed-45d1-bd45-0f1603ba043b',

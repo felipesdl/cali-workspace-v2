@@ -7,14 +7,14 @@ import { webcrypto } from 'node:crypto';
 import { App } from '../src/app/App';
 import { createAppRouter } from '../src/app/router';
 import { createQueryClient } from '../src/api/query-client';
-import { createCompaniesService } from '../src/api/modules/companies/service';
+import { createCompaniesService } from '../src/api/admin/companies/service';
 import { createMockHttpClient } from '../src/mocks/http/client';
 import { createCompaniesMockAdapter } from '../src/mocks/adapters/companies';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
 beforeAll(async () => {
   vi.stubGlobal('crypto', webcrypto);
   // O fluxo começa na ficha. A transformação do módulo lazy não faz parte desse teste.
-  await import('../src/features/companies/CompaniesPage');
+  await import('../src/modules/admin/companies/CompaniesPage');
 });
 afterAll(() => vi.unstubAllGlobals());
 async function openApp(withDocument = false) {

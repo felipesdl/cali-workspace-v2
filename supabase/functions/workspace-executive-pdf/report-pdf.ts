@@ -7,13 +7,13 @@ import { z } from 'zod';
 import {
   reportCurationSchema,
   reportCurationSections,
-} from '../../../src/api/modules/project-workspace/report-curation';
+} from '../../../src/api/shared/workspace/report-curation';
 import {
   executiveMetricRows,
   reportMetricsSchema,
   reportSourceCountsSchema,
   reportSourceRows,
-} from '../../../src/api/modules/project-workspace/report-metrics';
+} from '../../../src/api/shared/workspace/report-metrics';
 
 export const reportInputSchema = z.object({
   title: z.string().min(1).max(180),

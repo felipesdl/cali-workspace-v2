@@ -1,4 +1,4 @@
-/* Sem Preflight e sem layer(): utilities devem vencer seletores globais de tipo do legado. */
+/* Mantém o reset e a ordem da cascata explícitos na base CALI. */
 @import 'tailwindcss/theme.css' prefix(tw);
 @import 'tailwindcss/utilities.css' prefix(tw) source('../');
 

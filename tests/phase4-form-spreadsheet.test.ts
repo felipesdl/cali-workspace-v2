@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { strFromU8, unzipSync } from 'fflate';
 import { expect, test } from 'vitest';
-import { formSpreadsheet } from '../src/features/project-workspace/form-spreadsheet';
+import { formSpreadsheet } from '../src/modules/admin/forms/components/form-spreadsheet';
 
 test('preserva respostas como texto e escapa o XML da planilha de Forms', async () => {
   const exportFile = formSpreadsheet({

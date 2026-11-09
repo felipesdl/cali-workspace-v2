@@ -70,20 +70,6 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
   {
-    // Exceção localizada do protótipo; remover na migração de cada feature.
-    files: [
-      'src/AdminPreview.tsx',
-      'src/ClientHome.tsx',
-      'src/DeliverablesView.tsx',
-      'src/IndicatorExtras.tsx',
-      'src/NoticesView.tsx',
-      'src/TeamEnhancements.tsx',
-      'src/WorkflowViews.tsx',
-      'src/app/ClientWorkspace.tsx',
-    ],
-    rules: { '@typescript-eslint/no-unused-vars': 'off' },
-  },
-  {
     files: ['src/components/ds/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': [
@@ -91,7 +77,7 @@ export default tseslint.config(
         {
           patterns: [
             '**/api/**',
-            '**/features/**',
+            '**/modules/**',
             '**/app/**',
             '**/mocks/**',
             '**/tests/**',
@@ -104,7 +90,8 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/features/**/*.{ts,tsx}'],
+    files: ['src/modules/**/*.{ts,tsx}', 'src/components/**/*.{ts,tsx}'],
+    ignores: ['src/components/ds/**'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -117,17 +104,17 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': [
         'error',
-        { patterns: ['**/features/**', '**/components/**', '**/mocks/**', '**/tests/**'] },
+        { patterns: ['**/modules/**', '**/components/**', '**/mocks/**', '**/tests/**'] },
       ],
     },
   },
   {
     // Apenas a composição do serviço seleciona mocks de execução da aplicação.
-    files: ['src/api/modules/*/api.ts'],
+    files: ['src/api/**/api.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
-        { patterns: ['**/features/**', '**/components/**', '**/tests/**'] },
+        { patterns: ['**/modules/**', '**/components/**', '**/tests/**'] },
       ],
     },
   },

@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { describe, expect, it, vi } from 'vitest';
-import { createHostedCompaniesService } from '../src/api/modules/companies/hosted';
+import { createHostedCompaniesService } from '../src/api/admin/companies/hosted';
 const id = '10000000-0000-4000-8000-000000000001';
 const row = {
   id,

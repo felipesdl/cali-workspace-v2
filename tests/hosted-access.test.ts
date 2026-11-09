@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createAccessStateSource, type AccessPorts } from '../src/api/modules/access/service';
+import { createAccessStateSource, type AccessPorts } from '../src/api/access/service';
 import { createSessionController } from '../src/app/session/controller';
 import { createQueryClient } from '../src/api/query-client';
 const id = '20000000-0000-4000-8000-000000000001';

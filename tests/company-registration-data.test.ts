@@ -1,22 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { createCompaniesService } from '../src/api/modules/companies/service';
+import { createCompaniesService } from '../src/api/admin/companies/service';
 import { createCompaniesMockAdapter } from '../src/mocks/adapters/companies';
 import { createMockHttpClient } from '../src/mocks/http/client';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
 import {
   registrationDraftSchema,
   registrationToDraft,
-} from '../src/features/companies/registration-draft';
+} from '../src/modules/admin/companies/components/registration-draft';
 import {
   companyService,
   registrationValuesSchema,
   updateRegistrationSchema,
   logoSchema,
   logoLimits,
-} from '../src/api/modules/companies/registration-schemas';
+} from '../src/api/admin/companies/registration-schemas';
 import { createStaticResponseAdapter } from './mocks/http';
 import { companyLogoFixture } from './fixtures/company-logo';
-import { prepareCompanyLogo } from '../src/features/companies/company-logo';
+import { prepareCompanyLogo } from '../src/modules/admin/companies/components/company-logo';
 function setup() {
   const service = createCompaniesService(createMockHttpClient(createCompaniesMockAdapter()));
   if (!service.management) throw new Error('Gestão de teste indisponível');

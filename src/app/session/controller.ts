@@ -1,8 +1,5 @@
 import { type QueryClient } from '@tanstack/react-query';
-import {
-  workspaceAccessStateSchema,
-  type WorkspaceAccessState,
-} from '../../api/modules/access/session';
+import { workspaceAccessStateSchema, type WorkspaceAccessState } from '../../api/access/session';
 
 export type SessionSource = {
   read: (signal: AbortSignal) => Promise<WorkspaceAccessState>;

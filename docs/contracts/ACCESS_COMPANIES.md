@@ -198,7 +198,7 @@ Felipe autorizou investigar cadastro/primeiro acesso e criar um registro se não
 - Primeiro acesso marca accepted_at do convite e registra aceite individual em terms_acceptances, com significados diferentes.
 - Os textos legais mencionam adesão formalizada; não foi localizada uma operação/tabela correspondente. A ausência na fonte não comprova ausência no banco ativo, que não foi consultado.
 
-Criado [contrato mínimo V2](../../src/api/modules/access/adhesion.ts), explicitamente novo:
+Criado [contrato mínimo V2](../../src/api/access/adhesion.ts), explicitamente novo:
 
 | Parte | Campos e autoridade |
 | --- | --- |
@@ -227,9 +227,9 @@ SQL real testa claims sintéticos com rollback; API testa JWT emitido pelo Auth 
 
 ## Tipos implementados e fronteira com os mocks
 
-- [access/schemas.ts](../../src/api/modules/access/schemas.ts): requests explícitas, respostas verificadas e projeções mínimas de perfil/aceite. Tipos inferidos; adapter/eventos/telas hospedados estão registrados no recorte de 01/11, e protocolo local de sessão admitida em 02/11, sem equivalência entre os servidores.
-- [companies/records.ts](../../src/api/modules/companies/records.ts): projeções mínimas usadas pelo adapter hospedado na leitura de empresa/convite. Não são um Database manual nem prova de que o banco aplicado retorna esses campos.
-- [companies/schemas.ts](../../src/api/modules/companies/schemas.ts) continua a projeção demonstrativa usada pela tela. `plan`, `createdOn`, `invitedOn` e status simplificado de acesso não equivalem automaticamente a `service_plan/service_type`, timestamps ou flags reais. Campos financeiros/contratuais ficam na 2A. O catálogo de status agora inclui archived; não há ação nova de arquivamento.
+- [access/schemas.ts](../../src/api/access/schemas.ts): requests explícitas, respostas verificadas e projeções mínimas de perfil/aceite. Tipos inferidos; adapter/eventos/telas hospedados estão registrados no recorte de 01/11, e protocolo local de sessão admitida em 02/11, sem equivalência entre os servidores.
+- [companies/records.ts](../../src/api/admin/companies/records.ts): projeções mínimas usadas pelo adapter hospedado na leitura de empresa/convite. Não são um Database manual nem prova de que o banco aplicado retorna esses campos.
+- [companies/schemas.ts](../../src/api/admin/companies/schemas.ts) continua a projeção demonstrativa usada pela tela. `plan`, `createdOn`, `invitedOn` e status simplificado de acesso não equivalem automaticamente a `service_plan/service_type`, timestamps ou flags reais. Campos financeiros/contratuais ficam na 2A. O catálogo de status agora inclui archived; não há ação nova de arquivamento.
 - Respostas de sucesso incompletas, papel desconhecido, campos de autorização forjados na request e aceite sem instante/versão são rejeitados nos testes de contrato. Parse válido não constitui autenticação, MFA ou RLS.
 
 ## Lacunas por operação e critério de desbloqueio
@@ -274,7 +274,7 @@ Sem publicação, estado é terms_unavailable; aceite ausente/antigo é terms_re
 
 `workspace_access_state` retorna status signed_out/blocked/mfa_required/terms_unavailable/terms_required/ready, perfil mínimo, situação de empresa e conteúdo/aceite corrente. JWT precisa corresponder a sessão ainda existente e não expirada em Auth; role/empresa da tela ou metadata não substituem perfil persistido. Logout, inativação do perfil e bloqueio/encerramento/arquivamento da empresa retiram liberação. Corte por perfil/empresa revoga sessões e códigos pendentes; reativar não recupera essas credenciais nem muda a revogação individual. Pausa mantém consulta.
 
-No frontend, `src/api/modules/access/session.ts` valida o contrato; `src/app/session` controla carregamento/erro/logout, cancelamento, cache e respostas atrasadas por geração. Router recebe controller por contexto e faz beforeLoad em Cliente/Admin; App invalida as rotas quando o estado muda. Retorno aceita somente caminhos internos Cliente/Admin. Página de bloqueio mostra mensagem por motivo e não simula login ou aceite.
+No frontend, `src/api/access/session.ts` valida o contrato; `src/app/session` controla carregamento/erro/logout, cancelamento, cache e respostas atrasadas por geração. Router recebe controller por contexto e faz beforeLoad em Cliente/Admin; App invalida as rotas quando o estado muda. Retorno aceita somente caminhos internos Cliente/Admin. Página de bloqueio mostra mensagem por motivo e não simula login ou aceite.
 
 **Limite:** a fonte real do controller, telas de código/MFA/termos, persistência/refresh de token e eventos Auth ainda não estão conectados à SPA. Bootstrap continua demo e rejeita URL real. Injeção de sessão é usada nos testes das guardas; não há alternador de demonstração que conceda autorização real. Keys/adapters de empresas ainda são demonstrativos; não tratá-los como consultas autenticadas.
 

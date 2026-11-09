@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { createCompaniesService } from '../src/api/modules/companies/service';
+import { createCompaniesService } from '../src/api/admin/companies/service';
 import { createCompaniesMockAdapter } from '../src/mocks/adapters/companies';
 import { createMockHttpClient } from '../src/mocks/http/client';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
 import { createStaticResponseAdapter } from './mocks/http';
-import { type CompanyAccess } from '../src/api/modules/companies/schemas';
-import { type ChangeCompanyAccess } from '../src/api/modules/companies/management-schemas';
+import { type CompanyAccess } from '../src/api/admin/companies/schemas';
+import { type ChangeCompanyAccess } from '../src/api/admin/companies/management-schemas';
 
 function setup() {
   const service = createCompaniesService(createMockHttpClient(createCompaniesMockAdapter()));

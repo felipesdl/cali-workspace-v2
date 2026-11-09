@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createCompaniesService } from '../src/api/modules/companies/service';
+import { createCompaniesService } from '../src/api/admin/companies/service';
 import { createCompaniesMockAdapter } from '../src/mocks/adapters/companies';
 import { createMockHttpClient } from '../src/mocks/http/client';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
@@ -7,11 +7,11 @@ import { createStaticResponseAdapter } from './mocks/http';
 import {
   administrationToDraft,
   administrationDraftSchema,
-} from '../src/features/companies/administration-draft';
+} from '../src/modules/admin/companies/components/administration-draft';
 import {
   emptyAdministration,
   updateAdministrationSchema,
-} from '../src/api/modules/companies/administration-schemas';
+} from '../src/api/admin/companies/administration-schemas';
 
 function setup() {
   const service = createCompaniesService(createMockHttpClient(createCompaniesMockAdapter()));

@@ -2,10 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { assertLocalDatabase, localSql } from './local-database.ts';
-import {
-  currentTermsSchema,
-  workspaceAccessStateSchema,
-} from '../src/api/modules/access/session.ts';
+import { currentTermsSchema, workspaceAccessStateSchema } from '../src/api/access/session.ts';
 
 let stage = 'precondições';
 let checks = 0;

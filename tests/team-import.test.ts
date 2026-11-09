@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { parseTeamCsv } from '../src/api/modules/team/import';
-import { writeMonthOptions } from '../src/api/modules/team/maintenance';
+import { parseTeamCsv } from '../src/api/shared/team/import';
+import { writeMonthOptions } from '../src/api/shared/team/maintenance';
 
 const base = 'codigo_colaborador;nome_completo;data_admissao;cargo;departamento';
 

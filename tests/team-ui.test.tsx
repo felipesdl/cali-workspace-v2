@@ -6,9 +6,9 @@ import { App } from '../src/app/App';
 import { createAppRouter } from '../src/app/router';
 import { createSessionController } from '../src/app/session/controller';
 import { createQueryClient } from '../src/api/query-client';
-import { type WorkspaceAccessState } from '../src/api/modules/access/session';
-import { type TeamService } from '../src/api/modules/team/hosted';
-import { professionalRecord } from '../src/api/modules/team/schemas';
+import { type WorkspaceAccessState } from '../src/api/access/session';
+import { type TeamService } from '../src/api/shared/team/hosted';
+import { professionalRecord } from '../src/api/shared/team/schemas';
 
 const companyA = '9c5ab148-78b8-4410-9338-58c44222a5db';
 const companyB = '6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76';

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { createAppRouter } from '../src/app/router';
 import { App } from '../src/app/App';
 import { createSessionController } from '../src/app/session/controller';
-import { type WorkspaceAccessState } from '../src/api/modules/access/session';
+import { type WorkspaceAccessState } from '../src/api/access/session';
 import { createQueryClient } from '../src/api/query-client';
 
 const snapshot = (): WorkspaceAccessState => ({

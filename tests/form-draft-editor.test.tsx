@@ -2,9 +2,9 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
-import { type DomainOperations } from '../src/api/modules/project-workspace/domain-operations';
+import { type DomainOperations } from '../src/api/shared/workspace/domain-operations';
 import { createQueryClient } from '../src/api/query-client';
-import { FormDraftEditor } from '../src/features/project-workspace/FormDraftEditor';
+import { FormDraftEditor } from '../src/modules/admin/forms/components/FormDraftEditor';
 
 it('anuncia a revisão salva mesmo quando a nova versão substitui os campos', async () => {
   const id = '11111111-1111-4111-8111-111111111111';

@@ -1,28 +1,25 @@
-import { type AdminPortfolioService } from '../api/modules/project-workspace/admin-portfolio';
-import { type NotificationsService } from '../api/modules/notifications/schemas';
-import { type OwnProfileService } from '../api/modules/access/own-profile';
-import type { PartnerPilot } from '../api/modules/partner/pilot';
-import { type ProjectJournal } from '../api/modules/project-workspace/project-journal';
-import { type AdminReadService } from '../api/modules/project-workspace/admin-read';
-import { type DocumentOperations } from '../api/modules/project-workspace/documents';
-import { type AgendaOperations } from '../api/modules/project-workspace/agenda';
-import { type DomainOperations } from '../api/modules/project-workspace/domain-operations';
-import {
-  type HourOperations,
-  type ProjectOperations,
-} from '../api/modules/project-workspace/operations';
-import { type ProjectWorkspace } from '../api/modules/project-workspace/service';
-import { workspaceSearch } from '../api/modules/project-workspace/schemas';
+import { type AdminPortfolioService } from '../api/admin/workspace/admin-portfolio';
+import { type NotificationsService } from '../api/shared/notifications/schemas';
+import { type OwnProfileService } from '../api/access/own-profile';
+import type { PartnerPilot } from '../api/partner/pilot';
+import { type ProjectJournal } from '../api/shared/workspace/project-journal';
+import { type AdminReadService } from '../api/admin/workspace/admin-read';
+import { type DocumentOperations } from '../api/shared/workspace/documents';
+import { type AgendaOperations } from '../api/shared/workspace/agenda';
+import { type DomainOperations } from '../api/shared/workspace/domain-operations';
+import { type HourOperations, type ProjectOperations } from '../api/shared/workspace/operations';
+import { type ProjectWorkspace } from '../api/shared/workspace/service';
+import { workspaceSearch } from '../api/shared/workspace/schemas';
 import { z } from 'zod';
-import { type DiscService } from '../api/modules/disc/service';
-import { teamSearchSchema } from '../api/modules/team/schemas';
-import { type TeamService } from '../api/modules/team/hosted';
-import { type TeamMonthlyService } from '../api/modules/team/monthly';
+import { type DiscService } from '../api/shared/disc/service';
+import { teamSearchSchema } from '../api/shared/team/schemas';
+import { type TeamService } from '../api/shared/team/hosted';
+import { type TeamMonthlyService } from '../api/shared/team/monthly';
 import { type ReactElement } from 'react';
-import { ClientOverview } from '../features/client-account/ClientOverview';
-import { ClientCompanyPage } from '../features/client-account/ClientCompanyPage';
-import { ClientTermsPage } from '../features/client-account/ClientTermsPage';
-import { ClientModulePending } from '../features/client-account/ClientModulePending';
+import { ClientOverview } from '../modules/client/home/ClientOverview';
+import { ClientCompanyPage } from '../modules/client/company/ClientCompanyPage';
+import { ClientTermsPage } from '../modules/client/terms/ClientTermsPage';
+import { ClientModulePending } from '../components/workspace/ClientModulePending';
 import {
   createRootRouteWithContext,
   createRoute,
@@ -34,21 +31,22 @@ import {
   type RouterHistory,
 } from '@tanstack/react-router';
 import { type QueryClient } from '@tanstack/react-query';
-import { companySearchSchema } from '../api/modules/companies/schemas';
+import { companySearchSchema } from '../api/admin/companies/schemas';
 import { createQueryClient } from '../api/query-client';
 import { AdminWorkspace } from './AdminWorkspace';
-import { ClientEntry } from './routes/ClientEntry';
+import { AdminOverview } from '../modules/admin/overview/AdminOverview';
+import { ClientWorkspace } from './ClientWorkspace';
 import { NotFoundPage } from './routes/NotFoundPage';
 import { RouteErrorPage } from './routes/RouteErrorPage';
-import { AccessGatePage } from './routes/AccessGatePage';
+import { AccessGatePage } from '../modules/access/sign-in/AccessGatePage';
 import { type SessionController } from './session/controller';
 import { safeReturnPath, sessionGuard } from './session/guard';
-import { type HostedAccessApi } from '../api/modules/access/api';
-import { workspaceRole } from '../api/modules/access/schemas';
-import { type CompaniesService } from '../api/modules/companies/service';
-import { companiesService } from '../api/modules/companies/api';
+import { type HostedAccessApi } from '../api/access/api';
+import { workspaceRole } from '../api/access/schemas';
+import { type CompaniesService } from '../api/admin/companies/service';
+import { companiesService } from '../api/admin/companies/api';
 import { parseAccessReason } from './session/access-reason';
-import { AuthCallbackPage } from './routes/AuthCallbackPage';
+import { AuthCallbackPage } from '../modules/access/sign-in/AuthCallbackPage';
 
 const rootRoute = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -97,7 +95,7 @@ const clientRoute = createRoute({
         search: { reason, returnTo: safeReturnPath(location.href) },
       });
   },
-  component: ClientEntry,
+  component: ClientWorkspace,
 });
 
 const adminRoute = createRoute({
@@ -132,46 +130,50 @@ function clientAccountChild<const Path extends string>(path: Path, component: Ro
     },
   });
 }
-const phase4CatalogPage = lazyRouteComponent(
-  () => import('../features/project-workspace/WorkspaceRead'),
-  'Phase4CatalogPage',
-);
-function clientCatalogChild<const Path extends string>(path: Path) {
+function workspaceCatalogChild<
+  Parent extends typeof adminRoute | typeof clientRoute,
+  const Path extends string,
+>(parent: Parent, path: Path, component: RouteComponent) {
   return createRoute({
-    getParentRoute: () => clientRoute,
+    getParentRoute: () => parent,
     path,
     validateSearch: workspaceSearch,
-    component: phase4CatalogPage,
-  });
-}
-function adminCatalogChild<const Path extends string>(path: Path) {
-  return createRoute({
-    getParentRoute: () => adminRoute,
-    path,
-    validateSearch: workspaceSearch,
-    component: phase4CatalogPage,
+    component,
   });
 }
 const clientChildren = [
-  clientCatalogChild('frentes'),
+  workspaceCatalogChild(
+    clientRoute,
+    'frentes',
+    lazyRouteComponent(
+      () => import('../modules/client/fronts/ClientFrontsPage'),
+      'ClientFrontsPage',
+    ),
+  ),
   clientChild('/', ClientOverview),
   clientAccountChild('empresa', ClientCompanyPage),
   clientAccountChild(
     'minha-conta',
-    lazyRouteComponent(() => import('../features/account/OwnProfilePage'), 'OwnProfilePage'),
+    lazyRouteComponent(
+      () => import('../modules/client/account/ClientOwnProfilePage'),
+      'ClientOwnProfilePage',
+    ),
   ),
   clientAccountChild('termos', ClientTermsPage),
   createRoute({
     getParentRoute: () => clientRoute,
     path: 'equipe',
     validateSearch: (search) => teamSearchSchema.parse(search),
-    component: lazyRouteComponent(() => import('../features/team/TeamPage'), 'ClientTeamPage'),
+    component: lazyRouteComponent(
+      () => import('../modules/client/team/ClientTeamPage'),
+      'ClientTeamPage',
+    ),
   }),
   createRoute({
     getParentRoute: () => clientRoute,
     path: 'perfil',
     component: lazyRouteComponent(
-      () => import('../features/disc/ClientDiscPage'),
+      () => import('../modules/client/disc/ClientDiscPage'),
       'ClientDiscPage',
     ),
   }),
@@ -180,19 +182,47 @@ const clientChildren = [
     path: 'horas',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/client/hours/ClientHoursPage'),
       'ClientHoursPage',
     ),
   }),
-  clientCatalogChild('cronograma'),
-  clientCatalogChild('registros'),
-  clientCatalogChild('documentos'),
-  clientCatalogChild('relatorios'),
+  workspaceCatalogChild(
+    clientRoute,
+    'cronograma',
+    lazyRouteComponent(
+      () => import('../modules/client/agenda/ClientAgendaPage'),
+      'ClientAgendaPage',
+    ),
+  ),
+  workspaceCatalogChild(
+    clientRoute,
+    'registros',
+    lazyRouteComponent(
+      () => import('../modules/client/records/ClientRecordsPage'),
+      'ClientRecordsPage',
+    ),
+  ),
+  workspaceCatalogChild(
+    clientRoute,
+    'documentos',
+    lazyRouteComponent(
+      () => import('../modules/client/documents/ClientDocumentsPage'),
+      'ClientDocumentsPage',
+    ),
+  ),
+  workspaceCatalogChild(
+    clientRoute,
+    'relatorios',
+    lazyRouteComponent(
+      () => import('../modules/client/reports/ClientReportsPage'),
+      'ClientReportsPage',
+    ),
+  ),
   createRoute({
     getParentRoute: () => clientRoute,
     path: 'propostas',
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/ClientCommercialPage'),
+      () => import('../modules/client/proposals/ClientCommercialPage'),
       'ClientCommercialPage',
     ),
   }),
@@ -201,20 +231,31 @@ const clientChildren = [
     path: 'entregaveis',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/client/projects/ClientProjectsPage'),
       'ClientProjectsPage',
     ),
   }),
-  clientCatalogChild('avisos'),
+  workspaceCatalogChild(
+    clientRoute,
+    'avisos',
+    lazyRouteComponent(
+      () => import('../modules/client/notices/ClientNoticesPage'),
+      'ClientNoticesPage',
+    ),
+  ),
 ] as const;
 const adminChildren = [
-  adminCatalogChild('frentes'),
+  workspaceCatalogChild(
+    adminRoute,
+    'frentes',
+    lazyRouteComponent(() => import('../modules/admin/fronts/AdminFrontsPage'), 'AdminFrontsPage'),
+  ),
   createRoute({
     getParentRoute: () => adminRoute,
     path: 'formularios',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/admin/forms/AdminFormsPage'),
       'AdminFormsPage',
     ),
   }),
@@ -223,7 +264,7 @@ const adminChildren = [
     path: 'privacidade',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/admin/privacy/AdminPrivacyPage'),
       'AdminPrivacyPage',
     ),
   }),
@@ -231,13 +272,14 @@ const adminChildren = [
     getParentRoute: () => adminRoute,
     path: '/',
     validateSearch: workspaceSearch.pick({ companyId: true, month: true }),
+    component: AdminOverview,
   }),
   createRoute({
     getParentRoute: () => adminRoute,
     path: 'minha-conta',
     component: lazyRouteComponent(
-      () => import('../features/account/OwnProfilePage'),
-      'OwnProfilePage',
+      () => import('../modules/admin/account/AdminOwnProfilePage'),
+      'AdminOwnProfilePage',
     ),
   }),
   createRoute({
@@ -245,7 +287,7 @@ const adminChildren = [
     path: 'projetos',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/admin/projects/AdminProjectsPage'),
       'AdminProjectsPage',
     ),
   }),
@@ -254,33 +296,71 @@ const adminChildren = [
     path: 'horas',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/admin/hours/AdminHoursPage'),
       'AdminHoursPage',
     ),
   }),
-  adminCatalogChild('calendario'),
-  adminCatalogChild('registros'),
-  adminCatalogChild('documentos'),
-  adminCatalogChild('relatorios'),
-  adminCatalogChild('avisos'),
+  workspaceCatalogChild(
+    adminRoute,
+    'calendario',
+    lazyRouteComponent(() => import('../modules/admin/agenda/AdminAgendaPage'), 'AdminAgendaPage'),
+  ),
+  workspaceCatalogChild(
+    adminRoute,
+    'registros',
+    lazyRouteComponent(
+      () => import('../modules/admin/records/AdminRecordsPage'),
+      'AdminRecordsPage',
+    ),
+  ),
+  workspaceCatalogChild(
+    adminRoute,
+    'documentos',
+    lazyRouteComponent(
+      () => import('../modules/admin/documents/AdminDocumentsPage'),
+      'AdminDocumentsPage',
+    ),
+  ),
+  workspaceCatalogChild(
+    adminRoute,
+    'relatorios',
+    lazyRouteComponent(
+      () => import('../modules/admin/reports/AdminReportsPage'),
+      'AdminReportsPage',
+    ),
+  ),
+  workspaceCatalogChild(
+    adminRoute,
+    'avisos',
+    lazyRouteComponent(
+      () => import('../modules/admin/notices/AdminNoticesPage'),
+      'AdminNoticesPage',
+    ),
+  ),
   createRoute({
     getParentRoute: () => adminRoute,
     path: 'equipe',
     validateSearch: (search) => teamSearchSchema.parse(search),
-    component: lazyRouteComponent(() => import('../features/team/TeamPage'), 'AdminTeamPage'),
+    component: lazyRouteComponent(
+      () => import('../modules/admin/team/AdminTeamPage'),
+      'AdminTeamPage',
+    ),
   }),
   createRoute({
     getParentRoute: () => adminRoute,
     path: 'perfil',
     validateSearch: (search) => z.object({ campaign: z.uuid().optional() }).parse(search),
-    component: lazyRouteComponent(() => import('./routes/AdminDiscRoute'), 'AdminDiscRoute'),
+    component: lazyRouteComponent(
+      () => import('../modules/admin/disc/AdminDiscRoute'),
+      'AdminDiscRoute',
+    ),
   }),
   createRoute({
     getParentRoute: () => adminRoute,
     path: 'propostas',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/admin/proposals/AdminCommercialPage'),
       'AdminCommercialPage',
     ),
   }),
@@ -289,7 +369,7 @@ const adminChildren = [
     path: 'auditoria',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/admin/audit/AdminAuditPage'),
       'AdminAuditPage',
     ),
   }),
@@ -298,7 +378,7 @@ const adminChildren = [
     path: 'mapa-people',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/admin/people-map/AdminMapaPage'),
       'AdminMapaPage',
     ),
   }),
@@ -307,7 +387,7 @@ const adminChildren = [
     path: 'equipe-cali',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/admin/staff/AdminStaffRosterPage'),
       'AdminStaffRosterPage',
     ),
   }),
@@ -316,7 +396,7 @@ const adminChildren = [
     path: 'satisfacao',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
-      () => import('../features/project-workspace/WorkspaceRead'),
+      () => import('../modules/admin/satisfaction/AdminSatisfactionPage'),
       'AdminSatisfactionPage',
     ),
   }),
@@ -326,6 +406,10 @@ export const companiesRoute = createRoute({
   getParentRoute: () => adminRoute,
   path: 'clientes',
   validateSearch: (search) => companySearchSchema.parse(search),
+  component: lazyRouteComponent(
+    () => import('../modules/admin/companies/CompaniesPage'),
+    'CompaniesPage',
+  ),
 });
 
 const accessGateRoute = createRoute({
@@ -349,7 +433,7 @@ const discRespondentRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/disc/convite/$token',
   component: lazyRouteComponent(
-    () => import('../features/disc/DiscRespondentPage'),
+    () => import('../modules/public/disc/DiscRespondentPage'),
     'DiscRespondentPage',
   ),
 });
@@ -358,7 +442,7 @@ const publicTextFormRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/f/$slug',
   component: lazyRouteComponent(
-    () => import('../features/project-workspace/PublicTextForm'),
+    () => import('../modules/public/forms/PublicTextForm'),
     'PublicTextFormPage',
   ),
 });
@@ -367,7 +451,7 @@ const externalCommercialRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/proposta-externa',
   component: lazyRouteComponent(
-    () => import('../features/project-workspace/ExternalCommercialPage'),
+    () => import('../modules/public/proposals/ExternalCommercialPage'),
     'ExternalCommercialPage',
   ),
 });
@@ -376,7 +460,7 @@ const partnerPilotRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/equipe',
   component: lazyRouteComponent(
-    () => import('../features/partner/PartnerWorkspace'),
+    () => import('../modules/partner/home/PartnerWorkspace'),
     'PartnerWorkspace',
   ),
 });

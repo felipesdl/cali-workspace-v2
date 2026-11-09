@@ -4,7 +4,7 @@ import {
   type CompanyDocument,
   type CompanyDocumentEvent,
   type WithdrawCompanyDocument,
-} from '../../api/modules/companies/document-schemas';
+} from '../../api/admin/companies/document-schemas';
 const actor = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 export function createCompanyDocumentState() {
   const versions: DocumentVersion[] = [];

@@ -1,12 +1,12 @@
-import { type WorkspaceAdhesionRecord } from '../../api/modules/access/adhesion';
-import { documentVersionSchema } from '../../api/modules/companies/document-schemas';
+import { type WorkspaceAdhesionRecord } from '../../api/access/adhesion';
+import { documentVersionSchema } from '../../api/admin/companies/document-schemas';
 import {
   adhesionEvidenceStatus,
   type AdhesionEvidence,
   type AdhesionEvidenceRecord,
   type ConfirmAdhesionEvidence,
   type RetractAdhesionEvidence,
-} from '../../api/modules/companies/evidence-schemas';
+} from '../../api/admin/companies/evidence-schemas';
 import { type createCompanyDocumentState } from './company-documents';
 const actor = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 export function createAdhesionEvidenceState(

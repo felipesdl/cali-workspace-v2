@@ -122,7 +122,7 @@ Field explicita herança da família tipográfica nos controles nativos, incluin
 
 O consumidor visual de foto/logo mantém formato quadrado e raio de 7 px mesmo quando a API interna da peça usa o nome `Avatar`. Barras de controles priorizam linha única sem cortar ações em mobile; rolagem discreta mantém operação por toque/teclado e indicação de continuação. Alertas de atenção/erro usam âmbar/vermelho e orientação textual; demais estados mantêm a semântica da paleta.
 
-Dialog de confirmação, inclusive exclusão, deve seguir o padrão visual observado na main da V2 ou, se a operação só existir no domínio publicado, o equivalente ali observado e registrado e explicar objeto/efeito. Não criar novo formato a partir de um texto genérico de confirmação. Formulário por seções e notas de rodapé são decisões de composição em UX/UI. Foco, teclado e rolagem pertencem ao contrato do componente. A demonstração usa [PreviewDialog](../src/components/preview/PreviewDialog.tsx) para esse comportamento, preservando a composição de cada superfície.
+Dialog de confirmação, inclusive exclusão, deve seguir o padrão visual observado na main da V2 ou, se a operação só existir no domínio publicado, o equivalente ali observado e registrado e explicar objeto/efeito. Não criar novo formato a partir de um texto genérico de confirmação. Formulário por seções e notas de rodapé são decisões de composição em UX/UI. Foco, teclado e rolagem pertencem ao contrato do componente.
 
 Não criar `DataTable` universal com todos os filtros/ações do produto. DS fornece semântica e composição; coluna, escopo e permissão continuam no domínio. Charts recebem dados com origem e período; não calculam indicador oficial.
 
@@ -134,8 +134,8 @@ Biblioteca acessível de primitivas pode ser avaliada na fundação mínima e no
 
 - Tailwind CSS 4 é o padrão para DS e consumidores novos/migrados (DEC-24). Tokens continuam em `src/styles/tokens.css`; `src/styles/tailwind.css` mapeia os aliases com `@theme inline` e é importado uma vez no bootstrap. Não criar um tema paralelo de cores por feature.
 - Utilities usam prefixo `tw:`; paleta, tipografia, raios e breakpoints padrão foram desabilitados nos namespaces correspondentes. Usar aliases semânticos CALI; valores arbitrários ficam restritos a necessidades concretas de layout, como colunas `minmax`, sem repetir cores ou tamanhos de texto avulsos.
-- Durante a coexistência, importar somente tema/utilities, sem Preflight e sem envolvê-los em cascade layers. O legado tem seletores globais sem camada; classes precisam prevalecer sobre seletores de tipo como `button`/`input`, sem resetar todas as prévias. Não introduzir `!important` como compensação.
-- Raiz legada de 13 px permanece temporariamente. Texto novo usa tokens explícitos de 16/14/20 px; espaço base de 4 px e controle mínimo de 42 px preservam o consumidor migrado. `compact` e `mobile` mantêm os limites inclusivos existentes de 1000/600 px. Isso não homologa a tipografia de todo o sistema.
+- Importar somente tema e utilities, sem Preflight e sem cascade layers. Alterar o reset ou a cascata exige regressão visual das superfícies que consomem essa base.
+- Texto usa tokens explícitos de 16/14/20 px; espaço base de 4 px e controle mínimo de 42 px preservam o consumidor migrado. `compact` e `mobile` mantêm os limites inclusivos existentes de 1000/600 px. Isso não homologa a tipografia de todo o sistema.
 - Prettier ordena classes via `prettier-plugin-tailwindcss`, com `tailwindStylesheet` apontando para a folha canônica. CSS específico só quando utilities/tokens não expressarem adequadamente o caso; manter escopo e justificativa.
 - Não usar seletores globais para atingir detalhes internos de outras features.
 - Migrar o consumidor e remover regras substituídas no mesmo recorte; sem classes antigas escondidas ou camadas `v5/v6`.
@@ -149,20 +149,14 @@ Biblioteca acessível de primitivas pode ser avaliada na fundação mínima e no
 | Button / antigo `button.css` | Migrado para Tailwind; folha removida |
 | Field / antigo `field.css` | Migrado para Tailwind; folha removida |
 | Empresas / antigo `companies.css` | Migrado para Tailwind; folha removida |
-| `src/styles.css` / ClientWorkspace | Legado; migrar junto do shell e seus consumidores |
-| `src/admin-preview.css` / AdminPreview | Legado; migrar por fluxo e consolidar o shell |
-| `src/client-home.css` / ClientHome | Legado; migrar com Início |
-| `src/deliverables.css` / DeliverablesView | Legado; migrar com entregáveis |
-| `src/notices.css` / NoticesView | Legado; migrar com avisos |
-| `src/indicator-extras.css` / IndicatorExtras | Legado; migrar com indicadores |
-| `src/team-enhancements.css` / TeamEnhancements | Legado; migrar com Equipe |
-| `src/workflows.css` / WorkflowViews | Legado; migrar com seus fluxos consumidores |
+| Shell Admin/Cliente e oito folhas das prévias | Removidos em 09/11. As rotas usam o shell da V2, tokens e componentes por módulo. |
+| Diálogo das prévias | Removido com os consumidores exclusivos. Confirmações das páginas atuais seguem os componentes e padrões do domínio. |
 
-A migração acompanha os commits dos fluxos no mesmo PR enquanto aberto. Retirar regras/imports substituídos em cada recorte; uma folha compartilhada só sai quando nenhum consumidor depender dela. Atualizar este inventário conforme execução, sem antecipar remoções globais. Após todos os consumidores migrados, fazer a limpeza global: imports/seletores mortos, exceções de ferramentas, base tipográfica e estratégia de layers/Preflight, com regressão Cliente/Admin. A limpeza final não é pré-condição para começar os fluxos.
+Componentes de domínio exclusivos ficam junto da página. Composições usadas por várias páginas ficam em `src/components`, e primitivas em `src/components/ds`. Ver [organização das páginas](ARCHITECTURE.md#organização-das-páginas).
 
 ## Critério de consolidação
 
-DS só está implementado quando componentes têm consumidores reais em Cliente/Admin, estados e contratos documentados, sem variantes duplicadas por módulo. Conferir 1440/1280/1024/390 px, teclado, foco, contraste real, overflow, zoom e movimento reduzido. O registro de execução e seus limites ficam no changelog. QA do consumidor inicial não representa homologação global de todos os componentes, telas, zoom ou leitores de tela.
+DS só está implementado quando componentes têm consumidores reais em Cliente/Admin, estados e contratos documentados, sem variantes duplicadas por módulo. Conferir layout em 375 px e 1366 px. Validar teclado, foco, contraste, overflow, zoom e movimento reduzido. O registro de execução e seus limites ficam no changelog. QA do consumidor inicial não representa homologação global de todos os componentes, telas, zoom ou leitores de tela.
 
 
 ## Consumidores conectados — 01/11/2026

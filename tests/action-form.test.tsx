@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import { createQueryClient } from '../src/api/query-client';
 import { Field } from '../src/components/ds/field/Field';
-import { ActionForm } from '../src/features/project-workspace/ActionForm';
+import { ActionForm } from '../src/components/workspace/ActionForm';
 
 it('preserva o conteúdo e a identificação na tentativa após erro e anuncia o sucesso', async () => {
   const submit = vi

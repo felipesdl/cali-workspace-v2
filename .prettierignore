@@ -3,13 +3,3 @@ dist/
 coverage/
 package-lock.json
 **/*.md
-# Protótipo: formatar conforme cada consumidor for migrado.
-src/*.css
-src/AdminPreview.tsx
-src/ClientHome.tsx
-src/DeliverablesView.tsx
-src/IndicatorExtras.tsx
-src/NoticesView.tsx
-src/TeamEnhancements.tsx
-src/WorkflowViews.tsx
-src/app/ClientWorkspace.tsx

@@ -314,3 +314,9 @@ Nesta rodada, Felipe definiu localhost como referência interna e ficou com a co
 ## Mensagem para enviar junto do link
 
 > Patrícia, a V2 está pronta para esta rodada de homologação em ambiente de teste. Vamos conferir acesso, empresas, Equipe, dados mensais e DISC usando os dados de exemplo. Te mando o link e os acessos de teste pelo canal combinado. Para cada ponto que você quiser ajustar, me diga a tela, o que tentou fazer e o que esperava ver.
+
+### Regressão da estrutura por módulos
+
+Em 09/11/2026, o Chromium abriu 35 URLs de Admin e Cliente em loopback, em 375 × 812 e 1366 × 768. A conferência cobriu títulos, redirecionamentos previstos sem sessão, largura do documento e ausência de erros JavaScript. Em Empresas, o filtro, a abertura do detalhe de acessos e a volta à lista mantiveram o estado esperado nas duas larguras. O navegador usou dados locais e bloqueou destinos externos. Outros seis endereços cobriram Partner, acesso, callback e os estados públicos de DISC, Forms e Propostas nas mesmas larguras. O painel do DISC excedia a largura em 375 px. A borda e o padding agora entram na largura do painel, com os breakpoints CALI.
+
+A suíte local cobre as composições conectadas com serviços sintéticos, incluindo Partner e páginas públicas. A regressão de cadastro confirma que o resultado de uma criação concluída depois da troca de página preserva o destino da navegação. As páginas que exigem serviços conectados apresentaram os estados locais previstos. O lote não renova a homologação autenticada no CALI MAPA nem a comparação visual com o artefato publicado.

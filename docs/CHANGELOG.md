@@ -1,5 +1,13 @@
 # Registro de mudanças
 
+## Módulos por área e retirada das prévias
+
+- Organiza Admin, Cliente, Partner, acesso e páginas públicas em `src/modules`. Componentes exclusivos ficam junto da página. Componentes usados por várias páginas ficam em `src/components` e primitivas em `src/components/ds`.
+- Agrupa APIs por área e contratos compartilhados em `src/api/shared`. Divide a composição de projetos, horas e catálogo por página e preserva caminhos, filtros e guardas.
+- Retira as prévias de Admin/Cliente, seus oito CSS e a fixture de Avisos exclusiva das prévias. O modo local usa o mesmo shell e preserva os mocks de Empresas. Áreas sem serviço local apresentam o estado de disponibilidade previsto na rota.
+- Chromium abriu 41 URLs em 375 e 1366 px, conferiu filtro, detalhe e Voltar em Empresas e revalidou a correção de largura do DISC público. A suíte exercitou o retorno tardio do cadastro. [Evidência](HOMOLOGACAO_PATRICIA.md#regressão-da-estrutura-por-módulos).
+- A validação desta reorganização é local. A mudança de caminhos nos imports dos bundles Edge não requer alteração de schema nem ativação remota. Rollback por reversão do commit.
+
 ## Revisão do Admin antes da publicação
 
 - O resumo global Admin mantém consulta, erro e nova tentativa próprios quando a lista de empresas está carregando ou falha. Prioridades por empresa continuam dependentes da listagem.

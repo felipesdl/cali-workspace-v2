@@ -6,15 +6,15 @@ import {
   verifyAccessCodeResponseSchema,
   workspaceProfileRecordSchema,
   termsAcceptanceRecordSchema,
-} from '../src/api/modules/access/schemas';
+} from '../src/api/access/schemas';
 import {
   companyIdentityRecordSchema,
   clientInviteIdentityRecordSchema,
-} from '../src/api/modules/companies/records';
+} from '../src/api/admin/companies/records';
 import {
   registerWorkspaceAdhesionSchema,
   workspaceAdhesionRecordSchema,
-} from '../src/api/modules/access/adhesion';
+} from '../src/api/access/adhesion';
 
 const actorId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const companyId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';

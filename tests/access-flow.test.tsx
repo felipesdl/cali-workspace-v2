@@ -6,12 +6,9 @@ import { App } from '../src/app/App';
 import { createAppRouter } from '../src/app/router';
 import { createSessionController } from '../src/app/session/controller';
 import { createQueryClient } from '../src/api/query-client';
-import { companiesService } from '../src/api/modules/companies/api';
-import { type HostedAccessApi } from '../src/api/modules/access/api';
-import {
-  acceptCurrentTermsSchema,
-  type WorkspaceAccessState,
-} from '../src/api/modules/access/session';
+import { companiesService } from '../src/api/admin/companies/api';
+import { type HostedAccessApi } from '../src/api/access/api';
+import { acceptCurrentTermsSchema, type WorkspaceAccessState } from '../src/api/access/session';
 
 function fixture(fail = false, signedOut = false) {
   let accepted = false;

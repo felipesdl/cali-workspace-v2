@@ -1,4 +1,4 @@
-import { type CompanyLogo } from '../../src/api/modules/companies/registration-schemas';
+import { type CompanyLogo } from '../../src/api/admin/companies/registration-schemas';
 const data =
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jp1sAAAAASUVORK5CYII=';
 export const companyLogoFixture = {

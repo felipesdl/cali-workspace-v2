@@ -28,7 +28,7 @@ Chat não gera e-mail; pedidos mensais são tarefas Cliente. DEC-19 fecha o resu
 
 ## Fronteira de dados — base local de 27/10
 
-Cada domínio declara um contrato independente da UI em `src/api/modules/<dominio>`. No primeiro consumidor, `companies`, schemas Zod validam entradas/respostas; service recebe um cliente Axios; composição seleciona o adapter de `src/mocks/adapters/companies.ts`; hooks usam Query e factories de keys `as const` incluindo ator/empresa/filtros. Views não importam Axios, SDK ou fixtures. Form cuida do rascunho/validação; respostas permanecem no cache Query.
+Cada domínio declara um contrato independente da UI em `src/api/<área>/<domínio>`. No primeiro consumidor, `companies`, schemas Zod validam entradas/respostas; service recebe um cliente Axios; composição seleciona o adapter de `src/mocks/adapters/companies.ts`; hooks usam Query e factories de keys `as const` incluindo ator/empresa/filtros. Views não importam Axios, SDK ou fixtures. Form cuida do rascunho/validação; respostas permanecem no cache Query.
 
 `GET /companies`, detalhe e acessos são caminhos virtuais atendidos em memória, sem servidor e sem promessa de contrato HTTP oficial. DTOs de demonstração não substituem tabelas/RPCs do oficial. `mock-admin` é namespace de cache sintético, sem autenticação ou autorização. Na integração, adaptar o transporte por operação reconciliada, evitando obrigar chamadas Supabase a um contrato REST inventado.
 

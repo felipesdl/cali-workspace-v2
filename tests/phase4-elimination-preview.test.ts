@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { expect, it } from 'vitest';
-import { createDomainOperations } from '../src/api/modules/project-workspace/domain-operations';
+import { createDomainOperations } from '../src/api/shared/workspace/domain-operations';
 
 const companyId = '10000000-0000-4000-8000-000000000001';
 const base = { companyId, eligible: true, legacyStorageObjects: 3, forms: 2, formsPdfs: 1 };

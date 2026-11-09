@@ -160,7 +160,7 @@ npm run dev -- --host 127.0.0.1
 | `local:mail:test` | Mensagem sintética no SMTP local e conferência da captura Mailpit |
 | `verify` | Format check, lint, typecheck, testes, local config check, docs check e build |
 
-Formatação exclui Markdown e TSX/CSS legados explicitados em `.prettierignore`. As oito composições de prévia enumeradas no ESLint mantêm exceção de variáveis/imports não usados; regras de hooks continuam ativas. Não chamar isso de normalização integral do legado. Ao migrar uma feature, remover sua exceção e validar no mesmo recorte.
+O Prettier cobre os arquivos TSX e CSS da aplicação. A retirada das prévias também removeu suas exceções de formatação e de lint para variáveis e imports não usados. Markdown continua fora do Prettier e passa pela checagem documental.
 
 Vitest limita a execução a dois workers em `vitest.config.ts`. A rodada de 05/11 com concorrência automática abriu 33 workers e teve oito falhas de espera/timeout nas jornadas de UI. O limite reduz a disputa de recursos; os timeouts e as asserções permanecem inalterados. O conjunto continua executando todos os arquivos.
 
@@ -168,7 +168,7 @@ Vitest limita a execução a dois workers em `vitest.config.ts`. A rodada de 05/
 
 Tailwind 4.3.3 e plugin Vite 4.3.3 são dependências de desenvolvimento fixas; Prettier usa `prettier-plugin-tailwindcss` 0.8.1 e `tailwindStylesheet: ./src/styles/tailwind.css`. Executar `npm run format` após alterar classes. Tema/utilities usam prefixo `tw:`, sem Preflight/cascade layers durante a coexistência; tokens e breakpoints ficam na folha canônica, sem configuração JS paralela. [Política, consumidores migrados e inventário restante](DESIGN_SYSTEM.md#política-de-css).
 
-Não eliminar CSS compartilhado enquanto houver consumidores legados. Cada recorte confere desktop/mobile, foco/teclado e estados reais; a limpeza final revisa a base global somente após migrar todos os consumidores.
+Remover folhas ou regras compartilhadas após migrar o último consumidor. Conferir desktop, mobile, foco, teclado e estados de erro e sucesso do recorte.
 
 ## Regras de lint implantadas
 
@@ -180,7 +180,7 @@ Configuração canônica: `eslint.config.js`; `npm run lint` usa `--max-warnings
 | `@typescript-eslint/no-explicit-any` | Erro em código e testes, sem liberação geral para testes |
 | `@typescript-eslint/consistent-type-imports` | Imports usados somente como tipo recebem `type`; fix inline para imports nomeados |
 | `@typescript-eslint/consistent-type-assertions` | Estilo `as`; sem casts de objetos/arrays literais para simular contrato; `as const` permitido |
-| `@typescript-eslint/no-unused-vars` | Variáveis/imports não usados; argumento ignorado pode começar com `_`; oito arquivos legados têm exceção enumerada |
+| `@typescript-eslint/no-unused-vars` | Variáveis/imports não usados; argumento ignorado pode começar com `_` |
 | `no-alert` | Sem alert/confirm/prompt nativos nas áreas verificadas |
 | `no-restricted-syntax` | `unknown` exige exceção local justificada; bloqueia chamadas diretas `window.location.reload()`/`location.reload()` e keys por identificadores `i`/`idx`/`index`, diretos ou interpolados; strings na prop `variant` são permitidas, com valores aceitos definidos pelo tipo compartilhado do DS |
 | Hooks React recomendados | Regras de hooks e dependências de effects; warnings também interrompem o gate |
@@ -191,7 +191,7 @@ Exceções de `unknown` são cinco linhas com justificativa: três respostas bru
 
 Keys antigas por índice foram corrigidas: coleções estáticas usam identidade dos dados; comentários/mensagens locais recebem IDs na criação. Integrações futuras devem usar identificadores persistidos; nomes/composições de fixtures não definem contrato de identidade do backend. Não houve exceção nova para keys ou casts do legado.
 
-As restrições sintáticas reconhecem os padrões descritos; não detectam toda forma indireta/alias equivalente nem substituem revisão. `tests/lint.test.ts` exercita exemplos permitidos/negados contra a configuração real, incluindo fronteiras. ESLint não usa aqui análise de tipos `no-unsafe-*`; `tsc` continua `strict`, com unused delegado ao lint por causa das exceções legadas.
+As restrições sintáticas reconhecem os padrões descritos; não detectam toda forma indireta/alias equivalente nem substituem revisão. `tests/lint.test.ts` exercita exemplos permitidos/negados contra a configuração real, incluindo fronteiras. ESLint não usa aqui análise de tipos `no-unsafe-*`; `tsc` continua `strict`, com a regra de variáveis e imports não usados no lint.
 
 A ponte de OTP Partner usada em homologação tem uma exceção local de recarga, somente em Vite dev com ticket temporário. A recarga acontece após o SDK persistir a sessão e evita a disputa com o controlador Admin/Cliente. O canal não está publicado; a exceção não se aplica aos fluxos de produto.
 
@@ -223,7 +223,7 @@ Baseline mínima de empresa/perfil/adesão aplicada pelo runner; SQL com rollbac
 
 ## Validação e limites
 
-Executar `npm run verify` para conferir o conjunto atual. Testes de mocks/adapters locais não certificam Supabase, envio de e-mail, Calendar/Meet/Drive ou sessão real. QA de navegador deve registrar revisão e viewport, incluindo o comportamento da tela empresas; não extrapolar esse resultado para todas as prévias.
+Executar `npm run verify` para conferir o conjunto atual. Testes de mocks/adapters locais não certificam Supabase, envio de e-mail, Calendar/Meet/Drive ou sessão real. QA de navegador deve registrar revisão e viewport, com o recorte das rotas e interações efetivamente exercitadas.
 
 Retomar contratos de acesso/empresa e ambiente isolado antes da primeira conexão de teste real. O oficial é somente leitura. Não iniciar migrations, outbound, deploy ou sincronização com produção como consequência de um build verde.
 

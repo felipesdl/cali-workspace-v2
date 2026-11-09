@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createSessionController, type SessionSource } from '../src/app/session/controller';
 import { sessionGuard, safeReturnPath } from '../src/app/session/guard';
-import { type WorkspaceAccessState } from '../src/api/modules/access/session';
+import { type WorkspaceAccessState } from '../src/api/access/session';
 import { createQueryClient } from '../src/api/query-client';
 
 const ready = (): WorkspaceAccessState => ({

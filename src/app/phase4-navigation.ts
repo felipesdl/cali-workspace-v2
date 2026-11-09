@@ -1,4 +1,4 @@
-import { type CatalogModule } from '../api/modules/project-workspace/schemas';
+import { type CatalogModule } from '../api/shared/workspace/schemas';
 
 export const phase4CatalogLinks = [
   {

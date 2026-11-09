@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
-import { catalog } from '../src/api/modules/project-workspace/schemas';
-import { ClientReportReading } from '../src/features/project-workspace/ClientReportReading';
+import { catalog } from '../src/api/shared/workspace/schemas';
+import { ClientReportReading } from '../src/modules/client/reports/components/ClientReportReading';
 
 it('mostra uma leitura por vez e abre o relatório escolhido no arquivo sem dar ciência', async () => {
   const company = '9c5ab148-78b8-4410-9338-58c44222a5db';

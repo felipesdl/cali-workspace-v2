@@ -1,11 +1,11 @@
 import { beforeAll, afterAll, describe, expect, it, vi } from 'vitest';
 import { webcrypto } from 'node:crypto';
-import { createCompaniesService } from '../src/api/modules/companies/service';
+import { createCompaniesService } from '../src/api/admin/companies/service';
 import { createCompaniesMockAdapter } from '../src/mocks/adapters/companies';
 import { createMockHttpClient } from '../src/mocks/http/client';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
 import { createStaticResponseAdapter } from './mocks/http';
-import { confirmAdhesionEvidenceSchema } from '../src/api/modules/companies/evidence-schemas';
+import { confirmAdhesionEvidenceSchema } from '../src/api/admin/companies/evidence-schemas';
 beforeAll(() => vi.stubGlobal('crypto', webcrypto));
 afterAll(() => vi.unstubAllGlobals());
 async function setup() {

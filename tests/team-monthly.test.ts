@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { monthlyFields } from '../src/api/modules/team/monthly';
+import { monthlyFields } from '../src/api/shared/team/monthly';
 
 const empty = {
   planned_hours: null,

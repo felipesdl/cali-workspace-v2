@@ -1,0 +1,385 @@
+import { Input, Select, TextArea } from '../ds/field/Controls';
+import { useState } from 'react';
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouteContext } from '@tanstack/react-router';
+import { Button } from '../ds/button/Button';
+import { Field } from '../ds/field/Field';
+import { formatServerInstant } from '../../lib/dates';
+import { ActionForm } from '../workspace/ActionForm';
+import { AgendaChangeActions } from './AgendaChangeActions';
+import { AgendaExtras } from './AgendaExtras';
+import { AgendaParticipants } from './AgendaParticipants';
+import { AgendaMaterials } from './AgendaMaterials';
+import { appointmentStatusLabel } from '../workspace/workspace-labels';
+import { absenceCategory } from '../../api/shared/workspace/agenda';
+import { FeedbackState } from '../ds/feedback/FeedbackState';
+import { Checkbox } from '../ds/checkbox/Checkbox';
+
+const read = (fields: FormData, name: string) => String(fields.get(name) ?? '');
+const absenceLabels = {
+  client: 'Cliente',
+  cali: 'CALI',
+  external: 'Fator externo',
+  health: 'Saúde',
+  travel_vacation: 'Viagem ou férias',
+  other: 'Outro',
+} as const satisfies Record<(typeof absenceCategory.options)[number], string>;
+
+export function AgendaActions({
+  company,
+  actor,
+  admin,
+}: {
+  company: string;
+  actor?: string;
+  admin: boolean;
+}) {
+  const { agendaOperations } = useRouteContext({ from: '__root__' });
+  const [page, setPage] = useState(1);
+  const cache = useQueryClient();
+  const key = ['phase4-appointments', actor, company];
+  const result = useQuery({
+    queryKey: [...key, page],
+    queryFn: agendaOperations
+      ? ({ signal }) => agendaOperations.list(company, page, signal)
+      : skipToken,
+  });
+  if (!agendaOperations) return null;
+  const agenda = agendaOperations;
+  async function refresh(id: string) {
+    await Promise.all([
+      cache.invalidateQueries({ queryKey: key }),
+      cache.invalidateQueries({ queryKey: ['phase4-catalog', actor, company, 'calendar'] }),
+    ]);
+    return id;
+  }
+  return (
+    <section aria-label="Solicitações de agenda" className="tw:grid tw:gap-3">
+      <h2 className="tw:text-section">Solicitações de agenda</h2>
+      {!admin && (
+        <ActionForm
+          label="Solicitar encontro do contrato"
+          submit={async (fields, id) => {
+            const first = { start: read(fields, 'start1'), end: read(fields, 'end1') };
+            const second = { start: read(fields, 'start2'), end: read(fields, 'end2') };
+            return refresh(
+              await agenda.request(company, id, {
+                mode: read(fields, 'mode') === 'in_person' ? 'in_person' : 'remote',
+                title: read(fields, 'title'),
+                purpose: read(fields, 'purpose'),
+                location: read(fields, 'location'),
+                slots: second.start || second.end ? [first, second] : [first],
+              }),
+            );
+          }}
+          saved={() => setPage(1)}
+        >
+          {(prefix) => (
+            <>
+              <Field id={prefix + 'title'} label="Assunto">
+                <Input id={prefix + 'title'} name="title" minLength={2} maxLength={160} required />
+              </Field>
+              <Field id={prefix + 'purpose'} label="Finalidade">
+                <TextArea id={prefix + 'purpose'} name="purpose" maxLength={2000} />
+              </Field>
+              <Field id={prefix + 'mode'} label="Formato">
+                <Select id={prefix + 'mode'} name="mode">
+                  <option value="remote">Online</option>
+                  <option value="in_person">Presencial</option>
+                </Select>
+              </Field>
+              <Field id={prefix + 'location'} label="Endereço para encontro presencial">
+                <Input id={prefix + 'location'} name="location" maxLength={400} />
+              </Field>
+              <p>Use o horário de Brasília. Encontro presencial precisa de duas opções.</p>
+              {[
+                { id: 'primary', index: 1 },
+                { id: 'secondary', index: 2 },
+              ].map(({ id, index }) => (
+                <div key={id} className="tw:grid tw:grid-cols-2 tw:gap-3 tw:mobile:grid-cols-1">
+                  <Field id={prefix + 'start' + index} label={`Início da opção ${index}`}>
+                    <Input
+                      id={prefix + 'start' + index}
+                      name={`start${index}`}
+                      type="datetime-local"
+                      required={index === 1}
+                    />
+                  </Field>
+                  <Field id={prefix + 'end' + index} label={`Fim da opção ${index}`}>
+                    <Input
+                      id={prefix + 'end' + index}
+                      name={`end${index}`}
+                      type="datetime-local"
+                      required={index === 1}
+                    />
+                  </Field>
+                </div>
+              ))}
+            </>
+          )}
+        </ActionForm>
+      )}
+      {result.isPending && <p role="status">Carregando solicitações…</p>}
+      {result.isError && (
+        <FeedbackState kind="error" onRetry={() => void result.refetch()}>
+          Não foi possível consultar as solicitações.
+        </FeedbackState>
+      )}
+      {result.data?.map((item) => {
+        const offer = admin && item.status === 'submitted';
+        const confirm = !admin && item.status === 'client_review';
+        const absenceEventId = admin ? item.absenceEventId : null;
+        const replacementEventId = admin ? item.replacementEventId : null;
+        const options = offer ? item.requested_slots : item.admin_proposed_slots;
+        return (
+          <article
+            key={item.id}
+            className="tw:grid tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4"
+          >
+            <h3>{item.title}</h3>
+            <p>
+              {appointmentStatusLabel(item.status)} ·{' '}
+              {item.request_mode === 'remote' ? 'Online' : 'Presencial'}
+            </p>
+            {item.meetingAt && item.status !== 'cancelled' && (
+              <p>
+                {item.replacementPending && 'Horário anterior · '}
+                {formatServerInstant(item.meetingAt)} (Brasília)
+              </p>
+            )}
+            <AgendaParticipants
+              people={item.participants}
+              changeGuest={
+                item.canManageGuests
+                  ? async (request, guest) =>
+                      refresh(await agenda.changeGuest(company, item.id, request, guest))
+                  : undefined
+              }
+            />
+            {item.canReadMaterial && (
+              <AgendaMaterials
+                agenda={agenda}
+                company={company}
+                actor={actor}
+                appointment={item.id}
+                admin={admin}
+              />
+            )}
+            {item.minutes && (
+              <div>
+                <h4 className="tw:font-semibold">Ata da reunião</h4>
+                <p className="tw:wrap-anywhere tw:whitespace-pre-wrap">{item.minutes}</p>
+              </div>
+            )}
+            {item.minutesVersion && (
+              <ActionForm
+                label="Salvar ata"
+                submit={async (fields, id) =>
+                  refresh(
+                    await agenda.saveMinutes(
+                      company,
+                      item.id,
+                      id,
+                      item.minutesVersion ?? '',
+                      read(fields, 'minutes'),
+                    ),
+                  )
+                }
+              >
+                {(prefix) => (
+                  <Field id={prefix + 'minutes'} label="Texto da ata">
+                    <TextArea
+                      id={prefix + 'minutes'}
+                      name="minutes"
+                      defaultValue={item.minutes ?? ''}
+                      maxLength={6000}
+                      required
+                    />
+                    <p>Visível ao Cliente na agenda da empresa.</p>
+                  </Field>
+                )}
+              </ActionForm>
+            )}
+            {replacementEventId && (
+              <ActionForm
+                label="Oferecer horário de reposição"
+                submit={async (fields, request) =>
+                  refresh(
+                    await agenda.offerReplacement(
+                      company,
+                      item.id,
+                      replacementEventId,
+                      request,
+                      read(fields, 'start'),
+                      read(fields, 'note'),
+                    ),
+                  )
+                }
+              >
+                {(prefix) => (
+                  <>
+                    <Field id={prefix + 'start'} label="Início da reposição (Brasília)">
+                      <Input id={prefix + 'start'} name="start" type="datetime-local" required />
+                    </Field>
+                    <AppointmentNote prefix={prefix} />
+                    <p>A reposição tem a mesma duração do encontro anterior.</p>
+                  </>
+                )}
+              </ActionForm>
+            )}
+            {admin && item.canComplete && (
+              <ActionForm
+                label="Registrar reunião realizada"
+                submit={async () => {
+                  try {
+                    return await agenda.complete(company, item.id);
+                  } finally {
+                    await refresh(item.id);
+                  }
+                }}
+              />
+            )}
+            {absenceEventId && (
+              <details>
+                <summary className="tw:cursor-pointer">Registrar reunião não realizada</summary>
+                <ActionForm
+                  label="Salvar não realização"
+                  submit={async (fields) =>
+                    refresh(
+                      await agenda.markAbsent(
+                        company,
+                        item.id,
+                        absenceEventId,
+                        read(fields, 'category'),
+                        fields.has('justified'),
+                        read(fields, 'note'),
+                      ),
+                    )
+                  }
+                >
+                  {(prefix) => (
+                    <>
+                      <Field id={prefix + 'category'} label="Motivo">
+                        <Select id={prefix + 'category'} name="category" required defaultValue="">
+                          <option value="" disabled>
+                            Selecione
+                          </option>
+                          {absenceCategory.options.map((category) => (
+                            <option key={category} value={category}>
+                              {absenceLabels[category]}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+                      <Field id={prefix + 'note'} label="Justificativa interna">
+                        <TextArea
+                          id={prefix + 'note'}
+                          name="note"
+                          required
+                          minLength={3}
+                          maxLength={1000}
+                        />
+                      </Field>
+                      <Checkbox name="justified">Falta justificada</Checkbox>
+                      <p>
+                        O Cliente recebe o resultado. Quando o contrato permite reposição, a reunião
+                        volta para análise.
+                      </p>
+                    </>
+                  )}
+                </ActionForm>
+              </details>
+            )}
+            <AgendaChangeActions
+              company={company}
+              appointment={item.id}
+              admin={admin}
+              eligible={Boolean(item.canRequestChange)}
+              active={item.status === 'confirmed'}
+              change={item.latestChange}
+              agenda={agenda}
+              refresh={refresh}
+            />
+            {item.admin_note && <p className="tw:break-words">{item.admin_note}</p>}
+            {item.sync_status && (
+              <p>
+                Sincronização externa:{' '}
+                {item.sync_status === 'pending' ? 'Aguardando integração' : item.sync_status}
+              </p>
+            )}
+            {(offer || confirm) && options.length > 0 && (
+              <ActionForm
+                label={offer ? 'Oferecer horário' : 'Confirmar horário'}
+                submit={async (fields) =>
+                  refresh(
+                    await agenda.respond(
+                      company,
+                      item.id,
+                      offer ? 'offer' : 'confirm',
+                      Number(fields.get('index')),
+                      read(fields, 'note'),
+                    ),
+                  )
+                }
+              >
+                {(prefix) => (
+                  <>
+                    <Field id={prefix + 'index'} label="Horário">
+                      <Select id={prefix + 'index'} name="index" required defaultValue="">
+                        <option value="" disabled>
+                          Selecione
+                        </option>
+                        {options.map((slot, index) => (
+                          <option key={slot.startsAt + slot.endsAt} value={index}>
+                            {formatServerInstant(slot.startsAt)} até{' '}
+                            {formatServerInstant(slot.endsAt)}
+                          </option>
+                        ))}
+                      </Select>
+                    </Field>
+                    {offer && <AppointmentNote prefix={prefix} />}
+                  </>
+                )}
+              </ActionForm>
+            )}
+            {(offer || replacementEventId) && (
+              <ActionForm
+                label="Recusar solicitação"
+                submit={async (fields) =>
+                  refresh(
+                    await agenda.respond(company, item.id, 'decline', null, read(fields, 'note')),
+                  )
+                }
+              >
+                {(prefix) => <AppointmentNote prefix={prefix} />}
+              </ActionForm>
+            )}
+          </article>
+        );
+      })}
+      {result.isSuccess && (page > 1 || result.data.length === 25) && (
+        <div className="tw:flex tw:gap-2">
+          <Button variant="secondary" disabled={page === 1} onClick={() => setPage(page - 1)}>
+            Anterior
+          </Button>
+          <Button
+            variant="secondary"
+            disabled={result.data.length < 25}
+            onClick={() => setPage(page + 1)}
+          >
+            Próxima
+          </Button>
+        </div>
+      )}
+      <AgendaExtras company={company} actor={actor} agenda={agenda} />
+    </section>
+  );
+}
+
+function AppointmentNote({ prefix }: { prefix: string }) {
+  return (
+    <Field id={prefix + 'note'} label="Observação">
+      <TextArea id={prefix + 'note'} name="note" maxLength={2000} />
+    </Field>
+  );
+}

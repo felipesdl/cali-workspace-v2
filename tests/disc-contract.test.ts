@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { discManagementSchema } from '../src/api/modules/disc/schemas';
+import { discManagementSchema } from '../src/api/shared/disc/schemas';
 
 const qualitativeManagement = {
   id: 'f947c5a0-6c02-4494-8c67-31adab0fd28e',

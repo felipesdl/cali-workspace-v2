@@ -3,7 +3,7 @@ import { createQueryClient } from '../src/api/query-client';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
-import { AgendaChangeActions } from '../src/features/project-workspace/AgendaChangeActions';
+import { AgendaChangeActions } from '../src/components/agenda/AgendaChangeActions';
 
 it('envia a opção de remarcação escolhida pelo Admin e mantém o pedido pendente na falha', async () => {
   const company = '9c5ab148-78b8-4410-9338-58c44222a5db';

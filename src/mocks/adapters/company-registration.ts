@@ -1,10 +1,10 @@
-import { type CompanyDetails } from '../../api/modules/companies/schemas';
+import { type CompanyDetails } from '../../api/admin/companies/schemas';
 import {
   emptyRegistration,
   type CompanyRegistrationRecord,
   type UpdateRegistration,
   type RegistrationEvent,
-} from '../../api/modules/companies/registration-schemas';
+} from '../../api/admin/companies/registration-schemas';
 
 // Estado por instância, sem persistência nem efeitos financeiros/documentais.
 export function createRegistrationState() {

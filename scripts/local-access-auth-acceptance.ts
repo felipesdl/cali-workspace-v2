@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { z } from 'zod';
 import { validateLocalContainer } from './local-database.ts';
 import { issuedSessionSchema } from '../supabase/functions/workspace-access/session-exchange.ts';
-import { hostedLegalContent, hostedLegalVersion } from '../src/api/modules/access/legal.ts';
+import { hostedLegalContent, hostedLegalVersion } from '../src/api/access/legal.ts';
 import { verifyAccessInBrowser } from './local-access-browser.ts';
 
 const root = resolve(import.meta.dirname, '..');

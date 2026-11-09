@@ -1,4 +1,4 @@
-import { type CompanyDetails, type CompanyAccess } from '../../api/modules/companies/schemas';
+import { type CompanyDetails, type CompanyAccess } from '../../api/admin/companies/schemas';
 
 export const mockCompanyIds = {
   Aurora: '11111111-1111-4111-8111-111111111111',

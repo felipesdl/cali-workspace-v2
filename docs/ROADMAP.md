@@ -12,6 +12,8 @@ O SHA `f3d3f14043a6abc38636f0340fe831e621d8b357` das fontes já corresponde à p
 
 Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem primeiro; depois DISC, demais fluxos Admin/Cliente e, por último, Partner. FLOW-17 inclui DISC como produto oficial, além de Forms e Mapa; sua implementação é separada por subfluxo. FLOW-15 cobre gestão Admin da equipe CALI e efeitos sobre acessos; área Partner completa permanece etapa posterior com recorte próprio.
 
+**Organização do frontend em 09/11.** Páginas Admin, Cliente, Partner, acesso e públicas migradas para a [estrutura por área](ARCHITECTURE.md#organização-das-páginas). Componentes compartilhados e DS separados. Mocks de Empresas mantidos na composição local. Prévias e folhas exclusivas removidas após regressão local. Aceite visual e validação pós-publicação seguem como etapas próprias.
+
 ## Recuperação e separação de ambientes — prioridade atual
 
 DEC-28 foi revisada em 09/11/2026. O CALI MAPA atual é produção e já está online. Primeiro concluir os ajustes e validar o estado de produção. Depois criar a homologação separada a partir da versão reconciliada do código, schema e configuração. [Cobertura, ordem e aceite](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).

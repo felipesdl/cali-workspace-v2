@@ -1,5 +1,5 @@
 import { type AccessReason } from './access-reason';
-import { type workspaceRole } from '../../api/modules/access/schemas';
+import { type workspaceRole } from '../../api/access/schemas';
 import { type SessionState } from './controller';
 
 export function sessionGuard(

@@ -3,7 +3,7 @@ import {
   type CompanyAdministration,
   type UpdateAdministration,
   type AdministrationEvent,
-} from '../../api/modules/companies/administration-schemas';
+} from '../../api/admin/companies/administration-schemas';
 
 // Estado por instância, sem persistência nem efeitos financeiros/documentais.
 export function createAdministrationState() {

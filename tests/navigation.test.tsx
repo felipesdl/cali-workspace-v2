@@ -6,8 +6,8 @@ import { App } from '../src/app/App';
 import { createAppRouter } from '../src/app/router';
 import { createSessionController } from '../src/app/session/controller';
 import { createQueryClient } from '../src/api/query-client';
-import { createHostedAccessApi } from '../src/api/modules/access/api';
-import { composeCompaniesService } from '../src/api/modules/companies/api';
+import { createHostedAccessApi } from '../src/api/access/api';
+import { composeCompaniesService } from '../src/api/admin/companies/api';
 import { createWorkspaceClient } from '../src/api/supabase';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
 
@@ -155,10 +155,13 @@ describe('navegação e formulário de empresas', () => {
   it('preserva URLs de outras composições e oferece retorno em rota inexistente', async () => {
     const { router } = await openApp('/cliente/horas');
     expect(await screen.findByRole('heading', { name: /Horas/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Voltar ao início' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Sair' })).toBeNull();
     act(() => {
       void router.navigate({ to: '/admin' });
     });
     expect(await screen.findByRole('heading', { name: /Visão executiva/ })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Carteira de empresas' })).toBeTruthy();
     await act(async () => {
       await router.history.push('/rota-inexistente');
     });

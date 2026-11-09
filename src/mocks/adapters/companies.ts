@@ -3,28 +3,28 @@ import {
   confirmAdhesionEvidenceSchema,
   retractAdhesionEvidenceSchema,
   type AdhesionEvidence,
-} from '../../api/modules/companies/evidence-schemas';
+} from '../../api/admin/companies/evidence-schemas';
 import { createCompanyDocumentState } from './company-documents';
 import {
   documentUploadSchema,
   withdrawDocumentSchema,
   type CompanyDocument,
   type CompanyDocumentEvent,
-} from '../../api/modules/companies/document-schemas';
-import { describeCompanyFile } from '../../api/modules/companies/document-files';
+} from '../../api/admin/companies/document-schemas';
+import { describeCompanyFile } from '../../api/admin/companies/document-files';
 import { createRegistrationState } from './company-registration';
 import {
   updateRegistrationSchema,
   planForCompanyService,
   type CompanyRegistrationRecord,
   type RegistrationEvent,
-} from '../../api/modules/companies/registration-schemas';
+} from '../../api/admin/companies/registration-schemas';
 import { createAdministrationState } from './company-administration';
 import {
   updateAdministrationSchema,
   type CompanyAdministration,
   type AdministrationEvent,
-} from '../../api/modules/companies/administration-schemas';
+} from '../../api/admin/companies/administration-schemas';
 import { AxiosError, type AxiosAdapter } from 'axios';
 import {
   companyFilterSchema,
@@ -33,15 +33,15 @@ import {
   type CompanyDetails,
   type CompanyAccount,
   type CompanyAccess,
-} from '../../api/modules/companies/schemas';
+} from '../../api/admin/companies/schemas';
 import {
   createCompanySchema,
   registerCompanyAdhesionSchema,
   addCompanyAccessSchema,
   changeCompanyAccessSchema,
   type CompanyAccessEvent,
-} from '../../api/modules/companies/management-schemas';
-import { type WorkspaceAdhesionRecord } from '../../api/modules/access/adhesion';
+} from '../../api/admin/companies/management-schemas';
+import { type WorkspaceAdhesionRecord } from '../../api/access/adhesion';
 import { companies, accesses } from '../fixtures/companies';
 
 type ManagementResult =

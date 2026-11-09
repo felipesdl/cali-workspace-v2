@@ -6,11 +6,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { App } from '../src/app/App';
 import { createAppRouter } from '../src/app/router';
 import { createQueryClient } from '../src/api/query-client';
-import {
-  createCompaniesService,
-  type CompaniesService,
-} from '../src/api/modules/companies/service';
-import { companyKeys } from '../src/api/modules/companies/keys';
+import { createCompaniesService, type CompaniesService } from '../src/api/admin/companies/service';
+import { companyKeys } from '../src/api/admin/companies/keys';
 import { createCompaniesMockAdapter } from '../src/mocks/adapters/companies';
 import { createMockHttpClient } from '../src/mocks/http/client';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';

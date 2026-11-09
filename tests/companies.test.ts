@@ -4,9 +4,9 @@ import { createCompaniesMockAdapter } from '../src/mocks/adapters/companies';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';
 import { foreignCompanyAccesses, unknownCompanyId } from './fixtures/companies';
 import { createStaticResponseAdapter } from './mocks/http';
-import { createCompaniesService } from '../src/api/modules/companies/service';
-import { companyKeys } from '../src/api/modules/companies/keys';
-import { companySearchSchema } from '../src/api/modules/companies/schemas';
+import { createCompaniesService } from '../src/api/admin/companies/service';
+import { companyKeys } from '../src/api/admin/companies/keys';
+import { companySearchSchema } from '../src/api/admin/companies/schemas';
 import { createQueryClient } from '../src/api/query-client';
 
 const createService = () =>

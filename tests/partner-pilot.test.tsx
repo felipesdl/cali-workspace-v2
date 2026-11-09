@@ -2,7 +2,7 @@ import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from '@tanstack/react-router';
 import { expect, it, vi } from 'vitest';
-import type { PartnerPilot } from '../src/api/modules/partner/pilot';
+import type { PartnerPilot } from '../src/api/partner/pilot';
 import { createQueryClient } from '../src/api/query-client';
 import { App } from '../src/app/App';
 import { createAppRouter } from '../src/app/router';

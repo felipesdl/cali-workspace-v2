@@ -7,7 +7,7 @@ import { webcrypto } from 'node:crypto';
 import { App } from '../src/app/App';
 import { createAppRouter } from '../src/app/router';
 import { createQueryClient } from '../src/api/query-client';
-import { createCompaniesService } from '../src/api/modules/companies/service';
+import { createCompaniesService } from '../src/api/admin/companies/service';
 import { createMockHttpClient } from '../src/mocks/http/client';
 import { createCompaniesMockAdapter } from '../src/mocks/adapters/companies';
 import { mockCompanyIds } from '../src/mocks/fixtures/companies';

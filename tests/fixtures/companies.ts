@@ -1,4 +1,4 @@
-import { type CompanyAccess } from '../../src/api/modules/companies/schemas';
+import { type CompanyAccess } from '../../src/api/admin/companies/schemas';
 
 export const unknownCompanyId = '99999999-9999-4999-8999-999999999999';
 

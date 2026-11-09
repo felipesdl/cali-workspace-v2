@@ -8,7 +8,7 @@ describe('contrato das restrições de lint', () => {
   it.each([
     {
       name: 'any no domínio',
-      file: 'src/features/companies/lint-contract.ts',
+      file: 'src/modules/admin/companies/lint-contract.ts',
       code: 'export type Item = any;',
       rule: '@typescript-eslint/no-explicit-any',
     },
@@ -20,7 +20,7 @@ describe('contrato das restrições de lint', () => {
     },
     {
       name: 'unknown sem exceção local, inclusive no service',
-      file: 'src/api/modules/companies/service.ts',
+      file: 'src/api/admin/companies/service.ts',
       code: 'export type Item = unknown;',
       rule: 'no-restricted-syntax',
     },
@@ -39,7 +39,7 @@ describe('contrato das restrições de lint', () => {
     {
       name: 'import de tipo sem marcador type',
       file: 'src/lib/lint-contract.ts',
-      code: "import { Company } from '../api/modules/companies/schemas'; export type Item = Company;",
+      code: "import { Company } from '../api/admin/companies/schemas'; export type Item = Company;",
       rule: '@typescript-eslint/consistent-type-imports',
     },
     {
@@ -68,13 +68,13 @@ describe('contrato das restrições de lint', () => {
     },
     {
       name: 'índice direto como key',
-      file: 'src/features/companies/lint-contract.tsx',
+      file: 'src/modules/admin/companies/lint-contract.tsx',
       code: 'export function List() { return [1, 2].map((item, index) => <span key={index}>{item}</span>); }',
       rule: 'no-restricted-syntax',
     },
     {
-      name: 'índice interpolado como key no legado',
-      file: 'src/app/ClientWorkspace.tsx',
+      name: 'índice interpolado como key em página de módulo',
+      file: 'src/modules/client/home/lint-contract.tsx',
       code: 'export function List() { return [1, 2].map((item, i) => <span key={`item-${i}`}>{item}</span>); }',
       rule: 'no-restricted-syntax',
     },
@@ -86,19 +86,19 @@ describe('contrato das restrições de lint', () => {
     },
     {
       name: 'feature importando mocks',
-      file: 'src/features/companies/lint-contract.ts',
+      file: 'src/modules/admin/companies/lint-contract.ts',
       code: "import { sample } from '../../mocks/fixtures/companies'; export const proof = sample;",
       rule: 'no-restricted-imports',
     },
     {
       name: 'DS importando API',
       file: 'src/components/ds/lint-contract.ts',
-      code: "import { sample } from '../../api/modules/companies/service'; export const proof = sample;",
+      code: "import { sample } from '../../api/admin/companies/service'; export const proof = sample;",
       rule: 'no-restricted-imports',
     },
     {
       name: 'service selecionando mocks fora da composição',
-      file: 'src/api/modules/companies/service.ts',
+      file: 'src/api/admin/companies/service.ts',
       code: "import { sample } from '../../../mocks/adapters/companies'; export const proof = sample;",
       rule: 'no-restricted-imports',
     },
@@ -112,17 +112,17 @@ describe('contrato das restrições de lint', () => {
   it.each([
     {
       name: 'variante UI como string tipada',
-      file: 'src/features/companies/lint-contract.tsx',
+      file: 'src/modules/admin/companies/lint-contract.tsx',
       code: 'import { Button } from "../../components/ds/button/Button"; export function Sample() { return <Button variant="secondary" />; }',
     },
     {
       name: 'variante UI como literal em expressão',
-      file: 'src/features/companies/lint-contract.tsx',
+      file: 'src/modules/admin/companies/lint-contract.tsx',
       code: 'import { Button } from "../../components/ds/button/Button"; export function Sample() { return <Button variant={"secondary"} />; }',
     },
     {
       name: 'variante UI do vocabulário compartilhado',
-      file: 'src/features/companies/lint-contract.tsx',
+      file: 'src/modules/admin/companies/lint-contract.tsx',
       code: "import { Button } from '../../components/ds/button/Button'; import { UiVariant } from '../../components/ds/variants'; export function Sample() { return <Button variant={UiVariant.Secondary} />; }",
     },
     {
@@ -132,7 +132,7 @@ describe('contrato das restrições de lint', () => {
     },
     {
       name: 'mock selecionado pela composição',
-      file: 'src/api/modules/companies/api.ts',
+      file: 'src/api/admin/companies/api.ts',
       code: "import { createCompaniesMockAdapter } from '../../../mocks/adapters/companies'; export const adapter = createCompaniesMockAdapter();",
     },
     {

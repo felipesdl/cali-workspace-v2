@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
 import { createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { workspaceAdhesionRecordSchema } from '../src/api/modules/access/adhesion.ts';
+import { workspaceAdhesionRecordSchema } from '../src/api/access/adhesion.ts';
 import { assertLocalDatabase, localSql } from './local-database.ts';
 
 // Driver exclusivo do laboratório; nenhuma chave/token/segredo é escrito ou impresso.

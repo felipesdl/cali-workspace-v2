@@ -1,15 +1,15 @@
-import { workspaceRole } from '../api/modules/access/schemas';
-import { NotificationInbox } from '../features/notifications/NotificationInbox';
+import { workspaceRole } from '../api/access/schemas';
+import { NotificationInbox } from '../components/notifications/NotificationInbox';
 import { phase4CatalogFromPath, phase4CatalogLinks } from './phase4-navigation';
-import { workspaceSearch } from '../api/modules/project-workspace/schemas';
+import { workspaceSearch } from '../api/shared/workspace/schemas';
 import { type ReactNode } from 'react';
 import { Link, useMatches, useRouteContext } from '@tanstack/react-router';
-import { isPilotCompany } from '../api/modules/companies/onboarding';
-import { teamSearchSchema } from '../api/modules/team/schemas';
+import { isPilotCompany } from '../api/admin/companies/onboarding';
+import { teamSearchSchema } from '../api/shared/team/schemas';
 import { Button } from '../components/ds/button/Button';
 import { WorkspaceFrame } from './WorkspaceFrame';
 import { workspaceModuleLink, type WorkspaceModuleLink } from './workspace-navigation';
-import { useWorkspaceSession } from '../api/modules/access/hooks/useWorkspaceSession';
+import { useWorkspaceSession } from '../api/access/hooks/useWorkspaceSession';
 
 const companyScopedAdminPaths = new Set([
   '/admin',
@@ -27,10 +27,12 @@ const companyScopedAdminPaths = new Set([
 
 export function WorkspaceLayout({
   title,
+  role,
   children,
   navigation,
 }: {
   title: string;
+  role: typeof workspaceRole.Admin | typeof workspaceRole.Client;
   children: ReactNode;
   navigation?: readonly WorkspaceModuleLink[];
 }) {
@@ -49,7 +51,7 @@ export function WorkspaceLayout({
   const state = useWorkspaceSession();
   const profile =
     state.phase === 'resolved' && state.access.status === 'ready' ? state.access.profile : null;
-  const admin = profile?.role === workspaceRole.Admin;
+  const admin = (session ? profile?.role : role) === workspaceRole.Admin;
   const recipient =
     profile?.active &&
     (profile.role === workspaceRole.Admin || profile.role === workspaceRole.Client)
@@ -177,9 +179,11 @@ export function WorkspaceLayout({
               recipient={recipient}
             />
           )}
-          <Button variant="secondary" onClick={() => void session?.signOut()}>
-            Sair
-          </Button>
+          {session && (
+            <Button variant="secondary" onClick={() => void session.signOut()}>
+              Sair
+            </Button>
+          )}
         </div>
       }
       modules={modules}

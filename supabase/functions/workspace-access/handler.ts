@@ -3,7 +3,7 @@ import { loginSubjectSchema } from './session-exchange.ts';
 import {
   requestAccessCodeSchema,
   verifyAccessCodeSchema,
-} from '../../../src/api/modules/access/schemas.ts';
+} from '../../../src/api/access/schemas.ts';
 
 export const codeIssueResultSchema = z.discriminatedUnion('status', [
   z.object({ status: z.literal('issued'), id: z.uuid() }),

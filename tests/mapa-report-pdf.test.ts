@@ -2,7 +2,7 @@
 import { writeFile } from 'node:fs/promises';
 import { PDFDocument } from 'pdf-lib';
 import { expect, it } from 'vitest';
-import { mapaReportPdf } from '../src/features/project-workspace/mapa-report-pdf';
+import { mapaReportPdf } from '../src/lib/people-map/mapa-report-pdf';
 
 it('gera um PDF com a revisão do diagnóstico e quebra pareceres longos em páginas', async () => {
   const document = await mapaReportPdf({

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { readEnvironment } from '../src/config/environment';
-import { workspaceProfileRecordSchema } from '../src/api/modules/access/schemas';
+import { workspaceProfileRecordSchema } from '../src/api/access/schemas';
 
 // Ferramenta manual de QA. Importar somente no DevTools da aba Cliente de teste.
 // Não integra o bundle da SPA, não autentica, não renova e não exporta credenciais.

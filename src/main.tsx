@@ -1,18 +1,15 @@
-import { createAdminPortfolio } from './api/modules/project-workspace/admin-portfolio';
-import { createNotificationsService } from './api/modules/notifications/service';
-import { createOwnProfileService } from './api/modules/access/own-profile';
-import { createPartnerOtpQa, createPartnerPilot } from './api/modules/partner/pilot';
-import { createProjectJournal } from './api/modules/project-workspace/project-journal';
-import { createAdminRead } from './api/modules/project-workspace/admin-read';
-import { createDocumentOperations } from './api/modules/project-workspace/documents';
-import { createAgendaOperations } from './api/modules/project-workspace/agenda';
-import { createDomainOperations } from './api/modules/project-workspace/domain-operations';
-import {
-  createHourOperations,
-  createProjectOperations,
-} from './api/modules/project-workspace/operations';
-import { createProjectWorkspace } from './api/modules/project-workspace/service';
-import { createHostedDisc } from './api/modules/disc/service';
+import { createAdminPortfolio } from './api/admin/workspace/admin-portfolio';
+import { createNotificationsService } from './api/shared/notifications/service';
+import { createOwnProfileService } from './api/access/own-profile';
+import { createPartnerOtpQa, createPartnerPilot } from './api/partner/pilot';
+import { createProjectJournal } from './api/shared/workspace/project-journal';
+import { createAdminRead } from './api/admin/workspace/admin-read';
+import { createDocumentOperations } from './api/shared/workspace/documents';
+import { createAgendaOperations } from './api/shared/workspace/agenda';
+import { createDomainOperations } from './api/shared/workspace/domain-operations';
+import { createHourOperations, createProjectOperations } from './api/shared/workspace/operations';
+import { createProjectWorkspace } from './api/shared/workspace/service';
+import { createHostedDisc } from './api/shared/disc/service';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { readEnvironment, resolveCaliRuntime } from './config/environment';
@@ -21,10 +18,10 @@ import { createAppRouter } from './app/router';
 import { createSessionController } from './app/session/controller';
 import { createQueryClient } from './api/query-client';
 import { createWorkspaceClient } from './api/supabase';
-import { createHostedAccessApi } from './api/modules/access/api';
-import { createHostedTeam } from './api/modules/team/hosted';
-import { createHostedTeamMonthly } from './api/modules/team/monthly';
-import { composeCompaniesService } from './api/modules/companies/api';
+import { createHostedAccessApi } from './api/access/api';
+import { createHostedTeam } from './api/shared/team/hosted';
+import { createHostedTeamMonthly } from './api/shared/team/monthly';
+import { composeCompaniesService } from './api/admin/companies/api';
 import './styles/tokens.css';
 import './styles/tailwind.css';
 

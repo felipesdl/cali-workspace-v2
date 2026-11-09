@@ -5,7 +5,7 @@ import {
   orderedChoices,
   PRESSURE_BLOCKS,
   type DiscChoice,
-} from '../src/features/disc/questionnaire';
+} from '../src/modules/public/disc/components/questionnaire';
 
 describe('DISC respondent questionnaire', () => {
   it('keeps the exact 18-block question bank', () => {

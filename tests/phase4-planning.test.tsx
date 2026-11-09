@@ -3,12 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { expect, it, vi } from 'vitest';
 import { createQueryClient } from '../src/api/query-client';
-import { type ProjectDetail } from '../src/api/modules/project-workspace/schemas';
-import { type ProjectAction } from '../src/api/modules/project-workspace/operations';
-import {
-  EditPlanItem,
-  ScheduleItemRequest,
-} from '../src/features/project-workspace/ProjectPlanning';
+import { type ProjectDetail } from '../src/api/shared/workspace/schemas';
+import { type ProjectAction } from '../src/api/shared/workspace/operations';
+import { EditPlanItem, ScheduleItemRequest } from '../src/components/projects/ProjectPlanning';
 
 const context = vi.hoisted(() => ({
   operate: vi.fn<(company: string, action: ProjectAction) => Promise<string>>(),

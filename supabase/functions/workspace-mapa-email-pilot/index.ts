@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { mapaReport } from '../../../src/api/modules/project-workspace/admin-read';
-import { mapaReportPdf } from '../../../src/features/project-workspace/mapa-report-pdf';
+import { mapaReport } from '../../../src/api/admin/workspace/admin-read';
+import { mapaReportPdf } from '../../../src/lib/people-map/mapa-report-pdf';
 
 declare const Deno: {
   env: { get: (name: string) => string | undefined };

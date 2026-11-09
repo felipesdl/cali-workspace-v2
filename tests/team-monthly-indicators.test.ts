@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { monthlyFields } from '../src/api/modules/team/monthly';
-import { monthlyIndicators } from '../src/features/team/monthly-indicators';
+import { monthlyFields } from '../src/api/shared/team/monthly';
+import { monthlyIndicators } from '../src/components/team/monthly-indicators';
 
 const fields = monthlyFields.parse({
   planned_hours: 120,
