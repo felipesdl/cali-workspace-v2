@@ -6,6 +6,16 @@ Referência funcional vigente: [publicação 83 de referência em 26/10](BASELIN
 
 Vocabulário: [Contexto de produto](PRODUCT_CONTEXT.md). Operações se vinculam aos IDs do [Catálogo de fluxos](FLOW_CATALOG.md), às [fichas reconciliadas](flows/README.md) e à [matriz Cliente/Admin](PERMISSIONS.md). Essa matriz é evidência estática; permissões efetivas e contratos ausentes continuam pendentes de prova. Decisões/conflitos estão no [registro](DECISIONS.md).
 
+## Integração hospedada vigente — 01/11
+
+DEC-27 autoriza o backend hospedado existente com fixtures A/B identificadas. O módulo de acesso adapta Edge/Auth/MFA/perfil/empresa/aceite; empresas tem leitura real por lista/detalhe/acessos e keys por ator/vínculo. Fonte canônica: [contrato atualizado](contracts/ACCESS_COMPANIES.md#integração-hospedada-vigente--0111). Caminhos virtuais de mocks descritos abaixo continuam exclusivos da composição demonstrativa; não são novos endpoints do servidor.
+
+Não aplicar baseline local para suprir RPC ausente, inferir transação de criação de conta ou tratar guarda frontend como RLS. Hosteado persiste versão/instante do aceite sem digest; campos de contrato e criação/ciclo da conta permanecem na 2A. GET/POST/PATCH de fixtures e comparação com o online constam no [ambiente](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27).
+
+## Recorte de acesso/empresa — 28/10/2026
+
+[Contrato mínimo reconciliado](contracts/ACCESS_COMPANIES.md): request/verify por código, troca de token, perfil, empresa, convite, termos, diferenças aprovadas e definições ausentes por operação. Há schemas de fronteira e records mínimos planejados, sem transporte Supabase conectado. DEC-21 exige MFA Admin antes de liberar acesso; DEC-22 define [ambiente local dedicado](LOCAL_ENVIRONMENT.md), ainda sem stack/baseline ativos. DEC-23 autoriza registro próprio de adesão após investigação: contrato mínimo criado, gravação/persistência pendentes, separado de aceite de termos. O DTO demo de empresas não substitui projeção real; archived foi incorporado ao catálogo de estados conhecido.
+
 ## Contrato alvo posterior ao levantamento
 
 Em 26/10/2026, DEC-05 a DEC-12 fecharam acessos equivalentes sem principal, manutenção/leitura privada de Equipe, separação lançamento/correção de métricas, adesão/aceite e reabertura/liberação/validação de conteúdo. A seção de alvo confirmado da matriz e as fichas registram essas regras. Na futura integração, identificar diferenças do oficial e planejar compatibilidade/migração; não executar alterações nesta etapa.
@@ -16,9 +26,15 @@ Revisão posterior DEC-13 a DEC-18: DEC-07 foi substituída. DISC tem projeçõe
 
 Chat não gera e-mail; pedidos mensais são tarefas Cliente. DEC-19 fecha o resumo Admin em RESUMO-01: Admins ativos recebem às 19h de Brasília, Cliente/staff não recebem; conteúdo Partner é decisão posterior da fase dele. Rastrear canais/idempotência por operação; entrega completa não exige e-mail onde não previsto, e resumo de chat das 08h não retorna.
 
-## Fronteira proposta
+## Fronteira de dados — base local de 27/10
 
-Cada domínio declara um contrato de dados independente da UI. `data/<dominio>/demo.ts` atende esse contrato com fixtures; `supabase.ts` será introduzido na integração. Hooks de query/mutation consomem o contrato; views não importam SDK.
+Cada domínio declara um contrato independente da UI em `src/api/<área>/<domínio>`. No primeiro consumidor, `companies`, schemas Zod validam entradas/respostas; service recebe um cliente Axios; composição seleciona o adapter de `src/mocks/adapters/companies.ts`; hooks usam Query e factories de keys `as const` incluindo ator/empresa/filtros. Views não importam Axios, SDK ou fixtures. Form cuida do rascunho/validação; respostas permanecem no cache Query.
+
+`GET /companies`, detalhe e acessos são caminhos virtuais atendidos em memória, sem servidor e sem promessa de contrato HTTP oficial. DTOs de demonstração não substituem tabelas/RPCs do oficial. `mock-admin` é namespace de cache sintético, sem autenticação ou autorização. Na integração, adaptar o transporte por operação reconciliada, evitando obrigar chamadas Supabase a um contrato REST inventado.
+
+Fixtures usadas pela aplicação pertencem a `src/mocks/fixtures`; cenários exclusivos de teste pertencem a `tests/fixtures`, com adapters controlados em `tests/mocks`. Testes podem usar os mocks da aplicação para provar a composição local; a aplicação não importa testes. A seleção do mock fica em `api.ts`, não no hook/view/service. Ver [fronteiras](ARCHITECTURE.md#mocks-da-aplicação-e-suporte-exclusivo-de-testes).
+
+Ainda não há SDK, cliente Supabase, escrita ou mutation. Criar hooks de mutation junto do consumidor real, com confirmação, erro, idempotência aplicável e invalidação dirigida. Definir limpeza/cancelamento na troca de identidade e provar acesso no servidor; keys isoladas não substituem RLS.
 
 Evitar um repositório genérico `getAll(table)` que permita qualquer tabela/campo. Preferir operações do domínio, como consultar extrato do ciclo, confirmar revisão mensal ou solicitar ajuste. DTO de leitura não inclui dados internos que o consumidor não pode receber.
 
@@ -76,9 +92,9 @@ Nomes abaixo são orientação, não catálogo validado do banco atual. [SOURCES
 
 O cliente oficial possui fallback de configuração para o projeto oficial. Não portá-lo literalmente. Na V2, configuração futura ausente deve resultar em demo explícita ou erro de configuração, sem contato implícito com produção.
 
-`VITE_DEMO_MODE` hoje não é lido. Implementar seleção única de adaptador e validar ambiente antes de criar o cliente. Seleção de adaptador no navegador é ergonomia, não controle de segurança do banco.
+`VITE_DATA_MODE`/`VITE_DEMO_MODE` já são validados pelo bootstrap e continuam permitindo apenas demonstração. A configuração local do laboratório não habilita SDK/cliente no frontend. A futura seleção de adaptador deve ser única e validar destino antes de criar cliente; ergonomia de ambiente não substitui autorização no servidor.
 
-Para integração, escolher ambiente Supabase local ou projeto não produtivo, com migrations reconciliadas, fixtures sintéticos e outbound bloqueado. Mesmo projeto com empresas sandbox só pode ser considerado após isolamento e efeitos colaterais demonstrados; preview Vercel não isola banco.
+Ambiente escolhido em DEC-22: Supabase local dedicado. Configuração e preflight estão em [Ambiente isolado](LOCAL_ENVIRONMENT.md); ativação requer baseline revisada, atores sintéticos e prova de bloqueio de outbound. Mesmo projeto com empresas sandbox só pode ser considerado após isolamento e efeitos colaterais demonstrados; preview Vercel não isola banco.
 
 E-mail, convites, Calendar/Meet, Drive e notificações externas precisam de inventário de gatilhos. `enqueued`, preview ou toast de sucesso não comprovam entrega externa.
 
@@ -98,6 +114,8 @@ E-mail, convites, Calendar/Meet, Drive e notificações externas precisam de inv
 Não resolver esses pontos com mudanças silenciosas no backend ou no payload frontend.
 
 ## Contrato do resumo Admin e limites da fonte
+
+A V2 tem [prévia Admin homologada](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa), sem cron ou despacho. Os limites abaixo descrevem o legado estático.
 
 Produto: [RESUMO-01](PRODUCT_RULES.md#resumo-01--contrato-admin-definido-partner-posterior). Fontes: [função](flows/SOURCES.md#admin-summary), [agendamento e desativação do chat](flows/SOURCES.md#admin-summary-schedule), [origem de teste](flows/SOURCES.md#admin-summary-test). Consulta estática, sem executar função/SQL ou acessar o banco.
 

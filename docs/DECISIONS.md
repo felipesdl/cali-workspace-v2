@@ -1,8 +1,30 @@
 # Registro de decisões e questões abertas
 
-Atualização: 26/10/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
+Atualização: 07/11/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
 
 ## Decisões de produto e escopo
+
+## DEC-28 — Recuperação comprovada e separação staging/produção
+
+Em 05/11/2026, Felipe aprovou incluir no plano a preservação do estado atual, o teste de restauração e a separação dos ambientes. O CALI MAPA atual é o destino planejado de staging; a produção será outro projeto, criado a partir de baseline e migrations reconciliadas e validadas, sem fixtures. Branches Git e abas locais não representam bancos separados.
+
+Não há backup integral anterior às mudanças comprovado. Na consulta de 05/11, a Management API não listou backups nem metadados de pontos físicos restauráveis; `pitr_enabled=false` e `walg_enabled=true`. Isso registra o resultado da consulta, sem provar inexistência absoluta de cópias no provedor. Inventários, preimagens e scripts de rollback não substituem cópia integral nem ensaio de restauração.
+
+Em 07/11/2026, Felipe reiterou que o CALI MAPA é usado para testes e continuará como staging. Backup integral, exportação do Storage e restauração hospedada deixam de ser pré-requisitos para os lotes autorizados nesse ambiente. Cada lote mantém conferência do contrato e do destino, rollback compatível e validação com atores sintéticos conforme DEC-27. O ensaio sintético já executado fica como referência. Produção segue planejada em projeto separado, com recuperação e autorização de lançamento próprias. [Procedimento](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+
+A revisão do gerador DISC e o teste temporário da agenda foram exceções específicas antes dessa revisão da DEC-28. O histórico de publicação e reversão fica no [contrato DISC](contracts/DISC_3.md).
+
+Em 09/11/2026, Felipe corrigiu a classificação do ambiente. O CALI MAPA atual está online, contém os dados de produção e permanece como produção. A homologação separada será criada depois de concluir os ajustes e validar o estado atual. Sua base será a versão de código, schema e configuração reconciliada da produção, com contas, dados, arquivos, segredos e destinos de comunicação próprios. Esta revisão substitui a ordem anterior e a classificação do CALI MAPA como staging. A dispensa anterior de backup e restauração se referia ao staging e não se estende a produção. [Procedimento vigente](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+
+## DEC-27 — Desenvolvimento no backend hospedado e atores de teste
+
+Em 01/11/2026, Felipe esclareceu que a plataforma ainda não foi lançada e autorizou continuar a implementação no mesmo ambiente hospedado, incluindo criação de contas e manipulação de dados sintéticos para verificar GET/POST. Esta decisão substitui a restrição anterior de somente leitura do backend neste recorte; o repositório `patricia258/app.cali` continua referência somente em leitura. Não autoriza apagar dados existentes, publicar a aplicação, executar automaticamente a baseline local sobre o banco hospedado ou ampliar permissões para contornar falhas.
+
+Felipe confirmou em 04/11 que Patrícia ainda não usa nenhuma das versões e que os dados existentes são de teste. A V2 está em desenvolvimento para o primeiro lançamento operacional. A V1 publicada serve como referência funcional e fonte de contratos. A homologação de lançamento cobre os fluxos da V2 e as dependências que ela reaproveita no CALI MAPA.
+
+Dois e-mails controlados por Felipe foram indicados para Clientes A/B; seus valores ficam fora do Git. Admin inicialmente usa o acesso existente. Empresas/convites de teste devem ser identificáveis, reaproveitados sem duplicação e vinculados exclusivamente aos atores indicados; comunicações de teste somente para esses destinatários. Provisão sintética não comprova adesão jurídica real. A baseline local de DEC-22/25/26 permanece como laboratório histórico, sem equivalência automática com o schema hospedado. Integração precisa conferir contratos efetivos e registrar diferenças de sessão, MFA, termos e RLS.
+
+A leitura autenticada de 31/10 retornou HTTP 200 para o próprio perfil Admin ativo e duas empresas, com AAL2 e token inalterado. Isso não comprova escrita, permissões Cliente, implantação da baseline V2 ou todos os domínios. Fase 1 permanece aberta até as provas aplicáveis da jornada integrada.
 
 | ID | Decisão | Evidência na conversa | Documento dono |
 | --- | --- | --- | --- |
@@ -19,7 +41,7 @@ Atualização: 26/10/2026. Registra estado e evidência; regras completas perman
 | DEC-11 | Item reaberto fica indisponível ao Cliente até nova liberação | “Item fica indisponível até nova liberação” | FLOW-06/12 |
 | DEC-12 | Após correção liberada, entregável exige nova aprovação; relatório exige nova ciência somente quando Admin solicitar | “Nova aprovação do entregável; nova ciência do relatório só quando Admin solicitar” | FLOW-06/12 |
 | DEC-13 | DISC: Cliente somente gestão; avaliador interno CALI sem liberação; respondente somente PDF próprio por e-mail e tela de agradecimento | Revisão da Patrícia em 26/10 e autorização posterior do Felipe; substitui DEC-07 | [Regras](PRODUCT_RULES.md), FLOW-17 e [matriz](PERMISSIONS.md) |
-| DEC-14 | Funcionamento oficial de 26/10, publicação 83 testada pela Patrícia, é base de paridade; oficial permanece somente leitura | Felipe confirmou usar como funciona agora; metadados identificam publicação 83 no SHA já utilizado | [Referência funcional](BASELINE_REFERENCE_2026-10-26.md) |
+| DEC-14 | Funcionamento oficial de 26/10, publicação 83 testada pela Patrícia, é a base funcional histórica. Em 09/11 Felipe definiu a main da V2 como referência visual. O oficial permanece somente leitura | Felipe confirmou usar como funciona agora; metadados identificam publicação 83 no SHA já utilizado | [Referência funcional](BASELINE_REFERENCE_2026-10-26.md), [referência visual](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2) |
 | DEC-15 | Caveman somente nas sessões técnicas do Felipe; conteúdo para Patrícia/clientes/produto segue a voz CALI | Revisão da Patrícia e encaminhamento aprovado pelo Felipe | [AGENTS](../AGENTS.md), [UX/UI](UX_UI.md) |
 | DEC-16 | Consolidar regras operacionais e de interface da revisão de produto com critérios técnicos de uso/legibilidade/responsividade | Comentários e complemento da Patrícia; definição posterior do resumo Admin registrada em DEC-19 | [Regras](PRODUCT_RULES.md), DS/UX e fichas |
 | DEC-17 | Construir por fluxos completos, começando pela rotina Admin/Cliente, depois DISC; Partner posterior | Revisão de produto e autorização do Felipe; preserva cobertura dos demais fluxos | [Roadmap](ROADMAP.md) |
@@ -28,15 +50,51 @@ Atualização: 26/10/2026. Registra estado e evidência; regras completas perman
 
 DEC-05 a DEC-12 registram a rodada inicial de 26/10. DEC-13 a DEC-18 incorporam a revisão de produto autorizada depois: **DEC-13 é o alvo vigente do DISC e substitui DEC-07**. Demais decisões anteriores continuam válidas. Fontes: [revisão da Patrícia](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417356971), [regras/prioridades](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6417361907) e confirmações do Felipe. Nenhuma decisão documental autoriza integração, deploy, migration ou mudança de fórmula.
 
+## DEC-20 — Stack e organização de dados confirmadas em 27/10/2026
+
+Felipe escolheu TanStack Form (`@tanstack/react-form`), Query e Router, date-fns, Axios e Zod, com API organizada por módulos, hooks próprios e keys padronizadas por constantes `as const`. Versões foram selecionadas conforme compatibilidade; não foi exigida migração de React. Vite permanece o bundler; seu uso permite diferentes routers, e TanStack Router é a escolha explícita desta base.
+
+Implementação local: `src/api/modules/companies` possui schemas, keys, service, composição dos mocks de desenvolvimento e hooks de consulta; filtros usam Form/Zod e URL. Identificadores constantes e factories de tuplas substituem TS enums para query keys. Axios fica na fronteira de transporte; não duplicar Query em context. Mutation só será criada com operação de escrita real e contrato reconciliado. Versões e gates: [runbook](RUNBOOK.md); fronteiras: [arquitetura](ARCHITECTURE.md).
+
+Autorização desta rodada: sincronizar main e iniciar fase 1 localmente. Sem Supabase oficial, migrations, comunicações ou publicação.
+
+## DEC-21 — MFA obrigatório para Admin, inclusive primeiro uso
+
+Em 28/10, após explicação dos dois passos e das exceções encontradas no oficial, Felipe confirmou: “Sim, liberar Admin só após confirmar os dois passos”. Exigir cadastro e validação do autenticador antes de liberar área/poderes Admin; ausência de fator não libera, falha mantém bloqueio com retry. A decisão não altera o fluxo Cliente nem resolve automaticamente a divergência de allowlist/perfil ativo. Não há bypass por ambiente QA. Contrato em [Acesso/empresas](contracts/ACCESS_COMPANIES.md); implementação e prova no backend continuam pendentes.
+
+## DEC-22 — Ambiente local dedicado para a fase 1
+
+Definição técnica de 28/10 no escopo autorizado: Supabase CLI 2.122.0/Docker local, projeto/rede dedicados, portas de loopback, dados sintéticos, captura local de e-mail e nenhum vínculo com projeto hospedado. Configuração/preflight foram implementados em 28/10; ativação/baseline e provas locais ocorreram em 29/10, com a topologia corrigida em DEC-25. Esta escolha não autoriza executar migrations do oficial, importar dados/credenciais, publicar ou alterar outros projetos. [Definição e evidências](LOCAL_ENVIRONMENT.md).
+
+## DEC-23 — Investigar e criar registro próprio de adesão quando ausente
+
+Em 28/10, Felipe pediu investigar cadastro/primeiro acesso e, se não houver registro, criar um. Inspeção do cadastro/documentos, TermsGate, workspace-access e dos 166 SQLs da referência encontrou contratos/aditivos e aceite individual dos termos, sem registro autônomo da adesão da empresa. Criado contrato mínimo novo da V2: empresa, referência da formalização, autoria e instante do servidor; operação Admin, antes do convite, preservando DEC-08. Não foi inventada assinatura digital, upload obrigatório ou prazo de validade. Persistência/servidor foram implementados/testados localmente em 29/10 (DEC-25). Formato/comprovação documental, UI e gate de convite permanecem para o fluxo aplicável. [Investigação e alvo](contracts/ACCESS_COMPANIES.md#registro-próprio-de-adesão--dec-23).
+
+## DEC-24 — Tailwind e migração incremental de estilos
+
+Em 28/10, Felipe aprovou integrar Tailwind à branch atual e migrar o que já foi construído, evoluindo o legado junto dos commits dos fluxos e deixando a limpeza global para o fim. Implementados Tailwind 4.3.3, plugin Vite e ordenação Prettier; Button, Field e empresas migrados com remoção dos três CSS substituídos. Tokens/identidade e contratos funcionais permanecem no DS/domínio. Prefixo `tw:`, ausência de Preflight e utilities sem layer preservam a coexistência com o legado; [política e inventário](DESIGN_SYSTEM.md#inventário-da-migração-de-estilos). Não implica migrar todas as prévias nesta rodada nem encerrar a fase 1.
+
+## DEC-25 — Baseline local de adesão e ingress isolado
+
+Definição técnica de 29/10 no recorte autorizado por Felipe: implementar/testar baseline e persistência de adesão local, mantendo PR #2 atualizado. Baseline nova, sem copiar/executar migrations do oficial; papel persistido ativo/Admin, AAL2 e fator TOTP verificado são a autoridade única na operação, sem allowlist de e-mails ou bypass por fator ausente. Referência, autoria/instante e histórico são protegidos no servidor; comprovação documental, convites e aceite individual não são fabricados por essa gravação.
+
+O runtime demonstrou que rede exclusivamente internal não publica portas no host. Serviços de negócio permanecem somente nessa rede; ingress HAProxy dedicado, fixado por digest, usa segunda bridge exclusiva e publica quatro portas em 127.0.0.1, com destinos fixos/forwarding desligado. Bootstrap inicial exclui PostgREST até aplicar explicitamente o schema; migrations/seeds de negócio continuam desligados. Provider de e-mail precisa ficar habilitado para login; signup público permanece bloqueado pela configuração global e foi testado. [Topologia, provas e comandos](LOCAL_ENVIRONMENT.md), [persistência e limites](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910). Não é decisão de produto nova nem autorização de produção.
+
+## DEC-26 — Códigos/termos locais e sessão preparada por contrato
+
+Continuidade autorizada por Felipe em 29/10: implementar códigos e termos versionados no ambiente isolado, preparando sessão/guardas da SPA e mantendo PR #2 atualizado. DDL ausente de códigos recebe implementação nova V2; preservar seis dígitos/10 minutos/120 segundos/cinco tentativas, com locks e uso único. Entrega é somente Mailpit; geração Auth posterior ao consumo falha fechada, sem prometer atomicidade distribuída. Não provisionar perfil/convite por e-mail nem liberar Partner nesta etapa.
+
+Termos têm conteúdo/digest imutáveis por versão, aceite corrente por ator/instante do servidor e nova confirmação a cada publicação. Só textos sintéticos foram preparados; nenhum conteúdo jurídico/prazo de guarda de produção foi inventado. Sessão vigente é requisito no servidor; corte de perfil/empresa revoga sessões e códigos pendentes sem recuperar essas credenciais ao reativar. Controller e Router recebem fonte por injeção, mas adapter/eventos/telas da SPA continuam pendentes; demo não é autenticação. [Contrato](contracts/ACCESS_COMPANIES.md#códigos-termos-e-guarda-de-sessão--2910), [operação](LOCAL_ENVIRONMENT.md).
+
 ## Propostas técnicas/de experiência
 
-Manter React/Vite; usar router; separar adaptadores/hooks; adotar cache de servidor; definir tokens, escala tipográfica, composição e padrões de interação são propostas em [Arquitetura](ARCHITECTURE.md), [Design system](DESIGN_SYSTEM.md) e [UX/UI](UX_UI.md). Dependências e versões ainda não foram implementadas.
+Manter React/Vite; usar router; separar adaptadores/hooks; adotar cache de servidor; definir tokens, escala tipográfica, composição e padrões de interação são propostas em [Arquitetura](ARCHITECTURE.md), [Design system](DESIGN_SYSTEM.md) e [UX/UI](UX_UI.md). A seleção DEC-20 e o primeiro consumidor demo estão implementados; demais padrões continuam propostos até possuir consumidor e validação.
 
 Decisões rotineiras de implementação dentro de um recorte autorizado podem ser tomadas e registradas pelo implementador. Questão aberta não exige perguntar tudo ao usuário: primeiro conferir código, contratos e evidência disponíveis; perguntar somente o que continuar bloqueando uma decisão de produto/escopo.
 
 ## Prioridade de resolução antes das fases
 
-Revisão de prioridade: 25/10/2026, por solicitação do usuário. **Nenhuma fase de implementação foi iniciada.** As 24 referências não são 24 decisões a repassar ao usuário. Há decisão de produto, informação técnica ausente e comprovação que só existe durante implementação/homologação.
+Revisão de prioridade original: 25/10/2026. Atualização de execução: fase 1 iniciada localmente em 27/10, sem integração real. As 24 referências não são 24 decisões a repassar ao usuário. Há decisão de produto, informação técnica ausente e comprovação que só existe durante implementação/homologação.
 
 ### Decisões de produto que afetam os contratos da V2
 
@@ -81,7 +139,7 @@ Percentuais, prazos e valores já encontrados no código precisam ser reconcilia
 | Ambiente isolado e comprovação operacional — OPEN-10/12 | Definir infraestrutura de teste e critérios antes da integração; prova não pode ser produzida por uma resposta de produto |
 | Paridade de módulos adicionais — OPEN-09 | Escopo geral de todos os fluxos já foi confirmado; não perguntar novamente por um piloto. Registrar somente exceção concreta se surgir |
 
-Esses itens permanecem visíveis; não foram marcados como resolvidos nem descartados. O pedido de resolver decisões antes das fases é respeitado: esta rodada altera somente documentação e faz perguntas, sem iniciar fundação, DS, rotas ou integração.
+Esses itens permanecem visíveis; não foram marcados como resolvidos nem descartados. O pedido de resolver decisões antes das fases é respeitado: as decisões de produto foram documentadas antes das fases; a fundação local agora segue DEC-20 sem antecipar integração real.
 
 ## Pendências que não devem virar suposição
 
@@ -89,14 +147,14 @@ Esses itens permanecem visíveis; não foram marcados como resolvidos nem descar
 | --- | --- | --- | --- |
 | OPEN-01 | Papel `partner` aparece no oficial, mas fontes históricas o tratam como futuro | Administração/efeitos Cliente já descritos na matriz estática; matriz completa do terceiro papel permanece fora deste recorte | Integração de acesso; responsável funcional e técnico |
 | OPEN-02 | Oficial libera UI em erro de consulta; alvo decidido em DEC-08 exige adesão antes do convite e aceite versionado com bloqueio em falha | Decisão funcional resolvida; falta implementar/provar comprovação e bloqueio, sem substituir revisão dos textos legais | Antes de habilitar acesso/convite; responsável técnico/legal |
-| OPEN-03 | Patch versionado altera revisão de cronograma para 24h × parâmetro (padrão 3), mas runtime também chama RPC v39 sem corpo | Aplicação efetiva, contrato v39 e decisão funcional; não alterar prazo de dúvida de relatório | Antes de portar planejamento/aprovações; responsável funcional |
+| OPEN-03 | Catálogo CALI MAPA confirmou 24h × parâmetro (padrão 3) e o corpo do ajuste v39 | Felipe confirmou manter a revisão aberta e sinalizar o atraso. As transições seguem disponíveis após o prazo. O prazo de dúvida de relatório tem regra própria | Antes do primeiro lançamento; responsável funcional |
 | OPEN-04 | SQL de capacidade encontrado usa 75%/100%, excedente, 110% e terceira ocorrência; fontes antigas diferem | Reconciliar pipelines antigos/novo e estado aplicado; ver REF-09 | Antes de implementar alertas; responsável funcional |
 | OPEN-05 | Fórmulas, bases e amostras de indicadores não estão fechadas aqui | Fonte oficial, período, qualidade, visibilidade e casos retroativos | Antes de calcular/expor indicador; responsável funcional/dados |
 | OPEN-06 | Corpo de 16 px na regra oficial e raiz de 13 px na V2 | Validar tipografia/densidade por família de tela, sem microtexto | Fundação visual; responsável design/produto |
 | OPEN-07 | Contraste de tokens/pares secundários e tamanhos ainda sem QA | Pares e estados acessíveis no layout real | Antes de homologar DS; responsável design/desenvolvimento |
 | OPEN-08 | Fichas agora descrevem continuidade observada e contrato comum proposto | Validar restauração por URL, rascunhos e responsividade; ver REF-24 | Implementação/homologação do fluxo; responsável UX/funcional |
 | OPEN-09 | Fichas cobrem os 18 IDs, incluindo módulos oficiais adicionais | Decisão de migração/paridade e lacunas de servidor identificadas, não pesquisa de navegação vazia | Fase 1; responsável de produto |
-| OPEN-10 | Ambiente isolado ainda não foi selecionado/verificado | Ambiente, migrations reconciliadas, atores de teste e bloqueio de outbound | Antes da integração; responsável técnico |
+| OPEN-10 | Laboratório executado em DEC-22/25, com baseline de adesão e atores sintéticos | Bindings, negativas de IP externo/canário do host, captura local, Auth/TOTP e RLS de adesão testados; códigos/termos/estado/revogação também testados em DEC-26; faltam integração/eventos/telas da SPA e demais operações | Antes da integração; responsável técnico; [evidências](LOCAL_ENVIRONMENT.md) |
 | OPEN-11 | Fixtures atuais têm métricas/estado desconectados | Cenários sintéticos coerentes por empresa/período, inclusive falha e vazio | Antes de homologar experiência; responsável domínio/QA |
 | OPEN-12 | UX/UI foi especificada sem teste de usabilidade | Executar tarefas, registrar dificuldades e ajustar hipóteses com evidência | Homologação de recortes e sistema; responsável design/produto |
 | OPEN-13 | **Resolvida para Admin em DEC-19**; resumo diário definido pela Patrícia | Implementar/provar contrato Admin; versão Partner com empresas/horas ainda a definir na fase dele; limites técnicos em Dados | Resumo Admin integra sua entrega completa; definição Partner não bloqueia Cliente/Admin |
@@ -110,13 +168,13 @@ Referência estática fixada em `f3d3f14043a6abc38636f0340fe831e621d8b357`. Nenh
 
 | ID | Evidência/questão | O que precisa ser decidido ou comprovado | Fonte dona |
 | --- | --- | --- | --- |
-| REF-01 | Rota exige perfil ativo/role; is_admin usa allowlist/MFA, aceita ausência de fator verificado; outras RPCs/EDGE usam role/active | Qual identidade e exigência de MFA devem valer em todas as operações, inclusive com perfil desativado? | [Acesso](flows/ACCESS_ACCOUNTS.md), [matriz](PERMISSIONS.md) |
+| REF-01 | Rota exige perfil ativo/role; is_admin usa allowlist/MFA, aceita ausência de fator verificado; outras RPCs/EDGE usam role/active | MFA decidido em DEC-21: obrigatório antes de liberar Admin, com bloqueio em falha. Reconciliar identidade/allowlist/perfil ativo e provar guardas nas superfícies; não reabrir a decisão do segundo fator. | [Acesso](flows/ACCESS_ACCOUNTS.md), [matriz](PERMISSIONS.md) |
 | REF-02 | TermsGate está habilitado por versão/canal, mas erro de consulta libera UI; comentário antigo fala em desligado | Decidido em DEC-08: adesão antes do convite e aceite obrigatório por versão, bloqueando falha; falta prova técnica | [FLOW-01](flows/ACCESS_ACCOUNTS.md) |
 | REF-03 | Migration limita quatro convites ativos, docs antigos dizem acesso único; escrita Equipe ainda exige is_primary | Decidido em DEC-05: até quatro equivalentes, sem principal; reconciliar legado e preservar revogações individuais | [FLOW-02](flows/ACCESS_ACCOUNTS.md), [FLOW-08](flows/WORKSPACE_HOURS_TEAM.md) |
 | REF-04 | 29 nomes literais de RPC sem corpo CREATE FUNCTION localizado; há comentários de aplicação pelo painel | Obter definições versionadas/inspeção autorizada antes de afirmar autorização, idempotência e transições | [Fontes/lacunas](flows/SOURCES.md) |
 | REF-05 | Conta, anexos, avisos, decisão de material e integrações usam múltiplas chamadas | Qual estado parcial é admissível e como reconciliar falha/retry sem duplicar ou perder dado? | Fichas dos domínios afetados e [Dados](DATA_CONTRACTS.md) |
 | REF-06 | Gestão Portal no schema public e portal-send-proposal não têm contratos completos neste repo | Permissões, aceite externo, proteção de preço/versão e consistência de envio | [FLOW-03](flows/ACCESS_ACCOUNTS.md) |
-| REF-07 | UI de ajuste é mais restritiva que request_deliverable_adjustment; Admin tem UPDATE amplo; runtime usa ajuste v39 sem corpo | Correção decidida em DEC-06/11/12: reabrir mesmo item, indisponível até liberação e nova aprovação da entrega; faltam contrato v39 e guards efetivos | [FLOW-05/06](flows/PROJECTS.md) |
+| REF-07 | UI de ajuste é mais restritiva que request_deliverable_adjustment; Admin tem UPDATE amplo; corpo do ajuste v39 conferido no CALI MAPA | Correção decidida em DEC-06/11/12: reabrir mesmo item, indisponível até liberação e nova aprovação da entrega; V2 homologada com PDF privado no piloto. Arquivos legados e caminhos diretos permanecem fora da prova | [FLOW-05/06](flows/PROJECTS.md) |
 | REF-08 | pause_work_timer fecha sessão em stopped/discarded; UI também chama start_work_timer/resume_work_timer não versionados | Qual é o contrato de pausa/retomada e de timer global? Reconciliar índices e caminhos legados | [FLOW-07](flows/WORKSPACE_HOURS_TEAM.md) |
 | REF-09 | Capacidade atual usa marcos 75/100 e regras próprias, além de estruturas antigas de hour_alerts | Quais mecanismos permanecem ativos? Pausa de capacidade bloqueia quais operações de trabalho? | [FLOW-07](flows/WORKSPACE_HOURS_TEAM.md) |
 | REF-10 | Principal envia privados por RPC sem poder lê-los; métrica mensal tem escrita SQL mais ampla que UI Admin de consulta | DEC-09/10: Cliente/Admin informam e consultam privados; Cliente lança métricas e somente Admin corrige depois. Reconciliar policies/DTOs e trilha | [FLOW-08](flows/WORKSPACE_HOURS_TEAM.md) |
@@ -124,13 +182,13 @@ Referência estática fixada em `f3d3f14043a6abc38636f0340fe831e621d8b357`. Nenh
 | REF-12 | Scheduling normal v1/v2/política/outcome não têm corpo completo; extras têm regras próprias | Recuperar contratos; distinguir horas úteis/corridas, ciência, slot, conflito e cancelamento | [FLOW-09](flows/CALENDAR.md) |
 | REF-13 | Cliente UI comenta target=file, mas INSERT policy localizada aceita deliverable/task/project; policies completas de document_acknowledgements ausentes | Comprovar ciência/comentário reais e contrato de visibilidade por versão | [FLOW-11](flows/DOCUMENTS_REPORTS.md) |
 | REF-14 | Storage de documentos/capas usa path, sem todas as guardas de publicação/target da metadata | Definir acesso efetivo de arquivo oculto/retirado e revogação; URL temporária não substitui autorização | [FLOW-11/13](flows/DOCUMENTS_REPORTS.md), [avisos](flows/ADMIN_LIFECYCLE.md) |
-| REF-15 | Relatório tem travas de UI mais fortes que policy; published_at/estado sent têm fontes diferentes; reabrir v63 sem corpo | DEC-06/11/12 permite reabrir o mesmo item, ocultar até liberação e exigir nova ciência só a pedido Admin; falta reconciliar contratos/timestamps/histórico | [FLOW-12](flows/DOCUMENTS_REPORTS.md) |
+| REF-15 | Relatório tem travas de UI mais fortes que policy; published_at/estado sent têm fontes diferentes; v63 arquiva relatório ainda não visto e cria outro registro | DEC-06/11/12 permite reabrir o mesmo item, ocultar até liberação e exigir nova ciência só a pedido Admin; falta reconciliar contratos/timestamps/histórico | [FLOW-12](flows/DOCUMENTS_REPORTS.md) |
 | REF-16 | RPC/EDGE pode gravar estado antes/depois de envio; mensagens têm supressão de e-mail posterior | Qual status comprova enqueue/aceitação/entrega? Como idempotência e retry funcionam por integração? | Fichas e [controle de e-mail](flows/SOURCES.md#email-control) |
 | REF-17 | UI não permite ciência Admin, SQL não veda explicitamente esse ator; reações têm guards diferentes por operação | Confirmar significado de desfazer ciência, público/comentários e condições de update/delete | [FLOW-13](flows/ADMIN_LIFECYCLE.md) |
 | REF-18 | Auditoria UI promete imutabilidade; policy activity_admin_all permite ALL; algumas RPCs de mensagem autorizam Admin por role, não autor individual | Confirmar invariantes de autoria e append-only exigidas, com proteção real correspondente | [FLOW-10](flows/RECORDS.md), [FLOW-16](flows/ADMIN_LIFECYCLE.md) |
 | REF-19 | Admin pode editar respostas de Forms, inclusive anexos, contato, nota, stage e owner | Que histórico da resposta original e autoria precisa ser preservado? Qual recorte público é permitido? | [FLOW-17](flows/FORMS_PEOPLE_PROFILE.md) |
 | REF-20 | Policy/rota permite individual client_visible e token público; alvo atual separa três relatórios DISC | DEC-13 substitui DEC-07: avaliador interno, respondente só PDF/e-mail, Cliente só gestão; falta reconciliar projeção/rotas/storage/tokens legados e comprovar negações | [FLOW-17](flows/FORMS_PEOPLE_PROFILE.md) |
-| REF-21 | Mapa tem UI/bridge public e grants authenticated, sem definições das quatro RPCs | Comprovar guardas Admin, projeção, transições e integrações antes de portar | [FLOW-17](flows/FORMS_PEOPLE_PROFILE.md) |
+| REF-21 | Catálogo do CALI MAPA confirmou corpos das quatro RPCs públicas com identidade administrativa específica, projeção ampla e sem vínculo com empresa V2 | Definir vínculo por identificador e projeção mínima. Preservar a restrição de identidade antes de portar | [FLOW-17](flows/FORMS_PEOPLE_PROFILE.md) |
 | REF-22 | Exportação/eliminação usa listas explícitas e storage antes de banco; novos módulos/public/externos podem ficar fora | Reconciliar cobertura, retenções, cópias externas e recuperação de falha parcial; não executar exclusão | [FLOW-18](flows/ADMIN_LIFECYCLE.md) |
 | REF-23 | Há patches dinâmicos, migrations que só comentam aplicação pelo painel e prefixo temporal duplicado | Versionar baseline efetiva e ordem aplicada em ambiente autorizado antes de reproduzir schema | [Método/fontes](flows/SOURCES.md) |
 | REF-24 | Leitura estática não prova UX, SLA uniforme, preservação de rascunho/URL ou teclado/responsividade | Validar essas hipóteses por fluxo; aceitar política explícita sem alegar teste executado | [Contrato comum](flows/README.md), [UX/UI](UX_UI.md) |

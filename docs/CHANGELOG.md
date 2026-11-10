@@ -1,5 +1,992 @@
 # Registro de mudanças
 
+## Módulos por área e retirada das prévias
+
+- Organiza Admin, Cliente, Partner, acesso e páginas públicas em `src/modules`. Componentes exclusivos ficam junto da página. Componentes usados por várias páginas ficam em `src/components` e primitivas em `src/components/ds`.
+- Agrupa APIs por área e contratos compartilhados em `src/api/shared`. Divide a composição de projetos, horas e catálogo por página e preserva caminhos, filtros e guardas.
+- Retira as prévias de Admin/Cliente, seus oito CSS e a fixture de Avisos exclusiva das prévias. O modo local usa o mesmo shell e preserva os mocks de Empresas. Áreas sem serviço local apresentam o estado de disponibilidade previsto na rota.
+- Chromium abriu 41 URLs em 375 e 1366 px, conferiu filtro, detalhe e Voltar em Empresas e revalidou a correção de largura do DISC público. A suíte exercitou o retorno tardio do cadastro. [Evidência](HOMOLOGACAO_PATRICIA.md#regressão-da-estrutura-por-módulos).
+- A validação desta reorganização é local. A mudança de caminhos nos imports dos bundles Edge não requer alteração de schema nem ativação remota. Rollback por reversão do commit.
+
+## Revisão do Admin antes da publicação
+
+- O resumo global Admin mantém consulta, erro e nova tentativa próprios quando a lista de empresas está carregando ou falha. Prioridades por empresa continuam dependentes da listagem.
+- Separa a composição conectada do Admin da demonstração e usa `workspaceRole` nos guards de sessão, rotas e ações que dependem do papel. As regras de acesso permanecem as mesmas.
+- A regressão da Visão executiva exercita a lista normal e a falha de listagem com o resumo global disponível. A validação usa serviços locais de teste. O rollback é a reversão do commit.
+
+## Preparação do núcleo da V2 para produção
+
+- Separa a edição de Minha conta, as notificações próprias e o resumo global Admin dos módulos que ainda dependem do piloto. A configuração é optativa e restrita ao domínio oficial e ao backend CALI MAPA.
+- Registra o artefato servido, as RPCs, os bloqueios de origem e as dependências do callback em [candidata de produção e inventário](RUNBOOK.md#candidata-da-v2-para-o-domínio-de-produção). Validação autenticada e publicação continuam pendentes.
+
+## Resumo global da carteira Admin
+
+- Conecta Horas, Agenda, prioridades e Satisfação da carteira inteira, com seleção de mês e resumo individual quando há uma empresa selecionada.
+- Valida em localhost ligado ao CALI MAPA em 375 e 1366 px e confirma recusa ao Cliente. [Prova](HOMOLOGACAO_PATRICIA.md#agregados-globais-da-carteira-em-localhost) e [contrato](flows/WORKSPACE_HOURS_TEAM.md#flow-04--prioridades-e-navegação-contextual).
+
+## Perfil próprio, prioridades e resumo mensal
+
+- Conecta edição parcial do próprio nome, cargo, telefone e WhatsApp. Preserva foto, assinatura e dados de acesso. Detecta conflito por campo e mantém o rascunho ao repetir uma falha.
+- Homologa os atalhos de Projeto e Ocorrência em A/B e conecta os totais mensais de Horas e Agenda. Corrige as grades de Equipe, Horas e remarcação de Agenda com o breakpoint CALI. [Prova em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#edição-de-minha-conta-e-resumo-mensal-admin).
+
+## Sino conectado no CALI MAPA
+
+- Conecta notificações próprias de Admin e Cliente com aceite vigente. Registra leitura individual ou em lote e abre Projeto e Ocorrência pelos destinos tipados do piloto.
+- Homologa o sino em 375 e 1366 px e a marcação individual de um item sintético. [Prova no CALI MAPA](HOMOLOGACAO_PATRICIA.md#sino-conectado-no-cali-mapa) e [contrato com rollback](flows/WORKSPACE_HOURS_TEAM.md#sino-conectado-na-v2).
+
+## Homologação de prioridades, perfil e notificações
+
+- Homologa Minha conta com Admin e Cliente e Prioridades com Admin no CALI MAPA em 375 e 1366 px. A/B retornaram estados vazios nas prioridades. [Evidência](HOMOLOGACAO_PATRICIA.md#prioridades-minha-conta-e-guarda-de-sessão-no-cali-mapa).
+- Aplica a guarda de sessão às leituras e atualizações autenticadas de notificações e às duas RPCs de marcação. Preserva o acesso por destinatário, os GRANTs e as marcações existentes. [Contrato, teste isolado e rollback](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa).
+
+## Prioridades Admin e Minha conta
+
+- A Visão executiva mostra ajustes em projetos e ocorrências em atendimento da empresa selecionada, com atalhos para os objetos e indicação de cobertura da primeira página.
+- Admin e Cliente consultam o próprio perfil por uma projeção mínima vinculada à sessão. Corrige a grade responsiva da Visão executiva com o breakpoint do design system. [Validação em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#prioridades-admin-e-minha-conta).
+- Registra as [permissões de notificações no CALI MAPA](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) e as guardas pendentes de integração.
+
+## Carteira Admin e localizador de módulos
+
+- A Visão executiva Admin usa a consulta de empresas para contar a carteira por situação e abrir a lista com o filtro correspondente.
+- Admin e Cliente filtram os módulos do próprio menu por rótulo. O destino preserva a empresa nos módulos com contexto Admin. [Validação em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#carteira-admin-e-localizador-de-módulos).
+
+## Recuperação de navegação e atalho mensal
+
+- Corrige o retorno de endereço inexistente e falha de rota para resolver a área pela sessão. Aplica o padrão de mensagem e foco ao erro de rota e callback.
+- No Início Cliente, devolve o foco após repetir a consulta da referência mensal. [Validação em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#recuperação-de-navegação-e-atalho-mensal).
+
+## Revalidação de formulários Admin e Cliente
+
+- Reutiliza a composição de ações de Acesso em filtros e formulários de Empresas e Equipe. Mantém dimensões iguais e intervalo de 12 px. Remove a moldura nativa dos agrupamentos de Equipe.
+- Separa erros e recibos das ações por 12 px onde faltava espaço. A falha de gravação em Equipe recebe foco sem perder os campos. [Percursos revalidados em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#revalidação-de-formulários-admin-e-cliente).
+
+## Campos, ações e mensagens da interface
+
+- Migra os controles de formulário para o design system. Localiza o seletor de arquivos, alinha a seta do select e padroniza as ações de acesso.
+- Diferencia sucesso e falha com cor, borda e ícone e separa a validação do campo por 12 px. Mantém nova tentativa de consultar termos e foco nos recibos de publicação e download. [Validação em 375 e 1366 px](HOMOLOGACAO_PATRICIA.md#campos-ações-e-mensagens-da-interface).
+
+## Comparação dos módulos com a main em 375 e 1366 px
+
+- Compara 20 telas demonstrativas com a main da V2. Ajusta texto longo nos fluxos conectados de Projetos, Equipe, Propostas, Auditoria, Equipe CALI, Mapa de People, Satisfação, DISC, Termos, Privacidade, Agenda e Ocorrências.
+- Corrige colunas do Kanban e da estrutura de Equipe. Mantém foco em navegação de Projetos, confirmação de proposta, triagem do Mapa, resposta de privacidade e operações Partner. [Matriz e limites](HOMOLOGACAO_PATRICIA.md#comparação-dos-módulos-com-a-main-em-375-e-1366-px).
+
+## Rascunhos, histórico e avisos em desktop e mobile
+
+- Ajusta a quebra de texto em Forms Admin e em Relatórios Admin e Cliente. Relatórios Admin usa duas colunas no desktop e uma no celular.
+- Mantém a confirmação da edição de Forms após recarregar a revisão e leva o foco ao relatório aberto pelo histórico Cliente. O navegador também conferiu falha e reenvio em Avisos Admin. [Evidências](HOMOLOGACAO_PATRICIA.md#rascunhos-histórico-e-avisos-em-desktop-e-mobile).
+
+## Regressão em 1366 e 375 px
+
+- Contém textos longos no Forms público, no extrato de Horas e na proposta por link. O Forms mantém as opções e seus rótulos na largura útil.
+- Preserva o foco após enviar resposta pública, aceitar proposta, retirar documento e revogar acesso. O navegador integrado conferiu oito rotas em 1366 × 768 e 375 × 812 com serviços sintéticos. [Evidências e limites](HOMOLOGACAO_PATRICIA.md#regressão-em-1366-e-375-px).
+
+## Formulários conectados em 375 px
+
+- Contém largura e espaçamento nos formulários, empilha as datas da Agenda no celular e mantém campos e identificador ao repetir uma gravação após falha.
+- Adiciona nova consulta em Agenda, Forms e Ocorrências. Confirmação de retirada de PDF exige ciência do efeito. Confirmação de acesso começa em Cancelar. [Validação](HOMOLOGACAO_PATRICIA.md#formulários-conectados-em-375-px).
+
+## Diálogos e formulários demonstrativos
+
+- Unifica as 12 superfícies da demonstração em diálogo nativo com nome acessível, foco contido, fechamento por Escape e retorno ao acionador.
+- Ajusta campos, altura e ações em telas estreitas. A prévia de aviso e a conversa de ocorrência foram conferidas no navegador. [Evidências](HOMOLOGACAO_PATRICIA.md#diálogos-e-formulários-demonstrativos).
+
+## Responsividade e hierarquia em 375 px
+
+- Corrige a barra superior Cliente, o menu compacto Admin e a quebra de linhas em Projetos, Equipe e Ocorrências na demonstração.
+- Aproxima Ficha e Acessos da primeira coluna, contém títulos longos nos catálogos, nas fichas e em Partner e retira avisos de preparação desatualizados. [Evidência no navegador](HOMOLOGACAO_PATRICIA.md#responsividade-e-hierarquia-em-375-px).
+
+## Revisão visual contra a main da V2
+
+- A lateral padrão dos workspaces conectados usa 56 px no desktop, ícones com nomes acessíveis e opção de expandir os rótulos. O menu recolhe no celular. Cabeçalhos, abas de Projetos e leitura de Relatórios foram alinhados à V2 de referência.
+- A revisão separou a `main` da V2 do domínio publicado. O domínio carregou um arquivo idêntico ao de `app.cali`, ausente na árvore da V2. [Matriz e evidências](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2).
+
+## Composição de Projetos e Relatórios na fase 6
+
+- Projetos reúne contexto e revisão no cabeçalho. A gestão Admin abre sob demanda e o Cliente continua com as ações da revisão pendente visíveis.
+- Relatórios Cliente ganhou abertura editorial e seção de resumo. Download e ciência da mesma revisão passaram no navegador com dados sintéticos. [Validação](HOMOLOGACAO_PATRICIA.md#composição-de-projetos-e-relatórios).
+
+## Navegação compartilhada e leitura publicada na fase 6
+
+- Admin, Cliente e Partner usam lateral no desktop, menu recolhido em telas estreitas e Inter local. Teclado, foco e seleção da empresa foram conferidos no CALI MAPA. Partner foi conferido com dados sintéticos locais.
+- Relatórios Cliente exibe o contexto ao lado da leitura em desktop e abaixo no celular. [Comparação e pendências](HOMOLOGACAO_PATRICIA.md#navegação-compartilhada-e-leitura-publicada).
+
+## Cruzamento dos pilotos e comparação visual da fase 6
+
+- O atalho “Ir ao conteúdo” agora leva o foco ao conteúdo principal no Admin e no Cliente. Confirmado no navegador integrado.
+- A revisão cruzou os 18 fluxos com as provas existentes, incluindo Partner, e comparou a V2 e a publicação 83 em desktop e celular. [Cobertura e diferenças](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-publicação-83).
+
+## Ocorrências e revisão dos módulos na fase 6
+
+- A lista de Ocorrências usa os mesmos rótulos de situação do formulário Admin, incluindo “Aguardando Cliente”.
+- CALI MAPA: consulta entre módulos com Admin e Clientes A/B, download da revisão 2 de um documento sintético, histórico privado e recusa de ocorrência e Auditoria fora do papel ou da empresa. [Evidências por fluxo](HOMOLOGACAO_PATRICIA.md#regressão-de-leitura-dos-módulos-operacionais).
+
+## Navegação e isolamento na fase 6
+
+- Links do Admin preservam a empresa piloto entre módulos e reiniciam o contexto do módulo anterior. A troca de empresa limpa o detalhe selecionado; o título e o foco acompanham o conteúdo carregado.
+- CALI MAPA: Admin validou mudança de empresa e retorno pelo navegador. Cliente A abriu o próprio projeto e Cliente B recebeu “Projeto indisponível” ao abrir o link direto de A. [Evidência e limites](HOMOLOGACAO_PATRICIA.md#fase-6--regressão-interna).
+
+## OTP, Documentos e revisão Partner
+
+- Login por código recebido, MFA, convite, aceite e corte da mesma sessão homologados no navegador integrado. Canal de teste, segredo e identidade descartável retirados. [Evidência](contracts/PARTNER_5.md#otp-por-e-mail-e-limpeza).
+- Download de Documento V2 pela revisão publicada e fila de revisão de entregável/encerramento instalados no CALI MAPA. Ponta Partner comprovada no staging; decisões Admin homologadas no navegador com duas aprovações, uma devolução e nenhuma comunicação externa. [Contrato](contracts/PARTNER_5.md#revisão-de-entregável-e-encerramento-de-ocorrência).
+
+## Resposta em ocorrência e PDF Partner
+
+- Partner responde ocorrência fictícia aberta da empresa atribuída, com autoria, recibo, transição para aguardar Cliente e aviso somente no aplicativo. Prova SQL com rollback e publicação/releitura no Chrome com fixture retirada. [Contrato e evidências](contracts/PARTNER_5.md#resposta-em-ocorrência).
+- Partner baixa o PDF da revisão vigente liberada no Workspace. Recusa de versão anterior, retirada e empresa B provadas no CALI MAPA com rollback. [Contrato e evidências](contracts/PARTNER_5.md#pdf-de-relatório-liberado).
+
+## Cronômetro e catálogos Partner
+
+- Instala no CALI MAPA o cronômetro privado com vínculo opcional e as projeções de Agenda, Documentos, Relatórios, Avisos e Equipe. Provas SQL com fixtures revertidas. A tela Partner passa a aceitar código nativo de conta de homologação; emissão e login completo por OTP permanecem pendentes. [Contrato e evidências](contracts/PARTNER_5.md).
+
+## Admissão e leitura Partner no CALI MAPA
+
+- Piloto isolado com convite, TOTP e termos vigentes. Empresa atribuída, leitura de Projetos e Ocorrências, horas próprias e fila manual com decisão Admin. [Contrato e evidências](contracts/PARTNER_5.md).
+
+## Fechamento de Relatórios e Administração no piloto
+
+- Trilha de aprovação, arquivo Cliente e PDF da revisão 5 homologados em A/B. Admin emitiu e revogou convite fictício da Equipe CALI. A prova de eliminação vinculou a reserva do plano à versão do arquivo. [Evidências](contracts/PHASE_4_READ.md#fechamento-de-relatórios-no-piloto).
+
+## Fechamento da 4C no piloto
+
+- Cinco anexos de 10 MiB homologados no CALI MAPA. A tentativa inválida ficou sem publicação parcial. A correção gravou uma mensagem, com download em A, isolamento de B e retirada auditada. [Evidências](contracts/PHASE_4_READ.md#fechamento-de-interações-no-piloto).
+
+## Fechamento da 4A no piloto
+
+- Marcos interativos, lista por frente, Kanban Admin e histórico direto. Admin e Cliente A conferiram o projeto; B recebeu projeto indisponível. [Evidências](contracts/PHASE_4_READ.md#fechamento-de-projetos-no-piloto).
+
+## Cronograma, leitura de relatórios e lotes de anexos
+
+- Cronograma cronológico instalado no CALI MAPA. Cliente e Admin ganharam visões dedicadas de relatórios. Cinco anexos de 10 MiB passaram em PostgreSQL descartável. Candidatas de anexos e admissão da Equipe CALI compiladas com rollback no staging. [Evidências e pendências](contracts/PHASE_4_READ.md#cronograma-relatórios-e-lote-completo-de-anexos).
+
+## Trava de versão para a remoção de arquivos
+
+- A API real do CALI MAPA recusou aprovação obsoleta, sobrescrita e recriação do caminho reservado. A exclusão da versão aprovada passou. Trava e bucket de teste removidos após a prova. [Evidências](contracts/PHASE_4_READ.md#trava-de-versão-para-a-remoção-no-storage).
+
+## Prova de remoção condicional no CALI MAPA
+
+- No S3 do staging, If-Match antigo não protegeu o substituto e VersionId retornou NotSupported. Os buckets descartáveis foram removidos e conferidos no catálogo. [Evidências](contracts/PHASE_4_READ.md#prova-da-remoção-condicional-no-cali-mapa).
+
+## Conferência dos alvos de eliminação
+
+- A candidata confere fechamento, elegibilidade, identidade e versão de objetos. Inventário agregado de destinos externos atualizado no CALI MAPA. [Evidências e pendências](contracts/PHASE_4_READ.md#conferência-dos-destinos-e-do-alvo).
+
+## Matriz de destinação na eliminação
+
+- A prova de retomada exige classificação completa e conferência individual dos destinos externos. O ensaio fictício desidentificou e bloqueou o Cliente, reduziu dados livres e preservou a cobrança. [Matriz e evidências](contracts/PHASE_4_READ.md#matriz-de-destinação-para-a-eliminação).
+
+## Cobertura adicional da prévia de eliminação
+
+- A prévia destaca caminhos fora da lista legada, vínculos externos e dados DISC por empresa, sem expor nomes ou links. Contagens conferidas no CALI MAPA com fixtures revertidas. [Contrato e rollback](contracts/PHASE_4_READ.md#cobertura-adicional-da-prévia-de-eliminação).
+
+## Ensaio de retomada da eliminação
+
+- O PostgreSQL descartável retomou após perda do recibo de arquivo e falha no commit do banco, sem repetir a etapa confirmada nem atingir a empresa de controle. CALI MAPA repetiu a lógica com dados fictícios e rollback. [Provas e limites](contracts/PHASE_4_READ.md#retomada-sintética-da-eliminação-após-falha-parcial).
+
+## Ensaio de convite e corte da Equipe CALI
+
+- Convite, aceite e revogação de vínculo fictício testados no PostgreSQL descartável. CALI MAPA confirmou aceite e corte do destinatário com a mesma sessão; transação revertida, sem e-mail e sem perfil Partner. [Provas e limites](contracts/PHASE_4_READ.md#convite-admissão-e-corte-sintéticos-da-equipe-cali).
+
+## Office e lotes de anexos em ocorrências
+
+- DOCX, XLSX e PPTX homologados na mesma mensagem. CALI MAPA aceitou cinco arquivos e um arquivo de 10 MiB. O limite de 10 MiB é por mensagem. Os nove arquivos fictícios foram retirados com o histórico preservado. [Evidências, compatibilidade e rollback](contracts/PHASE_4_READ.md#office-e-múltiplos-anexos-em-ocorrências).
+
+## Imagens em ocorrências
+
+- Conversas aceitam PNG, JPEG e WebP junto do PDF, com conferência do formato e download privado. Admin enviou, baixou e retirou três imagens fictícias no CALI MAPA; bytes e auditoria conferidos. [Contrato e rollback](contracts/PHASE_4_READ.md#imagens-em-conversas-de-ocorrências).
+
+## Confirmação mensal no resumo Admin
+
+- Primeira confirmação pelo Cliente gera aviso Admin no app e entra no resumo, sem e-mail. Suíte local validou confirmação e reenvio; CALI MAPA confirmou produtor, exclusões e prévia com eventos revertidos. [Evidência e rollback](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+- Conferência em leitura confirmou que a eliminação legada não cobre as estruturas privadas V2. [Dependências da execução](contracts/PHASE_4_READ.md#conferência-de-dependências-da-eliminação).
+
+## Escopo priorizado e preço manual de Propostas
+
+- Admin ajusta escopo e valor final no rascunho delegado. A prova no CALI MAPA confirmou teto do pacote, persistência após recarga e retorno ao cálculo integral. Proposta fictícia sem envio e delegação encerrada. [Contrato e rollback](contracts/PHASE_4_READ.md#escopo-priorizado-e-preço-manual).
+
+## Documentos e solicitações no resumo Admin
+
+- O resumo inclui avisos de documento e nova solicitação do Cliente, com atalhos por empresa. PostgreSQL descartável e CALI MAPA confirmaram corte, exclusões e deduplicação. Os avisos sintéticos foram revertidos, sem despacho. [Evidência e rollback](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+
+## Escala e bloco de texto no Forms
+
+- Homologação no CALI MAPA: Admin configurou a escala, o navegador gravou nota zero e o Excel trouxe apenas a coluna da escala. O bloco apareceu sem campo de resposta. Coleta sintética encerrada sem envio de e-mail. [Evidência e rollback](contracts/PHASE_4_READ.md#escala-e-bloco-de-texto-no-forms-v2).
+
+## Nome, e-mail e telefone no Forms
+
+- Nome, e-mail normalizado e telefone conferidos no banco e no Excel baixado pelo Admin no CALI MAPA. Coleta sintética encerrada, sem envio de e-mail. [Contrato e evidência](contracts/PHASE_4_READ.md#campos-de-contato-no-forms-v2).
+
+## Aceite do simulador para a devolutiva do Mapa
+
+- Admin confirmou o envio de um PDF sintético pelo navegador. O CALI MAPA registrou um recibo e um evento de auditoria. A Edge temporária, a flag, as RPCs e a fixture foram retiradas após a prova. [Evidência](contracts/PHASE_4_READ.md#devolutiva-sintética-do-mapa).
+
+## Devolutiva sintética do Mapa
+
+- A confirmação Admin prepara a revisão conferida, gera o mesmo PDF do download e restringe o destino ao simulador. A suíte PostgreSQL e o teste de transporte local validaram escopo, revisão e repetição após falha. A instalação e a prova externa estão pendentes. [Contrato e rollback](contracts/PHASE_4_READ.md#devolutiva-sintética-do-mapa).
+
+## Inventário de arquivos V2 para eliminação
+
+- A prévia Admin inclui sete grupos adicionais de arquivos V2. O PostgreSQL descartável validou isolamento e tratamento de capas compartilhadas. Admin conferiu os grupos no CALI MAPA com uma empresa descartável. [Escopo e rollback](contracts/PHASE_4_READ.md#inventário-ampliado-de-arquivos-para-eliminação).
+
+## Diagnóstico do Mapa e exportação de Privacidade
+
+- O Admin baixou o PDF de um diagnóstico sintético do Mapa em A. B ficou isolada. Em Privacidade, o Admin conferiu o JSON e a prévia de eliminação de uma empresa descartável. As fixtures temporárias foram removidas. [Mapa](contracts/PHASE_4_READ.md#jornada-e-relatório-detalhado-do-mapa) · [Privacidade](contracts/PHASE_4_READ.md#exportação-estruturada-e-prévia-de-eliminação).
+
+## Coleta condicional com PDF
+
+- Homologou dois caminhos no navegador do CALI MAPA, conferiu o download Admin byte a byte e encerrou a coleta sintética. A interface passou a aguardar a resposta à pergunta condicional obrigatória antes de mostrar o anexo. [Evidência e reversão](contracts/PHASE_4_READ.md#caminhos-condicionais-e-pdf-de-resposta-em-forms).
+
+## Envio sintético do resumo Admin
+
+- O worker temporário do CALI MAPA registrou um único recibo para o resumo fictício enviado ao simulador do Resend. Worker, chave e fila foram removidos. [Evidência do teste](contracts/PHASE_4_READ.md#envio-sintético-do-resumo-admin-pelo-resend).
+
+## Forms condicional, Equipe CALI, Mapa e exportação
+
+- Forms ganhou saltos por opção e anexo PDF. A prova do CALI MAPA foi revertida. A Equipe passou de inativa para ativa e voltou a inativa no navegador. A jornada do Mapa foi homologada em A/B. O PDF detalhado foi renderizado localmente. A exportação estruturada e a prévia de eliminação foram instaladas. [Contrato da fase 4](contracts/PHASE_4_READ.md#caminhos-condicionais-e-pdf-de-resposta-em-forms).
+
+## Abertura de Forms compatíveis
+
+- A V2 só oferece abertura para coletas que seu leitor consegue exibir. Admin conferiu no staging o formulário apto e o legado sem opção de abrir. Todas as coletas de teste permaneceram fechadas. [Evidência e reversão](contracts/PHASE_4_READ.md#compatibilidade-da-abertura-de-forms).
+
+## Portfólio comercial, Equipe CALI, Forms, Mapa e resumo Admin
+
+- Admin criou, editou e retirou um vínculo de equipe inativo no staging. B ficou isolada. Forms aceitou número, data e alternativas em ensaios transacionais revertidos. A calculadora conferiu 15 combinações com o Portal; Admin salvou uma proposta sintética de R$ 1.995 no navegador. O resumo do Mapa ganhou consulta de notas com guarda de empresa e operador. A fila de e-mail do Admin passou por reserva, repetição e recibo fictício no CALI MAPA. [Contratos e evidências](contracts/PHASE_4_READ.md#rascunhos-administrativos-da-equipe-cali).
+
+## Fila do resumo e triagem do Mapa
+
+- O ensaio da fila no CALI MAPA comprovou seleção do Admin do piloto, corte às 19h, reexecução sem duplicar e rollback. Cron e envio desligados. [Contrato](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+- Mapa de People ganhou listagem e triagem por empresa e operador. O staging confirmou a rota Admin em A/B. A escrita passou na cópia descartável. Nenhuma resposta foi inserida no staging por causa do gatilho legado de notificação. [Contrato e rollback](contracts/PHASE_4_READ.md#triagem-do-mapa-de-people).
+
+## Exportação Excel de Forms
+
+- Admin baixou o XLSX da coleta de texto encerrada de A no CALI MAPA. Arquivo e auditoria conferidos. B ficou sem a coleta, que seguiu encerrada e sem e-mail. [Contrato e rollback](contracts/PHASE_4_READ.md#exportação-excel-de-forms).
+
+## Relatórios liberados na prévia do resumo Admin
+
+- O CALI MAPA inclui relatórios V2 vigentes no instante de corte no bloco “A CALI fez”. O teste consultou a revisão sintética 4 antes e depois da retirada. Cron legado desligado. [Contrato e reversão](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+
+## Coleta de texto por link em Forms
+
+- No CALI MAPA, uma resposta fictícia entrou pelo link público da Empresa A. Admin encerrou a coleta, o link passou a mostrar o estado fechado e o banco confirmou um recibo e zero e-mails. A primeira abertura havia falhado pela ausência das RPCs no catálogo, conferidas após a instalação. [Contrato e evidências](contracts/PHASE_4_READ.md#coleta-pública-de-texto-na-v2).
+
+## Ensaio de cópia de arquivos de entregáveis
+
+- A cópia de três cargas sintéticas passou no CALI MAPA em transação revertida. No PostgreSQL descartável, A leu somente o PDF publicado e B ficou sem acesso. Os dois arquivados ficaram privados, com hash, autoria e cadeia de revisão preservados. O acervo inventariado e o corte dos leitores legados ficam para o rollout. [Contrato e evidências](contracts/PHASE_4_READ.md#acervo-legado-de-entregáveis).
+
+## Prazo, capas e contagens do relatório
+
+- O staging sinaliza revisão de projeto vencida e mantém a opção de pedir ajuste. Avisos dirigidos podem receber capa privada. Relatórios congelam na aprovação as contagens visíveis ao Cliente e as exibem na mesma revisão da tela e do PDF. [Evidências](contracts/PHASE_4_READ.md#prazo-de-revisão-vencido-no-cali-mapa).
+
+## Realização e comprovantes de visita extra
+
+- Admin registra a visita realizada, lança a despesa e anexa e baixa o comprovante em PDF. A confirmação de visita ignora eventos cancelados e mantém o bloqueio de horários com evento ativo. [Homologação e rollback](contracts/PHASE_4_READ.md#conclusão-da-visita-extra-e-comprovantes-no-cali-mapa).
+
+## Pedidos adicionais, orçamento e despesas
+
+- Cliente abre visita ou encontro online adicional. Admin edita orçamento pendente e registra despesa em visita já realizada. O piloto também comprovou a recusa e o registro da taxa após cancelamento. Google Calendar/Meet fica para revisão pré-rollout. [Escopo e validação](contracts/PHASE_4_READ.md#abertura-de-extras-revisão-de-orçamento-e-despesas).
+
+## Materiais da ata, convidados locais e encontros adicionais
+
+- Admin publicou e retirou link e PDF de uma ata e adicionou e retirou um convidado externo em reunião local. Cliente A consultou o link, baixou o PDF e viu o convidado sem o e-mail.
+- As visitas sintéticas cobriram oferta, confirmação pelo Cliente e pela CALI, contraproposta, reagendamento, cancelamento e isenção. O encontro online passou por oferta, aceite e confirmação. Os pedidos mantiveram o preço e foram encerrados sem e-mail ou vínculo Google. [Prova e reversão](contracts/PHASE_4_READ.md#materiais-da-ata-convidados-locais-e-encontros-adicionais).
+
+## Ata em texto e aceite de orçamento online
+
+- Admin salvou a ata de reunião realizada e Cliente A consultou o texto no staging. Cliente A aceitou o orçamento sintético de R$ 250,00. O teste preservou valor, aceite e auditoria, sem disparo de e-mail. [Prova e reversão](contracts/PHASE_4_READ.md#ata-em-texto-e-aceite-de-orçamento-online).
+
+## Resultado, reposição e capacidade no staging
+
+- Admin registrou realização e não realização em duas reuniões sintéticas. Cliente A confirmou a reposição de uma hora sem acesso à justificativa interna. A falta de cobertura passou a receber mensagem de validação. A reposição sintética foi encerrada sem sincronização externa ou e-mail.
+- Admin pausou e retomou as atividades de novembro por capacidade excedida. As franquias originais de horas e de reuniões foram restauradas. [Prova e reversão](contracts/PHASE_4_READ.md#resultado-reposição-e-capacidade-no-staging).
+
+## Aceite por link e contenção do resumo de teste
+
+- A proposta sintética 03 foi enviada ao simulador do Resend e aceita pelo link local. O banco confirmou PDF, recibo e auditoria. A função temporária foi removida e o link foi revogado. [Prova no staging](contracts/PHASE_4_READ.md#calculadora-cali-build-e-e-mail-sintético).
+- O job legado do resumo diário foi pausado no CALI MAPA após incluir atividades sintéticas em um e-mail recebido às 19h. [Evidência e reversão](contracts/PHASE_4_READ.md#contenção-do-resumo-legado-no-staging).
+- O preflight de Horas e Agenda confirmou que falta instalar a pausa por capacidade e preparar uma reunião sintética passada para homologar resultado e reposição. [Próximo recorte](contracts/PHASE_4_READ.md#reposição-de-reunião-ordinária).
+
+## Calculadora CALI Build e e-mail de Propostas
+
+- A proposta sintética 03 foi calculada e aprovada no staging por R$ 1.395,00 mensais em quatro meses. O PDF, o reenvio e o aceite por link foram validados localmente. A prova hospedada de e-mail aguarda a Edge. [Contrato e reversão](contracts/PHASE_4_READ.md#calculadora-cali-build-e-e-mail-sintético).
+- Admin abriu as seis contagens de fontes de um rascunho sintético no staging. O leitor passou a expor os valores já gravados no retrato do relatório, sem alterar o relatório ou o PDF. [Prova e reversão](contracts/PHASE_4_READ.md#contagens-das-fontes-no-staging).
+
+## Moderação de comentários no staging
+
+- Admin ocultou e restaurou um comentário sintético com motivo. O Cliente A observou as duas mudanças e o aviso voltou ao arquivo. [Prova e reversão](contracts/PHASE_4_READ.md#moderação-de-comentários-no-staging).
+
+## Proposta sintética da criação ao aceite
+
+- O Admin criou, editou, aprovou e enviou a versão 1 no Workspace de staging. Cliente A aceitou pelo navegador. O banco confirmou valor, versão, cinco eventos de auditoria e retirada das permissões temporárias. [Contrato e prova](contracts/PHASE_4_READ.md#criação-envio-no-workspace-e-aceite-no-staging).
+- A consulta de Equipe CALI mostrou a atribuição sintética inativa em A e lista vazia em B. A interface agora distingue registro de convite de entrega comprovada. [Prova](contracts/PHASE_4_READ.md#equipe-cali-por-empresa).
+
+## Edição e aprovação interna de Propostas no staging
+
+- A delegação da V2 limitou o teste à conta Admin do Felipe, à Empresa A e à versão 1 de um rascunho sintético. O navegador confirmou edição, aprovação e corte de acesso. O banco preservou valor e versão e registrou as duas ações, sem envio. [Contrato e evidência](contracts/PHASE_4_READ.md#delegação-temporária-de-propostas-no-staging).
+
+## DEC-28 revisada para o staging
+
+- Felipe confirmou o CALI MAPA como staging de testes. Backup, exportação do Storage e restauração deixam de bloquear lotes autorizados nesse ambiente. Mantidos preflight, rollback por lote e homologação sintética. Recuperação fica no preparo de produção separada. [Decisão](DECISIONS.md#dec-28--recuperação-comprovada-e-separação-stagingprodução).
+
+- Propostas recebeu quatro RPCs no staging, com escopo vazio, grants conferidos e edição sujeita à RLS do Portal. O rollback específico passou em banco descartável. Homologação autenticada pendente. [Contrato](contracts/PHASE_4_READ.md#rascunho-e-aprovação-interna-de-propostas).
+
+## Reposição, consulta de Equipe CALI e ensaio de recuperação
+
+- Admin oferece reposição contratual e Cliente confirma. O banco recusa sessão já reservada e mantém a reunião anterior no histórico. Equipe CALI ganhou consulta paginada por empresa. Os dois fluxos passaram no PostgreSQL descartável e aguardam homologação hospedada. [Reposição](contracts/PHASE_4_READ.md#reposição-de-reunião-ordinária) · [Equipe CALI](contracts/PHASE_4_READ.md#equipe-cali-por-empresa).
+- Inventário hospedado encontrou três arquivos legados fora de A/B e confirmou que as RPCs V2 de Propostas ainda precisam ser instaladas. [Acervo e preflight](contracts/PHASE_4_READ.md#acervo-legado-de-entregáveis).
+- O ensaio DEC-28 restaurou fixtures em segundo cluster e conferiu dados, grants, função e arquivo por SHA-256. A prova cobriu apenas fixtures. [Recuperação](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+
+## Complementos locais da fase 4
+
+- Projetos indica revisão vencida e mantém a resposta aberta. Horas registra pausa por capacidade e retomada no mês. Agenda registra não realização e encaminha reposição conforme a regra legada. Avisos permite ocultar e restaurar comentários com auditoria. Relatórios mostra contagens das fontes para Admin. Frentes indica modalidades com vaga em uso. [Contratos, testes e pendências](contracts/PHASE_4_READ.md#complementos-locais-da-fase-4).
+
+## Realização de reunião ordinária
+
+- Admin registra a realização de uma reunião contratual confirmada após o horário de fim. A guarda recusa alterações pendentes, reuniões futuras ou canceladas, Cliente e empresa divergente. O PostgreSQL descartável confirmou registro único e situação Realizado para o Cliente. [Contrato, limites e reversão](contracts/PHASE_4_READ.md#registro-de-realização-de-reunião-ordinária).
+
+## Timer de subtarefa e horas de ocorrências
+
+- Admin concluiu o timer de uma subtarefa interna no CALI MAPA. Dois trechos privados somaram três minutos e mantiveram o vínculo. No mesmo piloto, Admin iniciou o timer no detalhe de uma ocorrência e concluiu em Horas, com quatro minutos vinculados e privados. O PostgreSQL descartável confirmou as guardas e a reversão. [Prova da subtarefa](contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa) · [Prova e reversão da ocorrência](contracts/PHASE_4_READ.md#horas-vinculadas-a-ocorrência).
+
+## Preparação da homologação e do build
+
+- O roteiro interno consolida percursos e provas disponíveis para Projetos, Horas, Agenda, Ocorrências, Avisos, Relatórios e Administração. As telas demonstrativas carregam sob demanda. O preview local serviu URLs diretas e ativos, e o navegador abriu as duas demonstrações. [Roteiro](HOMOLOGACAO_PATRICIA.md#roteiro-de-regressão-interna-da-fase-4) · [Build](RUNBOOK.md#prova-local-do-build-e-das-urls).
+
+## Horas vinculadas a entregável e subtarefa
+
+- Admin abre Horas pelo item de Projetos. O banco valida o vínculo e o preserva em lançamento manual, timer e retomada. CALI MAPA confirmou o lançamento manual de dois minutos no entregável de teste A. [Prova](contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa).
+
+## Marcos de capacidade no extrato de Horas
+
+- Horas mostra marcos e pausa registrados no mês. Admin vê também tolerância e revisão. O CALI MAPA confirmou estado vazio em A/B e mês fechado para Cliente. [Prova](contracts/PHASE_4_READ.md#marcos-de-capacidade-em-horas).
+
+## Republicação da revisão 3 do relatório executivo
+
+- Admin republicou o relatório sintético com curadoria no CALI MAPA. A baixou o PDF da revisão 3 e B ficou isolado. A ciência da revisão 2 foi preservada e a revisão 3 seguiu sem nova ciência. O teste terminou com a liberação retirada e o gerador desligado. [Prova](contracts/PHASE_4_READ.md#republicação-com-curadoria-no-cali-mapa).
+
+## 07/11/2026 — Indicadores congelados do relatório executivo
+
+- Tela e gerador usam a mesma projeção de horas, entregáveis e avaliação agregada. Admin conferiu os indicadores da revisão 3 no CALI MAPA. Média fica fora da resposta com menos de duas avaliações. [Prova e reversão](contracts/PHASE_4_READ.md#indicadores-congelados-do-relatório-executivo).
+
+## 07/11/2026 — Participantes e encontros adicionais na Agenda
+
+- Agenda consulta participantes com a visibilidade do evento e mostra os valores e aceites já registrados dos extras. Decisões de encontros ordinários recusam extras online. [Contrato e prova](contracts/PHASE_4_READ.md#participantes-e-encontros-adicionais-no-cali-mapa).
+
+## 07/11/2026 — Gestão de Frentes contratadas
+
+- Admin ativou e encerrou uma frente sintética em B. O plano Build Essencial recusou a segunda frente. B viu a ativação e o corte, e A ficou isolada. [Contrato e prova](contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa).
+
+## 07/11/2026 — Frentes contratadas e Ajuda
+
+- A consulta de Frentes mostra o título de catálogo, o escopo contratado, a modalidade e a vigência. No piloto, o Cliente B abriu o formulário da Agenda a partir de Frentes. [Contrato e prova](contracts/PHASE_4_READ.md#frentes-contratadas-e-ajuda-no-cali-mapa).
+
+## 07/11/2026 — Curadoria dos relatórios executivos
+
+- Admin editou movimentos, decisões, riscos e próximos passos e aprovou a revisão 3 do relatório sintético. O CALI MAPA confirmou o conteúdo congelado, o histórico preservado e a revisão interna oculta para A e B. [Prova e reversão](contracts/PHASE_4_READ.md#curadoria-de-relatórios-no-cali-mapa).
+
+## 07/11/2026 — Prévia do resumo diário Admin
+
+- Auditoria mostra totais, horas e blocos por empresa no dia de Brasília. Validada com Admin no CALI MAPA, sem cron e sem e-mail. Cliente não abre a Auditoria. [Prova e reversão](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa).
+
+## 07/11/2026 — Comentários e reações de avisos
+
+- A comentou, reagiu e recebeu resposta do Admin. B ficou isolado e o aviso foi arquivado após o teste, sem e-mail. [Prova e reversão](contracts/PHASE_4_READ.md#interações-de-avisos-no-cali-mapa).
+
+## 07/11/2026 — Anexos PDF de ocorrências
+
+- Mensagem e PDF gravados juntos. A baixou o arquivo público, a nota interna ficou restrita e B não abriu a ocorrência. Retirada preservou a mensagem e recusou o download antigo. [Prova e reversão](contracts/PHASE_4_READ.md#anexos-pdf-de-ocorrências-no-cali-mapa).
+
+## 07/11/2026 — Correção auditada de horas
+
+- Admin corrige ou exclui lançamento com justificativa, versão e histórico. Edição de 15 para 16 minutos homologada no CALI MAPA; exclusão e recusas passaram no PostgreSQL descartável. [Contrato](contracts/PHASE_4_READ.md#correção-auditada-de-horas).
+
+## 07/11/2026 — Consulta do ciclo de dados
+
+- Admin com MFA consulta situação, corte, datas e intervalo técnico de encerramento. A/B conferidos no CALI MAPA; nenhuma exportação ou eliminação. [Contrato e reversão](contracts/PHASE_4_READ.md#consulta-do-ciclo-de-dados-no-cali-mapa).
+
+## 07/11/2026 — Confirmação de abertura pública em Forms
+
+- Abertura por link exige confirmação explícita, MFA e formulário sem confirmação por e-mail. A operação anterior só encerra. Guarda instalada no CALI MAPA, com zero coletas abertas no piloto. [Contrato](contracts/PHASE_4_READ.md#confirmação-de-coleta-pública-em-forms).
+
+## 07/11/2026 — PDF executivo homologado no CALI MAPA
+
+- PDF da versão 2 gerado e liberado para A; os downloads Admin e Cliente coincidiram com o hash do banco. A registrou ciência, B ficou isolado e o download antigo foi recusado após retirada. Edge temporária removida; nenhuma liberação ficou ativa. Tela passa a mostrar ciência persistida. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-pdf-executivo-no-cali-mapa).
+
+## 07/11/2026 — Pedido de privacidade homologado
+
+- Cliente A registrou pedido de acesso, Admin respondeu e B ficou isolado. Banco confirmou dois eventos de auditoria e zero notificações. Forms continua em rascunho: a audiência Cliente ainda pode ser lida pelo slug público quando aberta. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-pedido-de-privacidade-no-cali-mapa).
+
+## 07/11/2026 — Aprovação interna de relatório homologada
+
+- Admin aprovou duas versões do mesmo relatório de outubro. Histórico preservado, relatório oculto ao Cliente e nenhum e-mail marcado. Corrigida duplicação do formulário na troca de empresa. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-aprovação-interna-de-relatório-no-cali-mapa).
+
+## 07/11/2026 — Biblioteca de PDFs homologada
+
+- Duas revisões privadas, publicação dirigida, download, ciência por revisão e retirada confirmados no piloto A/B. O servidor recusou baixar a revisão substituída. [Evidência](contracts/PHASE_4_READ.md#lote-da-biblioteca-de-pdfs-no-cali-mapa).
+
+## 07/11/2026 — Ocorrências, avisos e satisfação no piloto
+
+- Admin e Cliente A homologaram ocorrência, resposta, avaliação, reabertura e aviso dirigido com ciência. B ficou isolado; nota interna protegida. Acompanhamento Admin persistiu sem alterar a nota. Zero e-mails marcados no piloto. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-ocorrências-avisos-e-satisfação-no-cali-mapa).
+
+## 07/11/2026 — Agenda ordinária homologada
+
+- Cliente solicitou e confirmou horário, Admin decidiu remarcação e cancelamento do mesmo evento no CALI MAPA. B permaneceu isolado, a franquia sintética foi restaurada e não houve cobrança nem e-mail do piloto. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-agenda-ordinária-no-cali-mapa).
+
+## 07/11/2026 — Lançamento e timer de Horas
+
+- V2 mantém a contabilização do trecho ao pausar e retoma em novo timer no mesmo contexto. CALI MAPA confirmou 15 minutos manuais, dois trechos de 1 minuto e zero timers abertos. Cliente viu o lançamento sem a nota interna; visibilidade temporária restaurada. [Prova e reversão](contracts/PHASE_4_READ.md#lote-de-lançamento-e-timer-no-cali-mapa).
+
+## 07/11/2026 — Colaboração e execução de entregáveis
+
+- Homologados subtarefa com ajuste e aprovação parcial, conversa com nota interna isolada, dependência recebida, revisão de prazo e histórico de execução. Corrigida leitura do forecast na função de ciclo; pausa e retomada por entregável verificadas no CALI MAPA. [Prova e reversão](contracts/PHASE_4_READ.md#colaboração-histórico-e-execução-de-item).
+
+## 07/11/2026 — Planejamento e revisão de PDF homologados
+
+- Admin edita planejamento com preimagem e histórico. Cliente solicita ajuste por frente ou entregável, com troca limitada a complexidade equivalente. Prova SQL descartável e testes de formulário cobrem conflito, vínculo e horário. No CALI MAPA, Admin e Cliente A percorreram o cronograma, ajuste por data, aprovação, PDF, reabertura e nova aprovação; B não abriu o projeto. O lote preservou o histórico e registrou zero avisos com e-mail. Corrigida perda de frente no seletor assíncrono. [Contrato, estado e limites](contracts/PHASE_4_READ.md#lote-de-projetos-e-entregáveis-no-cali-mapa).
+
+## 06/11/2026 — Homologação da Auditoria no CALI MAPA
+
+- Consulta instalada. Admin viu os cinco eventos de Forms em A e a lista vazia em B. Cliente A foi redirecionado ao tentar abrir a Auditoria. [Evidência e reversão](contracts/PHASE_4_READ.md#lote-de-auditoria-de-formulários).
+
+## 06/11/2026 — Eventos de Forms na Auditoria
+
+- Auditoria Admin inclui rascunho, abertura, encerramento e triagem de Forms. A consulta obtém o protocolo executivo pelo evento da mesma revisão e pode ser homologada separadamente. [Contrato e prova](contracts/PHASE_4_READ.md#lote-de-auditoria-de-formulários).
+
+## 06/11/2026 — Homologação das consultas da Fase 4
+
+- Quatro consultas instaladas no CALI MAPA. Admin e Cliente A abriram projeto sintético. Cliente B recebeu projeto indisponível. Horas exibiu capacidade em mês liberado e respeitou mês oculto. Catálogos abriram nas duas empresas e os registros temporários foram removidos. [Evidência e reversão](contracts/PHASE_4_READ.md#lote-de-leitura-para-homologação-ab).
+
+## 06/11/2026 — Capacidade e saldo de horas
+
+- Horas mostra franquia, consumo operacional, saldo e excedente conforme o cálculo de capacidade do banco. O extrato continua filtrado pelo perfil. Isolamento, mês oculto e ausência de franquia validados em PostgreSQL descartável. [Contrato e homologação](contracts/PHASE_4_READ.md#capacidade-e-saldo-de-horas-no-piloto).
+
+## 06/11/2026 — Homologação da triagem de Forms
+
+- Admin alterou etapa e responsável de uma resposta sintética no CALI MAPA. A recarga confirmou os valores e B ficou sem formulários. O banco confirmou conteúdo preservado e um evento de auditoria. [Evidência](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).
+
+## 06/11/2026 — Homologação do rascunho de Forms
+
+- Lote SQL aplicado no CALI MAPA em uma transação. Admin criou o rascunho sintético em A, salvou duas perguntas, editou uma e confirmou persistência após recarga. B ficou sem formulários. Banco confirmou coleta fechada, zero respostas e trilha de edição. [Evidência e reversão](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).
+
+## 06/11/2026 — Preparação da homologação de Forms
+
+- Guarda compartilhada separada das operações de projeto. Lote Forms com ordem, escopo A/B e rollback próprio documentados. O CALI MAPA foi consultado em leitura, incluindo corpos e permissões das RPCs de Mapa de People. [Lote Forms](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa) · [Mapa](flows/FORMS_PEOPLE_PROFILE.md#mapa-de-people-no-catálogo-hospedado-em-06112026).
+
+## 06/11/2026 — Triagem de Forms
+
+- Admin consulta metadados da resposta e atualiza etapa e responsável. Validação isolada cobre MFA, isolamento, repetição e conflito. [Contrato](contracts/PHASE_4_READ.md#triagem-de-respostas-de-forms).
+
+## 06/11/2026 — Rascunhos de Forms
+
+- Admin cria rascunho e edita perguntas de texto da empresa piloto. Banco descartável confirma MFA, isolamento, concorrência e preservação da lógica legada. [Contrato](contracts/PHASE_4_READ.md#rascunhos-de-forms).
+
+## 06/11/2026 — Condições e aprovação interna de propostas
+
+- Admin com permissão do Portal pode editar condições de rascunho e aprovar a versão salva no piloto. A operação preserva valor e registra auditoria. [Contrato](contracts/PHASE_4_READ.md#rascunho-e-aprovação-interna-de-propostas)
+
+## 06/11/2026 — Acompanhamento de avaliações baixas
+
+- Admin acompanha avaliações de ocorrência, entrega e revisão corrigida. Tema e anotação ficam separados do feedback original, com guarda contra sobrescrita e auditoria sem nota interna. [Contrato](contracts/PHASE_4_READ.md#acompanhamento-admin-de-satisfação).
+
+## 06/11/2026 — Leitura de propostas e auditoria
+
+- Admin consulta propostas inscritas por empresa, com valores e versões preservados, e eventos selecionados de auditoria por mês de Brasília. Banco descartável valida escopo, MFA e minimização de dados. [Contrato](contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin).
+
+## 06/11/2026 — Avaliação e reabertura de ocorrências
+
+- Cliente avalia a ocorrência finalizada e pede reabertura. CALI decide com motivo de recusa obrigatório. Validação descartável cobre isolamento, MFA, reexecução e menções de chat sem e-mail. [Contrato](contracts/PHASE_4_READ.md#avaliação-e-reabertura-de-ocorrências).
+
+## 06/11/2026 — Alterações da agenda ordinária
+
+- Cliente pede remarcação ou cancelamento; Admin decide com motivo. A reunião só muda após aprovação, com nova conferência de conflito e sem duplicar evento. Prova local cobre isolamento, MFA e reexecução. [Contrato](contracts/PHASE_4_READ.md#remarcação-e-cancelamento-de-reunião-ordinária).
+
+## 06/11/2026 — PDF e publicação de relatório executivo
+
+- O piloto gera o PDF da revisão aprovada, publica no Workspace e registra ciência. Reabertura retira o acesso Cliente e preserva o histórico. Nova ciência em correção depende de pedido Admin. Provas locais cobrem Inter, três revisões e isolamento. [Contrato e pendências](contracts/PHASE_4_READ.md#pdf-executivo-publicação-e-ciência-por-revisão).
+
+## 06/11/2026 — Revisões internas de relatório
+
+- Aprovação registra o retrato do relatório por versão. Reabertura interna exige motivo, preserva a versão anterior e volta o mesmo relatório a rascunho. Escopo Admin e isolamento validados em banco descartável. [Contrato](contracts/PHASE_4_READ.md#revisões-de-aprovação-interna-do-relatório).
+
+## 06/11/2026 — PDF privado de entregável
+
+- O envio para revisão publica o PDF vinculado. Ajuste ou reabertura retira a revisão anterior, preserva o histórico e exige outro PDF para reenviar. Prova descartável cobre versão obsoleta, isolamento A/B, retirada e nova aprovação. Itens com arquivo ou link legado ficam fora deste fluxo. [Contrato](contracts/PHASE_4_READ.md#pdf-privado-de-entregável).
+
+## 06/11/2026 — PDFs privados por revisão
+
+- Biblioteca do piloto em Documentos com upload privado de PDF, histórico, publicação, retirada, download com nova autorização e ciência por revisão.
+- Testes descartáveis comprovam escopo de empresa, revogação, publicação e retirada. A rodada HTTP passou em 13 verificações com JWTs sintéticos e cabeçalho sem cache. O gate do repositório passou com 258 testes. A rota Cliente foi testada com serviço simulado. O roteiro da aplicação e a reversão preservam os dados. [Contrato](contracts/PHASE_4_READ.md#pdfs-privados-por-revisão)
+
+## 05/11/2026 — Execução, agenda, mural, relatórios e Forms
+
+- Operações piloto para execução do projeto, correção e nova aprovação de entregável sem arquivo. Solicitação e confirmação de agenda contratual comum, com situação externa lida do evento.
+- Publicação dirigida de aviso com ciência e retirada, retrato de fontes e aprovação interna de relatório mensal, abertura e encerramento de formulários existentes. Provas descartáveis cobrem isolamento, reexecução, revisão antiga e estado de sincronização. A conferência de índices do CALI MAPA confirmou uma avaliação legada por Cliente e entregável e um timer aberto por Admin e empresa. A correção guarda avaliação própria e a pausa impede iniciar outro timer. [Escopo e pendências](contracts/PHASE_4_READ.md#segundo-incremento-de-operações).
+
+## 05/11/2026 — Operações iniciais da fase 4
+
+- Rascunho, composição e revisão de cronograma. Horas manuais e timer Admin. Ocorrências com nota interna e conversa sem e-mail. Prontidão de relatório, ciência inicial e pedidos de privacidade.
+- PostgreSQL descartável validou guardas, reexecução, separação por empresa e titular, revisão obsoleta, conversas e menções. O lote permanece como proposta SQL para homologação. [Operações e pendências](contracts/PHASE_4_READ.md#primeiro-incremento-de-operações).
+
+## 05/11/2026 — Consultas da fase 4
+
+- Inventário em leitura do CALI MAPA confirmou prazo padrão de 72 horas corridas, RPC de ajuste v39 e divergências de comunicação e reabertura.
+- Projeções para projetos/entregáveis, horas/agenda, ocorrências/documentos/avisos, relatórios e frentes contratadas. Rotas Admin e Cliente protegidas pelo piloto; composição de homologação, sem paridade visual declarada.
+- PostgreSQL descartável validou isolamento A/B, MFA, aceite, sessão revogada, campos privados, filtros e rollback. `npm run verify` passou: 257 testes em 39 arquivos, 37 documentos e 827 links locais, SPA e bundles. Sem alteração hospedada, deploy, envio ou execução da bateria suspensa. [Contrato e pendências](contracts/PHASE_4_READ.md).
+
+## 05/11/2026 — Prova temporária do cron DISC e roteiro da Patrícia
+
+- A primeira chamada pelo cron recebeu HTTP 403. O JWT legado do Vault diferia da credencial interna do runtime. O worker v7 usa o SHA-256 do JWT do Vault para validar o agendador, preservando JWT obrigatório no gateway, hook privado e autorização do Admin.
+- Na segunda tentativa, cron bem-sucedido e HTTP 200, com zero tarefas processadas e zero falhas. Os quatro registros existentes foram preservados. O cron de teste foi removido e a flag desligada após a resposta.
+- [Roteiro da Patrícia](HOMOLOGACAO_PATRICIA.md) registra o que preparar, o que ativar somente durante a rodada e as dependências de URL para homologação remota.
+
+## 05/11/2026 — Preparação hospedada da agenda DISC
+
+- Felipe dispensou backup para o lote. Aplicado o incremento SQL em transação no CALI MAPA, com flag desligada. Preimagem SQL conferida e bundle v4 preservado para rollback. Políticas, triggers, funções fora da RPC alterada, permissões verificadas e quatro registros concluídos na fila foram preservados.
+- Worker v5 ativo com JWT obrigatório e bundle remoto conferido byte a byte. Chamada sem JWT recebeu HTTP 401. Segredo da agenda configurado no Vault.
+- A revisão automática rejeitou ligar o cron persistente por falta de autorização explícita para a ativação com possíveis comunicações externas. Flag desligada e cron ausente, confirmados em leitura. A prova do disparo hospedado fica pendente. [Contrato e rollback](contracts/DISC_3.md).
+
+## 05/11/2026 — Preflight hospedado da agenda DISC
+
+- Leitura do CALI MAPA confirmou worker v4 com JWT, flag desligada, nenhuma agenda DISC, extensões presentes e corpos de `kick()` e `v2_disc_worker` iguais ao rollback versionado. Dois destinatários na allowlist e quatro jobs concluídos; nenhuma tarefa em trânsito. Projeção para a próxima janela útil não gerou candidatos.
+- Segredo Vault do agendamento ainda ausente. Consulta retornou zero backups listados, sem metadados de ponto físico e com PITR desativado. Preservação e restauração DEC-28 seguem pendentes. Nenhuma exportação, migration, deploy ou envio. [Evidência e sequência](RUNBOOK.md#agenda-disc--preparação-local-e-ativação-separada).
+
+
+## 05/11/2026 — Preparação local da agenda DISC autenticada
+
+- FLOW-17/3A: worker local distingue `action=scheduled` do processamento manual Admin. Agenda exige JWT de serviço exato e hook/flag privados, recusa Origin e campos externos de relógio/documento, mantendo JWT obrigatório no gateway. Rechecagem antes de reserva/envio e limite de cinco tarefas/45 segundos para iniciar reservas preservam desligamento e execução limitada.
+- Incremento `supabase/proposals/disc-3/scheduler.sql` lê JWT pelo Vault, agrupa despertares, preserva fila em falha de infraestrutura e aplica janela de dias úteis/8h–18h de Brasília na reserva e validação dos lembretes/avisos. Tentativas, lease, janela idempotente e recibos permanecem. Até vinte tarefas inelegíveis são descartadas por reserva, sem bloquear a próxima tarefa válida.
+- Ativação, desligamento e rollback separados em arquivos próprios. Nenhum segredo no SQL/cron/Git, nenhum grant novo ou aplicação hospedada. Rollback restaura definições anteriores e preserva registros/histórico; duas conexões provam reserva única por `SKIP LOCKED`.
+- `npm run verify` passou: **256 testes/38 arquivos**, formatação/lint/tipos/configuração, **35 documentos/811 links locais**, SPA e bundles autocontidos. Nova prova SQL descartável passou com **21 verificações**, incluindo duas conexões e rollback; a regressão SQL DISC existente passou uma vez. Transportes/Vault/cron desta prova são sintéticos; não certificam infraestrutura hospedada. Avisos conhecidos de chunk principal/anotações Rollup permanecem. CI remota não comprovada. Conferência documental após o registro final: 35 documentos/812 links válidos.
+- README, arquitetura, permissões, ficha de fluxo, [contrato](contracts/DISC_3.md), runbook e roadmap atualizados. Frontend não mudou. CALI MAPA permanece na versão 4, manual, `enabled=false` e sem cron DISC. Não houve conexão ao hospedado, SQL remoto, exportação, deploy ou envio neste lote; bateria suspensa intocada. Aplicação/ativação continuam sujeitas ao preflight e gate DEC-28 separados.
+
+## 05/11/2026 — Publicação restrita do PDF DISC, sem alteração do banco
+
+- Após esclarecer que o banco atual seguirá destinado a staging, Felipe autorizou somente a revisão do gerador de PDF. Deploy separado da execução de backup/ambientes e registrado como exceção específica na DEC-28. Nenhuma exportação do banco, migration, mudança de permissões ou escrita de dados foi executada nesta rodada.
+- A versão 3 publicou os recortes quantitativos e a versão 4 corrigiu sobreposição da foto no texto da assinatura encontrada na inspeção visual. A regressão com foto sintética falhou no código anterior e passou com a área reservada. `npm run verify` passou com **252 testes/38 arquivos**, além de formatação/lint/tipos/configuração/links e builds.
+- Função `workspace-disc-pilot` confirmada **v4 ACTIVE**, JWT obrigatório e agenda desligada. Conferência remota confirmou bundle idêntico ao testado; hashes de funções, policies, triggers e relações/ACL permaneceram iguais antes/depois. Fontes e metadados anteriores preservados para rollback fora do Git.
+- Admin autenticado baixou relatório qualitativo existente sem mudar aprovação/liberação. Render Poppler conferido: A4, uma página, assinatura/foto legíveis sem sobreposição. Agregados quantitativos têm prova local de renderer/handler; não houve nova rodada quantitativa hospedada porque o relatório de A continua retirado. Nenhum envio ou retomada da bateria suspensa. [Provas e limites](contracts/DISC_3.md#publicação-restrita-do-pdf--05112026).
+
+## 05/11/2026 — Plano de recuperação e staging/produção aprovado
+
+- Felipe aprovou DEC-28: antecipar preservação do estado atual e ensaio de restauração, consolidar baseline/migrations e planejar CALI MAPA como staging, com produção em projeto separado e sem fixtures. Próximas migrations, alterações de permissões e deploys hospedados dependem da recuperação comprovada; trabalho local independente continua.
+- A consulta de backup da mesma data não listou backups/pontos físicos, informou PITR desligado e mecanismo WAL-G habilitado. Não há backup integral pré-alterações comprovado. Preimagens e rollbacks por lote não são restauração integral, e uma cópia nova não recupera automaticamente o passado.
+- Runbook registra cobertura de banco, Storage, serviços/configuração e guarda protegida, bloqueio de comunicações na restauração, critérios de integridade e promoção por versões. README, índice, decisões, roadmap e contrato DISC alinhados. Esta entrega é documental: não criou/downloadou/restaurou backup, não criou projetos, não mudou credenciais, não executou migration, deploy ou envio. A revisão final do worker DISC permanece pendente.
+
+
+## 05/11/2026 — DISC 3A, 3B e 3C no piloto sintético
+
+- Questionário da publicação 83 preservado (18 blocos naturais, seis de pressão, `cali-disc-v1.1`), convite, recusa/prazo, resposta idempotente e agradecimento sem resultados. Avaliador/escores/PDF são internos ao Admin. Gestão separa cinco a 14 respostas qualitativas e 15 ou mais agregadas, com parecer, assinatura/foto, protocolo, aprovação/liberação e histórico.
+- Schema privado e wrappers próprios aplicados no CALI MAPA após inventário; nenhuma das 34 funções legadas mudou. Uma resposta foi concluída no navegador; 14 fixtures adicionais validaram o limiar em A e cinco fixtures compuseram a campanha sem conta. São dados fictícios, não coleta real ou 20 jornadas completas.
+- Admin criou, aprovou, liberou e retirou gestão; Cliente A consultou e baixou somente gestão própria; B permaneceu vazio. PDF técnico baixado pelo Admin. Retirada voltou a rascunho/revisão 10, preservou histórico e removeu a leitura Cliente. Com conta: app e aviso; sem conta: PDF ao gestor. Provedor aceitou quatro tarefas distintas, sem comprovar inbox e sem envios a endereços de fixtures.
+- Renderer e e-mail ficam no servidor. Foto WebP é normalizada em memória, com WASM incorporado e limites; fixtures de imagem são sintéticas. Repetição de tarefa usa chave estável, falhas não viram entrega, retentativas têm intervalo/limite. Documento revalida autorização e revisão após geração. Corrigidos identificador do download de gestão, descarte de agregados no handler e conflito falso após operação própria; regressões adicionadas.
+- `npm run verify`: **251 testes/38 arquivos**, formatação, lint, tipos, configuração local, links e build SPA/bundles autocontidos passaram. SQL descartável por socket Unix passou com fronteiras 4/5/14/15, permissões, assinatura/histórico, replay/concorrência, expiração/recusa, fila/cadência e entrega sem conta. Poppler conferiu PDFs sintéticos e paginação; aviso conhecido do chunk principal permanece. CI remota não comprovada.
+- **Limites de ativação:** worker hospedado permanece na versão 2, JWT obrigatório, agenda DISC desligada e sem cron novo. Revisão local seguinte inclui todos os agregados no PDF; novo deploy foi recusado pela revisão automática por exigir autorização explícita. Não foi contornado. Foto privada não foi copiada para diagnóstico local. Não houve publicação da SPA, merge, coleta real ou retomada da bateria Auth/Edge/Docker suspensa.
+- README, roadmap, fluxo, arquitetura, privacidade, permissões, runbook e [contrato DISC com rollback](contracts/DISC_3.md) atualizados. Paridade visual, textos/guarda e agenda autenticada continuam gates do primeiro lançamento.
+
+## 05/11/2026 — Fechamento funcional da 2C no piloto A/B
+
+- **Autor/escopo:** Codex; continuidade autorizada por Felipe. Confirmação mensal, snapshots versionados, vagas/eventos, pendência Cliente e indicadores essenciais foram conectados ao CALI MAPA somente no piloto sintético A/B. Mantidas composição simplificada, referência 83 e DEC-05/10.
+- **Implementação:** novo serviço/schema de revisão, hook mensal, componentes de conferência/indicadores/pendência e atalho funcional de Equipe no Início. SQL separado para confirmação e leitura direta, com rollback sem excluir histórico. Cliente inicial/Admin correção continuam no lote `7cac12d`. Token/preimagem/idempotência/transação protegem confirmação e vagas; seis policies alinham leitura direta ao aceite vigente no piloto. Guardas e escritores legados não foram alterados.
+- **Homologação:** A confirmou/reconfirmou novembro e cancelou a vaga sintética; Admin revisou com motivo. B lançou zero horas e confirmou mês vazio. A confirmou outubro pelo aviso do Início, removido após a gravação. Recarga, contexto A/B, tentativa de seleção por URL Cliente e editor a 390 px passaram. Fórmulas e distinção resumo atual/série histórica de arquivados foram preservadas e explicitadas.
+- **Provas:** SQL focado descartável passou, incluindo replay, token obsoleto, falha atômica, Cliente equivalente, vaga omitida, preimagem, 12 referências e leitura direta com/sem aceite/MFA. Sessão/termos são simulados nessa prova; A/B/Admin reais complementam no navegador. Auditoria hospedada conferiu versões e preimagens consistentes, nenhuma vaga sintética aberta e operações únicas.
+- **Gates:** `npm run verify` passou com 225 testes/33 arquivos, lint, TypeScript, formatação, configuração, documentação e builds. A execução automática com 33 workers teve oito falhas de espera; `maxWorkers: 2` foi fixado sem aumentar timeouts e a suíte inteira passou. O aviso de chunk principal acima de 500 kB permanece.
+- **Limites/rollback:** 2C homologada funcionalmente no piloto; fase 1 global, frontend final e coleta real permanecem pendentes. Nenhum e-mail/scheduler ativado, merge ou deploy realizado. Bateria suspensa intocada. [Contrato, arquivos, evidências e ordem dos rollbacks](contracts/TEAM_MONTHLY_2C.md).
+
+## 05/11/2026 — Lançamento e correção de métricas 2C
+
+- Duas RPCs e a auditoria privada de métricas foram instaladas no piloto A/B após preflight. As policies adicionais bloqueiam escrita direta de métricas no recorte do piloto. Cliente faz o primeiro lançamento; correção exige Admin com MFA, motivo e preimagem. Replay confere ator e payload.
+- Cliente A gravou dados sintéticos e confirmou a recarga. Campos vazios permaneceram sem informação. Admin não recebeu ação de lançamento inicial em B. Em A, corrigiu as horas previstas de 100 para 120 e viu as duas revisões.
+- A prova SQL descartável passou com dependências simuladas de sessão/termos e guardas/RPCs reais de Equipe. Confirmação, vagas e indicadores seguem no próximo lote da mesma fase. [Contrato, prova e rollback](contracts/TEAM_MONTHLY_2C.md).
+
+## 05/11/2026 — Inventário e plano da 2C
+
+- O catálogo ativo confirmou métricas, revisões, snapshots e vagas. A/B tinham zero lançamentos e confirmações. A escrita direta legada permite correção pelo Cliente e a confirmação antiga mistura manutenção do cadastro com fechamento do mês.
+- O plano separa lançamento inicial Cliente, correção Admin, confirmação versionada e consulta de indicadores essenciais. A execução permanece no piloto sintético, com interface simplificada. [Plano e limites](contracts/TEAM_MONTHLY_2C.md).
+
+## 05/11/2026 — Fechamento funcional da 2B no piloto A/B
+
+- Cliente A autenticado no navegador integrado reativou e alterou a própria ficha, gravou dado privado sintético com declaração e confirmou a persistência após recarga. A estrutura apresentou o vínculo de A. Uma URL com a empresa e a ficha sintéticas de B preservou o contexto de A e retornou ficha indisponível.
+- A ficha A voltou a ser arquivada, com a situação profissional ativa e o histórico preservados. A consulta independente confirmou cargo, dado privado e preimagem de reativação. As três fichas sintéticas da rodada A/B terminaram arquivadas.
+- A homologação funcional da 2B fecha no piloto. Admin e Clientes A/B têm prova autenticada no CALI MAPA. Equivalência de dois Clientes da mesma empresa, corte individual e concorrência continuam sustentados pela cópia descartável. A composição simplificada segue autorizada para testes, com frontend final e validação para coleta real pendentes antes do lançamento. Próxima entrega funcional: 2C, dados e confirmação mensais. [Contrato e rollback](contracts/TEAM_2B.md).
+
+## 05/11/2026 — Continuidade funcional da 2B com composição simplificada
+
+- Felipe confirmou a continuidade dos testes com o layout simplificado. A implementação da paridade visual com a publicação 83 fica registrada para o frontend final, antes do lançamento. Os ajustes visuais iniciados nesta rodada foram retirados integralmente.
+- No Admin autenticado, o teclado nativo do campo de mês consultou outubro de 2026, mostrou histórico vazio e ausência de confirmação, e restaurou os movimentos ao retornar a novembro. Equipe Cliente A ainda depende de sessão no navegador integrado. [Evidência e limites](contracts/TEAM_2B.md).
+
+## 05/11/2026 — Homologação Admin de Equipe no navegador integrado
+
+- Admin com MFA consultou dados privados sintéticos de B, cadastrou uma ficha em A e arquivou a ficha preservando a situação profissional. O filtro Arquivada localizou a ficha, a abertura por teclado funcionou e a recarga restaurou o detalhe. A troca para B limpou o detalhe de A. O histórico de B mostrou seus próprios movimentos, e Voltar/Avançar restaurou a seção.
+- A composição simplificada permanece para validação funcional. O aceite visual exige comparação com as rotas correspondentes na publicação 83. A rodada Cliente A autenticada no navegador integrado permanece pendente. [Contrato e evidências](contracts/TEAM_2B.md).
+
+## 04/11/2026 — Equipe conectada no piloto 2B
+
+- Cliente consulta e mantém Equipe da própria empresa. Admin escolhe A/B. A ficha inclui cadastro, edição, movimentação, arquivamento, privados em seção própria e importação com prévia. Estrutura e histórico usam os dados existentes, sem confirmar meses.
+- Dez RPCs V2 instaladas no CALI MAPA para homologação sintética A/B, com sessão e aceite e MFA para Admin. A prova SQL descartável confirmou isolamento, preimagem, declaração, arquivamento, preservação de snapshots e rollback atômico do CSV.
+- A interface foi exercitada no navegador integrado com transporte sintético, inclusive a prévia do CSV e o formulário a 390 px. No CALI MAPA, B gravou a ficha profissional e privada, importou o CSV com dado privado declarado e confirmou a persistência após recarga. As duas fichas sintéticas foram arquivadas. A cópia isolada confirmou dois Clientes equivalentes e corte individual. [Plano, contrato e rollback](contracts/TEAM_2B.md).
+
+## 04/11/2026 — Rota revogável para os PDFs de homologação
+
+- CALI MAPA recebeu a Edge `workspace-pilot-pdf` v1 com JWT obrigatório. A rota entrega só os dois PDFs sintéticos arquivados, com verificação de SHA-256, sessão, empresa e aceite antes de ler e antes de responder. A resposta usa `private, no-store`.
+- Quatro testes focados e a prova SQL descartável passaram. No destino, o preflight retornou 204 e a chamada sem sessão retornou 401. O catálogo confirmou as duas fixtures privadas e zero objetos nos caminhos antigos. Na rodada final, B recebeu 200 antes do corte e 403 com zero bytes na mesma sessão após o corte. A manteve 200 com SHA-256 confirmado. Os caminhos antigos recusaram novas requisições. B foi reautorizada e precisa de novo login. A 2A fecha no piloto A/B. A suíte Vitest passou com 216 testes em dois workers.
+- O rollback remove a RPC e faz a função recusar downloads. [Contrato e evidência](contracts/ACCESS_COMPANIES.md#download-de-homologação-revogável--0411).
+
+## 04/11/2026 — Ficha Admin conectada e corte de arquivos A/B
+
+- O Admin ganhou edição das condições contratuais, configurações financeiras e referências documentais, além de serviço, contato comercial e logo. As RPCs do CALI MAPA exigem MFA, empresa A/B e a versão da linha aberta no formulário. Na empresa B, o Admin gravou uma observação, trocou para Build Essencial, salvou contato sintético e enviou uma logo privada. A consulta independente confirmou os dados e o objeto. Renovação e automações ficaram desativadas.
+- No Chrome, B leu seu próprio PDF e teve o de A e a emissão de nova URL assinada recusados. Após revogar B, A ainda leu o próprio PDF e B teve uma URL inédita recusada. A URL de B já usada ainda entregou bytes antes da contenção. Os dois PDFs sintéticos sem referência foram movidos para a área privada Admin, com SHA-256 preservado. Uma nova requisição pela URL antiga de B foi recusada. A cópia que já estava no navegador continuou acessível pelo cache normal.
+- B foi reautorizada depois da prova. O banco confirmou o vínculo ativo, o corte preservado e zero sessões de B posteriores ao corte. A política adicional de contenção ficou como proposta. O CALI MAPA mantém a guarda de termos e corte anterior. Arquivos com cache e links históricos permanecem como gate de liberação. [Contrato, evidência e rollback](contracts/ACCESS_COMPANIES.md#ficha-admin-e-corte-de-arquivos--0411).
+- Lint, typecheck, build e SQL focal em PostgreSQL descartável passaram. A suíte Vitest passou com 212 testes e dois workers após carregar a ficha antes do teste de adesão. A execução inicial com a concorrência padrão teve falhas de espera na UI. A bateria suspensa de runtime ficou fora desta rodada.
+
+## 04/11/2026 — Homologação do convite temporário A2
+
+- Publicada a versão 3 da função `workspace-access-pilot` no CALI MAPA com verificação de JWT preservada. A flag de provisionamento foi ativada para uma lista com um único destinatário aprovado na empresa sintética A. O Admin reservou a vaga A2, que ficou aguardando primeiro acesso.
+- A tela de acesso passou a oferecer saída quando a sessão está bloqueada e o backend já retirou o perfil. A correção foi verificada no navegador e em oito testes focados.
+- A2 entrou pela primeira vez, aceitou os termos e abriu a empresa A. A1 abriu a mesma empresa em uma sessão separada. Revogar A2 bloqueou sua aba após recarga. A1 continuou consultando a empresa e o banco confirmou sessões válidas de A1 e B.
+- A conta temporária, o perfil, o convite, a reserva e a permissão do destinatário foram removidos. A consulta posterior confirmou zero registros desses tipos para A2 e duas matrículas originais. A flag de provisionamento foi desligada. Arquivos e cache após o corte seguem pendentes.
+
+## 04/11/2026 — Cadastro conectado e preparação do primeiro convite
+
+- O Admin lê serviço e plano do banco e edita segmento, horas mensais, endereço e filiais na homologação A/B. A [RPC](../supabase/proposals/company-onboarding/update-pilot-registration.sql) exige Admin com MFA e a versão exibida da ficha. A auditoria registra os nomes dos campos alterados. No navegador, B persistiu segmento e cidade após recarga. O banco confirmou um evento para B e 12,5 horas preservadas.
+- O [banco de reservas](../supabase/proposals/hosted-access-pilot/provision-invites.sql) está instalado no CALI MAPA com zero destinatários e zero reservas. A cópia descartável confirmou repetição sem duplicata, recusa de destinatário fora do piloto, conta nova vinculada ao convite exato, recusa de identidade preexistente, limite compartilhado com o escritor legado e cancelamento. A Edge e a ficha de reservas exigem ativação explícita e ainda aguardam a homologação do primeiro novo Cliente.
+- A rota Admin passou a carregar a tela de empresas sob demanda. A leitura do cadastro de B continuou funcionando após recarga pelo navegador.
+
+## 04/11/2026 — Revisão e encerramento do ciclo de serviço
+
+- A [RPC](../supabase/proposals/company-onboarding/transition-service-cycle.sql) exige sessão Admin com MFA e ciclo da empresa A/B vinculada ao cadastro V2. Avança de planejado para aberto, de aberto para revisão e de revisão para encerrado. Mantém o mês e as horas já registradas. A abertura de planejado exige empresa ativa e horas positivas. Encerramento não emite cobrança, relatório ou mensagem.
+- No CALI MAPA, A passou de aberto para revisão e depois para encerrado pela ficha Admin. A recarga preservou **Encerrado** e **12,5 h**. O banco confirmou dois eventos de A e nenhum de B, que permaneceu aberto. A etapa planejado para aberto foi exercitada no PostgreSQL descartável.
+- O [teste SQL](../supabase/proposals/company-onboarding/test-service-cycle.sql) recusou Cliente, empresa errada, salto de estado e confirmação antiga, preservou horas e evitou auditoria duplicada. Typecheck, lint do recorte e 13 testes focados passaram.
+
+## 04/11/2026 — Gestão por convite e limite concorrente de A/B
+
+- CALI MAPA migrou a chave privada de `company_id` para `invite_id` e desativou as RPCs ambíguas por empresa. A ficha Admin local mostra a ação junto ao convite. Confirmada no navegador a leitura de A revogada e B ativa. Catálogo confirmou as duas matrículas, duas admissões e um corte preservados. Nenhum convite foi criado ou reativado no hospedado.
+- Em PostgreSQL descartável, dois vínculos da mesma empresa foram geridos individualmente e um comando com convite de outra empresa foi recusado. Duas conexões disputaram a quarta vaga: a segunda aguardou o lock e foi recusada após o commit da primeira; quatro convites ativos ao final. O limite preserva a contagem legada, inclusive convites ativos sem acesso à plataforma.
+
+## 04/11/2026 — Reautorização restrita aos vínculos A/B
+
+- O Admin local lê o vínculo exato do piloto pela Data API e mostra a ação correspondente. No CALI MAPA, A exibiu **Reautorizar acesso de teste** e B exibiu **Revogar acesso de teste**. A confirmação de A foi aberta e cancelada; não houve reativação nem envio de código.
+- O [SQL instalado](../supabase/proposals/hosted-access-pilot/reauthorize.sql) exige sessão Admin com MFA, adesão vigente e a mesma revogação exibida na ficha. Restaura só o convite e o perfil já pareados, preserva o corte de sessões e códigos anteriores e registra a revogação original no histórico privado. Consulta posterior confirmou duas RPCs restritas ao papel autenticado, uma matrícula revogada e zero reautorizações.
+- PostgreSQL descartável confirmou recusa sem adesão vigente, sessão antiga cortada, admissão nova, histórico sem duplicata, proteção contra confirmação antiga e suspensão. Typecheck, lint do recorte e 19 testes passaram. Gestão das quatro vagas e reautorização hospedada de ponta a ponta seguem pendentes.
+
+## 04/11/2026 — Adesões e ciclos de novembro das empresas A/B
+
+- Pela sessão Admin da V2, os dois rascunhos foram vinculados às empresas existentes. A ficha preparou um PDF sintético privado por empresa, verificou o registro no catálogo e confirmou a adesão com a versão exata no Storage. O CALI MAPA confirmou as duas adesões.
+- A RPC de abertura do mês foi instalada no CALI MAPA. Configuradas 12,5 horas somente nas duas empresas sintéticas, condicionadas às horas ainda vazias. A ação de homologação abriu novembro nas duas fichas, que exibiram **Aberto** e **12,5 h**.
+- A leitura posterior confirmou um ciclo e um evento de abertura por empresa. O piloto de login foi publicado com a guarda de arquivos e somente A/B matriculadas. As duas contas entraram, aceitaram os termos e abriram a empresa vinculada. A revogação de A no Admin bloqueou a sessão após recarga e preservou B. O CALI MAPA confirmou um código, uma admissão e um aceite por conta, com A revogada e B ativa.
+- O piloto recuperou o HTML Cliente V3 e o assunto do e-mail aprovado. O botão aponta para a aba local do piloto. O Gmail recebeu com atraso na rodada anterior à correção. A nova revisão foi publicada sem novo envio para conferir a caixa.
+
+## 04/11/2026 — Consulta de ciclos na ficha Admin
+
+- A ficha da empresa conectada consulta até 12 ciclos de serviço, em ordem decrescente de mês. Exibe mês, situação e horas contratadas. Cache separado por ator e empresa, com estados de carregamento, vazio e erro.
+- Catálogo do CALI MAPA confirmou a unicidade empresa/mês, os quatro estados e as policies de leitura. Typecheck, lint do recorte e 19 testes de empresas e rascunhos passaram. A sessão Admin no navegador parou no aceite vigente.
+- A abertura do mês corrente passou em PostgreSQL descartável. A operação preserva ciclos existentes e registra auditoria somente na criação. Aplicação, ação na tela e transições seguintes continuam pendentes.
+
+## 04/11/2026 — Admissão e revogação restritas ao piloto A/B
+
+- Consulta em leitura no CALI MAPA confirmou um Cliente e um convite ativos por empresa A/B. O e-mail coincide entre convite, perfil e Auth nos dois casos. Nenhum rascunho está ligado às duas empresas.
+- A RPC de preparação dos rascunhos foi instalada no CALI MAPA. Catálogo confirmou execução por `authenticated`, com `anon` e `service_role` recusados. O código exige Admin com MFA. A ação na ficha local prepara rascunho sem duplicar empresa. A execução autenticada depende do aceite na sessão Admin.
+- A [candidata do piloto](../supabase/proposals/hosted-access-pilot/base.sql) começa com escopo vazio e só permite registrar as empresas A/B. Exige sessão admitida para os Clientes do piloto. Revogação exige sessão Admin vigente com MFA, bloqueia a identidade e preserva o convite. A [suspensão](../supabase/proposals/hosted-access-pilot/pause.sql) mantém o histórico e fecha o acesso do piloto.
+- O [teste focado](../supabase/proposals/hosted-access-pilot/test.sql) passou em PostgreSQL descartável. Conferiu escopo vazio, admissão, isolamento, revogação, preservação de B e leitura legada fora do piloto. As guardas de admissão e códigos seguem sem aplicação hospedada. Comprovação de adesão, configuração de envio, guardas complementares e prova A/B no navegador continuam pendentes.
+
+## 04/11/2026 — Publicação vigente e homologação A/B preparada
+
+- CALI MAPA publicou `2026-10-15` com SHA-256. Quatro recibos legados foram preservados. A SPA consulta a versão e o recibo do próprio ator, confirma pela RPC e exige correspondência com o texto do bundle.
+- Dois PDFs sintéticos ficaram no bucket privado, um por empresa de teste. A API recusou leitura anônima. O ensaio PostgreSQL confirmou recibos separados, rotação, guarda de arquivos com política permissiva sobreposta e rollback. `npm run verify` passou com 211 testes.
+- Na cópia isolada, GoTrue e PostgREST confirmaram a publicação com o hash do bundle, recusaram o aceite sem admissão e após revogação, e mantiveram os recibos dos dois Clientes independentes.
+- O Chrome isolado perdeu o relay antes de validar o novo aceite. Não houve envio externo de código. A guarda de arquivos continua candidata. Aplicar após admissão e corte no destino e seguir o [roteiro A/B](RUNBOOK.md#aceite-vigente-e-arquivos-da-fase-2a). O [rollback de publicação](../supabase/proposals/hosted-terms/rollback.sql) desativa a versão e preserva recibos e confirmações.
+
+## 04/11/2026 — Provisionamento no primeiro acesso V2
+
+- Na cópia isolada, a Edge cria a conta Auth ao receber o primeiro pedido de código de um convite gerenciado. A RPC vincula o perfil ao mesmo convite e recupera uma conta já criada para ele em uma nova tentativa. Uma conta de outro fluxo sem vínculo compatível permanece fora da gestão.
+- Passaram 34 verificações com Edge Runtime, GoTrue, Mailpit e PostgREST, incluindo criação, recuperação do vínculo e corte. A navegação no oficial com sessão Admin existente abriu a lista de clientes e o painel de acessos da empresa sintética.
+- No Chrome, o Cliente recebeu o código, registrou o aceite de teste e consultou a empresa. A RPC revogou o convite e a recarga bloqueou a sessão existente. O banco descartável confirmou o aceite e a desativação do convite e do perfil.
+- A candidata segue fora das migrations hospedadas. O opt-in no CALI MAPA depende da revisão das guardas de RPC e Storage e da homologação do transporte de e-mail e do catálogo efetivo.
+
+## 04/11/2026 — Catálogo do CALI MAPA e admissão inicial
+
+- O inventário do CALI MAPA e da Edge publicada confirmou ledger de códigos por e-mail, entrega de `token_hash` ao navegador, provisionamento no fluxo legado e escritores privilegiados. O contrato registra a fronteira proposta para a V2 e as verificações necessárias antes de habilitar gestão hospedada.
+- No navegador, a sessão Admin reabriu o rascunho sintético, conferiu o histórico com a versão do contrato no Storage e abriu o painel de acessos. A gestão hospedada aparece em preparação.
+- A candidata isolada passou a exigir admissão desde a primeira sessão Cliente de empresa gerenciada. O controle SQL preservou leitura para sessão legada sem corte fora da gestão e manteve o limite de quatro vagas. O cenário local executa o bundle no Edge Runtime com GoTrue, PostgREST, Kong e Mailpit.
+
+## 04/11/2026 — Auth e corte de acesso em cópia isolada
+
+- Corrigida a sintaxe do adapter local de consumo de código. A chave `authorizationId` e a assinatura da RPC foram preservadas.
+- Cenário dedicado passou em 30 verificações com GoTrue, PostgREST e Mailpit reais. Admin autenticou com TOTP, os dois convites chegaram à caixa local e os Clientes entraram com código. Revogação negou A e preservou B. JWT renovado, código antigo e sessão criada a partir de hash pendente não recuperaram acesso após reativação. Novo código admitiu outra sessão.
+- Cenário usa fixtures de catálogo e provisionamento sintético. A integração hospedada e a validação da jornada no navegador seguem pendentes.
+
+## 04/11/2026 — Quatro vagas e revogação em PostgreSQL isolado
+
+- Candidata integra convite, revogação e reativação a `client_invites` para empresas marcadas para gestão. A autorização usa adesão vigente, reserva uma vaga e registra o comando na mesma transação. A admissão de empresas gerenciadas exige convite com vaga.
+- Cinco solicitações simultâneas ocuparam quatro vagas. A revogação liberou a vaga e cortou perfil e sessão. O teste recusou código e prova anteriores ao corte após reativação, admitiu sessão com código novo e preservou o outro Cliente. Auth, sessões e claims eram sintéticos no PostgreSQL descartável.
+- A candidata permanece fora do CALI MAPA. Reconciliação da Edge, inventário de escritores legados e teste com JWT e refresh reais antecedem o opt-in hospedado.
+
+## 04/11/2026 — Pré-condição de adesão para novos acessos
+
+- Candidata SQL privada valida situação da empresa, vínculo com rascunho e versão vigente da comprovação documental. O futuro comando de autorização vai chamar a função na mesma transação que ocupa a vaga.
+- Aceitação em PostgreSQL descartável confirmou a versão atual, manteve a elegibilidade da empresa pausada e recusou versão substituída, empresa bloqueada e comprovação retirada. As permissões impedem execução direta por `anon` e `authenticated`. A candidata segue fora do CALI MAPA.
+
+## 04/11/2026 — Versão do Storage na comprovação de adesão
+
+- O Admin seleciona contrato ou aditivo da empresa cadastrada. A confirmação grava a identidade e a versão do objeto no histórico. O servidor recusa versão incorreta e preserva o snapshot em repetição. Registros anteriores continuam legíveis.
+- Migration aplicada no CALI MAPA. Um PDF sintético privado foi vinculado pela tela com sessão Admin e a versão foi recuperada após recarga. Catálogo confirmou correspondência dos identificadores. O bucket está com versionamento desativado e a recuperação de bytes antigos depende da retenção do arquivo.
+- Aceitação SQL passou em PostgreSQL descartável com versão incorreta, troca de versão e replay. `npm run verify` passou com 209 testes. Para suspender o fluxo, retirar a ação documental da SPA e revogar EXECUTE dos dois wrappers, preservando os snapshots históricos.
+
+## 04/11/2026 — Empresa definitiva a partir do rascunho
+
+- O Admin pode confirmar a criação na carteira e abrir a ficha pelo vínculo persistido. A RPC grava empresa e auditoria do vínculo na mesma transação e devolve o mesmo UUID em repetição. A empresa começa com automação e notificações desabilitadas.
+- Migration aplicada no CALI MAPA após conferir defaults e o gatilho de inserção. Uma sessão Admin criou a fixture pela Data API e reabriu a mesma ficha após recarga. Catálogo confirmou um vínculo, uma empresa, zero convites e zero ciclos de serviço. A fixture identificada permanece no ambiente.
+- Aceitação SQL e duas chamadas concorrentes passaram no PostgreSQL descartável. `npm run verify` passou com 209 testes. Para suspender a criação, retirar a ação no Admin e revogar EXECUTE do wrapper, preservando os vínculos e as empresas criadas.
+
+## 04/11/2026 — Cadastro e adesão conectados no Admin
+
+- A área **Rascunhos de empresas** usa quatro RPCs com a sessão do Admin. Cadastro, conferência explícita, retirada e histórico ficam separados da carteira de empresas. A paginação por cursor e o cache por ator preservam a navegação. A versão do documento é informada pelo Admin e segue pendente de vínculo com o Storage.
+- O complemento `list-drafts.sql` foi validado em PostgreSQL descartável e aplicado em transação no CALI MAPA. No navegador, o Admin criou uma fixture, confirmou a adesão, recarregou a página e retirou a comprovação. O catálogo confirmou um rascunho, uma confirmação e uma retirada. A fixture permanece identificada.
+- `npm run verify` passou com 208 testes em 28 arquivos, 676 links locais e builds. Os testes novos cobrem o schema e cursor da listagem e a preimagem de retirada. O navegador também confirmou foco inicial no formulário e bloqueio antes da conferência.
+- A gestão de acessos, a materialização em `companies` e a verificação de versão documental seguem como etapas separadas. Para suspender este fluxo, retirar a capacidade de onboarding da SPA e revogar EXECUTE dos wrappers V2, preservando os eventos.
+
+## 04/11/2026 — Migration 2A aplicada no CALI MAPA
+
+- **Autor/escopo:** Codex. Felipe confirmou o destino com dados de teste e autorizou a migration. A revisão `8688c85` foi aplicada em transação no SQL Editor, após conferir dependências e ausência dos objetos. SHA-256 do arquivo `fc2a58fe7461b88eea0ac642994849c97b6994619007c68c886fe18f36c6d10b`.
+- **Verificação hospedada:** três RPCs com grants esperados, RLS e ausência de privilégios diretos nas duas tabelas novas, sequência sem acesso a `authenticated` e contagem zero de rascunhos e eventos. Definições e ACLs das quatro funções legadas inspecionadas coincidem com o preflight. As chamadas SQL sintéticas recusaram AAL1 e identidade sem perfil.
+- **Limites/rollback:** nenhum registro de negócio foi criado, migrado ou descartado. A execução avulsa fica documentada no contrato, fora do histórico da CLI. A UI ainda precisa de integração e validação positiva pela Data API. Para suspender o recorte, revogar EXECUTE dos wrappers V2 e preservar as tabelas. Bateria anterior suspensa.
+
+## 04/11/2026 — Candidata de cadastro e comprovação 2A
+
+- **Autor/escopo:** Codex. Felipe aprovou a separação e autorizou planejar migration e retirada do legado. Candidata SQL fora dos runners, com rascunho privado, confirmação/retirada auditáveis e leitura do histórico. A RPC e o login do oficial permanecem como referência de compatibilidade.
+- **Validação:** teste dedicado passou em PostgreSQL 16 descartável, com socket Unix e fixtures sintéticas. Cobriu ACLs dos objetos novos e do contrato legado sintético, bloqueio de Cliente/Admin inativo/AAL1/sem TOTP, replay, preimagem e histórico após retirada. `npm run verify` passou com 206 testes em 28 arquivos, lint, tipos, formatação, 32 documentos/675 links e builds. Sem mudança de frontend neste recorte. A bateria anterior de Auth/Edge não foi retomada.
+- **Limites/rollback:** candidata sem aplicação hospedada. Materialização, versão de arquivo verificada no Storage, gestão de acesso e integração com frontend continuam pendentes. Contrato e roadmap registram os gates de migração, convivência e retirada. Antes de implantar, reverter o lote só remove os artefatos do repositório. Após implantação autorizada, suspender chamadas V2 e preservar rascunhos e histórico.
+
+## 03/11/2026 — Consulta Cliente conectada de empresa e termos
+
+- **Autor/escopo:** Codex; Felipe autorizou continuar a ponta Cliente, QA no navegador, documentação/PR e substituição gradual de mocks quando houver contrato seguro. Recorte de leitura sobre tabela/projeção já existentes, sem ampliar schema/permissões. Nenhuma nova autenticação real, leitura de dados reais, código/e-mail, SQL, Edge/laboratório, merge ou deploy. Bateria suspensa intocada.
+- **Implementação:** CompaniesService.account e leitor mínimo compartilhado de identidade entre sessão/empresas; GET de id/display_name/legal_name/status filtrado por vínculo autenticado. Schema e ID retornados conferidos; ausência distinta de falha, sem fallback para mocks. Hook separa cache por ator/vínculo/projeção, consome AbortSignal, não recebe empresa de URL e só reabre leitura após revalidação se identidade/vínculo permanecerem iguais. management hospedado continua null para os comandos pendentes. Demonstração explícita/testes mantêm seus adapters; não existe troca global de flag para liberar escritas.
+- **Frontend:** ClientEntry usa composição autenticada por controller; layout/Outlet, Início, Minha empresa e Termos e privacidade têm navegação/títulos próprios. Módulos ainda não integrados mantêm destino e aviso específico, sem métricas fictícias. Conta pausada mantém consulta; conta indisponível oculta identidade e oferece revalidar. Termos reutilizam TermsContent do aceite, sem INSERT, data presumida ou alteração de versão. Layout compartilhado preserva quebra de linha, foco e retorno. Item ativo ignora parâmetros extras da URL.
+- **Inconsistências/limites:** composição conectada antes mostrava o mesmo aviso em todas as rotas Cliente, agora substituído neste recorte. Índice documental ainda descrevia arquivos/comprovação como pendentes sem distinguir demonstração; reconciliado. Divergência já registrada entre termos vigentes (principal/privados) e DEC-05/09 foi reconfirmada; conteúdo original preservado, revisão CALI/nova versão pendentes. Cadastro completo, arquivos/storage, comprovação/acessos efetivos, financeiro e ciclo não foram habilitados por conveniência.
+- **Validação:** npm run verify passou com 206 testes em 28 arquivos, formatação/lint/tipos, configuração local, 32 documentos/673 links e builds SPA/Edge autocontidos. Treze testes novos cobrem GET mínimo/schema/filtro/cancelamento, empresa divergente, falha/ausência, papel/vínculo/URL, pausa/bloqueio, erro/retry, resposta tardia/troca de empresa, logout/cache, termos somente leitura, navegação e demonstração separada. Regressões anteriores de acesso e Admin passaram. QA Playwright na composição hospedada com sessão/respostas inteiramente sintéticas interceptadas, em 1440/1280/1024/390 px sem overflow; capturas de empresa, termos e erro mobile inspecionadas em output/playwright/client-* (ignoradas). Conferidos menu ativo, foco, Back/Forward, pausa, recusa 403 simulada sem fixture, recuperação por retry e saída sem identidade remanescente. Nenhuma exceção JS inesperada; console registrou somente o erro de recurso 403 injetado, sem warnings. Avisos conhecidos de build permanecem. Nova validação autenticada da tela/RLS hospedada permanece pendente; CI remota conferida separadamente após push.
+- **Documentação/rollback:** contrato, FLOW-01/02, arquitetura, privacidade, índice, README, AGENTS e roadmap atualizados com integração por operação. Reverter este lote restaura a composição anterior sem alterar dados remotos; termos, escrita Admin anterior e capacidades demonstrativas dos lotes anteriores mantêm seus donos. Fases 1/2A abertas; aceite humano/hospedado ainda pendentes.
+
+## 03/11/2026 — Comprovação administrativa demonstrativa da adesão
+
+- **Autor/escopo:** Codex; segundo lote autorizado por Felipe para comprovação e atualização gradual do PR #2. Somente demonstração sintética em memória; nenhum servidor, storage remoto, SQL, Auth, envio, merge ou deploy. Bateria suspensa permanece intocada.
+- **Implementação:** schemas/service/hooks de `management.evidence`, estado por instância, snapshots imutáveis da referência e versão documental opcional. Observação e confirmação explícita são obrigatórias; upload não é obrigatório (DEC-23). Autoria/instante e retirada com motivo vêm da fronteira mock. Nova versão/retirada do documento invalida comprovações vinculadas; referência externa sem arquivo permanece independente. Novas autorizações/reativações exigem comprovação vigente na fronteira mock; acessos anteriores são preservados. Ledger evita replay conflitante/duplicidade concorrente. Nenhuma verificação jurídica ou assinatura é inferida.
+- **Frontend:** referência extraída para formulário próprio; painel, formulário/hook, lista/histórico e retirada separados por tarefa. Checkbox é invalidado ao mudar conteúdo conferido. Rascunhos, estados/erro/retry, pendência/cancelamento, vínculo stale e foco preservados; troca de empresa desmonta transitórios. DS/tokens existentes, sem dependência/context novo. Erros de validação de arquivos mostram mensagem legível, sem estrutura interna do schema.
+- **Validação:** `npm run verify` passou com 193 testes em 27 arquivos, formatação/lint/tipos, configuração local, 32 documentos/671 links e builds SPA/Edge autocontidos. Sete testes novos cobrem conferência externa, vínculo/digest, retirada/histórico, gate de autorização/reativação, versões, concorrência, empresa divergente, checkbox por conteúdo, pendência/falha/rascunho e troca de empresa; jornadas anteriores foram ajustadas ao gate. Playwright em 1440/1280/1024/390 px, sem overflow; capturas locais ignoradas em `output/playwright/adhesion-proof-*`, inspecionadas. Referência/anexo isolados não liberaram acesso; conferência liberou; nova versão invalidou comprovação e preservou acesso; retirada manteve histórico; nova conferência externa/teclado restabeleceu gate. Console sem erros/warnings. Avisos conhecidos de build permanecem; CI remota consultada separadamente após push.
+- **Documentação/limites/rollback:** contrato, ficha FLOW-01/02, arquitetura, privacidade, README, AGENTS e roadmap atualizados. Modelos/QA demonstrativos não comprovam persistência/permissões ou critérios materiais da comprovação real. Reverter o lote restaura o gate demonstrativo anterior sem dados remotos a desfazer; arquivos do primeiro lote ficam independentes. Fases 1/2A permanecem abertas; integração efetiva, financeiro operacional/ciclo e aceite humano pendentes.
+
+## 03/11/2026 — Arquivos contratuais demonstrativos
+
+- **Autor/escopo:** Codex; continuidade autorizada por Felipe para contratos/aditivos, comprovação e commits graduais no PR #2. Primeiro lote entrega arquivos; comprovação administrativa segue no próximo. Oficial consultado somente em leitura. Sem backend, migration, comunicação, merge ou deploy; bateria de runtime suspensa intocada.
+- **Implementação:** schemas/service/hooks de documentos, estado de bytes/versões/eventos por instância e ledger com SHA-256. Anexo multipart virtual, tipo/data opcional, versões imutáveis com preimagem, download conferido, retirada com motivo preservando bytes/histórico. PDF/DOC/DOCX/imagens até 12 MB; somente conteúdo sintético. Nenhuma assinatura ou validade jurídica é inferida do anexo.
+- **Frontend:** painel/lista, formulário/hook, retirada, histórico e download/hook separados; DS/tokens existentes, rascunho preservado em falha, ações concorrentes bloqueadas e foco devolvido. Blob URLs temporárias, sem prévia automática ou dependências novas. Hospedado mantém gestão indisponível.
+- **Validação:** `npm run verify` passou: 186 testes em 25 arquivos, formatação/lint/tipos, configuração, 32 documentos/670 links e builds SPA/Edge autocontidos. Sete testes novos cobrem bytes/versões/retirada, replay/digest, concorrência, vínculo, limites, falha/rascunho/pendência e capacidade indisponível. Playwright em 1440/1280/1024/390 px, sem overflow; capturas inspecionadas em `output/playwright/contract-documents-*` (ignoradas). Anexo/nova versão/retirada/foco e download nativo conferidos com bytes sintéticos exatos; console zero erros/warnings. Avisos conhecidos de bundle/Zod permanecem. CI remota consultada separadamente após push.
+- **Documentação/limites/rollback:** contrato, ficha FLOW-01/02, arquitetura, privacidade, README, AGENTS e roadmap atualizados. Reverter o lote remove capacidades locais; nenhum dado remoto a desfazer. Comprovação administrativa ainda pendente neste lote; storage/permissões/projeção Cliente/integração e aceite de produto não homologados. Fases 1 e 2A continuam abertas.
+
+## 03/11/2026 — Dados cadastrais complementares da empresa
+
+- **Autor/escopo:** agente Codex, continuidade autorizada por Felipe para os dados restantes, padrão frontend, documentação e PR #2. Referência publicação 83 consultada somente em leitura: campos de AdminClientsPageV3 e preparo company-logo de imageUpload. Sem operação de backend, migration, comunicação, merge ou deploy; bateria suspensa intocada.
+- **Implementação:** registration-schemas/service, keys/hooks e capacidade demonstrativa; mock por instância com revisão/histórico e ledger existente. Serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo preparada localmente. Planos Build Essencial/Completo são distintos, mantendo legado; serviço sem plano mapeado preserva anterior. Nenhuma automação de agenda é transportada. Contato comercial não vira login/principal nem altera autorizações. Identidade e ficha financeira mantêm seus donos.
+- **Frontend/logo:** painel/editor/hook, grupos, resumo e histórico separados; CompanyField compartilha controles e a semântica de erro com administração. Logo usa APIs nativas, entrada até 12 MB, preparo em até 1200 px/700 KB, SVG rasterizado, prévia/substituição/remoção por rascunho e proteção contra resultado tardio. Nenhum upload; imagens/histórico só em memória. Sem dependência/context/CSS paralelo.
+- **Validação:** `npm run verify` passou com 179 testes em 23 arquivos, formatação/lint/tipos, configuração local, 32 documentos/669 links e builds SPA/Edge autocontidos; diff sem erros. Regressões incluem Build Essencial/Completo, preservação de acessos/financeiro, segmento livre, UF/horas/filiais, contato comercial, revisão concorrente/replay/no-op, logo/substituição/remoção, falha e resultado tardio ao trocar arquivo/empresa. QA Playwright com dados sintéticos em 1440/1280/1024/390 px: edição e consulta/histórico com logo, sem overflow do documento; SVG local virou WEBP 180×100, plano Build Essencial apareceu na lista e quatro autorizações foram preservadas. Gravação retornou foco ao título; validação de horas associou erro ao campo/bloqueou salvar; textarea herdou Inter do formulário. Console final sem erros/warnings; capturas ignoradas em `output/playwright/registration-data-*`. Permanecem avisos conhecidos Zod/bundle/import estático-dinâmico; CI da revisão enviada é consultada separadamente no PR #2. Testes não provam Auth/RLS/storage/persistência/agenda hospedados; arquivos contratuais, comprovação documental, financeiro/ciclo reais e integração permanecem pendentes.
+- **Documentação/rollback:** contratos, fluxo, arquitetura, DS, privacidade/permissões, operação, índice/README/AGENTS e roadmap atualizados. Reverter este lote remove o cadastro complementar demonstrativo; não há schema/dado remoto a desfazer. Reload descarta registros/imagens em memória; não é prazo de retenção real.
+
+## 03/11/2026 — Ficha administrativa demonstrativa da 2A
+
+- **Autor/escopo:** agente Codex, continuidade autorizada por Felipe para o próximo bloco independente da 2A, preservando bateria suspensa e organização do frontend. Fonte da referência somente em leitura: `AdminClientsPageV3.tsx`, publicação 83/blob `46265a2723530f10d26f81a4d1d86a5e8004277d`. Nenhuma operação no backend, migration, env, comunicação, merge ou deploy.
+- **Implementação:** módulo de empresas adiciona schemas/vocabulários e service virtual de administração, keys/hooks e capacidade existente; mock dedicado guarda registros/revisões/eventos por instância, reutilizando ledger. Feature separa painel, edição/hook, grupos/campos tipados, resumo e histórico. Field inclui textarea nativa com tokens existentes. Configurações contratuais/financeiras e referências documentais podem ser registradas em memória; nenhum valor ausente é apresentado como conhecido. Valor contratual zero acompanha a normalização null da referência.
+- **Comportamento/limites:** validação de decimais/dias/datas/URLs, confirmação de empresa/valores/revisão, edição concorrente negada, repetição idempotente/no-op sem novo evento, rascunho preservado em falha/refetch, cancelamento/foco/troca de empresa. Autoria/instante vêm do mock. Hospedado mantém capacidade indisponível. Salvar não muda plano/acesso, calcula distrato, emite cobrança, envia aviso, abre Drive ou sobe arquivo. Lacunas de cadastro/arquivos/comprovação/financeiro operacional/ciclo permanecem no roadmap; fase 1/2A abertas.
+- **Validação:** `npm run verify` passou com 166 testes em 21 arquivos, formatação/lint/tipos, configuração local, 32 documentos/666 links e builds SPA/Edge autocontidos; diff sem erros. Regressões cobrem isolamento por empresa/instância, revisão concorrente, repetição/no-op, vínculo/retorno, precisão monetária, datas/dias/URL, cancelamento, rascunho após refetch/falha/conflito, descarte explícito, bloqueio durante gravação e capacidade indisponível. QA Playwright em 1440/1280/1024/390 px: editor e ficha salva/histórico antes-depois, sem overflow do documento; erro numérico associado ao campo bloqueia salvar e gravação confirmada retorna foco ao título. Console final sem erros/warnings; capturas ignoradas em `output/playwright/administration-*`. Permanecem avisos conhecidos de anotação Zod e bundle/import estático/dinâmico. CI da revisão enviada é consultada separadamente no PR #2. Testes não comprovam permissões/persistência/Auth/financeiro hospedados; bateria suspensa não foi retomada.
+- **Documentação/rollback:** contratos, ficha, arquitetura, DS, privacidade, permissões, operação, README/AGENTS/índice e roadmap atualizados. Reverter o lote remove a nova ficha demonstrativa; não há schema/dado remoto a desfazer. Estado em memória desaparece ao recarregar.
+
+## 02/11/2026 — Consolidação técnica de acesso e empresas
+
+- **Autor/escopo:** agente Codex, autorizado por Felipe após revisão dos arquivos de acesso/empresas. Reorganização de responsabilidades, composição e primitivas recorrentes; não é encerramento do frontend nem da 2A. Nenhuma migration, env, contrato de transporte, dado remoto, comunicação, merge ou deploy alterados. Bateria de runtime permanece suspensa.
+- **Arquivos/motivo:** `src/app/App.tsx`, rotas e `session/useSessionBridge.ts` separam providers e coordenação; `features/access` separa código/MFA/termos e hooks de fluxo/callback/enrollment/aceite. `useWorkspaceSession` existente é reutilizado. `access-reason.ts` fecha vocabulário/mensagens, preservando fallback genérico. `features/companies` separa filtros/tabela/painel, formulários/linha/histórico da gestão e mapas de apresentação; módulos de API continuam donos de consultas/mutations e contratos. DS adiciona Checkbox e FeedbackState com consumidores reais.
+- **Paridade:** acordo permanece ligado a ator/versão/hash; somente confirmação da operação libera a próxima etapa. Preservados retornos por papel, falhas/retry, rascunhos, requestId/preimagem, limite de quatro, gestão indisponível no hospedado, histórico/foco e URL/Back/Forward. Efeitos locais de foco e proteção após unmount não foram extraídos artificialmente.
+- **Validação:** `npm run verify` passou com 151 testes em 19 arquivos, formatação/lint/tipos, configuração local, 32 documentos/662 links e builds SPA/Edge autocontidos; `git diff --check` passou. Regressões incluem consentimento invalidado em nova versão, checkbox por teclado, MFA com falha/retry, callback com sucesso/falha, motivo desconhecido, filtros Back/Forward e as jornadas existentes de cadastro/adesão/quatro acessos. QA por Playwright com API inteiramente simulada: termos, tabela/painel/confirmar revogação e erro MFA em 1440/1280/1024/390 px, sem overflow do documento; capturas ignoradas em `output/playwright/refactor-*`. Console final sem erros/warnings; retry visual e teclado conferidos. Testes não comprovam Auth, RLS ou escrita hospedada. Permanecem avisos conhecidos de anotação Zod e bundle/import estático/dinâmico. CI da revisão enviada é consultada separadamente no PR #2.
+- **Documentação/rollback:** arquitetura, DS, ficha FLOW-01/02, README e roadmap atualizados. Reverter este lote restaura a composição anterior; não há alteração de dados ou schema a desfazer. Migração das demais prévias e fechamento funcional/hospedado continuam pendentes.
+
+## 02/11/2026 — Cadastro, adesão e quatro acessos demonstrativos da 2A
+
+- **Autor/escopo:** Codex; Felipe autorizou continuar essas tarefas no que independe do catálogo, mantendo PR/documentação e suspensão de runtime. Nenhuma chamada hospedada, SQL/Docker/Auth, envio, merge ou deploy nesta continuidade.
+- **Implementação:** capacidade opcional management disponível somente no transporte demonstrativo. Cadastro de identidade mínima sem perfil/convite automático, referências de adesão append-only com autor/instante sintéticos e autorizações equivalentes; hospedado permanece null e não seleciona mocks em erro.
+- **Regras do modelo:** referência da mesma empresa antes de nova autorização, situação active/paused, até quatro ativos, e-mail normalizado único na empresa, alteração condicionada à preimagem, revogação preservando demais/histórico, reautorização explícita e e-mail imutável na edição de nome. Comandos virtuais têm requestId e ledger por instância, sem duplicar efeitos na repetição; isso não comprova idempotência/transação hospedada.
+- **Interface:** formulários inline com DS/Form/Zod, confirmação de revogação, estados/erro mantendo rascunho, cancelamento e bloqueio pendente. Cadastro abre ficha pela URL e move foco; resposta tardia após sair não restaura rota. Histórico usa Brasília; aviso de memória volátil e ausência de Auth/e-mail permanece visível. Referência não comprova documento/aceite.
+- **Validação:** `npm run verify` final passou com 146 testes/19 arquivos, formatação/lint/tipos, configuração local e builds SPA/Edge; checagem documental final com 32 documentos/662 links e diff sem erros. QA demonstrativo em 1440/1280/1024/390 px: cadastro/autorização e confirmação sem overflow do documento (largura igual ao viewport nas quatro), foco e estados conferidos; console final zero erros/warnings, sem requests de API hospedada. Capturas locais ignoradas em `output/playwright/cali-2a-registration-*`, `management-*` e `confirmation-*`. QA detectou colisão de keys entre seções e a correção usa identidades por seção; jornada em StrictMode verifica console limpo. Avisos conhecidos de build Zod/bundle permanecem. Bateria de sessão/revogação não foi retomada.
+- **Limites/rollback:** dados somente em memória por instância, descartados ao recarregar. Integração efetiva de cadastro/adesão/convites/perfis/limite/histórico e contrato/financeiro/documentos/ciclo continuam pendentes. Reverter o lote retira as novas capacidades demonstrativas, sem dados hospedados a desfazer e sem tocar propostas de sessão.
+
+## 02/11/2026 — Início da 2A: edição básica de empresa
+
+- **Autor/escopo:** Codex; continuidade autorizada pelo Felipe após correção local/documentação/PR. Fase 1 continua aberta; 2A iniciada, sem declarar cadastro/acessos completos. Oficial somente lido na revisão de referência; nenhum SQL, comunicação, merge ou deploy.
+- **Código:** detalhe separado inclui razão social; formulário inline de nome/razão social com Form/Zod/DS, cancelamento, bloqueio pendente, erro com rascunho e confirmação. Razão social vazia acompanha nome, conforme saveClient da referência. Hook não repete escrita nem insere retorno tardio no cache; invalida queries do ator. Consultas/mutation conectadas exigem Admin pronto.
+- **Transporte:** PATCH somente de display_name/legal_name, condicionado por id e preimagem dos dois campos; exige linha retornada e confere id/valores. Nenhuma alteração de contrato, plano, automações, convite, perfil ou ciclo. Mocks em memória por instância; fixtures globais preservadas. Erro/zero linhas não registra sucesso; descarte/reconsulta exige ação explícita.
+- **Validação:** `npm run verify` passou com 131 testes/17 arquivos, formatação/lint/tipos, configuração local, 32 documentos/658 links e builds SPA/Edge; diff sem erros. QA visual demonstrativo em 1440/1280/1024/390 px: formulário em duas/uma coluna, sem overflow do documento em 390 px (390/390), foco inicial/Tab e zero erros/warnings no console; capturas em `output/playwright/cali-2a-*`. Avisos conhecidos de build Zod/bundle permanecem. Nenhum PATCH hospedado executado; persistência/RLS/triggers/auditoria efetivos dessa escrita não homologados. Bateria de sessão/revogação permanece suspensa.
+- **Pendente/rollback:** cadastro composto, adesão/gate de convite, quatro acessos equivalentes, contrato/documentos/ciclo/histórico e aceite global. Reverter código remove esta edição, sem desfazer eventual nome gravado pelo usuário; rollback de dados exige preimagem/escopo próprio.
+
+## 02/11/2026 — Troca de sessão e admissão local; runtime suspenso
+
+- **Autor/escopo:** Codex; Felipe autorizou corrigir o achado sem retomar a bateria, atualizar documentação/PR #2 e avançar em 2A. Nenhum Docker/SQL/Auth hospedado, envio, merge ou deploy nesta continuidade.
+- **Evidência recuperada:** rodada anterior concluiu 40 verificações locais às 00:02 de Brasília, com SQL/Auth/PostgREST reais em projeção da referência. Incluiu reprodução da janela do hash pendente; não homologou o catálogo hospedado nem a correção completa.
+- **Correção de código:** Edge troca hash no servidor, exige admissão ligada ao código e confere identidade/sessão; falha não devolve credenciais e solicita logout. SPA aceita sessão admitida e preserva compatibilidade explícita com a Edge hospedada legada. SQL de admissão e adapter exclusivo do schema de códigos local foram preparados, não executados. RPC/convites da rodada anterior permanecem candidatos, fora de migrations.
+- **Operação:** migrations/digests históricos preservados. Runtime/driver antigo suspensos até reconciliação; runner experimental preservado como texto ignorado. Nenhuma correção foi aplicada no hospedado; catálogo/adapter efetivo e revalidação continuam pendentes.
+- **Validação:** quatro regressões unitárias da troca e cinco do handler passaram. `npm run verify` passou com 124 testes/16 arquivos, formatação/lint/tipos, 32 documentos/653 links e builds SPA/Edge; `git diff --check` passou. Não executou a bateria suspensa; avisos conhecidos de Zod/bundle permanecem.
+- **Rollback:** reverter código/propostas restaura protocolo anterior local, mas reabre a janela se usado. Não remover futuros marcos/policies/admissões automaticamente nem reverter servidor sem contenção/autorização.
+
+## 01/11/2026 — Expiração confirmada e candidata de corte no servidor
+
+- **Escopo autorizado:** coletar expiração dos JWTs retidos e preparar correção para revisão no PR #2. Nenhum SQL foi executado, nem no laboratório; sem alteração de banco, sessão Admin, configuração Auth, comunicação, merge ou deploy.
+- **Evidência hospedada:** leituras únicas A/B registraram `remainingTokenSeconds=-62`, Auth 403 e 401/PGRST303 nas seis projeções do banco. Coleta dos logs às 22:18–22:19 de Brasília; timestamp de coleta não identifica instante exato da requisição. Tokens originais, sem novo login/refresh, adulteração de relógio/assinatura/TTL ou envio de código. Referências da ferramenta descartadas ao terminar. Não prova refresh/expiração de uma SPA ainda autenticada.
+- **Preparação concreta:** `supabase/proposals/session-cut/catalog.sql` inventaria metadados em transação read only; `candidate.sql` propõe sessão Auth vigente e marco privado por usuário, com restritivas em profiles/companies/client_invites/terms_acceptances e triggers de corte/restauração. Fora de migrations/runners, bloqueada sem opt-in de revisão e owner esperado. Não escreve no Auth, não concede ações de negócio nem substitui MFA/termos/isolamento existentes. `acceptance.sql` prepara casos de banco com claims de teste e rollback, sem execução ou garantia de QA aprovado.
+- **Bloqueios preservados:** catálogo ativo ainda não obtido; funções DEFINER/Edge/service_role podem ignorar RLS. Referência workspace-access permite upsert active=true por convite ativo em resolveOrCreateProfile; observado na fonte, sem novo teste que dispare e-mail. Revogação de convite/códigos/refresh, concorrência, novo login após marco, performance e demais superfícies precisam de reconciliação/teste em cópia isolada antes de aplicação. Candidata não encerra a fase 1.
+- **Documentação:** contrato dono detalha mecanismo, dependências, validação/rollback; roadmap, ambiente, matriz/ficha, privacidade, README/índice/AGENTS/runbook refletem expiração comprovada e correção somente preparada. Nenhum prazo de guarda inventado.
+- **Validação:** `npm run verify` passou com 120 testes em 15 arquivos, formatação/lint/tipos, configuração local, 32 documentos/648 links e builds SPA/Edge; `git diff --check` passou. SQL não executado nem validado por engine PostgreSQL; testes da aplicação não certificam essa candidata. Permanecem os avisos conhecidos do Zod e tamanho do bundle.
+- **Rollback:** nesta entrega, reverter apenas proposta/documentação. Após eventual aplicação futura, não remover restritivas/marcos como reversão automática, pois reabriria acesso de sessões anteriores; plano de contenção/correção e invalidação Auth devem ser revisados antes.
+
+## 01/11/2026 — Continuidade do código e prova A/B no hospedado
+
+- **Escopo:** validar Clientes A/B, isolamento, logout, expiração e revogação no hospedado, sem publicação. Sessões de teste em origens locais 5181/5182, mesmo backend; Admin em 5173 preservado. Nenhuma mudança de TTL, grant/policy ou schema.
+- **Defeito reproduzido:** foco/visibilidade/intervalo publicavam `loading` durante estado ainda não autenticado, desmontando formulário de código/MFA/aceite. O teste com leitura assíncrona reproduziu perda da etapa/código no controller anterior; passou após preservar snapshots resolvidos na revalidação. Eventos Auth do mesmo ator revalidam sem invalidar todo o fluxo; logout/troca de identidade continuam invalidando.
+- **Ferramenta:** `scripts/hosted-access-probe.ts`, manual e fora do bundle da SPA, confere ator/vínculo/marcador e coleta apenas HTTP/contagens. Retém credenciais somente em memória para replay antes/depois do logout e expiração; não autentica, não renova automaticamente e não modifica policies. Consultas sem cache comprovaram somente profiles/companies/client_invites; não fazem homologação global.
+- **Envios de código auditados:** três solicitações por ator feitas pelo agente entre a preparação e a recuperação da etapa perdida. Histórico `workspace_access_code_requested` desde 20:40 de Brasília confirmou quatro eventos para A e três para B, todos com aceite do provedor; quarto de A às 21:15 veio da aba A, sem identificação de quem acionou. Não foi certificado recebimento em caixa por esse log. Novos envios foram suspensos após o relato; sem atribuir o quarto evento a retry automático.
+- **Validação do recorte:** `npm run verify` final passou com 120 testes em 15 arquivos, formatação/lint/tipos e builds SPA/Edge; checagem documental posterior passou com 32 documentos/640 links, e `git diff --check` passou. Resultado local é separado da prova hospedada abaixo.
+
+- **Prova hospedada:** usuário concluiu código/aceite A/B. Próprio perfil/empresa: uma linha; perfil/empresa/convites da outra empresa: zero linhas para ambos; URL Admin redirecionada para Cliente. Inativação de A bloqueou SPA/empresa sem afetar B; A restaurado ao estado ativo original. Escopo limitado às tabelas consultadas.
+- **Bloqueio confirmado:** logout de A/B limpou armazenamento; Auth recusou JWT (403) e refresh (400) anteriores, mas PostgREST ainda leu próprio perfil/empresa (200/uma linha) com JWT não vencido. Restaurar A também recuperou acesso com o mesmo JWT. Outra empresa continuou negada. Servidor hospedado ainda não atende ao corte/revogação do contrato local; nenhuma policy/schema alterada. [Evidências](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
+- **Expiração na preparação desta rodada:** leituras únicas foram agendadas para 22:15:47/22:16:55 de Brasília; resultado posterior comprovado na entrada acima. Sem novo login, refresh automático da ferramenta ou alteração de TTL/relógio.
+- **Estado/rollback:** perfis A/B ativos como antes, ambos deslogados; Admin preservado. Reverter o lote desfaz correção/ferramenta, sem apagar fixtures/aceites ou alterar servidor. Não revogar Admin nem aplicar baseline local para contornar o achado. Fase 1 permanece aberta.
+
+## 01/11/2026 — Sessão hospedada, empresas e atores de teste
+
+- **Autorização/escopo:** Felipe informou que a plataforma ainda não foi lançada e autorizou usar o backend hospedado existente para desenvolvimento e manipulação de fixtures, incluindo dois destinatários Cliente controlados por ele. DEC-27 substitui o limite de leitura do backend neste recorte; repositório oficial continua somente leitura. Nenhuma migration, grant/policy, configuração Auth, merge ou deploy foi executado.
+- **Implementação:** SDK oficial Supabase 2.118.0 fixado; configuração demo/conectada validada, sem chave privilegiada, fallback indevido ou segredo versionado. Namespace de sessão exclusivo da V2, refresh/eventos/foco/visibilidade/intervalo, controller/guardas e retorno seguro. Revalidação do mesmo ator preserva cache/trabalho; troca/revogação/erro limpa. Telas por código, MFA TOTP obrigatório Admin, termos e callback PKCE usam Form/Zod e DS/Tailwind.
+- **Dados:** adapter hospedado de lista/detalhe/acessos com projeções Zod, paginação e keys por ator/vínculo real. Fixtures permanecem na composição demo. Shell conectado não mostra métricas fictícias de módulos ainda em migração; cadastro/contrato/convite/ciclo de produto permanecem 2A.
+- **Atores sintéticos:** duas empresas identificadas por `CALI_V2_TEST_A_20261101` / `CALI_V2_TEST_B_20261101` e automações desligadas; POST 201 de empresa/vínculo, ativação aprovada PATCH 200 e GET de confirmação. Solicitação de código à Edge existente retornou 200 para A/B; GET confirmou cada perfil Cliente ativo na empresa de teste correta. Nenhuma conta/vínculo anterior foi reatribuído, token ou segredo foi exportado. Destinatários ficam fora do Git; entrega efetiva e login Cliente não foram certificados.
+- **Falha corrigida durante QA:** consumidor enviava termos completos ao schema estrito que aceita só versão/hash; Zod recusava antes do POST. Corrigido no consumidor e coberto por teste da transição/erro. Usuário concluiu o aceite pela UI, sem inserção de aceite pelo agente. Hot reload também preservou instância anterior sem método novo de revalidação; atualização de aba resolveu, sem reload automático no produto.
+- **Evidência real V2:** usuário concluiu login Admin/MFA/aceite; lista mostrou quatro empresas do banco, busca de fixtures mostrou duas, detalhe A confirmou um vínculo esperado e limpeza restaurou quatro; Back/Forward restauraram filtro e lista. Comparação DOM com online confirmou mesmo conjunto de quatro empresas. Layout em 1440/390 px, documento sem overflow em 390 e tabela em região própria; console da página atual sem erros/warnings. Não estender essa prova a callback válido, logout/expiração/revogação ou RLS Cliente A/B.
+- **Diferença observada:** online soma `1 + extras habilitados` e mostra dois acessos em cada fixture sem principal; V2 recebeu/listou um vínculo em cada. Fonte oficial `AdminClientsPageV3.tsx`, blob `46265a2723530f10d26f81a4d1d86a5e8004277d`, linha 477. Rastreado em FLOW-02; não transportado como regra de quatro acessos equivalentes.
+- **Termos/limites:** reprodução da versão oficial 2026-10-15, sem texto sintético. O hospedado registra versão/instante, não o digest calculado na UI; guarda frontend não certifica RLS/predicados locais no hospedado. Linguagem de principal/privados requer reconciliação com DEC-05/09 antes de migrar esses campos. Nenhuma revisão jurídica nova foi presumida.
+- **Validação:** `npm run verify` passou com 119 testes em 15 arquivos, formatação/lint/tipos, configuração local, 32 documentos/633 links e builds SPA/Edge; `git diff --check` passou. CI da revisão é conferida no PR #2; fase 1 permanece aberta. Testes novos cobrem configuração ambígua/privilegiada, MFA/aceite/bindings, falha sem fallback, cache/revalidação e aceite explícito sem campos extras. Fixtures não comprovam RLS hospedada. `npm audit` encontrou 12 alertas moderados na cadeia de lint já presente antes do SDK; nenhum pacote runtime listado. Sem correção forçada/downgrade. Builds preservam avisos Zod e bundle grande.
+- **Rollback:** reverter o lote restaura a composição anterior, preservando `.env` ignorado; isso não remove empresas/perfis/convites/aceites criados no backend. Desativação/limpeza de fixtures e mudanças de schema exigem recorte explícito. Não apagar dados existentes nem aplicar baseline local para satisfazer a UI.
+
+## 29/10/2026 — Códigos/termos no laboratório e sessão preparada
+
+- **Autor/escopo:** agente Codex, conforme continuidade autorizada por Felipe para códigos/termos no ambiente isolado, preparação de sessão/guardas e manutenção do PR #2. Sem conexão ao oficial, execução de seus SQLs, dados reais, entrega externa, merge ou publicação. SPA continua demo, sem SDK/URL real.
+- **Servidor:** migrations novas `20261029120000_codes_terms.sql` e `20261029123000_access_revocation.sql` aplicadas por lista explícita do runner, sem modificar a baseline já aplicada. Código privado com HMAC, seis dígitos/10 minutos/120 segundos/cinco tentativas, serialização de request/consume e um consumidor vencedor. Entrega confirmada só no Mailpit. Consumo antecede emissão Auth e não é reaberto em falha/timeout; não promete transação distribuída.
+- **Termos/sessão:** conteúdo/digest de servidor e aceites imutáveis, versão corrente, aceite por ator/instante do servidor, repetição idempotente e nova confirmação após mudança de versão. Nenhum texto jurídico de produção publicado: testes usam conteúdo sintético. Estado de acesso exige sessão vigente, perfil/empresa/adesão, MFA Admin e aceite corrente. Inativação/perfil e blocked/closed/archived revogam sessões/códigos; reativação não recupera esses registros. Pausa mantém consulta. Leitura Cliente de empresa fica no próprio vínculo; não abre outros domínios.
+- **Edge:** handler reutiliza schemas Zod da V2 e ports testáveis; adapter só aceita nomes internos e origem local revisada. Vite empacota dependências para não baixar imports na rede internal. Edge Runtime v1.77.8 é o sexto serviço de negócio. Primeira tentativa com referência interna em comentário do bundle falhou; minificação/autocontenção corrigiram resolução. Rebuild revelou mount de arquivo removido; emptyOutDir=false preserva o arquivo e o endpoint foi confirmado saudável após verify. Sem ignore-health-check/fallback externo.
+- **Frontend:** contrato de estado/conteúdo, controller injetável, cancelamento/gerações/cache, beforeLoad por papel e invalidação de rota no logout. `/acesso` tem mensagens por motivo e retorno restrito a caminhos internos. Adapter de sessão/eventos/refresh e telas de código/MFA/termos não estão conectados; guardas usam fonte injetada nos testes. Mock-admin/Query de empresas não virou identidade autenticada.
+- **Gates:** `npm run verify` passou com 98 testes em 12 arquivos, formatação, lint, tipos, configuração, links, build SPA e bundle Edge sem Docker/rede. Permanecem avisos conhecidos do Zod, também no bundle. Checagem documental final e git diff conferidos antes de enviar.
+- **Runtime local:** 76 verificações via Edge/Mailpit/Auth passaram: request/consumo concorrentes, limites/expiração/reutilização, hash Auth de uso único, duas versões/aceites, RLS da própria empresa, pausa/bloqueio/encerramento/arquivamento, revogação/reativação, logout, expiração por not_after e MFA obrigatório Admin após código. Regressão de adesão passou em 31 verificações; as duas suítes SQL passaram com rollback, incluindo grants, entrega pendente/falha e conteúdo imutável. Falha de adapter/Auth é coberta em unitários com portas simuladas, sem alegar teste de falha distribuída real.
+- **Rede/captura:** seis namespaces, incluindo Edge, passaram em controle Postgres interno e negativas de IP externo/canário próprio do host. SMTP/captura local de regressão também passou. Não é auditoria exaustiva de egress nem prova de Resend/canais operacionais. Handler não imprime códigos/tokens/segredos; fixtures persistentes são exclusivamente sintéticas.
+- **QA:** página de bloqueio conferida em 1440/1280/1024/390 px; 390 px sem overflow, console sem erros/warnings. Capturas locais em `output/playwright/`, ignoradas. Testes de rota provam URL direta negada sem renderizar feature, retorno interno, logout removendo feature/cache e resposta atrasada sem restaurar sessão. Primeiro lazy import usa janela de cinco segundos como o consumidor existente; QA não comprova login/MFA/aceite real no navegador.
+- **Documentação/limites:** DEC-26, [contrato](contracts/ACCESS_COMPANIES.md#códigos-termos-e-guarda-de-sessão--2910), [operação](LOCAL_ENVIRONMENT.md), arquitetura, fichas/matriz, privacidade, roadmap e AGENTS/README atualizados. Faltam adapter/eventos/telas da SPA, conteúdo jurídico validado, comprovação/gate de convite, cadastro/quatro acessos e RLS dos demais domínios. Expurgo/guarda não foram inventados; TTL não é retenção. Fase 1 permanece em andamento; CI da revisão enviada é conferida no PR.
+- **Rollback/estado:** parar somente projeto/ingress, preservando volumes; apagar fonte/bundle não desfaz migrations ou dados. Nova alteração de schema exige migration revisada, nunca reset/prune ou reescrita do journal. Estado final: stack/Edge e ingress parados, volumes preservados; fixtures de API e versões sintéticas permanecem locais.
+
+## 29/10/2026 — Baseline local e persistência de adesão
+
+- **Autor/escopo:** agente Codex, conforme autorização do Felipe para continuar fase 1 pela baseline/persistência de adesão no ambiente isolado e manter PR #2 atualizado. Frontend continua com mocks; sem conexão ao Supabase oficial, importação/execução de seus SQLs, comunicação externa, merge ou publicação.
+- **Baseline:** `supabase/migrations/20261029090000_access_adhesion_baseline.sql` é implementação nova mínima: empresa/perfil/adesão, predicado Admin ativo/AAL2/fator TOTP verificado, RLS/grants e helpers privados com search_path fixado. RPC invoker exposta retorna contrato Zod; autoria e instante vêm do servidor. Evidência append-only com FK restritiva, sem UPDATE/DELETE ou escrita direta pela API. Não há convite/conta completos, termos ou códigos de login implementados.
+- **Ferramentas/ambiente:** CLI oficial 2.122.0 arm64 verificado por SHA-256 e usado temporariamente em `/tmp/cali-cli-2.122.0`; Docker observado 29.9.2. DEC-25 corrige o desenho inicial: Docker não publicou portas de containers exclusivamente internal. Proxy HAProxy oficial fixado por digest publica só 127.0.0.1 e quatro destinos TCP fixos, com forwarding desligado/cap_drop ALL/readonly/no-new-privileges; serviços de negócio mantêm somente a rede internal. Segunda bridge é exclusiva do proxy, que possui conectividade própria; não declarar ausência de egress nele.
+- **Bootstrap:** tentativa completa antes de criar schema falhou no healthcheck PostgREST. Procedimento reproduzível inicia sem PostgREST, aplica baseline explicitamente após topologia/provas e reinicia com API. Nenhum ignore-health-check ou reset foi usado. Migrations/seeds de negócio automáticos seguem desligados; CLI/Auth executaram apenas seu bootstrap interno. Provider e-mail foi habilitado para login; signup público permaneceu bloqueado e foi testado.
+- **Runners:** `local-database.ts` confere alvo/rede/labels/bindings/restrições e digests dos arquivos de ingress; aplica somente baseline conhecida em transação com journal/digest, recusando schema existente sem journal ou divergência. `local-isolation.ts`, `local-adhesion-api.ts`, `local-mail.ts` e teste SQL fazem provas explícitas, fora do verify/CI comum. Drivers não imprimem/gravam segredos; output do CLI deve ser capturado em arquivo privado.
+- **Validação local:** `npm run verify` passou: formatação, lint, tipos, 83 testes em nove arquivos, integridade de configuração, links e build. Dois avisos conhecidos de anotações do Zod permanecem. `local:db:apply` repetido confirmou digest e não escreveu novamente; teste SQL passou com rollback, inclusive após existir evidência persistente.
+- **API/Auth:** 30 verificações passaram com JWT emitido pelo Auth e TOTP local real: signup negado, AAL1/ausência de fator/erro negados, AAL2 permitido, contrato/autoria corretos, autoria extra e escrita direta negadas, Cliente A/B/anônimo/service role negados, perfil inativo e fator removido bloqueando JWT AAL2 anterior. A senha do driver é sintética e não muda o protocolo de login por código do produto.
+- **Isolamento/captura:** cinco namespaces passaram no controle Postgres interno e nas negativas de IP externo `1.1.1.1:443`/canário próprio do host `host.docker.internal:56320`; repetidos na topologia final. Não é prova exaustiva de todo caminho de rede. Mensagem sintética capturada/conferida no Mailpit; não é teste de Resend, OTP ou resumo operacional. Não houve sondagem de serviços de outros projetos.
+- **Persistência/estado final:** um registro sintético de adesão permaneceu com fingerprint SHA-256 idêntico antes/depois de reiniciar o stack. SQL reverte fixtures; driver API preserva empresas/atores/evidência sintéticos, inclusive preparação parcial da primeira tentativa de Auth. Stack e ingress parados ao encerrar, volumes preservados; redes dedicadas permanecem. Não houve limpeza de dados nem recursos de outros projetos.
+- **Documentação:** [ambiente/comandos](LOCAL_ENVIRONMENT.md), [contrato](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910), fichas/permissões/privacidade, arquitetura, DEC-25, roadmap, runbook, README/AGENTS atualizados. Prova de adesão não comprova validade jurídica da referência; UI/comprovação/gate de convite, sessão/termos/códigos e demais RLS continuam pendentes. Fase 1 em andamento; CI da revisão enviada será conferida no PR.
+- **Rollback:** parar somente projeto/ingress com volumes preservados. Git revert não desfaz dados/schema aplicados; evolução exige migration revisada. Não usar all/no-backup/prune nem apagar histórico para repetir teste.
+
+## 28/10/2026 — Tailwind no DS e empresas; migração por fluxo
+
+- **Autor/escopo:** agente Codex, conforme autorização do Felipe para atualizar a branch/PR #2, migrar o legado junto dos fluxos e fazer limpeza global após migrar seus consumidores (DEC-24). Fase 1 continua em andamento.
+- **Construção:** Tailwind e plugin Vite 4.3.3, plugin Prettier 0.8.1 e lockfile fixos; `vite.config.ts`, `.prettierrc.json`, bootstrap, tokens e nova `src/styles/tailwind.css` configurados. Prefixo `tw:`, aliases CALI via `@theme inline`, sem Preflight e sem layers durante a coexistência com CSS global legado. Nenhuma biblioteca adicional de composição de classes.
+- **Consumidores:** Button, Field e empresas usam utilities; mapa de variantes exaustivo preserva `variant="secondary"`. Removidos os três CSS integralmente substituídos (170 linhas). Contratos, filtros, permissões, rotas e dados permanecem iguais. Oito folhas legadas ficam inventariadas no [DS](DESIGN_SYSTEM.md#inventário-da-migração-de-estilos), para migração com consumidores reais e limpeza final após retirar dependências.
+- **Documentação:** README/AGENTS, arquitetura, DS, DEC-24, roadmap, runbook e política de mudança registram padrão, coexistência e trabalho restante. PR acompanha esta mesma entrega; sem declarar migração global concluída.
+- **Validação:** instalação limpa `npm ci --ignore-scripts --offline --no-fund` passou; `npm run verify` passou com 76 testes em oito arquivos, formatação, lint, tipos, configuração local e build; checagem documental final passou com 32 documentos/597 links. Nenhum teste novo criado apenas para espelhar classes. Permanecem dois avisos conhecidos de anotações do Zod.
+- **QA local:** empresas conferido antes/depois em 1440/1280/1024/390 px; geometria e tipografia preservadas. Capturas em 1440/1024/390 e telas legadas Admin/Cliente em 1280 tiveram arquivos idênticos por SHA-256. Tab confirma foco bordô de 2 px/offset de 3 px no Button; tabela mobile rola por ArrowRight sem ampliar documento (390 px; região 256 px/conteúdo 489 px). Busca inválida mantém erro associado de 14 px e botão disabled/opacidade 0,65. Contraste calculado em sRGB: bordô/branco 12,66:1, texto principal/branco 14,16:1, auxiliar/branco 5,47:1 e auxiliar/marfim 4,96:1; não certifica todos os estados do sistema. Console: zero erros/warnings. Capturas locais em `output/playwright/`, ignoradas pelo Git.
+- **Limites:** conferência não homologa todos os fluxos, zoom/leitor de tela ou estados assíncronos reais. Não houve conexão ao Supabase oficial, ativação do stack local, SQL, comunicação, merge ou deploy. Sessão, adesão persistida e RLS continuam pendentes. CI remota precisa ser conferida na revisão enviada.
+- **Rollback:** reverter somente integração/configuração, lockfile e migração deste recorte, restaurando os três CSS/imports correspondentes; preservar contratos e alterações posteriores. Não há dados ou serviços deste lote para remover.
+
+## 28/10/2026 — Contratos de acesso/empresas e definição do laboratório local
+
+- **Autor/escopo:** agente Codex, conforme continuidade autorizada da fase 1 e manutenção do PR #2. Sem conexão ao Supabase oficial, execução de SQL ou ativação de serviços. Oficial consultado somente em leitura.
+- **Reconciliação:** 586 fontes de src/supabase/docs conferidas por blob contra a publicação 83 `f3d3f14`, incluindo os 166 SQLs versionados. Publicação 84 `ce48879` altera apenas handoff/CSS de formulário público; não substitui a referência de contratos. [Contrato mínimo](contracts/ACCESS_COMPANIES.md) separa payloads/erros/records observados, alvo V2 e lacunas.
+- **Decisões:** DEC-21 confirma com Felipe MFA obrigatório Admin antes de liberar acesso, inclusive primeiro uso e bloqueio em falha. DEC-22 define ambiente local dedicado. DEC-23 autoriza investigar/criar registro próprio de adesão quando ausente: cadastro atual trata contrato/aditivo e primeiro acesso trata convite/aceite individual; não foi localizada operação específica de adesão da empresa.
+- **Tipos/contratos:** schemas de solicitação/verificação de código, resposta com token/papel, records mínimos planejados de perfil/aceite/empresa/convite e contrato novo de adesão. Requests não aceitam autoria/papel/empresa arbitrários fora do contrato; autoria/instante do registro de adesão são de servidor. Contrato não implementa gravação, assinatura eletrônica, service Auth, sessão ou RLS. Nenhum Database manual ou SDK criado.
+- **Empresas:** catálogo incorpora archived, observado no SQL, com label/filtro correspondente; sem ação nova de arquivamento, persistência ou dado real. DTOs de demonstração continuam separados das projeções planejadas.
+- **Laboratório:** [definição](LOCAL_ENVIRONMENT.md), `supabase/config.toml` e script `local-environment.ts` implementados. CLI fixado em 2.122.0, projeto/rede exclusivos, loopback, captura de e-mail local, signup externo e serviços extras desabilitados, migrations/seeds desligados. `local:config:check` integra verify; `local:preflight` apenas lê versões/contexto/rede/portas e bloqueia vínculo/overrides/arquivos não revisados.
+- **Evidência local:** Docker 29.8.2 disponível, portas 56320–56325 sem listener e nenhum container/rede CALI. Preflight **não passou** por CLI ausente e rede dedicada ausente. Nenhum container/rede/volume foi criado/alterado, inclusive os oito containers de outros contextos. Isolamento de runtime/egress, captura real, compatibilidade operacional do CLI e schema aplicado continuam pendentes.
+- **Validação:** `npm run verify` passou com 76 testes em oito arquivos, formatação, lint, typecheck, integridade da configuração, links documentais e build; `git diff --check` passou. Novos testes verificam entrada/resposta inválidas, metadados de autorização forjados, ausência de prova de aceite/adesão e pré-condições de ambiente sem vazamento de valores. Não certificam autenticação, RLS ou validade de documento. Avisos conhecidos de comentários do Zod permanecem; QA visual não repetido neste recorte de contratos/configuração.
+- **Pendências concretas:** DDL de workspace_access_codes ausente; create_client_account sem corpo (2A); persistência/operação real da adesão; guardas unificadas; baseline local revisada, CLI/rede/stack, atores e provas A/B/Admin/MFA/termos/logout. TEC-01/02 e OPEN-10 não foram encerrados globalmente. Formato de assinatura/anexo e prazo de guarda não foram inventados.
+- **Entrega/revisão:** commits por contratos, preparação do ambiente e documentação no mesmo PR de rascunho; descrição/checklist atualizados para este lote. Sem merge, deploy, comunicação operacional ou migração de dados.
+- **Rollback:** reverter somente estes contratos, estado archived, configuração/scripts/gates/testes e atualização documental, preservando a fundação anterior e alterações posteriores. Não há stack ou dados deste lote para remover; não executar limpeza global de Docker.
+
+## 27/10/2026 — PR #2 aberto e vínculo do acompanhamento
+
+- **Entrega:** [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) aberto em rascunho de `felipesdl:codex/fase-1-base` para `patricia258:main`. Quatro commits iniciais: `fb53a67` (fundação/API/verificações), `0e4306b` (DS), `55cc020` (rotas/empresas com mocks) e `abec452` (documentação). Este registro e os links do acompanhamento compõem um commit documental posterior.
+- **Descrição:** escopo entregue, checklist de fechamento, limites, commits, fontes canônicas e rollback registrados; atualizar o mesmo PR a cada lote de commits conforme política. Fase 1 permanece em andamento e fase 2A não foi antecipada como entrega operacional.
+- **Conferência remota:** PR aberto, draft e head `abec452` confirmados; quatro commits presentes e sem conflitos reportados. GitHub não registrou checks/runs para essa revisão na consulta; CI continua pendente, sem atribuição de causa ou alegação de sucesso remoto.
+- **Validação:** `npm run verify` passou para o pacote de implementação em `abec452`, com 50 testes e build. Este ajuste posterior altera somente documentação/links, validado por `docs:check` (30 documentos/558 links locais) e `git diff --check`, sem repetir a suíte de aplicação. As alterações locais foram preservadas nos commits enviados.
+- **Estado/limites:** README, AGENTS, roadmap e runbook agora identificam o PR real. Sem merge, conexão ao Supabase oficial, migration, comunicação operacional ou deploy. Rollback por reversão do recorte, preservando a documentação/base anteriores e eventuais mudanças posteriores.
+
+## 27/10/2026 — Preparação do PR de acompanhamento da fase 1
+
+- **Autor/autorização:** agente Codex, conforme pedido do Felipe de fazer os commits e abrir PR antes de avançar. Base `patricia258/cali-workspace-v2:main` em `c9baea7`; branch `codex/fase-1-base` no fork `felipesdl/cali-workspace-v2`. Destino confirmado em leitura; nenhuma mudança direta na main.
+- **Recortes:** fundação/runtime/API/mocks/verificações; tokens e primitivas DS; navegação e consumidor demonstrativo de empresas; documentação do estado/pendências. A revisão do PR considera o conjunto final dos commits, sem alegar validação isolada de cada revisão intermediária.
+- **Acompanhamento:** ROADMAP recebe checklist explícito do concluído localmente e do necessário para fechar a fase 1. CHANGE_POLICY e AGENTS orientam atualizar a descrição do PR a cada lote de commits, junto das fontes canônicas e da evidência de validação. README/runbook apontam para o acompanhamento; fases 1 e 2A permanecem distintas.
+- **Validação do pacote:** `npm run verify` passou com formatação, lint, typecheck, 50 testes em seis arquivos, 30 documentos/558 links locais e build. Arquivos preparados conferidos sem padrão de credencial localizado; isso não certifica segurança. Capturas/artefatos locais permanecem ignorados. Avisos conhecidos de otimização do Zod permanecem no build.
+- **Pendente:** CI/revisão no GitHub, contratos mínimos TEC-01/02, ambiente OPEN-10, sessão/guardas/MFA, adesão/termos, isolamento servidor A/B/Admin, expiração/revogação/logout/limpeza de contexto e validação do acesso real. Mocks e build não encerram esses gates; cadastro/convites/manutenção completos pertencem à fase 2A.
+- **Estado/limites:** pacote preparado para PR de rascunho; a URL e situação de CI serão verificadas após o envio. Sem conexão ao Supabase oficial, migration, comunicação operacional, merge ou deploy. Esta publicação de branch/PR autoriza revisão do código, não a publicação da aplicação.
+- **Rollback:** reverter os commits deste recorte preservando a base documental mergeada; não há dados/migrations a desfazer. Mudanças posteriores devem ser preservadas ao preparar a reversão.
+
+## 27/10/2026 — Variantes compartilhadas no contrato, strings no JSX
+
+- **Autor/decisão:** agente Codex, conforme esclarecimento do Felipe: padronizar a tipagem entre componentes, preservando a ergonomia de `variant="secondary"` nos consumidores. Este registro substitui a exigência anterior de constante na prop JSX.
+- **Implementação:** `UiVariant` continua derivado do vocabulário `as const` compartilhado. Button importa apenas o tipo e usa default `primary`; os quatro consumidores de empresas voltaram a strings tipadas, sem importar a constante. CSS, valores permitidos e apresentação permanecem iguais.
+- **Lint/testes:** removidas somente as duas restrições de literal em `variant`. Os respectivos cenários agora verificam permissão de strings diretas/em expressão; uso da constante também permanece válido. As outras restrições de tipos, hooks, imports e identidade continuam vigentes. A rejeição de uma variante fora do vocabulário pertence ao TypeScript, não ao lint de literais.
+- **Documentação:** DS, arquitetura, runbook, AGENTS e este registro refletem o contrato compartilhado com consumo por string. Não foi criada união paralela no Button ou na feature.
+- **Validação:** `npm run verify` passou com formatação, lint, typecheck, 50 testes, 30 documentos/552 links locais e build; `git diff --check` passou. Sem alteração visual, QA de navegador não repetido. Sem dependências novas, conexão a backend, migration, commit ou publicação.
+- **Rollback:** restaurar a exigência anterior de constante apenas se houver nova decisão explícita; este ajuste não altera dados ou contratos do backend.
+
+## 27/10/2026 — Vocabulário compartilhado de variantes UI
+
+- **Autor/escopo:** agente Codex, conforme pedido do Felipe de padronizar nomes de variantes entre componentes. Alteração local sobre a fase 1 em andamento; sem commit ou publicação.
+- **Implementação:** `src/components/ds/variants.ts` define `UiVariant.Primary`/`Secondary` em objeto `as const` e deriva o tipo dos valores. Button usa esse tipo e default compartilhado; quatro usos explícitos de variante em empresas agora referenciam a constante. Valores/classes CSS e apresentação permanecem iguais.
+- **Restrição:** lint bloqueia literais diretos e literais em expressão JSX na prop `variant`. Componentes com a mesma semântica reutilizam o vocabulário; novas variantes precisam de contrato no DS e consumidor real. Não foram adicionadas variantes sem uso.
+- **Documentação:** DS, arquitetura, runbook, AGENTS e este registro atualizados. Tipo e valores não são duplicados em uniões/enum por feature; `as const` mantém o padrão de constantes adotado no projeto.
+- **Validação:** `npm run verify` passou: formatação, lint, typecheck, 50 testes, 30 documentos/552 links locais e build. Três cenários adicionados ao contrato de lint para variantes permitidas/negadas; `git diff --check` passou. QA visual não repetido porque os valores e estilos não mudaram. Sem integração, dependência nova, mudança de dado ou regra de produto.
+- **Rollback:** restaurar a união/default/consumidores anteriores, remover o vocabulário e as duas restrições JSX com seus testes/documentação. Não há backend ou migration para desfazer.
+
+## 27/10/2026 — Tipagem documentada e restrições de lint
+
+- **Autor/escopo:** agente Codex, conforme pedido do Felipe. Revisão local das convenções de tipos e endurecimento do lint, preservando a fase 1 em andamento. Sem commit, conexão externa de dados ou publicação.
+- **Lint:** `any` explicitamente proibido também nos testes; imports de tipo obrigatórios; casts de objetos/arrays literais proibidos, com `as const` permitido; bloqueio de alert/confirm/prompt, reload direto da página e keys por índices `i`/`idx`/`index`, inclusive interpolados. Regras de hooks, Refresh, unused e fronteiras permanecem ativas nos seus escopos. Nenhuma dependência adicionada.
+- **Entradas não validadas:** `unknown` proibido por padrão. Cinco exceções de linha justificadas preservam validação real: três respostas brutas no service, configuração externa validada por Zod e payload arbitrário de teste. Sem exceção geral por arquivo para essa regra; não se atribuiu confiança ao transporte por cast.
+- **Correções:** substituído um cast de mapa Admin por `satisfies`; oito keys por índice corrigidas em DeliverablesView, NoticesView e ClientWorkspace. Dados estáticos usam identidade do conteúdo; mensagens/comentários locais agora têm tipos específicos com ID criado na inclusão, preservando textos repetidos. Sem mudança de regra de negócio, envio ou persistência. Identidades de fixtures não substituem IDs persistidos na integração futura.
+- **Documentação:** arquitetura registra inferência de schemas, tipos locais, imports, constantes, mapas e ampliação de módulo do router; runbook enumera regras/exceções e limites. README, AGENTS e índice apontam para as fontes canônicas. ESLint continua sem o conjunto de análise de tipos `no-unsafe-*`; TypeScript permanece strict e oito arquivos legados mantêm somente a exceção anterior de unused.
+- **Validação:** suíte com 47 testes em seis arquivos, incluindo 20 cenários de código permitido/negado contra a configuração real do ESLint. Setup DOM condicionado à presença de window para suportar o teste de lint em Node e os testes de interface em jsdom. `npm run verify` passou: formatação, lint, typecheck, 47 testes, 30 documentos/550 links locais e build. `git diff --check` passou; avisos já conhecidos do Zod permanecem no build. Sem repetição de QA visual nesta revisão técnica; não há aceite funcional de fluxo real.
+- **Rollback:** reverter somente este recorte de regras, comentários de fronteira, ajustes de identidade/local types, teste de lint, setup e documentação; preservar a separação de mocks e a fundação anteriores. Sem dados/migrations para desfazer.
+
+## 27/10/2026 — Separação dos mocks da aplicação e dos testes
+
+- **Autor/escopo:** agente Codex, conforme pedido do Felipe. Reorganização local sobre a fundação em andamento, sem commit ou publicação; comportamentos e contratos de produto preservados.
+- **Aplicação:** adapter de empresas, fixtures de empresas/avisos e cliente Axios restrito movidos para `src/mocks/adapters`, `src/mocks/fixtures` e `src/mocks/http`. Removidos `src/demo` e o adapter antes localizado no módulo de empresas. Factories/identificadores usam `Mock`/`mock`; apenas `src/api/modules/companies/api.ts` compõe a implementação de dados para os hooks. Namespace sintético de cache passou a `mock-admin`.
+- **Testes:** `tests/fixtures/companies.ts` contém empresa ausente e resposta de acessos de outra empresa; `tests/mocks/http.ts` fornece respostas controladas para contratos inválidos. Integrações continuam exercitando os mocks da aplicação; dados exclusivos de erro não são importados pela aplicação. Spies usados por um único teste permanecem locais.
+- **Fronteiras:** ESLint bloqueia imports de testes em `src`, acesso direto a mocks por features/DS e seleção de mocks fora da composição do módulo de API. Seis verificações dirigidas da configuração confirmaram importações permitidas/negadas.
+- **Documentação:** README, AGENTS, arquitetura, índice, dados/contratos, decisões, runbook e este registro atualizados. `demo` permanece como nome do modo demonstrativo nas variáveis existentes; não houve mudança do contrato de configuração. Dados inline dos demais protótipos continuam para migração por fluxo.
+- **Validação:** `npm run verify` passou com 27 testes em cinco arquivos, formatação, lint, typecheck, 30 documentos/545 links locais e build; `git diff --check` passou. Avisos de comentários de otimização do Zod permanecem. Sem alteração visual nesta reorganização; QA de navegador não repetido. Mocks não comprovam backend, autenticação ou RLS.
+- **Ambientes/rollback:** sem conexão ao Supabase, dependência nova, migration, comunicação, push ou deploy. Para desfazer este recorte, restaurar a localização anterior dos mocks e seus imports/regras/documentos, preservando a fundação e as decisões anteriores.
+
+## 27/10/2026 — Fundação local e padrão de bibliotecas
+
+- **Autor/autorização:** agente Codex, conforme pedido do Felipe de sincronizar a main e iniciar fase 1; stack definida pelo usuário em DEC-20. Branch local `codex/fase-1-base`, criada sobre `main` `c9baea7` após merge do PR #1. Alterações desta rodada ainda sem commit, push ou PR novo.
+- **Construção:** Node 24.22.1/npm 11.19.1 fixados; dependências exatas e lockfile; TanStack Form/Query/Router, Axios, Zod e date-fns. React 18 preservado. Formatação, lint com fronteiras/exceções legadas explícitas, Vitest, validação documental e workflow de CI adicionados. Workflow somente definido, sem execução no GitHub.
+- **Arquivos/escopo:** bootstrap `src/main.tsx`; navegação/providers em `src/app`; módulo `src/api/modules/companies` com schemas, service, adapter demo, hooks e query keys `as const`; transporte/QueryClient; consumidor `src/features/companies`; tokens, Button/Field e helper de data; testes/configurações e documentos donos. Fixture de Avisos extraída para dono compartilhado com calendário, sem modificar conteúdo nem integrar criações em memória entre leitores.
+- **Comportamento:** URLs Cliente/Admin preservam as composições demonstrativas; empresas usa filtros/seleção na URL, validação Form/Zod, cache por ator/empresa/recorte, detalhe independente da lista e quatro acessos fictícios equivalentes. Tela carregada sob demanda; não há criação, convite, alteração ou sessão real. Controle de troca Cliente/Admin corrigido no mobile; tabela tem região focável e orientação de rolagem. Demais comportamentos legados não foram normalizados globalmente.
+- **Configuração/dados:** modo demo validado; URLs de API/Supabase preenchidas são rejeitadas. Axios exige adapter em memória e rejeita troca de destino/adapter. Nenhum SDK Supabase, migration, banco conectado, comunicação ou publicação. Assets externos do protótipo permanecem; não é aplicação inteiramente offline.
+- **Validação local:** instalação limpa `npm ci --ignore-scripts --offline --no-fund`; `npm run verify` passou com 27 testes em cinco arquivos, formatação, lint, typecheck, links e build. `git diff --check` passou. Build: JS inicial 479,77 KB, empresas sob demanda 170,70 KB; Rollup emite dois avisos de comentários de otimização do Zod, sem falha e sem alteração manual de dependências.
+- **QA de navegador:** Chromium local em 1440/1280/1024/390 px; empresas/acessos fictícios, filtros/URL/reload e navegação demonstrativa. Em 390 px, documento mede 390 px e a tabela mantém overflow interno; foco/ArrowRight produz rolagem. Capturas locais em `output/playwright` são ignoradas pelo Git. Testes de navegação cobrem link direto, filtro/Back, troca de empresa sem dados anteriores e retorno em rota inexistente.
+- **Limites/estado:** fase 1 em andamento. Mocks não comprovam sessão, expiração, MFA, termos, revogação, quatro convites no servidor ou RLS. Contratos ausentes e ambiente isolado (TEC-01/02 e OPEN-10) continuam antes da integração. Sem aceite funcional de produto ou teste de usabilidade; CI/deploy não executados.
+- **Rollback:** reverter apenas este recorte de código/configuração/documentação e reinstalar pelo lockfile correspondente, preservando o pacote documental mergeado. Não há dados ou migrations para desfazer.
+
 ## 26/10/2026 — Resumo diário Admin definido pela responsável de produto
 
 - **Fonte:** [resposta da Patrícia no PR #1](https://github.com/patricia258/cali-workspace-v2/pull/1#issuecomment-6418618652), após o questionamento encaminhado pelo Felipe; continuidade da revisão documental e atualização do PR.

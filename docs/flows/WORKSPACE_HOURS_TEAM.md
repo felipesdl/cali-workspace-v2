@@ -1,6 +1,6 @@
 # Workspace, Horas, Equipe e perfil
 
-Fichas FLOW-04/07/08/14. Herdam [contexto, estados e validação comuns](README.md). Nenhuma operação executada. [Matriz de permissões](../PERMISSIONS.md).
+Fichas FLOW-04/07/08/14. Herdam [contexto, estados e validação comuns](README.md). As tabelas abaixo registram a referência histórica; a execução da V2 está nos contratos [2B](../contracts/TEAM_2B.md) e [2C](../contracts/TEAM_MONTHLY_2C.md). [Matriz de permissões](../PERMISSIONS.md).
 
 ## Alvo V2 confirmado em 26/10/2026 para FLOW-08
 
@@ -30,6 +30,8 @@ O código oficial descrito nas tabelas continua inalterado e diferente desse alv
 
 **Aceite proposto:** pendências apontam ao objeto correto; resumo e detalhe mantêm mesma empresa/período; ausência de horas visíveis não vira consumo zero; Cliente não abre detalhe Admin. **Dúvidas:** `REF-24` (continuidade e especificação responsiva ainda propostas).
 
+**Implementação V2 na fase 6.** Na Visão executiva Admin, a carteira mantém os totais da listagem de empresas. Ao selecionar uma empresa do piloto, a seção Prioridades operacionais lista projetos com ajuste solicitado e execução normal e, quando o detalhe de ocorrências está disponível, ocorrências em atendimento. Cada fonte declara que o recorte corresponde à primeira página e tem recuperação independente. Os atalhos abrem o cronograma ou a conversa mantendo a empresa na URL. Os destinos aplicam as próprias guardas. A seleção, os estados vazios e os atalhos com itens sintéticos foram homologados no CALI MAPA com Admin e controle B. O Resumo do mês usa os totais completos das consultas de Horas e Agenda da empresa e mês selecionados. A Agenda conta os eventos e avisos publicados que compõem seu catálogo. Os links preservam empresa e mês. Sem empresa selecionada, o [Resumo da carteira](../../supabase/proposals/admin-portfolio/read.sql) usa a carteira inteira. Horas somam os lançamentos pelo mês civil. Agenda conta eventos não cancelados que interceptam o mês em Brasília e avisos publicados, uma vez por aviso. Prioridades contam ajustes em projetos operacionais e ocorrências em atendimento nas empresas ativas ou pausadas. Satisfação reutiliza a média de 1 a 5 e a contagem histórica do contrato Admin, sem expor comentários ou dados individuais. Sessão Admin vigente e aceite atual são obrigatórios. O [ensaio isolado](../../supabase/proposals/admin-portfolio/test.sql) valida autorização, limites do mês, deduplicação e [rollback](../../supabase/proposals/admin-portfolio/rollback.sql).
+
 ## FLOW-07 — Registro e consulta de Horas
 
 **Objetivo/atores/entrada:** Admin registra atuação e controla capacidade em `/admin/horas`; Cliente consulta `/cliente/horas`, sem lançar/editar horas. Contexto: empresa, mês/ciclo e vínculo opcional a projeto, entregável, subtarefa ou ocorrência.
@@ -58,6 +60,14 @@ O código oficial descrito nas tabelas continua inalterado e diferente desse alv
 
 **Aceite proposto:** 29s/30s/61s; dois timers concorrentes; pausa/finalização; manual inválido; edição/exclusão justificada; mês invisível; horas internas agregadas sem dados privados; capacidade sem contratado e cruzamento de vários marcos; Cliente não grava. **Dúvidas:** `REF-08` (timer/retomada), `REF-09` (capacidade x docs antigos), `REF-23` (replay/estado aplicado).
 
+A V2 prepara o painel de franquia, consumo, saldo e excedente com o cálculo do banco. O extrato mantém o recorte de lançamentos visíveis. Veja o [contrato de capacidade](../contracts/PHASE_4_READ.md#capacidade-e-saldo-de-horas-no-piloto). O [lote de lançamento e timer](../contracts/PHASE_4_READ.md#lote-de-lançamento-e-timer-no-cali-mapa) homologou o fechamento do trecho e a retomada com novo timer, preservando duração e privacidade. O [lote de correção](../contracts/PHASE_4_READ.md#correção-auditada-de-horas) validou edição hospedada e exclusão no banco descartável.
+
+A tela também consulta marcos de capacidade e pausa já registrados. No lote local, Admin registra pausa para o mês com consumo acima da franquia e pode retomar antes do fim do mês. A decisão fica registrada no mesmo estado do painel legado e não interrompe timers. O mês fechado oculta os marcos para Cliente. A revisão administrativa e o limite de tolerância ficam no Admin. [Contrato e prova](../contracts/PHASE_4_READ.md#marcos-de-capacidade-em-horas).
+
+Projetos oferece atalhos de Horas por entregável e subtarefa. O lançamento ou timer mantém o vínculo após reenvio e retomada. O CALI MAPA confirmou o lançamento manual por entregável e o ciclo completo do timer por subtarefa. [Contrato e prova](../contracts/PHASE_4_READ.md#horas-vinculadas-a-entregável-e-subtarefa).
+
+Admin também inicia um timer privado no detalhe da ocorrência aberta. Horas mantém os trechos vinculados após pausa e retomada. O fechamento do timer preserva o estado da ocorrência. [Contrato e prova](../contracts/PHASE_4_READ.md#horas-vinculadas-a-ocorrência).
+
 ## FLOW-08 — Equipe, movimentos, fechamento e indicadores
 
 **Objetivo/atores/entrada:** Cliente e Admin consultam `/cliente/equipe`/`/admin/equipe`. As RPCs de manutenção autorizam perfil ativo Admin **ou Cliente principal da própria empresa**. Não estender escrita ao cliente adicional por semelhança da tela.
@@ -83,6 +93,10 @@ People Analytics está liberado na UI para Admin, plano Full ou frente ativa; in
 
 **Aceite proposto para o alvo decidido:** até quatro Clientes equivalentes mantendo Equipe; remoção de um sem dependência de principal; Cliente informa/lê privados da própria empresa e não de outra; importação duplicada/gestor inexistente; faltantes preservados; janela de período; reativação de arquivada; 12 meses/retroatividade; lançamento inicial de métricas pelo Cliente e correção posterior somente pelo Admin, com autoria/histórico. Não mudar cálculo de headcount. **Pendências técnicas:** `REF-10/11`; fórmula/qualidade continuam em `OPEN-05`, sem nova regra inventada.
 
+### Execução V2 no piloto — 05/11/2026
+
+A [2B](../contracts/TEAM_2B.md) e a [2C](../contracts/TEAM_MONTHLY_2C.md) foram homologadas funcionalmente com A/B/Admin no CALI MAPA. Clientes equivalentes mantêm cadastro e confirmam o mês; métricas iniciais são do Cliente e correções posteriores do Admin com MFA, motivo e preimagem. Confirmação, vagas e snapshots usam operação própria, sem reenviar cadastro/métricas. Histórico, concorrência e recortes temporais seguem o contrato dono. A pendência em FLOW-04 aparece somente ao Cliente no Início e leva ao mês anterior. E-mails não foram ativados. Paridade visual e coleta real seguem pendentes antes do lançamento.
+
 ## FLOW-14 — Perfil, localizador e notificações
 
 Contrato atual: chat não gera e-mail; atrasos e menções avisam o destinatário conforme operação. Resumo diário Admin está definido em RESUMO-01 / DEC-19: todos os dias às 19h de Brasília, ações por empresa nos dois blocos e horas; sem Cliente/staff/chat ou envio sem atividade. Conteúdo Partner fica para sua fase; digest de chat das 08h não retorna. Testar filtro, corte, volume, totais e duplicidade conforme Dados e contratos. Demais notificações têm contrato próprio.
@@ -100,3 +114,33 @@ Contrato atual: chat não gera e-mail; atrasos e menções avisam o destinatári
 | Perfil/privacidade | Exportar próprios dados ou pedir direito | UI chama RPCs documentadas por comentário, mas seus corpos não constam no snapshot; não inferir capacidade de exportar empresa inteira |
 
 **Continuidade/falhas/aceite proposto:** validar assinatura/foto sem conceder papel; URL de notificação cruzada não abre objeto de outra empresa; erro de marcação não simula persistência; logout limpa contexto; mídia falha sem apagar dados não relacionados. Requests de privacidade são FLOW-18. **Dúvidas:** `REF-04` (RPCs sem corpo), `REF-24` (continuidade/UX), `REF-01` (identidade x privilégio real).
+
+
+### Perfil próprio na V2
+
+Minha conta está disponível no shell conectado de Admin e Cliente. A consulta usa o ID da sessão pronta, com RLS de perfil próprio e política restritiva de sessão no CALI MAPA. Projeta apenas ID, nome, cargo, e-mail, telefone e WhatsApp. O papel exibido vem da sessão. O perfil comportamental continua em rota própria. A RPC legada `update_my_profile_v56` regrava foto, assinatura e demais campos junto dos dados básicos e pode sincronizar o contato principal. A [edição da V2](../../supabase/proposals/own-profile/update.sql) usa uma operação própria com sessão vigente e aceite atual. Somente nome, cargo, telefone e WhatsApp podem mudar. Envia apenas campos alterados, preserva os omitidos e compara a preimagem de cada campo solicitado sob bloqueio de linha. Uma repetição idêntica retorna o estado salvo. A interface preserva o rascunho se a operação falhar e exige recarga explícita quando encontra conflito. E-mail, papel, empresa, contato cadastral da empresa, foto e assinatura são preservados. O [rollback](../../supabase/proposals/own-profile/rollback.sql) retira apenas a operação e conserva alterações gravadas.
+
+### Permissões de notificações no CALI MAPA
+
+Consulta aos GRANTs, políticas RLS e definições das funções no catálogo do CALI MAPA em 09/11/2026. O quadro descreve a autorização por destinatário, cumulativa com a guarda de sessão.
+
+| Ator ou operação | Comportamento definido no banco |
+| --- | --- |
+| Anônimo | Sem acesso direto à tabela e sem execução das duas funções de marcação. |
+| Usuário autenticado | `notifications_self_select` permite consultar as próprias linhas por `user_id = auth.uid()`. As permissões de tabela incluem UPDATE, mas essa política não permite atualização direta. |
+| Admin aceito por `is_admin()` | `notifications_admin_all` permite ler e atualizar diretamente as linhas de outros destinatários. O helper avalia a lista de Admins e o requisito de MFA da sessão. |
+| `mark_notification_read(uuid)` | Função `SECURITY DEFINER` com execução autenticada. Atualiza apenas a linha do próprio destinatário e mantém a data da primeira leitura. |
+| `mark_all_notifications_read()` | Função `SECURITY DEFINER` com execução autenticada. Atualiza apenas as linhas ainda não lidas do próprio destinatário. |
+| `service_role` | Permissões de leitura, atualização e execução, com bypass de RLS. Uso de servidor. |
+
+A [guarda instalada no CALI MAPA](../../supabase/proposals/notifications/session-guard.sql) exige que o `session_id` corresponda a uma sessão Auth vigente do próprio usuário. O helper de corte existente também precisa aprovar a sessão, o que preserva a admissão e o corte dos Clientes piloto. Duas políticas restritivas cobrem SELECT e UPDATE diretos autenticados. As RPCs `SECURITY DEFINER` fazem a mesma checagem antes de gravar, com erro `42501` para sujeito sem sessão vigente. Continuam retornando `void`, sem mudar assinatura, GRANTs, destinatário ou a data da primeira leitura. O caminho interno sem sujeito continua sem efeito.
+
+A aplicação foi verificada por catálogo e leitura própria na Data API com Admin e Cliente. Marcações, sessão ausente, expirada, removida ou de outro usuário, corte do piloto e reversão foram testados em PostgreSQL descartável. O [teste focado](../../supabase/proposals/notifications/test-session-guard.sql) usa um predicado sintético para o corte compartilhado. Executar com `psql -X -v ON_ERROR_STOP=1 -f supabase/proposals/notifications/test-session-guard.sql` apenas em PostgreSQL vazio e descartável. O [rollback](../../supabase/proposals/notifications/rollback-session-guard.sql) remove as políticas novas, restaura os corpos anteriores e preserva as marcações feitas. Nenhuma notificação foi marcada ou enviada no CALI MAPA durante o teste.
+
+### Sino conectado na V2
+
+O [contrato da caixa própria](../../supabase/proposals/notifications/inbox.sql) foi instalado no CALI MAPA. Os leitores e a marcação da V2 exigem sessão viva, aceite vigente, perfil ativo e destinatário da sessão. Para Cliente, incluem avisos sem empresa ou da empresa corrente. Admin lê e marca as próprias notificações mesmo quando a política legada permite acesso mais amplo à tabela. A lista traz até 25 avisos recentes e o total de não lidas de todo o recorte. Marcação individual e em lote retornam a quantidade alterada e preservam datas existentes.
+
+O sino usa botões e feedback do design system. A leitura só é confirmada após resposta do servidor. Projeto e Ocorrência têm destinos tipados no piloto, que voltam a autorizar o objeto. Demais tipos aparecem sem atalho específico. A URL legada não é retornada pela nova RPC.
+
+O [ensaio da caixa](../../supabase/proposals/notifications/test-inbox.sql) cobre destinatário, empresa corrente, marcação, aceite, sessão e rollback com fixtures. O [rollback da caixa](../../supabase/proposals/notifications/rollback-inbox.sql) remove o contrato novo, preservando dados, leituras registradas e guarda legada. Para desligar a UI, reverter o commit do sino antes de retirar as RPCs.

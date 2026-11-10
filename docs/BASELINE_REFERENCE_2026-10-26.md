@@ -2,6 +2,8 @@
 
 Estado: **referência de produto confirmada; V2 ainda não implementada**. O aplicativo oficial como está funcionando em 26/10/2026, testado pela Patrícia, é a base de paridade. A V2 deve reproduzir seus fluxos antes de acrescentar melhorias. O oficial permanece congelado para este trabalho e consultável somente em leitura.
 
+Em 09/11/2026, Felipe corrigiu a base de comparação visual para a [main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2). Este documento preserva a origem dos contratos e das decisões de produto de 26/10.
+
 ## Identificação
 
 | Informação | Evidência e limite |

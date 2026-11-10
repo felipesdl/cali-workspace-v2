@@ -2,5 +2,15 @@ node_modules
 dist
 .env
 .env.*
+*.env
 !.env.example
 .vercel
+
+# Artefatos locais de compilação e QA
+*.tsbuildinfo
+coverage/
+.playwright-cli/
+output/playwright/
+output/runtime/
+supabase/.temp/
+supabase/.branches/

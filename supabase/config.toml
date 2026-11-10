@@ -1,0 +1,80 @@
+# Gerado por scripts/local-environment.ts; não contém credenciais.
+project_id = "cali-workspace-v2-local"
+
+[api]
+enabled = true
+port = 56321
+schemas = ["cali_workspace"]
+extra_search_path = ["cali_workspace", "extensions"]
+
+[db]
+port = 56322
+shadow_port = 56320
+major_version = 17
+
+[db.migrations]
+enabled = false
+schema_paths = []
+
+[db.seed]
+enabled = false
+sql_paths = []
+
+[db.pooler]
+enabled = false
+
+[realtime]
+enabled = false
+
+[studio]
+enabled = false
+port = 56323
+
+[local_smtp]
+enabled = true
+port = 56324
+smtp_port = 56325
+
+[storage]
+enabled = false
+
+[storage.s3_protocol]
+enabled = false
+
+[storage.vector]
+enabled = false
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:5173"
+additional_redirect_urls = ["http://127.0.0.1:5173/auth/callback"]
+enable_signup = false
+enable_anonymous_sign_ins = false
+
+[auth.email]
+enable_signup = true
+otp_length = 6
+otp_expiry = 600
+max_frequency = "120s"
+
+[auth.email.smtp]
+enabled = false
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.mfa.phone]
+enroll_enabled = false
+verify_enabled = false
+
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+
+[functions.workspace-access]
+verify_jwt = false
+entrypoint = "./.temp/workspace-access/index.ts"
+
+[analytics]
+enabled = false

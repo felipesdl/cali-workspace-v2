@@ -1,35 +1,50 @@
 # Plano de padronização por fluxos completos
 
-Atualização: 26/10/2026. **Planejamento revisado; nenhuma implementação iniciada.** V2 é a base; oficial somente leitura. Referência: aplicativo funcionando em 26/10, testado pela Patrícia, [publicação 83](BASELINE_REFERENCE_2026-10-26.md). [Regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
+Atualização: 05/11/2026. **Fases 2A, 2B e 2C funcionalmente fechadas no piloto A/B do CALI MAPA. Fase 1 segue em andamento no seu escopo global.** A V2 é a base do primeiro lançamento operacional. Patrícia confirmou que ainda não usa nenhuma versão e que os dados são de teste. A V1 publicada serve como referência em leitura e o backend usa fixtures conforme DEC-27. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é a referência funcional. As [regras de produto](PRODUCT_RULES.md) e [decisões](DECISIONS.md) definem o alvo e as diferenças aprovadas.
 
 Objetivo: padronizar todos os fluxos Cliente/Admin sem passar várias fases construindo camadas antes da primeira jornada utilizável. Cada entrega fecha uma tarefa com interface, dados, regra, autorização, histórico, falhas e comunicação quando aplicável. “Fluxo completo” é unidade de construção; não cria fluxo novo nem significa que toda tela dispara e-mail. Chat não gera e-mail. Produção, migrations e canais externos exigem escopo próprio.
 
 ## Estado e cobertura
 
-Já existem levantamento, 18 fichas, matriz estática, DS/UX/arquitetura propostos e decisões. Não repetir inventário como se estivesse vazio. Código segue demonstrativo; somente typecheck/build existem como verificações locais. Router, SDK, DS compartilhado, lint, testes e CI ainda não foram implantados.
+Já existem levantamento, 18 fichas, matriz estática, DS/UX/arquitetura propostos e decisões. Não repetir inventário como se estivesse vazio. Composição demonstrativa preservada junto da integração hospedada. Router, Query/Form, API modular de empresas, tokens e Button/Field existem; lint, testes, formatação, links e build compõem `npm run verify`. Workflow definido ainda não executado no GitHub. SDK, sessão e telas de acesso foram conectados em 01/11; jornada Admin em validação, demais atores/cenários ainda pendentes; RLS/persistência de adesão foram testados no laboratório, sem cobrir os demais domínios. Bibliotecas foram escolhidas pelo usuário em DEC-20.
 
 O SHA `f3d3f14043a6abc38636f0340fe831e621d8b357` das fontes já corresponde à publicação 83. Os links continuam válidos; código/migrations não comprovam configuração ou aplicação no banco ativo. As 29 chamadas sem corpo localizado permanecem lacunas técnicas por operação, não motivo para inventar contrato.
 
 Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem primeiro; depois DISC, demais fluxos Admin/Cliente e, por último, Partner. FLOW-17 inclui DISC como produto oficial, além de Forms e Mapa; sua implementação é separada por subfluxo. FLOW-15 cobre gestão Admin da equipe CALI e efeitos sobre acessos; área Partner completa permanece etapa posterior com recorte próprio.
+
+**Organização do frontend em 09/11.** Páginas Admin, Cliente, Partner, acesso e públicas migradas para a [estrutura por área](ARCHITECTURE.md#organização-das-páginas). Componentes compartilhados e DS separados. Mocks de Empresas mantidos na composição local. Prévias e folhas exclusivas removidas após regressão local. Aceite visual e validação pós-publicação seguem como etapas próprias.
+
+## Recuperação e separação de ambientes — prioridade atual
+
+DEC-28 foi revisada em 09/11/2026. O CALI MAPA atual é produção e já está online. Primeiro concluir os ajustes e validar o estado de produção. Depois criar a homologação separada a partir da versão reconciliada do código, schema e configuração. [Cobertura, ordem e aceite](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
+
+- [ ] Definir a captura do ambiente de produção, incluindo banco, arquivos do Storage, versões dos serviços e configurações, com cobertura e guarda protegida.
+- [ ] Restaurar em destino isolado, bloquear comunicações externas e conferir integridade/permissões/arquivos; registrar prova de recuperação.
+- [ ] Consolidar baseline efetiva e migrations ordenadas, com criação limpa e atualização reproduzíveis.
+- [ ] Concluir os ajustes pendentes no CALI MAPA e registrar a revisão de código, schema, configuração e validação de produção.
+- [ ] Criar homologação após validar a produção. Usar projeto separado, configuração equivalente, Auth, Storage, funções, segredos e canais próprios e dados sintéticos.
+- [ ] Definir promoção das próximas versões de homologação para produção por commit e migration, com critérios de recuperação, rollback e autorização.
+
+O ensaio de recuperação com fixtures passou localmente. A separação dos projetos de staging e produção segue planejada.
 
 ## Fases e dependências
 
 | Fase | Entrada | Entrega/saída | Estado |
 | --- | --- | --- | --- |
 | 0 — Base documental e contrato de produto | Levantamento e revisão Patrícia/Felipe | Fontes, regras, decisões e cobertura rastreadas; sem comprovação operacional | Entregue documentalmente; resumo Admin definido em DEC-19 |
-| 1 — Fundação mínima para o primeiro fluxo | 0 e autorização futura de implementação | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Planejada |
-| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | Planejada |
-| 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Planejada |
+| 1 — Fundação mínima para o primeiro fluxo | 0 e execução local autorizada em 27/10 | Execução reproduzível, isolamento de teste, acesso e shell/DS estritamente necessários à primeira entrega | Em andamento; sessão/telas hospedadas e leitura real de empresas, aceite global pendente |
+| 2 — Rotina Admin/Cliente | 1 e contratos de cada entrega | Empresas/acessos, Equipe e dados mensais, cada um utilizável de ponta a ponta | 2A, 2B e 2C homologadas funcionalmente no piloto A/B; frontend final pendente |
+| 3 — Perfil comportamental DISC | Acesso/empresa e peças compartilhadas necessárias de 1/2 | Convite/resposta, avaliador interno e gestão/aprovação/entrega | Implementada no piloto; ativação final pendente |
 | 4 — Demais fluxos Cliente/Admin | Contratos e vínculos necessários por tarefa | Projetos, horas, agenda, ocorrências, documentos, relatórios, avisos e módulos adicionais | Planejada |
-| 5 — Partner posterior | Prioridade Cliente/Admin atendida e recorte próprio autorizado | Área Partner se incluída em escopo futuro; gestão Admin já rastreada nas fases anteriores | Postergada; não bloqueia aceite do recorte Cliente/Admin |
-| 6 — Homologação global do recorte | Entregas aplicáveis de 2–4; 5 somente se autorizada no recorte | Regressão entre fluxos, evidência de permissões, UX e aceite de produto | Planejada |
+| 5 — Partner | Piloto próprio após a fase 4 | Admissão, atribuições e operação por módulo | Piloto técnico fechado no CALI MAPA. [Contrato e limites](contracts/PARTNER_5.md#limites-de-fechamento) |
+| 6 — Homologação global do recorte | Entregas aplicáveis de 2–4 e Partner no recorte autorizado | Regressão entre fluxos, evidência de permissões, UX e aceite de produto | [Em andamento](HOMOLOGACAO_PATRICIA.md#fase-6--regressão-interna) |
 | 7 — Preparação de release | 6 e aceites exigidos | Configuração de destino, observabilidade, corte, backup/restauração e rollback revisáveis | Planejada; sem publicação implícita |
 
 Não há estimativas em dias nem responsáveis individuais inventados. Nomear responsável técnico e validador funcional/UX/dados/operação antes do aceite aplicável. Resumo Admin tem contrato fechado em DEC-19/RESUMO-01 e precisa de prova técnica; a versão Partner será definida em sua fase, sem bloquear Cliente/Admin.
 
 ## Fase 1 — Fundação mínima para a primeira entrega
 
-**Dependência:** fase 0 e autorização de execução. A prioridade é viabilizar 2A, não criar todas as pastas, componentes ou integrações antes de entregar uso.
+**Dependência:** fase 0; execução local autorizada pelo Felipe em 27/10, sem conexão ao Supabase oficial nem publicação. A prioridade é viabilizar 2A, não criar todas as pastas, componentes ou integrações antes de entregar uso.
 
 **Trabalho necessário:**
 
@@ -40,19 +55,169 @@ Não há estimativas em dias nem responsáveis individuais inventados. Nomear re
 - Implementar bootstrap, shell/layout e rotas mínimas; identidade e contexto isolados; tokens e primitivas com consumidores reais. DS/rotas/hooks/cache crescem com as entregas seguintes.
 - Adesão antes do convite; termos obrigatórios no primeiro acesso/nova versão; falha de comprovação bloqueia. Integrar informação de privacidade e versionamento conforme [Dados pessoais](DATA_PRIVACY.md).
 
+**Progresso local de 27/10:** main sincronizada em `c9baea7`; runtime/lockfile e gates definidos; navegação Cliente/Admin por URL preservando composições legadas; empresas com filtros/seleção na URL, hooks Query, formulário Form/Zod e adapter Axios em memória. Tokens e duas primitivas têm consumidor real. Isso prepara 2A, sem declarar cadastro, convite, revogação ou limite de acessos comprovados no servidor.
+
+### Acompanhamento da fase 1 — pacote para revisão
+
+Esta lista registra execução e evidência. O [PR #2](https://github.com/patricia258/cali-workspace-v2/pull/2) acompanha o mesmo recorte em rascunho; atualizar sua descrição a cada lote de commits junto das fontes canônicas. Fase 1 continua em andamento até cumprir os gates de acesso real abaixo.
+
+**Concluído localmente:**
+
+- [x] Sincronizar a base documental da main `c9baea7` e trabalhar na branch `codex/fase-1-base`.
+- [x] Fixar runtime, dependências e lockfile; comprovar instalação limpa sem scripts de dependências.
+- [x] Configurar formatação, lint, typecheck, testes, checagem documental e build em `npm run verify`.
+- [x] Implantar bootstrap, Router/Query providers, URLs Cliente/Admin e retorno para erro/rota inexistente; shells legados permanecem ponte de migração.
+- [x] Preparar módulo de empresas com schemas Zod, services, hooks Query, keys `as const`, filtros/seleção na URL e dados em memória. Isso não entrega cadastro/convite/revogação reais.
+- [x] Implantar tokens, Button/Field e tipo compartilhado de variantes, com strings tipadas no JSX.
+- [x] Separar mocks da aplicação de fixtures/adapters exclusivos dos testes; proteger fronteiras com lint.
+- [x] Documentar tipos, regras de lint/exceções, decisões de stack, operação e rollback.
+- [x] Validar o consumidor demonstrativo em 1440/1280/1024/390 px e teclado; verificação inicial passou com 50 testes; o recorte de 28/10 acrescenta contratos/precondições do ambiente, sem prova de Auth/RLS.
+
+**Avanço de 28/10 — contratos e definição do ambiente:**
+
+- [x] Reconciliar superfícies mínimas e versionar schemas de request/response e records planejados de perfil/aceite/empresa/convite; [contrato detalhado](contracts/ACCESS_COMPANIES.md).
+- [x] Investigar cadastro/primeiro acesso e criar contrato mínimo próprio de adesão, sem confundir com aceite de termos — DEC-23; persistência concluída no laboratório em 29/10, comprovação/fluxo ainda pendentes.
+- [x] Fechar regra de MFA com Felipe: Admin só entra após os dois passos, inclusive primeiro uso, com bloqueio em falha — DEC-21.
+- [x] Definir Supabase local dedicado, CLI/portas/rede e configuração versionada com migrations/seeds desligados — DEC-22; [ambiente](LOCAL_ENVIRONMENT.md).
+- [x] Implementar checagem estática da configuração e preflight somente de leitura. Docker/portas conferidos; preflight não passou porque CLI e rede dedicada ainda não existem.
+
+**Avanço de 28/10 — padronização de estilos (DEC-24):**
+
+- [x] Integrar Tailwind/Vite/Prettier, mapear tokens CALI e migrar Button, Field e empresas; remover os três CSS substituídos.
+- [x] Registrar coexistência sem Preflight, prefixo `tw:` e inventário dos oito CSS legados no [DS](DESIGN_SYSTEM.md#inventário-da-migração-de-estilos).
+- [ ] Migrar os demais consumidores junto dos respectivos fluxos; retirar regras/imports substituídos a cada recorte e concluir limpeza global após todos migrarem. Trabalho transversal das fases, sem bloquear a primeira entrega por catálogo visual completo.
+
+**Avanço de 29/10 — baseline e adesão no laboratório (DEC-25):**
+
+- [x] Instalar CLI fixado temporariamente, conferir checksum, criar redes exclusivas e executar bootstrap revisado, sem conexão remota.
+- [x] Preservar serviços de negócio em rede internal; publicar somente proxy TCP dedicado em loopback, com destinos fixos e restrições verificadas.
+- [x] Aplicar baseline nova de empresa/perfil/adesão, com journal/digest, autoria/instante do servidor, histórico imutável, RLS e autoridade Admin unificada no recorte.
+- [x] Testar SQL permitidos/negados e API com Auth/TOTP reais: 30 verificações; provar captura SMTP local e negativas de IP externo/canário do host nos cinco serviços.
+- [ ] Integrar esses contratos à sessão/guardas/frontend e completar comprovação da referência/gate de convite no fluxo respectivo. Persistência local não encerra a jornada.
+
+**Avanço de 29/10 — códigos/termos e preparação de sessão (DEC-26):**
+
+- [x] Implementar DDL novo V2, Edge local, captura Mailpit, locks/uso único/limites e troca de token pelo Auth; sem provisioning por convite ou envio externo.
+- [x] Implementar versões/conteúdo/digest imutáveis, aceite corrente idempotente por servidor e bloqueio por ausência/versão antiga. Testes usam textos sintéticos; conteúdo CALI ainda não foi aprovado/publicado.
+- [x] Implementar estado de sessão/empresa e corte no servidor; inativação/bloqueio/encerramento/arquivamento revogam sessões/códigos sem reativação automática das credenciais antigas.
+- [x] Preparar controller de sessão, contrato validado, cache/cancelamento/gerações, beforeLoad Cliente/Admin e invalidação de rota no logout, com fonte injetada nos testes.
+- [x] Conectar fonte/eventos/refresh Auth e telas de código/MFA/termos à SPA hospedada em DEC-27; não equivale a portar a baseline local.
+
+**Avanço de 01/11 — integração hospedada e comparação (DEC-27):**
+
+- [x] Registrar autorização para o mesmo backend ainda não lançado, preservando dados existentes e sem migrations/deploy implícitos.
+- [x] Conectar SDK 2.118.0 com namespace próprio, adapter Auth/Edge e agregação bloqueante por perfil/empresa/MFA/aceite.
+- [x] Implementar telas de código, MFA, aceite e callback PKCE; corrigir payload de aceite (somente versão/hash) com teste de transição e falha. Callback bem-sucedido ainda não testado.
+- [x] Conectar lista/detalhe/acessos de empresas, paginação, projeções Zod e keys por ator/vínculo; preservar composição demo e impedir métricas fictícias no modo conectado.
+- [x] Preparar duas empresas e vínculos de teste identificados; POST 201, ativação aprovada PATCH 200 e GET de confirmação; sem alterar vínculos existentes. Primeira solicitação de código retornou 200 para os dois destinatários e perfis Cliente foram confirmados no vínculo correto; verificação/primeiro login Cliente ainda pendentes.
+- [x] Usuário concluiu jornada Admin e aceite pela V2; lista real mostrou quatro empresas, busca de teste mostrou duas, detalhe de A mostrou somente seu vínculo e limpeza restaurou quatro. Comparação online leu as mesmas quatro empresas; não é cobertura de todos os fluxos.
+- [ ] Completar comparação de estados/teclado/mobile, logout/expiração/revogação e Clientes A/B no hospedado; conferir diferenças de termos/MFA/RLS da baseline local.
+
+**Rodada A/B — 01/11, em execução:**
+
+- [x] Corrigir desmontagem do formulário por foco/intervalo e comprovar regressão com leitura assíncrona antes/depois; 120 testes no gate.
+- [x] Preparar ferramenta manual de consultas/replay com credenciais somente em memória e restrição às fixtures, sem alterar TTL/schema/policies.
+- [x] Registrar login/aceite A/B; próprio perfil/empresa acessíveis, perfil/empresa/convites alheios com zero linhas e rota Admin redirecionada para ambos. Não equivale à cobertura dos demais domínios.
+- [x] Registrar inativação/restauração de A e logout real de A/B: Auth recusou JWT/refresh antigos, mas PostgREST ainda leu dados próprios com JWT não vencido. A foi restaurado e B preservado; ambos estão deslogados.
+- [ ] Fechar lacuna de corte no servidor: logout ainda permite leitura pelo JWT até vencer e reativação do perfil recupera a mesma sessão. Nenhuma policy/schema alterada; ver [evidência e limites](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
+- [x] Observar expiração natural dos JWTs retidos A/B: 62 segundos além do prazo, Auth 403 e seis projeções do banco 401/PGRST303. Sem login, mudança de relógio/TTL ou código novo. Não prova refresh/expiração da SPA ativa.
+- [x] Preparar candidata de corte no servidor, inventário somente leitura e suíte SQL em `supabase/proposals/session-cut`, fora de migrations/runners; nada executado em banco.
+- [x] Obter metadados de acesso e revisar a fonte ativa da Edge. Registrar diferenças de códigos, provisionamento, escritores e abrangência das policies no [contrato](contracts/ACCESS_COMPANIES.md#reconciliação-com-o-catálogo-ativo--0411).
+
+**Continuidade de 02/11 — correção local, sem repetir runtime:**
+
+- [x] Recuperar resultado da cópia sintética anterior: 40 verificações, SQL/Auth/PostgREST reais, RPC/convite e janela adicional de hash pendente; sem equivalência com o catálogo hospedado.
+- [x] Corrigir o código da troca no Edge V2: hash permanece no servidor; sessão só retorna após admissão vinculada à autorização do código; SPA aceita sessão admitida e mantém contrato legado hospedado explícito.
+- [x] Preparar complemento SQL de admissão e adapter exclusivo do schema local conhecido; preservar runner experimental como texto ignorado e suspender drivers de runtime até reconciliação.
+- [ ] Implementar e validar o adapter hospedado de admissão e o corte no recorte autorizado. Os SQLs candidatos foram exercitados em cópia descartável. A bateria anterior segue suspensa e a fase 1 continua aberta.
+
+**Falta para fechar a fase 1:**
+
+- [ ] Completar lacunas de contrato e baseline por operação: autorização dos próximos contratos e integração da SPA; DDL novo de códigos/termos já implementado/testado localmente; persistência da adesão e predicado unificado já testados no recorte local, sem equivaler à cobertura de todos os domínios; create_client_account segue ausente para 2A, sem impedir preparação sintética. MFA decidido em DEC-21 e testado no servidor da adesão; UI/sessão e demais superfícies pendentes. TEC-01/02 não foram declarados resolvidos globalmente.
+- [ ] Ampliar os consumidores reais do laboratório já testado para código/termos/estado/revogação: conectar sessão e UI da SPA. CLI/rede/bindings/negativas de rede/captura e RLS de adesão foram testados em 29/10; OPEN-10 continua parcial para o fluxo completo. DEC-27 autoriza o hospedado para este recorte; a baseline local não foi aplicada nele.
+- [x] Conectar autenticação/sessão/eventos, telas e callback no frontend; MFA e retorno seguro usam identidade real. Permanecem pendentes os cenários completos e a prova de callback.
+- [ ] Completar comprovação/gate de adesão antes do convite e apresentar/validar conteúdo de uso/privacidade no frontend; aceite obrigatório por versão já testado no servidor. Usar contas/adesões preparadas para teste, sem antecipar o cadastro completo da fase 2A.
+- [ ] Provar isolamento no servidor para Cliente A/B/Admin, perfil inativo, empresa bloqueada, expiração/revogação, logout e cancelamento/limpeza de cache/contexto.
+- [ ] Validar URL direta/retorno após login e teclado/mobile dos estados de acesso reais; fixtures não encerram esse aceite.
+- [ ] Executar/revisar CI no GitHub para a revisão enviada e concluir a revisão técnica do recorte; workflow definido não é execução comprovada.
+
+Cadastro/contrato, convite e manutenção dos quatro acessos equivalentes de ponta a ponta são a entrega 2A. O DS e as demais extrações crescem junto dos fluxos; não são um catálogo completo a terminar antes de 2A. Fontes de evidência: [arquitetura](ARCHITECTURE.md), [runbook](RUNBOOK.md), [changelog](CHANGELOG.md) e [ficha de acesso/contas](flows/ACCESS_ACCOUNTS.md).
+
+**Próximo passo técnico de integração:** reconciliar as guardas de RPC e Storage para o opt-in hospedado. O [contrato](contracts/ACCESS_COMPANIES.md#provisionamento-no-primeiro-acesso-v2--0411) registra a candidata de provisionamento e admissão isolada. O CALI MAPA tem evidência de cadastro/comprovação pelo Admin e isolamento de leitura A/B no recorte histórico. Corte hospedado, callback e regressão nas demais superfícies seguem pendentes.
+
 **Bloqueios:** TEC-01 para contrato de acesso ausente; TEC-02 para sessão, papel, empresa, MFA e superfícies reais; OPEN-10 para ambiente. Corpos ausentes de agenda ou relatórios não bloqueiam o primeiro fluxo se independentes.
 
 **Aceite:** instalação limpa e comandos implantados passam na revisão registrada; configuração inválida não toca produção; sessão ativa/inativa/expirada e atores A/B/Admin exercitados no ambiente autorizado; URL direta/retorno/logout e limpeza de contexto funcionam; UI básica legível/mobile/teclado. Fundação isolada não é declarada fluxo de produto completo; o primeiro resultado de uso fecha em 2A.
 
 ## Fase 2 — Rotina Admin/Cliente completa
 
+**Acompanhamento 2A — iniciado em 02/11, sem encerramento da fase 1:**
+
+- [x] Implementar detalhe com razão social e formulário inline de edição básica; Admin pronto na composição conectada, validação, cancelamento, estado pendente/erro/confirmado e manutenção do rascunho.
+- [x] Implementar PATCH dos dois nomes com comparação atômica de preimagem, confirmação de linha e invalidação por ator; mocks isolados por instância e regressões de transporte/UI.
+- [x] Implementar identidade mínima, referências de adesão e autorizações equivalentes no transporte demonstrativo, sem efeitos Auth/e-mail; composição hospedada declara capacidade indisponível, sem fallback.
+- [x] Implementar gate demonstrativo de comprovação vigente por empresa (referência isolada não libera), limite de quatro na fronteira mock, bloqueio de duplicados, preimagem, reautorização explícita, histórico e proteção de repetição de comandos virtuais.
+- [x] Implementar formulários/estados/cancelamento/confirmar revogação e continuidade por URL; testes do modelo/UI sem executar a bateria suspensa.
+- [x] Consolidar composição técnica de acesso/empresas: coordenação em hooks, etapas e tarefas separadas, mapas tipados e primitivas de checkbox/feedback. Não encerra migração global do frontend nem homologa backend.
+- [x] Homologar escrita e persistência da ficha, adesão e ciclo no piloto CALI MAPA. Isolamento e gestão por convite exercitados no navegador e na cópia descartável, conforme evidências abaixo.
+- [x] Conferir GRANTs, RPC de cadastro e código de login implantado. Preparar [candidata de rascunho e comprovação](contracts/ACCESS_COMPANIES.md#fase-2a--candidata-de-cadastro-e-comprovação), fora dos runners.
+- [x] Aplicar a migration de rascunho/comprovação no CALI MAPA autorizado para testes. Conferir catálogo, GRANTs e recusas SQL sintéticas.
+- [x] Validar Admin pela Data API e conectar listagem paginada, cadastro em rascunho, comprovação e retirada à UI. Reabrir o rascunho após recarregar e conferir o histórico no CALI MAPA.
+- [x] Criar empresa definitiva pela tela Admin e persistir o vínculo com o rascunho. Validar reabertura pela Data API e repetição concorrente em banco descartável.
+- [x] Vincular a comprovação ao contrato ou aditivo da empresa no Storage. Validar a seleção e o histórico após recarga no CALI MAPA e a rejeição de versão incorreta em PostgreSQL descartável.
+- [x] Preparar a pré-condição privada de adesão vigente para convite e reautorização. Testar empresa pausada e bloqueada, versão substituída e retirada em PostgreSQL descartável.
+- [x] Integrar a candidata de convite, reserva e revogação aos SQLs de corte e admissão. Provar quatro vagas com cinco solicitações simultâneas, corte da sessão antiga e preservação de outro Cliente em PostgreSQL descartável.
+- [x] Homologar entrega local de convites, login por código, refresh e revogação com GoTrue, PostgREST e Mailpit em cópia descartável. Provar que o hash anterior ao corte não libera leitura após reativação.
+- [x] Conferir a Edge publicada e o catálogo do CALI MAPA. No navegador, reabrir a ficha sintética, ler histórico e versão do Storage e verificar o estado da gestão de convites.
+- [x] Exigir admissão desde a primeira sessão Cliente de empresa gerenciada na candidata isolada. Preservar sessão legada sem corte fora da gestão no controle SQL.
+- [x] Implementar a candidata isolada de provisionamento e admissão V2. Criar a identidade pelo Auth, vincular ao convite gerenciado e recuperar uma criação parcial sem adotar conta de outro fluxo.
+- [x] Exercitar o primeiro acesso no Chrome, confirmar aceite e consulta da empresa e verificar o bloqueio após revogação pela RPC e recarga. Consultar a navegação do Admin na V1 publicada como referência com sessão de teste existente.
+- [x] Reconciliar provisionamento, admissão e revogação por convite no piloto hospedado. A2 entrou e foi revogado individualmente. A limpeza do legado e a ampliação do piloto têm gates próprios. O corte de arquivos segue separado abaixo.
+
+- [x] Implementar ficha administrativa demonstrativa de contrato/financeiro/referências documentais, com revisão, histórico, rascunhos e confirmação; nenhuma cobrança, arquivo real ou ciclo é executado.
+- [x] Implementar dados cadastrais complementares demonstrativos: serviço/plano/horas, segmento, endereço/filiais, contato comercial e logo local, com revisão/histórico e frontend separado por tarefa; sem Auth, upload ou automações.
+- [x] Implementar arquivos contratuais demonstrativos: anexo, versões imutáveis, download explícito, retirada com motivo/histórico e integridade dos bytes, sem storage hospedado.
+- [x] Implementar comprovação administrativa demonstrativa: referência/observação, versão documental opcional, confirmação explícita, retirada preservando histórico e gate de novas autorizações/reativações; sem upload obrigatório nem revogação implícita.
+- [x] Implementar ponta Cliente de consulta: Minha empresa com GET mínimo do vínculo autenticado, navegação/retorno, termos correntes somente leitura e estados/falhas sem fallback para mocks; teste sintético não homologa leitura autenticada da tela.
+
+- [x] Conectar a leitura de serviço e plano e editar segmento, horas, endereço e filiais no recorte A/B. Conferir persistência e auditoria após recarga em B.
+- [x] Preparar banco e interface da reserva por convite. Instalar o banco sem destinatários aprovados. Provar provisionamento e cancelamento na cópia descartável.
+- [x] Homologar o primeiro acesso de A2 no CALI MAPA, com dois vínculos na mesma empresa. Revogar A2, confirmar continuidade de A1 e B e retirar o destinatário temporário.
+- [x] Homologar o corte de arquivos no piloto A/B. B recebeu o próprio PDF com `200` e SHA-256 confirmado. Após revogação, a mesma sessão recebeu `403` e zero bytes. A continuou com `200` e o PDF correto. Os dois caminhos antigos recusaram novas requisições. [Contrato e evidência](contracts/ACCESS_COMPANIES.md#download-de-homologação-revogável--0411).
+- [x] Conectar contato comercial, logo privada, troca de plano e condições contratuais na ficha A/B. O Admin gravou os campos sintéticos de B e o banco confirmou os registros. Configuração de cobrança integra a ficha. Emissão, pagamento e automação exigem fluxo financeiro próprio.
+
+**Evidência consolidada do piloto.** A [publicação vigente e o aceite com hash](RUNBOOK.md#aceite-vigente-e-arquivos-da-fase-2a) estão no CALI MAPA, com quatro recibos legados preservados. A [admissão A/B](RUNBOOK.md#piloto-de-admissão-ab) permitiu login, aceite e consulta. O piloto passou à chave por convite, validou um segundo Cliente A2 e revogou seu acesso mantendo A1 e B. A2 e a autorização temporária foram removidos. A flag de provisionamento voltou a ficar desligada. A [cópia descartável](RUNBOOK.md#pré-condições-para-quatro-vagas-hospedadas) confirmou o limite sob concorrência.
+
+A [variante com Storage](LOCAL_ENVIRONMENT.md#variante-com-storage) comprovou que a revogação na origem não invalida uma resposta já armazenada. O CALI MAPA arquivou os dois PDFs sintéticos e homologou a nova rota sem cache para A/B. A entrega de documentos do Cliente na 4C exige seu próprio contrato e validação para arquivos reais e links anteriores.
+
+O catálogo hospedado confirmou `service_cycles` com unicidade por `(company_id, reference_month)`, estados `planned`, `open`, `review` e `closed`, e leitura Cliente por `current_company_id()`. A ficha Admin consulta os 12 ciclos mais recentes. A [abertura do mês](../supabase/proposals/company-onboarding/open-current-cycle.sql) abriu novembro de 2026 para A/B. As [transições do piloto](RUNBOOK.md#ciclo-de-serviço-ab) estão instaladas; A passou por revisão e foi encerrada pelo Admin, com horas e trilha preservadas. B ficou aberta. Abertura de planejado passou na cópia isolada.
+
 Cada linha é uma entrega independente, incluindo contrato/adaptador real de teste, interface, validação e documentação. Não esperar toda a fase 2 para revisar 2A.
 
 | Entrega | Dependências | Conteúdo e aceite observável |
 | --- | --- | --- |
 | 2A — Empresa e acessos | 1; conta, adesão, convite e ciclo | Admin cadastra/acompanha empresa e acessos; Cliente entra no contexto correto; até quatro acessos equivalentes; sem principal; revogar um preserva demais; conta bloqueada não mantém acesso; aceite/privacidade versionados; perfil e retorno contextual necessários |
-| 2B — Equipe | 2A; contratos de pessoas, privados e histórico | Cadastro/consulta/alteração/arquivamento e importação com prévia; todos os Clientes mantêm Equipe; Cliente/Admin informam/consultam privados permitidos; sem dados de outra empresa; ausentes no CSV não são desligados; datas efetivas, histórico e leitores coerentes |
-| 2C — Dados mensais e confirmação | 2B e períodos/métricas/revisão mensal | Pedido de dados aparece só ao Cliente; Cliente lança; correção posterior só Admin; confirmação e resumos consistentes; cenários vazios/retroativos e falhas; fórmulas oficiais preservadas; comunicação apenas conforme contrato definido |
+| [2B — Equipe](contracts/TEAM_2B.md) | 2A; contratos de pessoas, privados e histórico | Cadastro/consulta/alteração/arquivamento e importação com prévia; todos os Clientes mantêm Equipe; Cliente/Admin informam/consultam privados permitidos; sem dados de outra empresa; ausentes no CSV não são desligados; datas efetivas, histórico e leitores coerentes |
+| [2C — Dados mensais e confirmação](contracts/TEAM_MONTHLY_2C.md) | 2B e períodos/métricas/revisão mensal | Pedido de dados aparece só ao Cliente; Cliente lança; correção posterior só Admin; confirmação e resumos consistentes; cenários vazios/retroativos e falhas; fórmulas oficiais preservadas; comunicação apenas conforme contrato definido |
+
+**Acompanhamento 2B — Equipe**
+
+- [x] Inventariar referência 83 e catálogo ativo. Separar Equipe da confirmação mensal.
+- [x] Conectar diretório, estrutura, cadastro, edição, arquivamento, privados, prévia de importação e histórico no piloto A/B. Registrar SQL, rollback e testes focados na [ficha 2B](contracts/TEAM_2B.md).
+- [x] Exercitar o fluxo autenticado de Cliente B no navegador integrado. Confirmar persistência, dados privados, importação, ausentes e arquivamento. Validar equivalência e corte individual na cópia descartável.
+- [x] Validar Admin com MFA no navegador integrado. Confirmar seleção A/B, filtro de arquivados, abertura por teclado, recarga e restauração da seção ao voltar e avançar.
+- [x] Conferir Equipe com Cliente A autenticado no navegador integrado. Reativação, alteração, privados, recarga, estrutura, recusa de ficha B e arquivamento com trilha passaram no CALI MAPA.
+**Coleta real antes do lançamento.** Validar a informação de finalidade, necessidade e guarda antes de abrir a coleta de dados reais.
+
+**Acompanhamento 2C — Dados e confirmação mensais**
+
+- [x] Conferir catálogo ativo e referência 83. Registrar fronteiras, janela e DEC-05/10 no [contrato 2C](contracts/TEAM_MONTHLY_2C.md).
+- [x] Implementar leitura e primeiro lançamento Cliente, correção Admin, auditoria e proteção da escrita direta no piloto. SQL descartável e primeira rodada autenticada A/Admin passaram.
+- [x] Implementar confirmação, snapshots e vagas com versão e transação. Preimagem, replay, token obsoleto e falha atômica passaram na cópia descartável.
+- [x] Conectar pendência Cliente, métricas e indicadores essenciais preservando fórmulas. Aviso do Início desaparece após confirmar; nulos e denominador zero permanecem explícitos.
+- [x] Homologar A/B/Admin no navegador integrado e registrar testes focados, limites e rollback. Confirmação/reconfirmação, vaga/cancelamento, correção Admin, mês anterior vazio, recarga, contexto e mobile passaram. Complemento de leitura direta aplicado somente A/B.
+
+**Frontend antes do lançamento.** A paridade visual do layout, navegação e Equipe por perfil é conferida contra a [main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2). Felipe autorizou em 05/11 a continuidade da homologação funcional na composição simplificada. A substituição visual fica para a implementação do frontend final.
 
 DS, tabelas, campos, overlays, modelos/hooks e cache necessários são entregues junto dos consumidores. Declarar quem possui cada estado: URL para contexto compartilhável, local para transitório, cache para respostas remotas e context somente para responsabilidades realmente transversais. Views não importam SDK ou fixtures.
 
@@ -72,11 +237,36 @@ DS, tabelas, campos, overlays, modelos/hooks e cache necessários são entregues
 
 DEC-13 substitui DEC-07. Reaprovação interna não se confunde com nova ciência Cliente: DEC-12 continua vigente. Todo envio real externo usa apenas destino de teste autorizado; cenário simulado não certifica entrega. Canais não usados pela operação não são acrescentados para preencher checklist.
 
-**Bloqueios:** contratos de projeção/token, liberação, assinatura/protocolo e envio; TEC-01/02/03; retenção/exportação aplicáveis. Método de cálculo existente é preservado, sem novo algoritmo de avaliação. Não certificar validade científica nesta padronização.
+**Gates de operação real:** ativação de agenda autenticada, textos/finalidade/guarda e frontend final. A revisão do worker PDF foi publicada por autorização específica em 05/11. Contratos de projeção/token, liberação e assinatura/protocolo estão implementados e testados no piloto. Método de cálculo existente é preservado, sem novo algoritmo de avaliação. Não certificar validade científica nesta padronização.
+
+**Execução de 05/11:** Felipe autorizou 3A, 3B e 3C em conjunto. [Plano, inventário e contrato](contracts/DISC_3.md). Investigações e interfaces independentes seguem em paralelo; banco, aprovação e entrega seguem suas dependências.
+
+- [x] Inventariar contratos ativos e referência 83 em leitura; separar públicos conforme DEC-13.
+- [x] Implementar e provar fundação privada, versões e fila de entrega no piloto.
+- [x] Conectar 3A no piloto manual: convite, resposta, agradecimento, PDF e comunicação de teste.
+- [x] Conectar 3B: avaliador interno sem acesso Cliente/público.
+- [x] Conectar 3C no piloto: gestão, aprovação/liberação, assinatura/protocolo e entrega.
+- [x] Homologar recorte sintético de limites, permissões, falhas/replay, navegador e artefatos; registrar rollback e PR.
+
+### Estado da entrega DISC em 05/11
+
+3A/3B/3C têm código, contratos e provas sintéticas. Questionário completo, PDF individual aceito pelo provedor, avaliador Admin, gestão liberada somente a A e PDF privado foram exercitados. Limiar 4/5/14/15, rejeições, replay e histórico têm prova SQL descartável. [Evidências e limites](contracts/DISC_3.md).
+
+- [x] Publicar revisão do worker de PDF após autorização explícita: versão 4 publicada com JWT obrigatório, código publicado conferido e catálogo inalterado.
+- [x] Implementar e testar localmente agenda autenticada, janela de envio/retentativa, concorrência, desligamento e rollback, sem alterar o hospedado.
+- [x] Conferir em leitura worker, extensões, fila e preimagem do rollback no CALI MAPA. Em 05/11, agenda desligada, segredo Vault ausente e recuperação DEC-28 sem evidência.
+- [x] Aplicar incremento privado da agenda, publicar worker v5 e configurar Vault no CALI MAPA, com dispensa de backup para o lote e rollback conferido.
+- [x] Homologar a chamada autenticada do cron DISC no CALI MAPA com fila vazia e desligamento confirmado.
+- [ ] Preparar o ambiente de homologação e concluir a validação interna do DISC. Incluir envio pelo cron somente se previsto na janela de teste. Patrícia valida o DISC no aceite final da V2.
+- [ ] Validar textos/finalidade/guarda para coleta real e paridade visual antes do lançamento.
+
+Esses itens impedem declarar a fase 3 pronta para operação real. Não reabrem a bateria suspensa nem exigem repetir a homologação completa.
 
 ## Fase 4 — Demais fluxos Cliente/Admin
 
 Conduzir cada domínio por entrega completa; dependências são de dados/operação, não barreiras artificiais de lote. A primeira entrega não elimina as demais do escopo.
+
+**Em andamento (07/11):** [consultas da fase 4](contracts/PHASE_4_READ.md) implementadas nos cinco recortes, com SQL validado em PostgreSQL descartável. Os incrementos operacionais cobrem cronograma, execução e revisão de entregáveis com PDF privado no piloto, horas com extrato e capacidade mensal, agenda ordinária com remarcação e cancelamento, ocorrências com avaliação e reabertura, mural, PDFs privados por revisão, aprovação, PDF executivo, publicação no app, correção e ciência de relatório por revisão, criação e edição de rascunhos de Forms com perguntas de texto, abertura, encerramento e triagem de Forms, pedidos de privacidade, leitura, edição de condições e aprovação interna de propostas inscritas, auditoria operacional selecionada com eventos de Forms e acompanhamento de notas baixas. Em 07/11, o [lote de Projetos](contracts/PHASE_4_READ.md#lote-de-projetos-e-entregáveis-no-cali-mapa) homologou cronograma, ajuste por item, aprovação, PDF, reabertura e nova aprovação com Admin e Cliente A; B ficou sem acesso ao projeto. Subtarefas, conversa, dependências, prazo e pausa/retomada por entregável também foram homologados no projeto inscrito. Paridade visual e migração de arquivos legados permanecem fora da prova funcional do piloto. O [lote de Horas](contracts/PHASE_4_READ.md#lote-de-lançamento-e-timer-no-cali-mapa) homologou lançamento, pausa, retomada, conclusão e privacidade do extrato. A [agenda ordinária](contracts/PHASE_4_READ.md#lote-de-agenda-ordinária-no-cali-mapa) passou da solicitação ao cancelamento com remarcação no mesmo evento, sem cobrança nem sincronização externa. O [lote de ocorrências, avisos e satisfação](contracts/PHASE_4_READ.md#lote-de-ocorrências-avisos-e-satisfação-no-cali-mapa) comprovou reabertura com nota preservada, aviso dirigido com ciência e acompanhamento Admin, com isolamento A/B. A [biblioteca de PDFs](contracts/PHASE_4_READ.md#lote-da-biblioteca-de-pdfs-no-cali-mapa) comprovou publicação, ciência por revisão, recusa de download antigo e retirada. O [relatório mensal interno](contracts/PHASE_4_READ.md#lote-de-aprovação-interna-de-relatório-no-cali-mapa) passou por duas aprovações do mesmo protocolo; O [PDF executivo](contracts/PHASE_4_READ.md#lote-de-pdf-executivo-no-cali-mapa) foi gerado, liberado, baixado, aceito por ciência e retirado no piloto; a função temporária foi desligada. O [pedido de privacidade](contracts/PHASE_4_READ.md#lote-de-pedido-de-privacidade-no-cali-mapa) passou da abertura à resposta com trilha e sem notificações. A [consulta do ciclo de dados](contracts/PHASE_4_READ.md#consulta-do-ciclo-de-dados-no-cali-mapa) foi homologada em A/B sem exportação ou eliminação. Os [PDFs de ocorrências](contracts/PHASE_4_READ.md#anexos-pdf-de-ocorrências-no-cali-mapa) passaram por postagem, download e retirada com isolamento A/B. As [interações de avisos](contracts/PHASE_4_READ.md#interações-de-avisos-no-cali-mapa) passaram com comentário, resposta, troca e retirada de reação. A [prévia do resumo diário Admin](contracts/PHASE_4_READ.md#prévia-do-resumo-diário-admin-no-cali-mapa) foi homologada sem cron nem envio. A matriz do contrato detalha o que ainda falta em cada recorte. O [lote de Forms](contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa) foi aplicado no CALI MAPA. Criação, edição, persistência e isolamento A/B do rascunho foram verificados com Admin no navegador. Triagem com resposta sintética foi verificada com etapa e responsável persistidos, auditoria e isolamento A/B. O [lote de leitura A/B](contracts/PHASE_4_READ.md#lote-de-leitura-para-homologação-ab) foi aplicado e homologado no CALI MAPA. Admin e Cliente validaram consultas, detalhe de projeto, mês visível e oculto de Horas, fronteira A/B e estados de catálogo. A Auditoria foi homologada com os eventos de Forms em A, lista vazia em B e bloqueio da rota para Cliente. Coleta segue fechada. A [guarda V2 de abertura pública](contracts/PHASE_4_READ.md#confirmação-de-coleta-pública-em-forms) exige confirmação e foi instalada; o leitor legado continua público por slug. Homologação dos demais lotes e paridade visual continuam pendentes.
 
 | Entrega | Conteúdo | Dependências e saída |
 | --- | --- | --- |
@@ -85,6 +275,20 @@ Conduzir cada domínio por entrega completa; dependências são de dados/operaç
 | 4C — Interações, documentos e avisos | Ocorrências/conversas, anexos, versões/ciência, mural/agenda/notificações | Público, autoria e storage; nota interna não vaza; mesma origem dos leitores de Avisos; chat sem e-mail; resumo Admin diário conforme RESUMO-01/DEC-19; testar corte, volume, exclusões e dias sem atividade; versão Partner posterior |
 | 4D — Relatórios executivos e satisfação | Fatos/período, curadoria, aprovação, PDF, publicação, ciência e tratamento de avaliação | Fontes integradas, autoria/assinatura/protocolo e auditoria; tela/PDF correspondem à revisão; reabertura oculta até liberar; nova ciência só a pedido Admin; feedback original preservado |
 | 4E — Comercial, módulos adicionais e ciclo de dados | Propostas, Forms, Mapa, frentes/ajuda, auditoria, direitos, exportação/encerramento e administração equipe CALI | Contratos próprios, públicos e permissões por operação; proposta aceita não vira pré-requisito novo de cadastro; Forms/Mapa não são DISC; staff Admin não equivale a construir área Partner; cobertura e falha parcial do ciclo de dados comprovadas |
+
+### Fechamento da fase 4 no piloto
+
+A fase 4 está fechada no CALI MAPA para o piloto sintético Admin e Cliente. A próxima etapa é a fase 5 (Partner). A aceitação visual global e os passos operacionais abaixo entram no roteiro de release.
+
+| Recorte | Trabalho restante | Dependência específica |
+| --- | --- | --- |
+| 4A — Projetos | Fechada no piloto. [Cronograma, entregáveis por frente, Kanban Admin e histórico homologados com Admin e Cliente A; B recusado](contracts/PHASE_4_READ.md#fechamento-de-projetos-no-piloto) | Os três arquivos inventariados, o corte dos leitores legados e a liberação controlada da reabertura ficam para o rollout |
+| 4B — Horas e agenda | Fechada funcionalmente no staging. [Google Calendar/Meet fica para revisão pré-rollout](flows/CALENDAR.md#revisão-pré-rollout) | [Realização, comprovantes e reuso de horário cancelado](contracts/PHASE_4_READ.md#conclusão-da-visita-extra-e-comprovantes-no-cali-mapa) homologados no navegador. [Abertura, orçamento, despesas, recusa e taxa](contracts/PHASE_4_READ.md#abertura-de-extras-revisão-de-orçamento-e-despesas) já homologados |
+| 4C — Interações | Fechada no piloto. [Lote de cinco anexos de 10 MiB, correção, download e retirada homologados em A/B](contracts/PHASE_4_READ.md#fechamento-de-interações-no-piloto). [Documentos](contracts/PHASE_4_READ.md#lote-da-biblioteca-de-pdfs-no-cali-mapa), [Avisos](contracts/PHASE_4_READ.md#interações-de-avisos-no-cali-mapa) e [resumo Admin](contracts/PHASE_4_READ.md#envio-sintético-do-resumo-admin-pelo-resend) já homologados | Acervo legado e ativação do resumo com destinatários autorizados ficam para o rollout. [Cron legado pausado no staging](contracts/PHASE_4_READ.md#contenção-do-resumo-legado-no-staging) |
+| 4D — Relatórios | Fechada no piloto. [Etapas de aprovação, arquivo, leitura, PDF e retirada homologados no CALI MAPA](contracts/PHASE_4_READ.md#fechamento-de-relatórios-no-piloto) | Aceite visual global da V2 na homologação final |
+| 4E — Comercial e administração | Fechada no piloto. [Propostas](contracts/PHASE_4_READ.md#criação-envio-no-workspace-e-aceite-no-staging), [Forms](contracts/PHASE_4_READ.md#caminhos-condicionais-e-pdf-de-resposta-em-forms), [Mapa](contracts/PHASE_4_READ.md#devolutiva-sintética-do-mapa), [Equipe CALI](contracts/PHASE_4_READ.md#fechamento-administrativo-no-piloto) e [exportação e prévia de eliminação](contracts/PHASE_4_READ.md#exportação-estruturada-e-prévia-de-eliminação) homologados no recorte sintético | Entregas reais do Comercial e do Mapa, migração do acervo Forms e eliminação operacional exigem preparo de rollout. O acesso operacional de Partner pertence à fase 5 |
+
+As instalações autorizadas no CALI MAPA seguem com preflight e rollback por lote. A validação da Patrícia permanece no aceite final, após os testes internos. [Evidência e sequência](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).
 
 Início, localizador, notificações e auditoria recebem leitores reais a cada entrega. Seu aceite global exige todas as fontes aplicáveis, sem métricas fictícias e sem apresentar período/empresa anteriores como atuais.
 
@@ -102,7 +306,7 @@ As [fichas](flows/README.md) continuam donas das transições e fronteiras. A ma
 | FLOW-06 — [Entregáveis](flows/PROJECTS.md) | 4A; projeto e revisões | Reabrir mesmo item com motivo; indisponível até liberar; nova aprovação; conversa/avaliação e histórico autorizados | TEC-02/03; REF-07/14/16 |
 | FLOW-07 — [Horas](flows/WORKSPACE_HOURS_TEAM.md) | 4B; conta/ciclo e vínculos exigidos | Timer/manual sem duplicar; pausa/retomada; extrato Cliente sem justificativa interna; total da autoridade oficial | REF-04/08/09; OPEN-04 |
 | FLOW-08 — [Equipe](flows/WORKSPACE_HOURS_TEAM.md) | 2B/2C; empresa/acessos/períodos | Clientes equivalentes mantêm Equipe; privados no escopo; Cliente lança e só Admin corrige; importação/efetividade/snapshots coerentes; informação sobre dados validada | REF-10/11; TEC-02/03; OPEN-05/11/14 |
-| FLOW-09 — [Agenda](flows/CALENDAR.md) | 4B; solicitação/capacidade aplicáveis | Solicitar/confirmar/remarcar/cancelar sem duplicar; conflito/timezone/prazo/preço aceito; Google/Meet com estado verdadeiro | REF-05/12/16 |
+| FLOW-09 — [Agenda](flows/CALENDAR.md) | 4B; solicitação/capacidade aplicáveis | Solicitar/confirmar/remarcar/cancelar sem duplicar; conflito/timezone/prazo/preço aceito; Google Calendar/Meet em revisão pré-rollout | REF-05/12/16 |
 | FLOW-10 — [Ocorrências](flows/RECORDS.md) | 4C; protocolo/conversa/anexos | Abertura/resposta/fechamento/avaliação/reabertura; interno protegido; autoria; falha sem duplicar; chat sem e-mail | REF-16/18/24 |
 | FLOW-11 — [Documentos](flows/DOCUMENTS_REPORTS.md) | 4C; empresa e vínculos existentes | Versão/publicação/ciência e comentário autorizados; arquivo privado negado; Drive distingue sincronização/entrega | REF-13/14/16 |
 | FLOW-12 — [Relatórios](flows/DOCUMENTS_REPORTS.md) | 4D; fatos/período/revisão | Tela/PDF/fonte/assinatura/foto/protocolo concordam; auditoria; reabertura oculta; ciência só se solicitada; NPS/headcount preservados | REF-04/15/16; OPEN-05 |
@@ -141,11 +345,21 @@ Engenharia investiga fontes autorizadas antes de repassar qualquer dúvida ao pr
 
 ## Fases 5–7 — Prioridade posterior e fechamento
 
-**5 — Partner:** adiar a área completa; antes de incluí-la, fechar público, atribuições, matriz e paridade próprios. Não conflitar com a gestão Admin de equipe CALI já prevista. O recorte Cliente/Admin pode ser homologado sem essa expansão.
+**5 — Partner:** piloto técnico fechado no CALI MAPA. OTP, MFA, convite, aceite, revogação e decisões Admin homologados no navegador integrado. Horas, resposta de ocorrência, cinco catálogos e PDFs publicados estão conectados. Canal temporário retirado. Rollout, demais operações e resumo seguem os limites e decisões registrados no [contrato](contracts/PARTNER_5.md#limites-de-fechamento).
 
 **6 — Homologação:** os 18 IDs/subfluxos aplicáveis têm evidência real ou adiamento explicitamente aprovado. Executar regressão entre módulos, isolamento e decisões vigentes; mídia/PDF/e-mail e tela concordam; sem operação obrigatória apenas simulada, bloqueio crítico oculto ou dados fictícios tratados como reais. UX/mobile/teclado são conferidos em cada entrega e novamente nos percursos cruzados. Resumo Admin segue RESUMO-01/DEC-19 e exige evidência de operação; conteúdo Partner não faz parte do aceite Admin/Cliente.
 
-**7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
+**Aceite com Patrícia:** compartilhar o acesso quando todo o escopo combinado da V2 estiver concluído, a validação interna tiver passado e o ambiente de homologação estiver pronto. Completar o [roteiro de aceite](HOMOLOGACAO_PATRICIA.md) com os fluxos entregues até lá.
+
+**Andamento 6:** [regressão interna](HOMOLOGACAO_PATRICIA.md#fase-6--regressão-interna) validou navegação e leitura com controle A/B. O [cruzamento dos 18 fluxos](HOMOLOGACAO_PATRICIA.md#cruzamento-das-provas-dos-pilotos) registra o que cada piloto comprova, incluindo Partner. A [revisão contra a main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2) alinhou a navegação compartilhada, a composição de Projetos e a leitura de Relatórios. O domínio publicado foi conferido separadamente. A [rodada de responsividade](HOMOLOGACAO_PATRICIA.md#responsividade-e-hierarquia-em-375-px) adota 375 px e corrige estouros e ações fora da primeira coluna. A [revisão de diálogos](HOMOLOGACAO_PATRICIA.md#diálogos-e-formulários-demonstrativos) cobre as 12 superfícies da demonstração. A [revisão de formulários conectados](HOMOLOGACAO_PATRICIA.md#formulários-conectados-em-375-px) cobre os recortes de Agenda, Ocorrências, Forms, Documentos e Empresas e acessos. A [regressão em 1366 e 375 px](HOMOLOGACAO_PATRICIA.md#regressão-em-1366-e-375-px) repete os cinco recortes nas duas larguras, acrescenta Horas Cliente, Forms público e Proposta por link e corrige perdas de foco. A [rodada de rascunhos, histórico e avisos](HOMOLOGACAO_PATRICIA.md#rascunhos-histórico-e-avisos-em-desktop-e-mobile) acrescenta a edição de Forms Admin, a criação de relatório Admin, a navegação pelo histórico Cliente e a publicação simulada de avisos. A [comparação de 20 telas nas duas larguras](HOMOLOGACAO_PATRICIA.md#comparação-dos-módulos-com-a-main-em-375-e-1366-px) amplia a cobertura da main da V2 e registra os percursos conectados exercitados com serviços sintéticos, incluindo Partner. A [rodada de campos, ações e mensagens](HOMOLOGACAO_PATRICIA.md#campos-ações-e-mensagens-da-interface) consolida as primitivas de formulário, o feedback e os percursos de Acesso, Documentos e Relatórios. A [revalidação de formulários Admin e Cliente](HOMOLOGACAO_PATRICIA.md#revalidação-de-formulários-admin-e-cliente) repetiu os percursos em desktop e mobile, corrigiu espaçamento e alinhamento e registrou os estados de erro, repetição e sucesso exercitados. A [revisão de recuperação e atalho mensal](HOMOLOGACAO_PATRICIA.md#recuperação-de-navegação-e-atalho-mensal) verificou retorno por papel, callback sintético, continuidade Admin e retomada de foco no Início Cliente. A [rodada de carteira Admin e localizador](HOMOLOGACAO_PATRICIA.md#carteira-admin-e-localizador-de-módulos) cobriu contagens por situação, abertura filtrada e busca de módulos por papel. As prioridades da visão Admin e as notificações conectadas exigem cobertura própria. As provas autenticadas continuam registradas por piloto. O aceite da Patrícia e os critérios do rollout seguem separados. A [rodada de prioridades Admin e Minha conta](HOMOLOGACAO_PATRICIA.md#prioridades-admin-e-minha-conta) cobre os recortes de Projetos e Ocorrências por empresa e a leitura própria de Admin e Cliente. A [conferência de notificações](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) registra o alcance das permissões e as guardas pendentes para conectar o sino. A [homologação autenticada no CALI MAPA](HOMOLOGACAO_PATRICIA.md#prioridades-minha-conta-e-guarda-de-sessão-no-cali-mapa) cobre Minha conta, prioridades A/B e leitura própria de notificações depois da guarda de sessão. O [sino conectado](HOMOLOGACAO_PATRICIA.md#sino-conectado-no-cali-mapa) consulta e marca notificações próprias. A [edição de perfil e o resumo mensal](HOMOLOGACAO_PATRICIA.md#edição-de-minha-conta-e-resumo-mensal-admin) foram homologados com Admin e Cliente. Prioridades também tiveram prova com itens em A e controle B. O [resumo global Admin](HOMOLOGACAO_PATRICIA.md#agregados-globais-da-carteira-em-localhost) foi homologado em localhost conectado ao CALI MAPA. Felipe fará a conferência externa separadamente.
+
+**7 — Preparação de release:** conferir hosting de teste, URLs diretas/callbacks, observabilidade sem dados privados, baseline/limites de bundle/carregamento, compatibilidade, backup/restauração e corte. DEC-28 mantém a recuperação no preparo de produção. No release, comprovar a restauração e confirmar os projetos separados. Rollback distingue UI, contrato/migration e dados escritos; testar restauração no ambiente isolado. Registrar aceites funcional, UX, acesso/dados e operação. Merge/deploy/produção exigem escopo e autorização próprios; preparar não significa publicar.
+
+**Preparação 7:** [preview local](RUNBOOK.md#prova-local-do-build-e-das-urls) conferiu URLs diretas, callback como rota HTTP e ativos. O build carrega os módulos de demonstração sob demanda. O callback autenticado no domínio publicado ainda exige prova. O hosting da homologação separada fica para depois da validação dos ajustes em produção.
+
+**Lotes 1 e 2 da preparação 7:** [candidata de produção e inventário](RUNBOOK.md#candidata-da-v2-para-o-domínio-de-produção) registram a configuração explícita do núcleo da V2, o artefato online, os contratos do CALI MAPA e as lacunas de origem e callback. Equipe e as demais operações limitadas ao piloto continuam pendentes de liberação operacional. A validação autenticada no domínio corresponde ao lote seguinte.
+
+**Revisão antes da publicação:** o resumo global Admin independe da listagem de empresas. A composição do Admin e as verificações de papel foram padronizadas com regressão local. [Registro](CHANGELOG.md#revisão-do-admin-antes-da-publicação).
 
 ## Referências anteriores e tarefa para IA
 
@@ -164,4 +378,4 @@ Comandos reais/resultados; QA, evidências e aceite de produto:
 Documentação canônica, compatibilidade, rollback e próxima ação:
 ```
 
-Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. Todos os estados de implementação permanecem planejados nesta revisão.
+Registrar execução no [changelog](CHANGELOG.md), conforme [Política de mudança](CHANGE_POLICY.md). Distinguir planejado, bloqueado, implementado e validado. A fase 1 tem integração parcial. A 2A, a 2B e a 2C têm homologação funcional no piloto A/B do CALI MAPA, com os limites registrados nos contratos donos. A fase 3 está implementada no piloto, com ativação final pendente. A separação de ambientes permanece registrada na DEC-28. Backup foi dispensado para os lotes autorizados no staging. A evolução das demais entregas está na [tabela de fases](#fases-e-dependências).

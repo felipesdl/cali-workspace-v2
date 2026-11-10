@@ -2,11 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": [
-      "ES2020",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "Bundler",
@@ -20,6 +16,12 @@
     "noUnusedParameters": false
   },
   "include": [
-    "src"
+    "src",
+    "tests",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "supabase/functions",
+    "scripts/build-local-functions.ts",
+    "scripts/hosted-access-probe.ts"
   ]
 }

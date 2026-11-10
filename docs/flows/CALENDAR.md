@@ -33,6 +33,8 @@ Na remarcação ordinária localizada, Cliente oferece duas opções distintas, 
 
 ## Continuidade, falhas e efeitos
 
+O [piloto V2 de alteração ordinária](../contracts/PHASE_4_READ.md#remarcação-e-cancelamento-de-reunião-ordinária) reaproveita as RPCs de mudança, exige decisão com motivo e revalida conflito na confirmação. O cancelamento apresentado é local ao Workspace. Transporte e sincronização externos ainda precisam de homologação.
+
 - Deep links levam ao pedido/evento correto; filtros de calendário não concedem acesso. Pedido de remarcação não deve aparecer como nova reunião confirmada.
 - E-mail, convite Google, criação de Meet e sincronização são etapas separadas. `pending`, registro local e toast não comprovam evento externo ou entrega ao participante.
 - Repetição/concorrência: trigger impede pedidos pendentes duplicados por slots em determinadas condições; não é garantia universal de idempotência entre v1/v2/extra.
@@ -44,3 +46,17 @@ Na remarcação ordinária localizada, Cliente oferece duas opções distintas, 
 Testar empresa diferente, evento passado/cancelado, opção duplicada, conflito de agenda, pedido pending concorrente, duração/janela, prazo útil, extra aceito, preço já salvo, sync com erro, múltiplos participantes e anexos privados. Verificar calendário após reload/Back/mobile.
 
 `REF-12`: corpos ausentes de scheduling v1/v2/política/outcome e diferenças entre caminhos; `REF-16`: efeitos externos/idempotência; `REF-05`: operações compostas; `REF-24`: continuidade UX. Valores acima são regra encontrada no código da revisão, não aprovação de tabela comercial para futuras contratações.
+
+A agenda ordinária V2 foi homologada no CALI MAPA: solicitação, oferta, confirmação, remarcação no mesmo evento e cancelamento. O teste preservou a condição sem cobrança e não chamou Google/Meet. [Contrato e evidência](../contracts/PHASE_4_READ.md#lote-de-agenda-ordinária-no-cali-mapa).
+
+A V2 inclui o registro de realização de reunião ordinária após o fim do compromisso, validado no PostgreSQL descartável. Admin registra, Cliente consulta a situação. [Contrato e limites](../contracts/PHASE_4_READ.md#registro-de-realização-de-reunião-ordinária).
+
+Quando o resultado admite reposição, Admin oferece horário e Cliente confirma. O horário mantém a duração e precisa ter sessão contratual disponível no mês de destino. A reunião anterior fica no histórico. [Contrato e prova local](../contracts/PHASE_4_READ.md#reposição-de-reunião-ordinária).
+
+O piloto consulta os participantes da reunião ordinária com a visibilidade do evento e mostra os pedidos extras em uma lista separada. Admin gerencia convidados externos em reunião local e publica link e PDF na ata da reunião realizada. O solicitante aceita o orçamento online com o valor e as condições exibidas. Os pedidos adicionais inscritos têm ações por papel e estado. [Homologação e limites](../contracts/PHASE_4_READ.md#materiais-da-ata-convidados-locais-e-encontros-adicionais).
+
+O [lote de abertura de extras e despesas](../contracts/PHASE_4_READ.md#abertura-de-extras-revisão-de-orçamento-e-despesas) validou pedidos novos, orçamento pendente, recusa, taxa de cancelamento e registro de despesa. A [conclusão da visita e comprovantes](../contracts/PHASE_4_READ.md#conclusão-da-visita-extra-e-comprovantes-no-cali-mapa) validou realização, despesa com PDF privado e confirmação em horário de evento cancelado pelos dois perfis. Evento ativo continua ocupando o horário.
+
+## Revisão pré-rollout
+
+A Agenda funciona localmente na V2. Google Calendar/Meet fica para revisão antes do rollout. A homologação externa requer calendário de teste dedicado e autorização dos escopos. Verificar criação de evento e link Meet, remarcação, cancelamento, destinatários e ausência de convites duplicados antes de ativar. A conexão global existente não comprova integração da V2.

@@ -4,6 +4,8 @@ Fichas FLOW-13/15/16/18. Estado: observado em fontes, não validado no ambiente.
 
 ## FLOW-13 — Publicar aviso, comentar, reagir e registrar ciência
 
+No piloto, [comentários e reações](../contracts/PHASE_4_READ.md#interações-de-avisos-no-cali-mapa) foram homologados em aviso dirigido. O aviso geral mantém as interações separadas por empresa.
+
 **Objetivo/atores/entrada:** Admin comunica a todas ou a empresas selecionadas; Cliente lê seu público, comenta, reage e confirma ciência. Rotas `/admin/avisos` e `/cliente/avisos`; deep link usa `aviso` no search param.
 
 **Fontes:** [UI](SOURCES.md#notice-ui), [RLS/estado](SOURCES.md#notice), [reações](SOURCES.md#notice-reaction), [notificação](SOURCES.md#notice-mail).
@@ -30,6 +32,8 @@ Fichas FLOW-13/15/16/18. Estado: observado em fontes, não validado no ambiente.
 
 ## FLOW-15 — Administrar equipe CALI e decidir submissões
 
+O piloto V2 inclui consulta de atribuições por empresa, com Admin e MFA. [Projeção e prova local](../contracts/PHASE_4_READ.md#equipe-cali-por-empresa). O [ensaio de convite e corte](../contracts/PHASE_4_READ.md#convite-admissão-e-corte-sintéticos-da-equipe-cali) comprovou o predicado por identidade, sessão, empresa e módulo. No staging, foi revertido sem ativar o convite administrativo nem a área Partner.
+
 **Objetivo/atores/entrada:** Admin em `/admin/equipe-cali` cadastra Partner, atribui empresas/módulos, convida e decide itens enviados. Operação detalhada do papel Partner não integra a matriz Cliente/Admin solicitada; sua administração e efeitos em Cliente integram esta ficha.
 
 **Fontes:** [staff/RLS](SOURCES.md#staff), [Admin UI](SOURCES.md#staff-ui), [convite EDGE](SOURCES.md#staff-invite), [decisão de horas](SOURCES.md#staff-review), [timer Partner posterior](SOURCES.md#hour-idle).
@@ -50,6 +54,8 @@ Não afirmar que **todas** as horas Partner passam pela fila: migration posterio
 **Continuidade/falhas/aceite proposto:** erro de convite não marca aceito; membro desativado perde operação esperada; retirada de atribuição deve impedir acesso e limpar contexto; decisão pending repetida/concorrente não duplica horas; falha ao aplicar material antes de registrar decisão precisa ser reconciliada. **Dúvidas:** `REF-01`, `REF-05`, `REF-04` (paridade/definições externas aplicáveis).
 
 ## FLOW-16 — Auditoria e tratamento de satisfação
+
+O [leitor piloto de auditoria](../contracts/PHASE_4_READ.md#propostas-e-auditoria-no-piloto-admin) cobre eventos operacionais selecionados, com empresa e mês, sem metadados livres. O [acompanhamento de notas baixas](../contracts/PHASE_4_READ.md#acompanhamento-admin-de-satisfação) registra tema e anotação sem editar a avaliação original.
 
 Alvo confirmado: geração, aprovação, liberação e envio de relatórios são eventos distintos de auditoria, vinculados ao objeto/revisão e ator. [Regras de produto](../PRODUCT_RULES.md) não permitem usar um toast ou fila como comprovação de entrega externa. Administração de equipe CALI continua no recorte Admin; área Partner completa permanece posterior no roadmap.
 
@@ -72,6 +78,12 @@ Alvo confirmado: geração, aprovação, liberação e envio de relatórios são
 
 ## FLOW-18 — Frentes, ajuda, direitos e fim de contrato
 
+O [piloto V2 de privacidade](../contracts/PHASE_4_READ.md#lote-de-pedido-de-privacidade-no-cali-mapa) homologou abertura e resposta de um pedido de acesso. O [painel de ciclo de dados](../contracts/PHASE_4_READ.md#consulta-do-ciclo-de-dados-no-cali-mapa) consulta situação e intervalo técnico. Exportação, eliminação e encerramento são operações separadas.
+
+O Cliente já pode consultar a modalidade e a vigência das frentes contratadas e seguir para a Agenda quando precisar conversar sobre o escopo. [Prova de Frentes e Ajuda](../contracts/PHASE_4_READ.md#frentes-contratadas-e-ajuda-no-cali-mapa).
+
+Admin já ativa e encerra vínculos de Frentes pelo catálogo do plano com histórico. O piloto B confirmou a guarda de uma frente ativa do CALI Build Essencial. [Prova de gestão de Frentes](../contracts/PHASE_4_READ.md#gestão-administrativa-de-frentes-no-cali-mapa).
+
 **Objetivo/atores/entrada:** Cliente entende escopo/frentes e solicita apoio/direitos; Admin configura frentes, responde pedidos, exporta e conduz encerramento/eliminação autorizados. Contexto: `/cliente/frentes`, ajuda/perfil, `/admin/clientes` e auditoria; páginas legais públicas não concedem acesso ao workspace.
 
 **Fontes:** [frentes](SOURCES.md#fronts), [perfil/direitos](SOURCES.md#profile-ui), [privacidade SQL](SOURCES.md#privacy), [exportação](SOURCES.md#export), [encerramento](SOURCES.md#access-close), [eliminação](SOURCES.md#elimination), [sequência UI](SOURCES.md#elimination-ui), [versão legal](SOURCES.md#legal).
@@ -90,6 +102,6 @@ Alvo confirmado: geração, aprovação, liberação e envio de relatórios são
 
 **Limites de comprovação:** 45 dias é regra de código consultada, não confirmação de conformidade legal. Rotina gera alerta; botão executa ação, não exclusão automática geral. Exportação não exige o mesmo prazo de eliminação. Definições de exportar meus dados/pedir/responder direitos são mencionadas, sem corpo versionado.
 
-Storage e banco não têm atomicidade conjunta; se banco falha após remover arquivos, não se pode dizer que “nada foi eliminado”. Listas de tabelas/paths são explícitas e precisam ser reconciliadas com novos módulos `public`, forms/profile e integrações externas; não garantir cobertura total de portabilidade/eliminação.
+Storage e banco não têm atomicidade conjunta; se banco falha após remover arquivos, não se pode dizer que “nada foi eliminado”. Listas de tabelas/paths são explícitas e precisam ser reconciliadas com novos módulos `public`, forms/profile e integrações externas; não garantir cobertura total de portabilidade/eliminação. O [ensaio de retomada](../contracts/PHASE_4_READ.md#retomada-sintética-da-eliminação-após-falha-parcial) confirmou a recuperação após perda de recibo e falha antes do commit do banco. Cobertura operacional e integração aos transportes continuam pendentes.
 
-**Aceite proposto:** Cliente só própria empresa; solicitar frente sem alterar contrato; Admin registra destinatário; pacote separa dados privados; 44/45 dias e conta paused/blocked x closed; confirmação nominal; falha após storage; dados preservados conforme lista; ausência de cópia externa tratada explicitamente. **Dúvidas:** `REF-22` (cobertura/atomicidade), `REF-02` (uso x adesão), `REF-04` (RPCs ausentes), `REF-16` (integrações). Nenhum desses cenários foi executado.
+**Aceite proposto:** Cliente só própria empresa; solicitar frente sem alterar contrato; Admin registra destinatário; pacote separa dados privados; 44/45 dias e conta paused/blocked x closed; confirmação nominal; falha após storage; dados preservados conforme lista; ausência de cópia externa tratada explicitamente. **Dúvidas:** `REF-22` (cobertura/atomicidade), `REF-02` (uso x adesão), `REF-04` (RPCs ausentes), `REF-16` (integrações). O contrato da fase 4 separa as provas sintéticas dos cenários ainda pendentes no fluxo operacional.

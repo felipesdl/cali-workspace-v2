@@ -19,6 +19,8 @@ Após nova liberação, ciência do relatório corrigido só é exigida **se Adm
 
 ## FLOW-11 — Arquivo, versão, publicação, ciência e Drive
 
+A biblioteca V2 para PDFs novos do piloto implementa revisão imutável, publicação, retirada, histórico Admin e ciência Cliente. O [PDF de entregável](../contracts/PHASE_4_READ.md#pdf-privado-de-entregável) usa o mesmo armazenamento, com liberação pelo fluxo de revisão. Arquivos legados e Drive continuam fora da prova. [Implementação e evidências](../contracts/PHASE_4_READ.md#pdfs-privados-por-revisão)
+
 **Objetivo/atores/entrada:** Admin prepara/versiona/publica/arquiva em `/admin/documentos`; Cliente consulta conteúdo compartilhado em `/cliente/documentos`, registra ciência e solicita cópia ao Drive. Arquivo final de uma entrega não fica disponível por ter sido apenas anexado à conversa.
 
 **Fontes:** [Admin UI](SOURCES.md#documents-admin), [Cliente UI](SOURCES.md#documents-client), [policy files/comments](SOURCES.md#files-policy), [INSERT comentários](SOURCES.md#file-comments), [storage](SOURCES.md#file-storage), [Drive EDGE](SOURCES.md#drive).
@@ -45,6 +47,10 @@ Após nova liberação, ciência do relatório corrigido só é exigida **se Adm
 **Aceite proposto:** Cliente A/B; draft com flag inconsistente; entrega invisível/cancelada; path de arquivo oculto; URL expirada; ciência repetida e versão nova; falha entre upload/metadata; comentário file; cópia Drive pendente/erro/duplicada. **Dúvidas:** `REF-13` (ciência/comentário), `REF-14` (storage x publicação), `REF-05` (atomicidade), `REF-16` (efeitos externos).
 
 ## FLOW-12 — Fechamento executivo, versão e ciência
+
+O piloto V2 preserva as revisões aprovadas internamente e permite corrigir o mesmo rascunho com motivo. Admin edita movimentos, decisões, riscos e próximos passos em rascunho ou revisão interna. A aprovação congela os quatro textos para tela e PDF. Cliente consulta o conteúdo da revisão liberada da própria empresa. O CALI MAPA confirmou a republicação sem nova ciência e o corte após retirada. [Contrato e homologação](../contracts/PHASE_4_READ.md#republicação-com-curadoria-no-cali-mapa).
+
+Horas, entregáveis e avaliação agregada na tela usam o mesmo recorte do retrato aprovado que alimenta o PDF. A média aparece com pelo menos duas avaliações. [Indicadores e prova](../contracts/PHASE_4_READ.md#indicadores-congelados-do-relatório-executivo).
 
 **Objetivo/atores/entrada:** Admin compõe/revisa/aprova/envia fechamento em `/admin/relatorios`; Cliente lê versões enviadas/publicadas e registra ciência em `/cliente/relatorios`. Rotas de impressão conservam o papel e o reportId.
 

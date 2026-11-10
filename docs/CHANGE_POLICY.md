@@ -35,7 +35,9 @@ Reorganização de arquivos não deve mudar silenciosamente payload, fórmulas, 
 
 Não criar testes que apenas reproduzam a implementação. Não exigir uma suíte nova para ajuste documental. Mock prova comportamento do cliente; não prova RLS, envio de e-mail ou sincronização externa.
 
-Enquanto lint, testes e CI não existirem, reportar a lacuna; não criar scripts com nomes de verificação que não executam as garantias prometidas. Fundação deve adicionar verificações reais e só então um agregador como `verify`.
+Desde 27/10, `npm run verify` agrega formatação, lint, typecheck, testes, integridade da configuração local, links documentais e build. Escopo/exceções legadas estão no runbook. Workflow definido não comprova CI executada; verificações locais não substituem gates de permissão/integração ou aceite funcional. Não criar scripts que prometam garantias não executadas.
+
+Migração de estilos segue DEC-24: novas peças/consumidores usam Tailwind e tokens CALI. Remover CSS/imports substituídos junto da migração; manter folhas compartilhadas enquanto houver consumidores. Conferir o inventário no [DS](DESIGN_SYSTEM.md#inventário-da-migração-de-estilos). Limpeza global ocorre após a migração completa, com revisão da cascata/base e regressão dos fluxos.
 
 ## Controle de documentação
 
@@ -48,5 +50,7 @@ Enquanto lint, testes e CI não existirem, reportar a lacuna; não criar scripts
 ## Registro de entrega
 
 Cada entrega registra autor/agente, data, revisão ou ausência de commit, arquivos, motivo, impacto, migrations, envs, testes, QA manual Cliente/Admin, estado de aprovação e rollback. Usar [CHANGELOG](CHANGELOG.md) ou descrição da mudança com esse mesmo conteúdo; evitar duplicar relatos extensos.
+
+No PR de acompanhamento da fase 1, atualizar a descrição a cada lote de commits: escopo entregue, checklist restante, validação da revisão enviada e limites. ROADMAP e documentos donos continuam canônicos; desmarcar ou corrigir um item se surgir evidência contrária. Manter o PR em rascunho enquanto faltarem os critérios de fechamento. Atualizar o changelog com resultados sem confundir CI pendente, revisão, merge e deploy.
 
 Commits devem separar documentação/fundação, DS, navegação e integração em recortes revisáveis. Não criar commit, PR, deploy ou migration apenas para fechar o diagnóstico.

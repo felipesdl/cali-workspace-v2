@@ -1,0 +1,355 @@
+import { z } from 'zod';
+import { type WorkspaceClient } from '../../supabase';
+
+const action = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('edit-plan'),
+    project: z.uuid(),
+    item: z.uuid(),
+    itemKind: z.enum(['project', 'workstream', 'deliverable']),
+    expected: z.string().min(1),
+    decision: z.enum(['save', 'remove']),
+    name: z.string().trim().max(180),
+    description: z.string().trim().max(8000),
+    start: z.iso.date().nullable(),
+    due: z.iso.datetime({ local: true }).nullable(),
+    workstream: z.uuid().nullable(),
+    complexity: z.enum(['MC1', 'MC2', 'MC3']).nullable(),
+    position: z.number().int().min(1).max(100000).nullable(),
+  }),
+  z.object({
+    kind: z.literal('create-project'),
+    id: z.uuid(),
+    name: z.string().trim().min(1).max(180),
+    description: z.string().trim().max(8000),
+    start: z.iso.date(),
+  }),
+  z.object({
+    kind: z.literal('add-workstream'),
+    project: z.uuid(),
+    id: z.uuid(),
+    name: z.string().trim().min(1).max(180),
+  }),
+  z.object({
+    kind: z.literal('add-deliverable'),
+    project: z.uuid(),
+    id: z.uuid(),
+    name: z.string().trim().min(1).max(180),
+    workstream: z.uuid().nullable(),
+    due: z.iso.datetime({ local: true }),
+  }),
+  z.object({
+    kind: z.literal('deliverable'),
+    project: z.uuid(),
+    delivery: z.uuid(),
+    expected: z.string().min(1),
+    decision: z.enum(['status', 'reopen', 'approve', 'adjust']),
+    status: z
+      .enum([
+        'in_progress',
+        'internal_review',
+        'client_review',
+        'standby',
+        'rebriefing',
+        'cancelled',
+      ])
+      .optional(),
+    note: z.string().trim().max(4000),
+    score: z.number().int().min(1).max(5).optional(),
+  }),
+  z.object({
+    kind: z.literal('lifecycle'),
+    item: z
+      .object({ id: z.uuid(), kind: z.enum(['front', 'deliverable']), version: z.string().min(1) })
+      .optional(),
+    project: z.uuid(),
+    expected: z.string(),
+    decision: z.enum(['pause', 'suspend', 'cancel', 'resume']),
+    note: z.string().trim().min(4).max(4000),
+    resume: z.iso.date().nullable(),
+  }),
+  z.object({ kind: z.literal('share'), project: z.uuid() }),
+  z.object({
+    kind: z.literal('respond'),
+    project: z.uuid(),
+    review: z.uuid(),
+    decision: z.enum(['approve', 'request_adjustment', 'accept_adjustment', 'reject_adjustment']),
+    note: z.string().trim().max(4000),
+    targetType: z.enum(['project', 'workstream', 'deliverable']).optional(),
+    target: z.uuid().optional(),
+    itemAction: z.enum(['reschedule', 'swap_order', 'change_proposal']).optional(),
+    requestedDate: z.iso.date().optional(),
+    swap: z.uuid().optional(),
+  }),
+]);
+export type ProjectAction = z.infer<typeof action>;
+
+export function createProjectOperations(client: WorkspaceClient) {
+  return async function operate(companyId: string, request: ProjectAction) {
+    const company = z.uuid().parse(companyId);
+    const command = action.parse(request);
+    const scope = { p_company_id: company };
+    function invoke() {
+      switch (command.kind) {
+        case 'edit-plan':
+          return client.rpc('v2_edit_pilot_plan', {
+            ...scope,
+            p_project_id: command.project,
+            p_item_id: command.item,
+            p_kind: command.itemKind,
+            p_expected: command.expected,
+            p_action: command.decision,
+            p_name: command.name,
+            p_description: command.description,
+            p_start: command.start,
+            p_due: command.due,
+            p_workstream_id: command.workstream,
+            p_complexity: command.complexity,
+            p_position: command.position,
+          });
+        case 'create-project':
+          return client.rpc('v2_create_pilot_project', {
+            ...scope,
+            p_project_id: command.id,
+            p_name: command.name,
+            p_description: command.description,
+            p_start: command.start,
+          });
+        case 'add-workstream':
+        case 'add-deliverable':
+          return client.rpc('v2_add_pilot_project_item', {
+            ...scope,
+            p_project_id: command.project,
+            p_item_id: command.id,
+            p_name: command.name,
+            p_kind: command.kind === 'add-workstream' ? 'workstream' : 'deliverable',
+            p_workstream_id: command.kind === 'add-deliverable' ? command.workstream : null,
+            p_due: command.kind === 'add-deliverable' ? command.due : null,
+          });
+        case 'deliverable':
+          return client.rpc('v2_pilot_delivery_action', {
+            ...scope,
+            p_project_id: command.project,
+            p_delivery_id: command.delivery,
+            p_expected: command.expected,
+            p_action: command.decision,
+            p_status: command.status ?? null,
+            p_note: command.note,
+            p_score: command.score ?? null,
+          });
+        case 'lifecycle':
+          if (command.item)
+            return client.rpc('v2_pilot_project_item_lifecycle', {
+              ...scope,
+              p_project_id: command.project,
+              p_item_id: command.item.id,
+              p_kind: command.item.kind,
+              p_expected: command.item.version,
+              p_action: command.decision,
+              p_note: command.note,
+              p_resume: command.resume,
+            });
+          return client.rpc('v2_pilot_project_lifecycle', {
+            ...scope,
+            p_project_id: command.project,
+            p_expected: command.expected,
+            p_action: command.decision,
+            p_note: command.note,
+            p_resume: command.resume,
+          });
+        case 'share':
+          return client.rpc('v2_share_pilot_schedule', { ...scope, p_project_id: command.project });
+        case 'respond':
+          return client.rpc('v2_respond_pilot_schedule', {
+            ...scope,
+            p_project_id: command.project,
+            p_review_id: command.review,
+            p_action: command.decision,
+            p_note: command.note,
+            p_target_type: command.targetType ?? null,
+            p_target_id: command.target ?? null,
+            p_item_action: command.itemAction ?? null,
+            p_requested_date: command.requestedDate ?? null,
+            p_swap_id: command.swap ?? null,
+          });
+      }
+    }
+    const { data, error } = await invoke();
+    if (error?.code === '40001')
+      throw new Error('O registro mudou. Confira a versão atual e tente novamente.');
+    if (error?.code === '42501') throw new Error('Operação indisponível para este perfil.');
+    if (error?.code === 'P4D01') throw new Error('Anexe uma nova revisão do PDF antes de enviar.');
+    if (error?.code === '22023') throw new Error('Revise os dados da operação.');
+    if (error)
+      throw new Error('Não foi possível concluir. Confira a composição e o estado do projeto.');
+    return z.uuid().parse(data);
+  };
+}
+
+export type ProjectOperations = ReturnType<typeof createProjectOperations>;
+
+const timer = z.object({
+  id: z.uuid(),
+  description: z.string().nullable(),
+  status: z.enum(['active', 'paused']),
+  closedSegment: z.boolean().optional(),
+  startedAt: z.string(),
+});
+const hourFields = z.object({
+  description: z.string().trim().min(1).max(1000),
+  project: z.uuid().nullable(),
+  link: z.object({ delivery: z.uuid(), task: z.uuid().nullable() }).optional(),
+  visible: z.boolean(),
+});
+const hourAction = z.discriminatedUnion('kind', [
+  hourFields.extend({
+    kind: z.literal('manual'),
+    date: z.iso.date(),
+    minutes: z.number().int().min(1).max(1440),
+    note: z.string().trim().min(1).max(1000),
+  }),
+  hourFields.extend({ kind: z.literal('start') }),
+  z.object({ kind: z.enum(['pause', 'resume', 'stop']), timer: z.uuid() }),
+]);
+export type HourAction = z.infer<typeof hourAction>;
+const hourLink = z.object({
+  project: z.uuid(),
+  projectName: z.string(),
+  delivery: z.uuid(),
+  deliveryName: z.string(),
+  task: z.uuid().nullable(),
+  taskName: z.string().nullable(),
+  canStart: z.boolean(),
+});
+const correction = z.discriminatedUnion('kind', [
+  z.object({
+    kind: z.literal('edit'),
+    date: z.iso.date(),
+    minutes: z.number().int().min(1).max(1440),
+    description: z.string().trim().min(1).max(1000),
+    visible: z.boolean(),
+    reason: z.string().trim().min(3).max(1000),
+  }),
+  z.object({ kind: z.literal('delete'), reason: z.string().trim().min(3).max(1000) }),
+]);
+export type HourCorrection = z.infer<typeof correction>;
+
+export function createHourOperations(client: WorkspaceClient) {
+  return {
+    async setCapacityPause(
+      company: string,
+      month: string,
+      request: string,
+      expected: string | null,
+      paused: boolean,
+    ) {
+      const { data, error } = await client.rpc('v2_set_pilot_capacity_pause', {
+        p_company_id: company,
+        p_month: month,
+        p_request_id: request,
+        p_expected: expected,
+        p_paused: paused,
+      });
+      if (error?.code === '40001') throw new Error('A situação da pausa mudou. Confira o mês.');
+      if (error?.code === '22023') throw new Error('A pausa exige capacidade excedida no mês.');
+      if (error) throw new Error('Não foi possível registrar a decisão de capacidade.');
+      return z.literal(company).parse(data);
+    },
+    async startRecordTimer(company: string, requestId: string, record: string) {
+      const { data, error } = await client.rpc('v2_start_pilot_record_timer', {
+        p_company_id: company,
+        p_request_id: requestId,
+        p_record_id: record,
+      });
+      if (error?.code === '42501') throw new Error('A ocorrência não aceita novas horas.');
+      if (error?.code === '40001' || error?.code === '23505')
+        throw new Error('Conclua o timer aberto em Horas antes de iniciar outro.');
+      if (error) throw new Error('Não foi possível iniciar o timer da ocorrência.');
+      return z.uuid().parse(data);
+    },
+    async link(company: string, delivery: string, task: string | null, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_pilot_hour_link', {
+          p_company_id: company,
+          p_deliverable_id: delivery,
+          p_task_id: task,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar o vínculo de horas.');
+      return hourLink.nullable().parse(data);
+    },
+    async correct(
+      company: string,
+      requestId: string,
+      entry: string,
+      version: string,
+      input: HourCorrection,
+    ) {
+      const action = correction.parse(input);
+      const { data, error } = await client.rpc('v2_correct_pilot_hour', {
+        p_company_id: company,
+        p_request_id: requestId,
+        p_entry_id: entry,
+        p_expected: version,
+        p_action: action.kind,
+        p_reason: action.reason,
+        ...(action.kind === 'edit'
+          ? {
+              p_date: action.date,
+              p_minutes: action.minutes,
+              p_description: action.description,
+              p_visible: action.visible,
+            }
+          : {}),
+      });
+      if (error?.code === '40001') throw new Error('O lançamento mudou. Atualize o extrato.');
+      if (error?.code === '22023') throw new Error('Confira os dados e a justificativa.');
+      if (error) throw new Error('Não foi possível corrigir o lançamento.');
+      return z.literal(entry).parse(data);
+    },
+    async timers(company: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_pilot_active_timers', { p_company_id: company })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível carregar os timers.');
+      return z.array(timer).parse(data);
+    },
+    async submit(company: string, requestId: string, input: HourAction) {
+      const command = hourAction.parse(input);
+      const params = {
+        p_company_id: company,
+        p_request_id: requestId,
+        p_action: command.kind,
+      };
+      const request =
+        'timer' in command
+          ? client.rpc('v2_pilot_hour_action', { ...params, p_timer_id: command.timer })
+          : (() => {
+              const fields = {
+                ...params,
+                p_project_id: command.project,
+                p_description: command.description,
+                p_client_visible: command.visible,
+                p_date: command.kind === 'manual' ? command.date : null,
+                p_minutes: command.kind === 'manual' ? command.minutes : null,
+                p_note: command.kind === 'manual' ? command.note : null,
+              };
+              return command.link
+                ? client.rpc('v2_pilot_linked_hour_action', {
+                    ...fields,
+                    p_deliverable_id: command.link.delivery,
+                    p_task_id: command.link.task,
+                  })
+                : client.rpc('v2_pilot_hour_action', fields);
+            })();
+      const { data, error } = await request;
+      if (error?.code === '42501')
+        throw new Error('Confira se o vínculo ainda está disponível para horas.');
+      if (error?.code === '40001') throw new Error('Confira o estado atual do timer.');
+      if (error?.code === '22023') throw new Error('Revise os dados de horas.');
+      if (error) throw new Error('Não foi possível registrar a operação de horas.');
+      return z.uuid().parse(data);
+    },
+  };
+}
+export type HourOperations = ReturnType<typeof createHourOperations>;

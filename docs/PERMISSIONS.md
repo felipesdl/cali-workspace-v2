@@ -2,7 +2,23 @@
 
 Data: 25/10/2026. Oficial consultado em `f3d3f14043a6abc38636f0340fe831e621d8b357`, somente leitura. **Matriz de evidência estática, não certificação de permissões em produção.** Fontes: [índice imutável](flows/SOURCES.md). Fluxos: [fichas](flows/README.md).
 
-## Contrato alvo confirmado pelo usuário — registro em 26/10/2026
+## Integração hospedada — DEC-27
+
+Em 01/11, a V2 passou a consultar perfil/empresa/termos e Auth/MFA reais no backend autorizado. Guarda frontend bloqueia perfil ausente/inativo, vínculo inconsistente, Partner fora do recorte, Admin sem AAL2/fator verificado e aceite ausente/erro. Não comprova predicado unificado no servidor hospedado: guards/policies da baseline local não foram aplicados nele. Comparação/Admin e dados sintéticos em [Ambiente](LOCAL_ENVIRONMENT.md#backend-hospedado--dec-27); matriz abaixo continua referência estática, salvo evidências explicitamente atualizadas.
+
+Duas fixtures A/B receberam um vínculo Cliente ativo cada, com autorização específica; e-mails fora do Git. Em 01/11, ambos concluíram login/aceite e provaram leitura do próprio perfil/empresa e negativa para perfil/empresa/convites alheios (200/zero linhas). Rota Admin retornou ambos à área Cliente. Somente esse recorte foi comprovado, sem estender a outros domínios/escritas.
+
+**Lacuna confirmada:** logout removeu armazenamento local, Auth recusou JWT antigo (403) e refresh antigo (400), porém PostgREST ainda retornou próprio perfil/empresa com JWT não vencido para A/B. Inativação de A impediu consulta de empresa, mas reativação recuperou acesso com o mesmo JWT, sem login novo. Outra empresa continuou negada. Perfis A/B ficaram ativos como antes e ambos fizeram logout; expiração natural dos JWTs A/B comprovada (banco 401/PGRST303), sem provar refresh/expiração da SPA ativa. Evidência e bloqueio de revogação no [ambiente](LOCAL_ENVIRONMENT.md#rodada-cliente-ab--0111).
+
+A ficha administrativa demonstrativa de contrato/financeiro/referências documentais usa a mesma capacidade indisponível no hospedado. UI Admin permite consulta/edição e histórico; comparação de revisão e ledger do mock não são autorização real. Não altera plano, situação, vínculos ou sessões, nem inicia cobrança/upload. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--ficha-administrativa-demonstrativa).
+
+Dados cadastrais complementares seguem a mesma capacidade demonstrativa: contato comercial não cria usuário/principal nem altera os quatro acessos; serviço não ativa agenda/automações; logo não tem storage real. Revisão/ledger/histórico são do mock, sem nova permissão hospedada. [Contrato](contracts/ACCESS_COMPANIES.md#fase-2a--dados-cadastrais-complementares-demonstrativos).
+
+## Capacidade demonstrativa da 2A — 02/11
+
+Cadastro de identidade mínima, referências de adesão e gestão de quatro autorizações têm modelo/UI demonstrativos. Não introduzem permissões hospedadas: capacidade management é null nessa composição, sem fallback. Todos os quatro registros contam igualmente, sem principal; revogar um preserva demais e histórico. Nova autorização/reativação exige referência da mesma empresa, situação elegível e vaga no mock. Edição de nome não troca e-mail/vínculo nem reativa acesso. Nenhum desses comandos opera Auth, e-mail ou sessão real. [Contrato e limites](contracts/ACCESS_COMPANIES.md#fase-2a--cadastro-adesão-e-quatro-acessos-demonstrativos).
+
+## Contrato alvo confirmado pelo usuário — atualizado em 28/10/2026
 
 Esta seção prevalece para o desenho futuro da V2. As tabelas posteriores preservam o que foi observado no oficial; não representam implementação dessas decisões.
 
@@ -10,6 +26,7 @@ Revisão vigente: [regras de produto](PRODUCT_RULES.md), [referência funcional 
 
 | Operação/tema | Admin na V2 | Cliente na V2 | Decisão |
 | --- | --- | --- | --- |
+| Entrar e exercer poderes Admin | Sessão/perfil autorizados e segundo fator cadastrado/confirmado; ausência de fator ou falha não libera acesso | Não atribui MFA novo ao fluxo Cliente | DEC-21, 28/10; ainda sem prova operacional |
 | Acessos Cliente da empresa | Gestão de até quatro acessos equivalentes; remover um não depende de principal | Sem hierarquia de cadastro principal | DEC-05 |
 | Cadastrar/importar/arquivar pessoas e confirmar revisão mensal | Mantém operações administrativas autorizadas | Todos os acessos Cliente da própria empresa podem manter Equipe | DEC-05 |
 | Informar/consultar remuneração, revisão salarial, gênero e filhos | Informa e consulta no escopo administrativo | Informa e consulta somente da própria empresa | DEC-09 |
@@ -26,7 +43,7 @@ Revisão vigente: [regras de produto](PRODUCT_RULES.md), [referência funcional 
 | Receber resumo diário das 19h | Admin ativo com e-mail; ações elegíveis/horas por empresa | Não recebe; staff também não; versão Partner posterior, sem público/projeção definidos ainda | DEC-19 |
 | Ativar acesso Cliente | Adesão registrada antes de emitir convite | Aceite de uso no primeiro acesso e a cada nova versão; sem entrada se verificação falhar | DEC-08 |
 
-Decisões anteriores continuam vigentes, exceto DEC-07 substituída por DEC-13. Fonte: [registro](DECISIONS.md). Resumo diário Admin segue DEC-19/RESUMO-01: Cliente e staff não recebem; conteúdo Partner ainda será definido na fase dele. Não alterar schema/policy nesta etapa. Histórico de aprovação/ciência não é atribuído automaticamente ao conteúdo corrigido; pessoa focal não cria privilégio principal. Finalidades/guarda e informação de acesso estão em [Dados pessoais](DATA_PRIVACY.md).
+Decisões anteriores continuam vigentes, exceto DEC-07 substituída por DEC-13. Fonte: [registro](DECISIONS.md). Resumo diário Admin segue DEC-19/RESUMO-01: Cliente e staff não recebem; conteúdo Partner ainda será definido na fase dele. Esta matriz estática não autoriza alteração de produção; o recorte local de 29/10 abaixo registra somente a implementação autorizada/testada. Histórico de aprovação/ciência não é atribuído automaticamente ao conteúdo corrigido; pessoa focal não cria privilégio principal. Finalidades/guarda e informação de acesso estão em [Dados pessoais](DATA_PRIVACY.md).
 
 ## Legenda e limites
 
@@ -47,6 +64,14 @@ Cada célula vale para a **operação e superfície indicadas**. Permitir SELECT
 5. **Cliente principal:** manutenção de pessoas/revisão mensal exige `role=client`, active, is_primary e própria empresa; adicional não herda essa escrita. Até quatro convites ativos são previstos em migration posterior, não quatro acessos com permissões idênticas em todas as operações. [Limite](flows/SOURCES.md#access-limit), [Equipe](flows/SOURCES.md#team-save).
 
 Não transportar divergências como nova política aprovada da V2. Ver [dúvidas REF](DECISIONS.md).
+
+## Recorte local implementado — 29/10
+
+Adesão: Admin de perfil persistido ativo + JWT AAL2 + fator TOTP verificado pode registrar/ler; Cliente A/B, Partner, perfil ausente/inativo, anônimo e service role não registram. Cliente não recebe evidências; INSERT direto/UPDATE/DELETE são negados. SQL com rollback e API/Auth local verificaram esse recorte; [contrato](contracts/ACCESS_COMPANIES.md#persistência-local-de-adesão--2910). Não é prova de permissão dos demais domínios, convites, termos ou do frontend. Leitura do próprio perfil não libera entrada no workspace.
+
+## Códigos/termos e sessão local — 29/10
+
+RPCs de issue/delivery/consume são exclusivas de serviço; papéis do navegador não consultam hashes privados. Conteúdo legal corrente pode ser consultado antes do login; aceite exige sessão/perfil elegíveis e, para Admin, MFA concluído, sem autoria/instante informados pelo cliente. Negócio exige aceite corrente e sessão vigente. Cliente consulta somente própria empresa active/paused com adesão; blocked/closed/archived cortam sessões/códigos. Logout/inativação também bloqueiam JWT antigo. [Contrato e limites](contracts/ACCESS_COMPANIES.md#códigos-termos-e-guarda-de-sessão--2910). Isso não comprova os demais domínios nem sessão completa na SPA; tabelas seguintes continuam estáticas do oficial.
 
 ## Acesso, conta e proposta — FLOW-01/02/03
 
@@ -157,7 +182,7 @@ Não transportar divergências como nova política aprovada da V2. Ver [dúvidas
 | Operação/superfície | Admin | Cliente | Condições e fonte |
 | --- | --- | --- | --- |
 | Editar perfil próprio | C via RPC pessoal | C via RPC pessoal | Campos limitados; sincronização principal; [perfil](flows/SOURCES.md#contact) |
-| Ler notificação/marcar lida | C policy Admin; UI chama RPC | C SELECT próprio; ? corpo das RPCs de marcação | [schema](flows/SOURCES.md#schema), [chrome](flows/SOURCES.md#chrome) |
+| Ler notificação/marcar lida | Leitura e atualização diretas conforme policy Admin. As RPCs marcam somente as próprias. | SELECT próprio e marcação própria por RPC. | [CALI MAPA: sessão, permissões e rollback](flows/WORKSPACE_HOURS_TEAM.md#permissões-de-notificações-no-cali-mapa) |
 | Gerir staff/atribuições/convidar | C policy Admin e EDGE is_admin | N nas policies/rotas localizadas | [staff](flows/SOURCES.md#staff), [EDGE](flows/SOURCES.md#staff-invite) |
 | Decidir hora/material submetido | C conforme fila/operação | N na gestão | Pending e motivo na recusa; [fila](flows/SOURCES.md#staff-review), [UI](flows/SOURCES.md#staff-ui) |
 | Ler painel auditoria | UI Admin e SELECTs condicionados | N rota; acesso a alguns eventos próprios não é painel Admin | [auditoria](flows/SOURCES.md#audit) |
@@ -180,3 +205,25 @@ Não transportar divergências como nova política aprovada da V2. Ver [dúvidas
 ## O que falta provar antes de implementar acesso real
 
 Obter definições ausentes e schema/policies efetivos, reconciliar guards diferentes, transições amplas e efeitos compostos. Depois, em ambiente isolado, executar por ator: sem sessão, Admin com/sem condição de MFA, Cliente principal A, adicional A, Cliente B, inativo e sessão existente de conta encerrada. Provar leitura, escrita, RPC, storage e URL direta conforme cada superfície. Essa etapa é futura e exige ambiente identificado; não foi simulada como concluída.
+
+
+## Dados mensais V2 — piloto A/B em 05/11/2026
+
+A [2C](contracts/TEAM_MONTHLY_2C.md) tem contrato e prova próprios, sem ampliar a matriz histórica acima para todos os domínios. Cliente admitido com sessão e aceite vigentes lê a própria empresa, lança métricas apenas quando ausentes e confirma/reconfirma mês atual/anterior. Admin exige MFA, consulta A/B, corrige métricas gravadas com motivo/preimagem e reconfirma com motivo. Nenhum desses papéis modifica métricas do piloto por INSERT/UPDATE direto. Seis policies restritivas alinham a leitura direta mensal à guarda de ator/empresa/sessão/MFA/aceite somente em A/B. Fora do piloto permanecem os predicados anteriores. A auditoria privada não concede SELECT a `authenticated`; as RPCs retornam apenas o histórico permitido. Partner fica fora da entrega 2C.
+
+## DISC V2 — piloto de 05/11/2026
+
+Os wrappers `v2_disc_admin/command/document` exigem Admin com MFA e aceite para operações internas. `v2_disc_client` deriva empresa da sessão e retorna somente gestão aprovada/liberada. `v2_disc_document` permite ao Cliente somente essa mesma gestão; resultado individual exige Admin. `v2_disc_public` recebe capacidade do convite e retorna contexto/participação, nunca resultado. `v2_disc_worker` é exclusivo do papel servidor. O schema privado não concede leitura direta a anon/authenticated/service_role. [Contrato, provas e limites](contracts/DISC_3.md).
+
+Autorização da agenda DISC. `action=scheduled` exige JWT de serviço correspondente ao SHA-256 configurado para o agendador e hook privado com `config.enabled=true`; rejeita Origin de navegador e parâmetros de documento/relógio. `verify_jwt=true` permanece obrigatório no gateway. O segredo é lido do Vault pelo banco, sem novo grant na API. `worker_at` e seu relógio de teste permanecem privados; a RPC usa o relógio do servidor. O incremento está no CALI MAPA com flag desligada.
+
+
+## Piloto Partner da fase 5
+
+O [contrato Partner](contracts/PARTNER_5.md) define a projeção isolada do CALI MAPA. O convite fictício exige sessão ativa, TOTP verificado e AAL2 antes do aceite. A leitura exige termos vigentes e revalida o vínculo e o módulo em cada chamada. Projetos e ocorrências dependem da inscrição sintética e Horas restringe autoria. A fila manual permite decisão somente por Admin com MFA e termos. A aprovação usa o contrato de horas existente, com visibilidade Cliente desmarcada. Os predicados do Partner legado permanecem fora deste piloto.
+
+Cronômetro Partner exige Horas e, quando vinculado, Projetos ou Ocorrências. Só o titular do convite opera o trecho; a saída é privada. Agenda, Documentos, Relatórios, Avisos e Equipe exigem atribuição e inscrição do registro na empresa. A projeção não concede escrita nem leitura do Mapa. Relatórios e Documentos permitem baixar somente a revisão V2 vigente, liberada ou publicada, por endpoints próprios. [Contrato e prova](contracts/PARTNER_5.md#catálogos-adicionais).
+
+A resposta Partner exige Ocorrências e conversa aberta, visível e inscrita na empresa. Registra autoria e transição para aguardar Cliente, sem autorizar notas internas, anexos ou encerramento. [Contrato e prova](contracts/PARTNER_5.md#resposta-em-ocorrência).
+
+Partner pode submeter entregável ou ocorrência inscrita para revisão, sem decidir o próprio pedido. Admin com MFA e aceite vigentes devolve ou aprova na empresa; a aprovação aplica a transição e a decisão na mesma transação. [Contrato](contracts/PARTNER_5.md#revisão-de-entregável-e-encerramento-de-ocorrência).
