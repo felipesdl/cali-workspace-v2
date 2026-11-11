@@ -59,6 +59,7 @@ export function AgendaActions({
       {!admin && (
         <ActionForm
           label="Solicitar encontro do contrato"
+          dialog={{ title: 'Solicitar encontro do contrato', trigger: 'Solicitar encontro' }}
           submit={async (fields, id) => {
             const first = { start: read(fields, 'start1'), end: read(fields, 'end1') };
             const second = { start: read(fields, 'start2'), end: read(fields, 'end2') };

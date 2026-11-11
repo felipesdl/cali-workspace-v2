@@ -13,7 +13,7 @@ import { useRouteContext } from '@tanstack/react-router';
 import { useProjectWorkspaceScope } from '../workspace/useProjectWorkspaceScope';
 import { Button } from '../ds/button/Button';
 import { FeedbackState } from '../ds/feedback/FeedbackState';
-import { formatServerInstant } from '../../lib/dates';
+import { formatCalendarDate, formatServerInstant } from '../../lib/dates';
 import { ClientModulePending } from '../workspace/ClientModulePending';
 import { CompanySelect } from '../workspace/WorkspaceCompanySelect';
 import { Pages } from '../workspace/WorkspacePages';
@@ -198,13 +198,25 @@ export function Projects({ search, update }: Props) {
                   grouped={section === 'deliverables'}
                   admin={admin}
                   renderRow={(row) => (
-                    <li key={row.id}>
-                      <strong>{row.name}</strong>
-                      {row.protocol && (
-                        <p className="tw:text-caption tw:text-muted-copy">{row.protocol}</p>
-                      )}
-                      <p>
-                        {label(row.status)} · {label(row.execution_status)}
+                    <li
+                      key={row.id}
+                      className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4 tw:wrap-anywhere"
+                    >
+                      <div className="tw:flex tw:min-w-0 tw:flex-wrap tw:items-start tw:justify-between tw:gap-3">
+                        <div className="tw:grid tw:min-w-0 tw:gap-1">
+                          <strong className="tw:text-body tw:wrap-anywhere">{row.name}</strong>
+                          {row.protocol && (
+                            <span className="tw:text-caption tw:text-muted-copy">
+                              {row.protocol}
+                            </span>
+                          )}
+                        </div>
+                        <span className="tw:rounded-full tw:border tw:border-border-default tw:bg-ivory tw:px-3 tw:py-1 tw:text-caption tw:font-semibold tw:text-brand">
+                          {label(row.status)}
+                        </span>
+                      </div>
+                      <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
+                        {label(row.execution_status)}
                         {row.due_at ? ` · Prazo ${formatServerInstant(row.due_at)}` : ''}
                       </p>
                       {admin &&
@@ -336,6 +348,22 @@ export function Projects({ search, update }: Props) {
                   <p>
                     {label(row.planning_status)} · {label(row.execution_status)}
                   </p>
+                  {(row.roadmap_start_date || row.roadmap_end_date) && (
+                    <dl className="tw:m-0 tw:flex tw:flex-wrap tw:gap-x-5 tw:gap-y-2 tw:text-caption">
+                      {row.roadmap_start_date && (
+                        <div>
+                          <dt className="tw:font-semibold tw:text-brand">Início</dt>
+                          <dd className="tw:m-0">{formatCalendarDate(row.roadmap_start_date)}</dd>
+                        </div>
+                      )}
+                      {row.roadmap_end_date && (
+                        <div>
+                          <dt className="tw:font-semibold tw:text-brand">Prazo</dt>
+                          <dd className="tw:m-0">{formatCalendarDate(row.roadmap_end_date)}</dd>
+                        </div>
+                      )}
+                    </dl>
+                  )}
                   <Button
                     variant="secondary"
                     onClick={() => selectView({ project: row.id, page: 1 })}

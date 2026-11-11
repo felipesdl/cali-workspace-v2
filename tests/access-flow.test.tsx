@@ -158,7 +158,7 @@ describe('continuidade antes da autenticação', () => {
     fireEvent.change(await screen.findByRole('textbox', { name: 'E-mail' }), {
       target: { value: 'fixture@example.test' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Receber código' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar código de acesso' }));
     const code = await screen.findByRole('textbox', { name: 'Código de acesso' });
     fireEvent.change(code, { target: { value: '012345' } });
     const originalRead = api.read;

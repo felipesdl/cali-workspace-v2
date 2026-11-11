@@ -1,3 +1,5 @@
+import { FormOptions, FormTrash } from './FormLifecycle';
+import { FormSharing } from './FormSharing';
 import { useState } from 'react';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useRouteContext } from '@tanstack/react-router';
@@ -10,7 +12,7 @@ import { FormDraftEditor, NewFormDraft } from './FormDraftEditor';
 import { FormTriage } from './FormTriage';
 
 export function FormAdministration({ company, actor }: { company: string; actor?: string }) {
-  const { domainOperations } = useRouteContext({ from: '__root__' });
+  const { domainOperations, formLifecycle } = useRouteContext({ from: '__root__' });
   const [page, setPage] = useState(1);
   const [selectedForm, setSelectedForm] = useState<string | null>(null);
   const cache = useQueryClient();
@@ -24,13 +26,25 @@ export function FormAdministration({ company, actor }: { company: string; actor?
   if (!domainOperations) return null;
   const operations = domainOperations;
   return (
-    <section aria-label="Formulários da empresa" className="tw:grid tw:gap-3">
+    <section aria-label="Formulários da empresa" className="tw:grid tw:gap-4">
+      <header className="tw:grid tw:gap-1 tw:border-b tw:border-border-default tw:pb-3">
+        <p className="tw:m-0 tw:text-caption tw:font-bold tw:tracking-widest tw:text-brand">
+          CALI FORMS
+        </p>
+        <h1 className="tw:m-0 tw:text-section tw:font-semibold tw:text-brand">
+          Formulários e respostas
+        </h1>
+        <p className="tw:m-0 tw:max-w-3xl tw:text-body tw:text-muted-copy">
+          Crie uma coleta, compartilhe o link ou QR Code e acompanhe as respostas recebidas.
+        </p>
+      </header>
       <NewFormDraft
         company={company}
         actor={actor}
         operations={operations}
         saved={() => setPage(1)}
       />
+      {formLifecycle && <FormTrash service={formLifecycle} company={company} actor={actor} />}
       {forms.isPending && <p role="status">Carregando formulários…</p>}
       {forms.isError && (
         <FeedbackState kind="error" onRetry={() => void forms.refetch()}>
@@ -41,17 +55,34 @@ export function FormAdministration({ company, actor }: { company: string; actor?
       {forms.data?.map((form) => (
         <article
           key={form.id}
-          className="tw:grid tw:min-w-0 tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere"
+          className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5 tw:wrap-anywhere tw:shadow-sm"
         >
-          <h2>{form.title}</h2>
-          <p>
-            {form.slug} · {form.responses} resposta(s) ·{' '}
-            {form.status === 'open' ? 'Aberto' : form.status === 'draft' ? 'Rascunho' : 'Fechado'}
-          </p>
+          <header className="tw:grid tw:gap-1">
+            <h2 className="tw:text-subsection tw:m-0 tw:font-semibold tw:text-brand">
+              {form.title}
+            </h2>
+            <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
+              {form.slug} · {form.responses} resposta(s) ·{' '}
+              {form.status === 'open' ? 'Aberto' : form.status === 'draft' ? 'Rascunho' : 'Fechado'}
+            </p>
+          </header>
           {form.publicTextLink && (
             <Link to="/f/$slug" params={{ slug: form.slug }} className="tw:underline">
               Abrir link público de resposta
             </Link>
+          )}
+          {formLifecycle && (
+            <FormOptions
+              service={formLifecycle}
+              company={company}
+              actor={actor}
+              form={form.id}
+              title={form.title}
+            />
+          )}
+          {form.publicTextLink && <FormSharing slug={form.slug} title={form.title} />}
+          {form.status === 'draft' && form.responses === 0 && (
+            <FormSharing slug={form.slug} title={form.title} preview={{ company, form: form.id }} />
           )}
           {form.status === 'draft' && form.responses === 0 && (
             <FormDraftEditor company={company} actor={actor} id={form.id} operations={operations} />

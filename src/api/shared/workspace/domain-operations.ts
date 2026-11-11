@@ -187,7 +187,7 @@ const formBranch = z.object({
   when: z.string().min(1).max(300),
   goTo: z.union([z.uuid(), z.literal(FORM_BRANCH_END)]),
 });
-const publicFormQuestion = z.object({
+export const publicFormQuestion = z.object({
   ...scaleSettings,
   id: z.uuid(),
   kind: formQuestionKind,
@@ -195,6 +195,7 @@ const publicFormQuestion = z.object({
   logic: z.array(formBranch).max(26).optional(),
   label: z.string(),
   required: z.boolean(),
+  accept: z.enum(['images_pdf', 'any']).optional(),
 });
 export type PublicFormQuestion = z.infer<typeof publicFormQuestion>;
 const publicTextForm = z.discriminatedUnion('status', [

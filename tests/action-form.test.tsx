@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import { createQueryClient } from '../src/api/query-client';
@@ -39,4 +39,46 @@ it('preserva o conteúdo e a identificação na tentativa após erro e anuncia o
   expect(submit.mock.calls).toHaveLength(2);
   expect(submit.mock.calls[1][1]).toBe(submit.mock.calls[0][1]);
   expect(submit.mock.calls[1][0].get('title')).toBe('Registro sintético');
+});
+
+it('mantém o diálogo e os valores enquanto a gravação está pendente e quando falha', async () => {
+  let rejectSave: (error: Error) => void = () => {};
+  const submit = vi.fn(
+    () =>
+      new Promise<void>((_, reject) => {
+        rejectSave = reject;
+      }),
+  );
+  const user = userEvent.setup();
+  render(
+    <QueryClientProvider client={createQueryClient()}>
+      <ActionForm
+        dialog={{ title: 'Editar registro', trigger: 'Editar' }}
+        label="Salvar"
+        submit={submit}
+      >
+        {(id) => (
+          <Field id={id} label="Assunto">
+            <input id={id} name="title" required />
+          </Field>
+        )}
+      </ActionForm>
+    </QueryClientProvider>,
+  );
+  const trigger = screen.getByRole('button', { name: 'Editar' });
+  await user.click(trigger);
+  const dialog = within(screen.getByRole('dialog', { name: 'Editar registro' }));
+  await user.type(dialog.getByLabelText('Assunto'), 'Rascunho');
+  await user.click(dialog.getByRole('button', { name: 'Salvar' }));
+  await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+  expect(dialog.getByRole('button', { name: 'Fechar' })).toHaveProperty('disabled', true);
+  await user.click(dialog.getByRole('button', { name: 'Fechar' }));
+  expect(screen.getByRole('dialog')).toBeTruthy();
+
+  rejectSave(new Error('Tente de novo.'));
+  expect((await dialog.findByRole('alert')).textContent).toBe('Tente de novo.');
+  expect(dialog.getByLabelText('Assunto')).toHaveProperty('value', 'Rascunho');
+  await user.click(dialog.getByRole('button', { name: 'Voltar' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(trigger);
 });

@@ -1,3 +1,4 @@
+import { AccessShell } from './AccessShell';
 import { FeedbackMessage } from '../../../../components/ds/feedback/FeedbackMessage';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { type HostedAccessApi } from '../../../../api/access/api';
@@ -82,6 +83,7 @@ function AccessStep({ api, session, state, access, acceptance, exitAction }: Acc
   }
   return (
     <CodeForm
+      branded
       api={api}
       exitAction={exitAction}
       onConfirmed={async () => {
@@ -108,42 +110,32 @@ export function AccessFlow({
     </Button>
   );
   const heading = useRef<HTMLHeadingElement>(null);
-  const status = access?.status;
+  const status = state.phase === 'signed_out' ? 'signed_out' : access?.status;
   useEffect(() => {
     if (status && status !== 'ready' && document.activeElement === document.body) {
       heading.current?.focus();
     }
   }, [status]);
   return (
-    <main className="workspace-frame tw:box-border tw:grid tw:min-h-dvh tw:place-items-center tw:bg-ivory tw:p-6 tw:text-body tw:text-copy tw:mobile:p-4">
-      <section
-        className="tw:box-border tw:w-full tw:max-w-2xl tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-6 tw:wrap-anywhere tw:mobile:p-4"
-        aria-labelledby="access-title"
-        aria-busy={acceptance.busy || state.phase === 'loading'}
-      >
-        <p className="tw:mb-6 tw:font-bold tw:tracking-widest tw:text-brand">CALI · WORKSPACE</p>
-        <h1
-          ref={heading}
-          id="access-title"
-          tabIndex={-1}
-          className="tw:text-section tw:font-bold tw:text-brand"
-        >
-          {accessTitle(access?.status)}
+    <AccessShell busy={acceptance.busy || state.phase === 'loading'}>
+      {status !== 'signed_out' && (
+        <h1 ref={heading} id="access-title" tabIndex={-1}>
+          {accessTitle(status)}
         </h1>
-        <AccessStep
-          api={api}
-          session={session}
-          state={state}
-          access={access}
-          acceptance={acceptance}
-          exitAction={exitAction}
-        />
-        {acceptance.message && (
-          <FeedbackMessage tone="error" className="tw:mt-3">
-            {acceptance.message}
-          </FeedbackMessage>
-        )}
-      </section>
-    </main>
+      )}
+      <AccessStep
+        api={api}
+        session={session}
+        state={state}
+        access={access}
+        acceptance={acceptance}
+        exitAction={exitAction}
+      />
+      {acceptance.message && (
+        <FeedbackMessage tone="error" className="tw:mt-3">
+          {acceptance.message}
+        </FeedbackMessage>
+      )}
+    </AccessShell>
   );
 }

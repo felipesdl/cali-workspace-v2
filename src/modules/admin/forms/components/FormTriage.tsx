@@ -1,3 +1,5 @@
+import { Checkbox } from '../../../../components/ds/checkbox/Checkbox';
+import { useRouteContext } from '@tanstack/react-router';
 import { FeedbackMessage } from '../../../../components/ds/feedback/FeedbackMessage';
 import { Input, Select } from '../../../../components/ds/field/Controls';
 import { PdfDownload } from '../../../../components/documents/PdfDownload';
@@ -20,6 +22,7 @@ export function FormTriage({
   form: string;
   operations: DomainOperations;
 }) {
+  const { formLifecycle } = useRouteContext({ from: '__root__' });
   const [page, setPage] = useState(1);
   const cache = useQueryClient();
   const key = ['phase4-form-triage', actor, company, form];
@@ -81,6 +84,26 @@ export function FormTriage({
                 </>
               )}
             </ActionForm>
+            {formLifecycle && (
+              <ActionForm
+                label="Mover resposta para lixeira"
+                submit={async () => {
+                  const result = await formLifecycle.removeResponse(company, form, response.id);
+                  await Promise.all([
+                    cache.invalidateQueries({ queryKey: key }),
+                    cache.invalidateQueries({ queryKey: ['phase4-forms', actor, company] }),
+                    cache.invalidateQueries({ queryKey: ['form-trash', actor, company] }),
+                  ]);
+                  return result;
+                }}
+              >
+                {(prefix) => (
+                  <Checkbox id={prefix + 'trash'} required>
+                    Confirmo que quero mover esta resposta para a lixeira.
+                  </Checkbox>
+                )}
+              </ActionForm>
+            )}
             {response.pdfAvailable && (
               <PdfDownload
                 download={(signal) =>

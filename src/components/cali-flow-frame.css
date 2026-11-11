@@ -1,0 +1,687 @@
+.cali-form-page {
+  --cf-wine: #5a1e2d;
+  --cf-wine-2: #7a1f3d;
+  --cf-gold: #b58c52;
+  --cf-ink: #2b2024;
+  --cf-muted: #6b5d63;
+  --cf-line: #e8ddd4;
+  --cf-paper: #f7f3ee;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--cf-paper);
+  color: var(--cf-ink);
+  color-scheme: light;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.cali-form-page *,
+.cali-form-page *::before,
+.cali-form-page *::after {
+  box-sizing: border-box;
+}
+.cali-form-page::before {
+  position: absolute;
+  inset: -200px -220px auto auto;
+  width: 620px;
+  height: 620px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(181 140 82 / 12%), transparent 70%);
+  content: '';
+  pointer-events: none;
+}
+.cali-form-page .cf-leaf {
+  position: absolute;
+  z-index: 0;
+  top: 52%;
+  right: calc(min(720px, 58vw) * -0.42);
+  width: min(720px, 58vw);
+  aspect-ratio: 1;
+  background: linear-gradient(
+    200deg,
+    rgb(90 30 45 / 20%),
+    rgb(122 31 61 / 12%) 45%,
+    rgb(181 140 82 / 6%)
+  );
+  -webkit-mask: url('/brand/cali-oak-mark.svg') center / contain no-repeat;
+  mask: url('/brand/cali-oak-mark.svg') center / contain no-repeat;
+  pointer-events: none;
+  transform: translateY(-50%) rotate(-8deg);
+}
+.cali-form-page .cf-leaf-intro,
+.cali-form-page .cf-leaf-done {
+  animation: cf-leaf-rise 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.cali-form-page .cf-leaf-questions {
+  opacity: 0.75;
+  animation: cf-leaf-rise-soft 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes cf-leaf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-50% + 70px)) rotate(-2deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) rotate(-8deg);
+  }
+}
+@keyframes cf-leaf-rise-soft {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-50% + 70px)) rotate(-2deg);
+  }
+  to {
+    opacity: 0.75;
+    transform: translateY(-50%) rotate(-8deg);
+  }
+}
+.cali-form-page .cf-progress {
+  position: absolute;
+  z-index: 3;
+  inset: 0 0 auto;
+  height: 4px;
+  background: rgb(90 30 45 / 8%);
+}
+.cali-form-page .cf-progress i {
+  display: block;
+  height: 100%;
+  background: var(--cf-wine);
+  transition: width 450ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.cali-form-page .cf-top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 26px clamp(20px, 5vw, 56px) 0;
+}
+.cali-form-page .cf-top img {
+  display: block;
+  width: auto;
+  height: 48px;
+}
+.cali-form-page .cf-preview {
+  padding: 5px 11px;
+  border: 1px solid #f2dfb8;
+  border-radius: 999px;
+  background: #fff5e0;
+  color: #7a5418;
+  font-size: 12px;
+  font-weight: 600;
+}
+.cali-form-page .cf-stage {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: 1;
+  align-items: flex-start;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 24px clamp(20px, 6vw, 56px);
+}
+.cali-form-page .cf-screen {
+  width: 100%;
+  max-width: 720px;
+  margin-block: auto;
+  padding-bottom: 72px;
+}
+.cali-form-page .cf-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.cali-form-page .cf-welcome {
+  max-width: 880px;
+}
+.cali-form-page .cf-welcome .cf-desc {
+  max-width: none;
+}
+.cali-form-page small {
+  color: var(--cf-gold);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.cali-form-page h1 {
+  margin: 12px 0 16px;
+  color: var(--cf-wine);
+  font-size: clamp(30px, 5vw, 46px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+.cali-form-page .cf-desc,
+.cali-form-page .cf-center > p {
+  max-width: 620px;
+  margin: 0 0 8px;
+  color: var(--cf-muted);
+  font-size: clamp(14px, 1.25vw, 16px);
+  line-height: 1.7;
+  white-space: pre-line;
+}
+.cali-form-page .cf-meta,
+.cali-form-page .cf-step-progress {
+  margin-top: 18px;
+  color: var(--cf-muted);
+  font-size: 13px;
+}
+.cali-form-page .cf-preview-note {
+  margin-top: 14px !important;
+  color: #7a5418 !important;
+  font-weight: 600;
+}
+.cali-form-page .cf-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.cali-form-page .cf-num {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 3px;
+  min-width: 26px;
+  margin-top: 7px;
+  color: var(--cf-wine);
+  font-size: 15px;
+  font-weight: 700;
+}
+.cali-form-page h2 {
+  margin: 0;
+  color: var(--cf-ink);
+  font-size: clamp(22px, 3.4vw, 30px);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  white-space: pre-line;
+}
+.cali-form-page .cf-req {
+  margin-left: 6px;
+  color: var(--cf-wine-2);
+  font-style: normal;
+}
+.cali-form-page .cf-optional {
+  display: inline-block;
+  margin-left: 10px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #efe6df;
+  color: var(--cf-muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  vertical-align: middle;
+}
+.cali-form-page .cf-help,
+.cali-form-page .cf-privacy-note {
+  margin: 10px 0 0 38px;
+  color: var(--cf-muted);
+  font-size: 16px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+.cali-form-page .cf-answer-input {
+  margin: 30px 0 0 38px;
+}
+.cali-form-page .cf-answer-input :is(input, textarea) {
+  display: block;
+  width: calc(100% - 38px);
+  min-width: 0;
+  padding: 8px 0 10px;
+  border: 0;
+  border-bottom: 2px solid rgb(90 30 45 / 25%);
+  border-radius: 0;
+  outline: none;
+  background: transparent;
+  color: var(--cf-wine);
+  font:
+    400 clamp(20px, 3vw, 26px) / 1.4 Inter,
+    system-ui,
+    sans-serif;
+  transition: border-color 180ms ease;
+}
+.cali-form-page .cf-answer-input :is(input, textarea)::placeholder {
+  color: rgb(90 30 45 / 32%);
+}
+.cali-form-page .cf-answer-input :is(input, textarea):focus {
+  border-bottom-color: var(--cf-wine);
+}
+.cali-form-page .cf-answer-input textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+.cali-form-page .cf-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 520px;
+  margin: 26px 0 0 38px;
+}
+.cali-form-page .cf-options.cf-options-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.cali-form-page .cf-options .cf-hint {
+  margin: 0 0 2px;
+  color: var(--cf-muted);
+  font-size: 13px;
+}
+.cali-form-page .cf-options button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid rgb(90 30 45 / 28%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 70%);
+  color: var(--cf-wine);
+  font:
+    500 17px / 1.35 Inter,
+    system-ui,
+    sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    transform 100ms ease;
+}
+.cali-form-page .cf-options.cf-options-row button {
+  width: auto;
+  min-width: 150px;
+}
+.cali-form-page .cf-options button:hover {
+  border-color: var(--cf-wine);
+  background: #fff;
+}
+.cali-form-page .cf-options button:active {
+  transform: scale(0.99);
+}
+.cali-form-page .cf-options button.on {
+  border-color: var(--cf-wine);
+  background: var(--cf-wine);
+  color: #fff;
+}
+.cali-form-page .cf-options button span {
+  flex: 1;
+}
+.cali-form-page .cf-options kbd {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid currentcolor;
+  border-radius: 6px;
+  font:
+    700 12px Inter,
+    system-ui,
+    sans-serif;
+  opacity: 0.85;
+}
+.cali-form-page .cf-scale-wrap {
+  margin: 28px 0 0 38px;
+}
+.cali-form-page .cf-scale {
+  display: grid;
+  gap: 8px;
+}
+.cali-form-page .cf-scale button {
+  min-width: 0;
+  height: 54px;
+  border: 1px solid rgb(90 30 45 / 28%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 70%);
+  color: var(--cf-wine);
+  font:
+    600 18px Inter,
+    system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.cali-form-page .cf-scale button:hover {
+  border-color: var(--cf-wine);
+  background: #fff;
+}
+.cali-form-page .cf-scale button.on {
+  border-color: var(--cf-wine);
+  background: var(--cf-wine);
+  color: #fff;
+}
+.cali-form-page .cf-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 10px;
+  color: var(--cf-muted);
+  font-size: 13px;
+}
+.cali-form-page .cf-file {
+  max-width: 520px;
+  margin: 28px 0 0 38px;
+}
+.cali-form-page .cf-file-drop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 26px 18px;
+  border: 1.5px dashed rgb(90 30 45 / 35%);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 60%);
+  color: var(--cf-wine);
+  cursor: pointer;
+  text-align: center;
+}
+.cali-form-page .cf-file-drop:hover {
+  border-color: var(--cf-wine);
+  background: #fff;
+}
+.cali-form-page .cf-file-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.cali-form-page .cf-file-drop small,
+.cali-form-page .cf-file-chosen small {
+  color: var(--cf-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.cali-form-page .cf-file-chosen {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgb(90 30 45 / 28%);
+  border-radius: 12px;
+  background: #fff;
+}
+.cali-form-page .cf-file-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 8px;
+  background: #f3e9ec;
+  color: var(--cf-wine);
+}
+.cali-form-page .cf-file-chosen > span:not(.cf-file-icon) {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+.cali-form-page .cf-file-chosen strong {
+  overflow: hidden;
+  color: var(--cf-ink);
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cali-form-page .cf-file-chosen button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: #f7f3ee;
+  color: var(--cf-ink);
+  cursor: pointer;
+}
+.cali-form-page .cf-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 30px 0 0 38px;
+}
+.cali-form-page :is(.cf-center, .cf-welcome) .cf-actions {
+  margin-left: 0;
+}
+.cali-form-page .cf-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--cf-wine);
+  color: #fff;
+  box-shadow: 0 8px 22px rgb(90 30 45 / 18%);
+  font:
+    700 17px Inter,
+    system-ui,
+    sans-serif;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    transform 100ms ease;
+}
+.cali-form-page .cf-welcome .cf-primary {
+  min-height: 42px;
+  padding-block: 10px;
+  font-size: 14px;
+}
+.cali-form-page .cf-primary:hover {
+  background: var(--cf-wine-2);
+}
+.cali-form-page .cf-primary:active {
+  transform: translateY(1px);
+}
+.cali-form-page .cf-primary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.cali-form-page .cf-nav-back {
+  width: 46px;
+  min-height: 46px;
+}
+.cali-form-page .cf-enter-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--cf-muted);
+  font-size: 13px;
+}
+.cali-form-page .cf-enter-hint b {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--cf-ink);
+}
+.cali-form-page .cf-error {
+  display: inline-flex;
+  margin: 16px 0 0 38px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: #fbeae8;
+  color: #9f1f14;
+  font-size: 14px;
+  font-weight: 600;
+}
+.cali-form-page .cf-foot {
+  position: absolute;
+  z-index: 3;
+  bottom: 26px;
+  left: clamp(20px, 5vw, 56px);
+  display: flex;
+  gap: 8px;
+  color: var(--cf-muted);
+  font-size: 12px;
+}
+.cali-form-page .cf-foot a {
+  color: var(--cf-muted);
+  text-decoration: none;
+}
+.cali-form-page .cf-foot a:hover {
+  color: var(--cf-wine);
+}
+.cali-form-page .cf-done-mark {
+  display: grid;
+  width: 84px;
+  height: 84px;
+  place-items: center;
+  margin-bottom: 10px;
+  border-radius: 50%;
+  background: var(--cf-wine);
+  box-shadow: 0 14px 34px rgb(90 30 45 / 22%);
+}
+.cali-form-page .cf-done-mark img {
+  display: block;
+  width: 50px;
+  height: 50px;
+}
+.cali-form-page .cf-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgb(90 30 45 / 15%);
+  border-top-color: var(--cf-wine);
+  border-radius: 50%;
+  animation: cf-spin 800ms linear infinite;
+}
+.cali-form-page .cf-enter {
+  animation: cf-rise 550ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.cali-form-page .cf-next {
+  animation: cf-in-up 450ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.cali-form-page .cf-back {
+  animation: cf-in-down 450ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.cali-form-page :focus-visible {
+  outline: 2px solid var(--cf-wine);
+  outline-offset: 3px;
+}
+.cali-form-page :is(input, textarea) {
+  font-size: 16px;
+}
+@keyframes cf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes cf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cf-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(46px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cf-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-46px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cali-form-page .cf-enter,
+  .cali-form-page .cf-next,
+  .cali-form-page .cf-back,
+  .cali-form-page .cf-leaf-intro,
+  .cali-form-page .cf-leaf-questions,
+  .cali-form-page .cf-leaf-done,
+  .cali-form-page .cf-spinner {
+    animation: none;
+  }
+  .cali-form-page .cf-progress i {
+    transition: none;
+  }
+}
+@media (max-width: 640px) {
+  .cali-form-page .cf-top {
+    padding-top: 20px;
+  }
+  .cali-form-page .cf-top img {
+    height: 36px;
+  }
+  .cali-form-page .cf-leaf {
+    top: 70%;
+    right: -44vw;
+    width: 96vw;
+  }
+  .cali-form-page .cf-stage {
+    align-items: flex-start;
+    padding-top: 12vh;
+    padding-bottom: 110px;
+  }
+  .cali-form-page .cf-screen {
+    padding-bottom: 42px;
+  }
+  .cali-form-page .cf-label {
+    gap: 8px;
+  }
+  .cali-form-page
+    :is(
+      .cf-help,
+      .cf-privacy-note,
+      .cf-answer-input,
+      .cf-options,
+      .cf-scale-wrap,
+      .cf-file,
+      .cf-actions,
+      .cf-error
+    ) {
+    margin-left: 0;
+  }
+  .cali-form-page .cf-answer-input :is(input, textarea) {
+    width: 100%;
+  }
+  .cali-form-page .cf-scale {
+    gap: 5px;
+  }
+  .cali-form-page .cf-scale button {
+    height: 46px;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+  .cali-form-page .cf-scale:has(button:nth-child(7)) {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  }
+  .cali-form-page .cf-enter-hint {
+    display: none;
+  }
+  .cali-form-page .cf-foot {
+    bottom: 28px;
+  }
+}

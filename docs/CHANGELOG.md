@@ -1,5 +1,11 @@
 # Registro de mudanças
 
+## Consolidação visual local com app.cali
+
+- Porta hierarquia, estilos e assets do código `app.cali@773c9d4` para os módulos da V2, com shell e tokens compartilhados, revisão de controles, listas e estados por papel e trabalho paralelo por domínio. Registra os campos e ações que ainda dependem de contratos.
+- Adequa superfícies públicas, navegação, Admin, Cliente e módulos operacionais à experiência publicada, preservando módulos, serviços e guardas da V2. Ajusta a tabela de empresas para manter uma única ação por registro em desktop e mobile.
+- Integra os recortes de Visão geral, satisfação e PDF e adapta Forms para uma pergunta por etapa. Registra a compatibilidade por origem, o impacto sobre os links ativos e as dependências de rollout. [Plano e evidência](COMPARACAO_FUNCIONAL_APP_CALI.md#evidência-local-e-dependências-do-rollout)
+
 ## Módulos por área e retirada das prévias
 
 - Organiza Admin, Cliente, Partner, acesso e páginas públicas em `src/modules`. Componentes exclusivos ficam junto da página. Componentes usados por várias páginas ficam em `src/components` e primitivas em `src/components/ds`.

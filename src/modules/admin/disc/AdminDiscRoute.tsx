@@ -2,8 +2,8 @@ import { useNavigate, useSearch } from '@tanstack/react-router';
 import { AdminDiscPage } from './components/AdminDiscPage';
 
 export function AdminDiscRoute() {
-  const search = useSearch({ from: '/admin/perfil' });
-  const navigate = useNavigate({ from: '/admin/perfil' });
+  const search = useSearch({ from: '/admin/perfil-comportamental' });
+  const navigate = useNavigate({ from: '/admin/perfil-comportamental' });
   return (
     <AdminDiscPage
       campaignId={search.campaign ?? null}

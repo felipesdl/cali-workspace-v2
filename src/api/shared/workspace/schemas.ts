@@ -11,6 +11,7 @@ export const workspaceSearch = z.object({
   report: z.uuid().optional().catch(undefined),
   reportView: z.enum(['list']).optional().catch(undefined),
   record: z.uuid().optional().catch(undefined),
+  aviso: z.uuid().optional().catch(undefined),
   delivery: z.uuid().optional().catch(undefined),
   task: z.uuid().optional().catch(undefined),
   section: sectionSchema.default('deliverables').catch('deliverables'),

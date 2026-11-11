@@ -7,6 +7,7 @@
   --text-secondary: #6f6863;
   --border-default: #ded5ca;
   --action-primary: var(--color-brand-burgundy);
+  --action-secondary-border: var(--action-primary);
   --focus-ring: var(--color-brand-burgundy);
   --feedback-success-text: #215943;
   --feedback-success-surface: #eaf6ef;
@@ -14,6 +15,8 @@
   --feedback-error-text: #842d38;
   --feedback-error-surface: #fbedef;
   --feedback-error-border: #b84d51;
+  --color-status-review: #3d7793;
+  --color-status-rebriefing: #ad4f6a;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -21,9 +24,18 @@
   --space-6: 24px;
   --radius-control: 8px;
   --radius-media: 7px;
+  --radius-panel: 12px;
   --font-family-workspace: 'Inter', system-ui, sans-serif;
   --font-size-body: 16px;
   --font-size-caption: 14px;
   --font-size-section: 20px;
   --control-min-height: 42px;
+  --workspace-text-control: 11px;
+  --workspace-text-detail: 12px;
+  --workspace-text-standard: 13px;
+  --workspace-line: #e9e3de;
+  --workspace-soft: #faf8f5;
+  --workspace-chrome-border: #e5dbd5;
+  --workspace-chrome-copy: #554b47;
+  --workspace-chrome-muted: #756d68;
 }

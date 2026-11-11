@@ -66,18 +66,52 @@ export function ClientReportReading({
       {showList ? (
         <>
           {data.entries.length ? (
-            <ul className="tw:m-0 tw:grid tw:list-none tw:gap-2 tw:p-0">
+            <ul className="tw:m-0 tw:grid tw:list-none tw:p-0">
               {data.entries.map((item) => (
                 <li
                   key={item.id}
-                  className="tw:flex tw:min-w-0 tw:flex-wrap tw:items-center tw:justify-between tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-3 tw:wrap-anywhere"
+                  className="tw:grid tw:min-w-0 tw:items-center tw:gap-3 tw:border-b tw:border-border-default tw:py-3 tw:wrap-anywhere tw:wide:grid-cols-[minmax(0,1.8fr)_minmax(8rem,.7fr)_minmax(9rem,.8fr)_minmax(9rem,.8fr)_auto]"
                 >
-                  <div>
+                  <div className="tw:min-w-0">
+                    {item.protocol && (
+                      <span className="tw:block tw:text-caption tw:text-muted-copy">
+                        {item.protocol}
+                      </span>
+                    )}
                     <strong>{item.title}</strong>
-                    {item.day && <p>{formatCalendarDate(item.day)}</p>}
+                  </div>
+                  <div>
+                    <span className="tw:block tw:text-caption tw:text-muted-copy">Período</span>
+                    <span>
+                      {item.day ? formatCalendarDate(item.day) : 'Não informado'}
+                      {item.reportVersion ? ` · v${item.reportVersion}` : ''}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="tw:block tw:text-caption tw:text-muted-copy">
+                      Disponível desde
+                    </span>
+                    <span>
+                      {item.instant
+                        ? formatServerInstant(item.instant)
+                        : item.reportUpdatedAt
+                          ? formatServerInstant(item.reportUpdatedAt)
+                          : 'Não informado'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="tw:block tw:text-caption tw:text-muted-copy">Ciência</span>
+                    {item.acknowledgmentAvailable ? (
+                      <span>
+                        {item.reportAcknowledged ? 'Ciência registrada' : 'Ciência pendente'}
+                      </span>
+                    ) : (
+                      <span>—</span>
+                    )}
                   </div>
                   <Button
                     variant="secondary"
+                    className="tw:justify-self-start tw:wide:justify-self-end"
                     onClick={() => {
                       requestedReport.current = item.id;
                       select(item.id);
@@ -89,7 +123,11 @@ export function ClientReportReading({
               ))}
             </ul>
           ) : (
-            <FeedbackState kind="empty">Nenhum relatório nesta página.</FeedbackState>
+            <FeedbackState kind="empty">
+              {data.total === 0
+                ? 'Nenhum relatório disponível ainda.'
+                : 'Nenhum relatório nesta página.'}
+            </FeedbackState>
           )}
           <WorkspacePagination total={data.total} page={page} change={changePage} />
         </>

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { type TeamSaveRow } from '../../api/shared/team/maintenance';
 import { type ProfessionalRecord } from '../../api/shared/team/schemas';
 import { Button } from '../ds/button/Button';
+import { Dialog } from '../ds/dialog/Dialog';
 import { FeedbackState } from '../ds/feedback/FeedbackState';
 import { TeamEditor, TeamMonthField } from './TeamEditor';
 import { TeamMemberDetails } from './TeamMemberDetails';
@@ -15,15 +16,17 @@ export function TeamCreate({ onSave, pending }: { onSave: Save; pending: boolean
   const [open, setOpen] = useState(false);
   if (!open) return <Button onClick={() => setOpen(true)}>Cadastrar pessoa</Button>;
   return (
-    <TeamEditor
-      member={null}
-      pending={pending}
-      onCancel={() => setOpen(false)}
-      onSave={async (month, row) => {
-        await onSave(month, row);
-        setOpen(false);
-      }}
-    />
+    <Dialog title="Cadastrar pessoa" pending={pending} onDismiss={() => setOpen(false)}>
+      <TeamEditor
+        member={null}
+        pending={pending}
+        onCancel={() => setOpen(false)}
+        onSave={async (month, row) => {
+          await onSave(month, row);
+          setOpen(false);
+        }}
+      />
+    </Dialog>
   );
 }
 

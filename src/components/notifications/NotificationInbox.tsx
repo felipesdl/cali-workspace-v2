@@ -44,7 +44,7 @@ export function NotificationInbox({
         aria-label={unread ? `Notificações, ${unread} não lidas` : 'Notificações'}
         aria-expanded={open}
         aria-controls={open ? 'workspace-notifications' : undefined}
-        className="tw:min-w-control tw:px-2"
+        className="workspace-notification-trigger tw:min-w-control tw:px-2"
         onClick={() => {
           if (open) {
             close();
@@ -57,8 +57,11 @@ export function NotificationInbox({
       >
         <Bell size={18} aria-hidden="true" />
         {unread > 0 && (
-          <span aria-hidden="true" className="tw:text-caption tw:font-semibold">
-            {unread > 99 ? '99+' : unread}
+          <span
+            aria-hidden="true"
+            className="workspace-notification-count tw:text-caption tw:font-semibold"
+          >
+            {unread > 9 ? '9+' : unread}
           </span>
         )}
       </Button>

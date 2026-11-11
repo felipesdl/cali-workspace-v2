@@ -60,11 +60,20 @@ function scaleSettings(fields: FormData, kind: string) {
   };
 }
 
-export function NewFormDraft({ company, actor, operations, saved }: Scope & { saved: () => void }) {
+export function NewFormDraft({
+  company,
+  actor,
+  operations,
+  saved,
+}: Omit<Scope, 'operations'> & {
+  operations: Pick<DomainOperations, 'createFormDraft'>;
+  saved: () => void;
+}) {
   const cache = useQueryClient();
   return (
     <ActionForm
       label="Criar rascunho de formulário"
+      dialog={{ title: 'Novo formulário', trigger: 'Novo formulário' }}
       saved={saved}
       submit={async (fields, id) => {
         const result = await operations.createFormDraft(

@@ -8,6 +8,7 @@ Atualização: 03/11/2026. Base de desenvolvimento: este repositório V2. Escopo
 | Como um agente deve trabalhar? | [AGENTS](../AGENTS.md) |
 | O que foi encontrado, com qual evidência? | [Baseline](BASELINE_2026-10-25.md) |
 | Qual funcionamento oficial reproduzir? | [Referência funcional de 26/10 — publicação 83](BASELINE_REFERENCE_2026-10-26.md) |
+| Como consolidar a experiência publicada na arquitetura V2? | [Matriz de paridade e plano de consolidação](COMPARACAO_FUNCIONAL_APP_CALI.md#plano-de-consolidação) |
 | Quais regras de produto, públicos e comunicação valem? | [Regras de produto](PRODUCT_RULES.md) |
 | Qual problema, para quem e com qual vocabulário? | [Contexto de produto](PRODUCT_CONTEXT.md) |
 | Como compor telas e conduzir tarefas? | [Experiência UX/UI](UX_UI.md) |

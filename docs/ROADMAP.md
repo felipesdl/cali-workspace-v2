@@ -217,7 +217,7 @@ Cada linha é uma entrega independente, incluindo contrato/adaptador real de tes
 - [x] Conectar pendência Cliente, métricas e indicadores essenciais preservando fórmulas. Aviso do Início desaparece após confirmar; nulos e denominador zero permanecem explícitos.
 - [x] Homologar A/B/Admin no navegador integrado e registrar testes focados, limites e rollback. Confirmação/reconfirmação, vaga/cancelamento, correção Admin, mês anterior vazio, recarga, contexto e mobile passaram. Complemento de leitura direta aplicado somente A/B.
 
-**Frontend antes do lançamento.** A paridade visual do layout, navegação e Equipe por perfil é conferida contra a [main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2). Felipe autorizou em 05/11 a continuidade da homologação funcional na composição simplificada. A substituição visual fica para a implementação do frontend final.
+**Frontend antes do lançamento.** A adequação visual de todos os fluxos parte do JSX, CSS e assets do `app.cali`, conforme o [plano de consolidação](COMPARACAO_FUNCIONAL_APP_CALI.md#plano-de-consolidação). A V2 é a base técnica. Acompanhar as fontes, diferenças contratuais e validação no [estado do porte](COMPARACAO_FUNCIONAL_APP_CALI.md#estado-do-trabalho-local). A [comparação com a main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2) registra a rodada anterior de homologação.
 
 DS, tabelas, campos, overlays, modelos/hooks e cache necessários são entregues junto dos consumidores. Declarar quem possui cada estado: URL para contexto compartilhável, local para transitório, cache para respostas remotas e context somente para responsabilidades realmente transversais. Views não importam SDK ou fixtures.
 

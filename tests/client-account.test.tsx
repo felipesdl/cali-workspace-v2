@@ -129,8 +129,9 @@ describe('consulta Cliente de empresa e termos', () => {
       entry: `/cliente/minha-conta?actor=${otherCompanyId}`,
       ownProfile,
     });
-    await screen.findByText('Pessoa sintética');
+    await screen.findAllByText('Pessoa sintética');
     expect(ownProfile.read).toHaveBeenCalledWith(actorId, expect.any(AbortSignal));
+    await user.click(screen.getByLabelText('Menu do perfil'));
     await user.click(screen.getByRole('button', { name: 'Sair' }));
     await waitFor(() => expect(screen.queryByText('Pessoa sintética')).toBeNull());
     expect(cache.getQueryData(['own-profile', actorId])).toBeUndefined();

@@ -6,8 +6,6 @@ import { isPilotCompany } from '../../../../api/admin/companies/onboarding';
 import { type Company } from '../../../../api/admin/companies/schemas';
 import { workspaceSearch } from '../../../../api/shared/workspace/schemas';
 import { FeedbackState } from '../../../../components/ds/feedback/FeedbackState';
-import { Select } from '../../../../components/ds/field/Controls';
-import { Field } from '../../../../components/ds/field/Field';
 import { useProjectWorkspaceScope } from '../../../../components/workspace/useProjectWorkspaceScope';
 import {
   recordStatusLabel,
@@ -22,7 +20,6 @@ const linkStyle =
 
 export function AdminPriorities({ companies }: { companies?: readonly Company[] }) {
   const search = overviewRoute.useSearch();
-  const navigate = overviewRoute.useNavigate();
   const { domainOperations, adminPortfolio } = useRouteContext({ from: '__root__' });
   const { service, admin, actor, companyId } = useProjectWorkspaceScope(search);
   const projects = useQuery({
@@ -63,24 +60,6 @@ export function AdminPriorities({ companies }: { companies?: readonly Company[] 
         <p className="tw:m-0">
           Acompanhe ajustes solicitados em projetos e ocorrências em atendimento.
         </p>
-        <Field id="priorities-company" label="Empresa de homologação">
-          <Select
-            id="priorities-company"
-            value={companyId ?? ''}
-            onChange={(event) =>
-              void navigate({
-                search: { ...search, companyId: event.currentTarget.value || undefined },
-              })
-            }
-          >
-            <option value="">Selecione uma empresa</option>
-            {pilotCompanies.map((company) => (
-              <option key={company.id} value={company.id}>
-                {company.displayName}
-              </option>
-            ))}
-          </Select>
-        </Field>
         {companyId && (
           <div className="tw:grid tw:min-w-0 tw:gap-4 tw:wide:grid-cols-2">
             <section className="tw:grid tw:min-w-0 tw:content-start tw:gap-2">
@@ -169,9 +148,26 @@ export function AdminPriorities({ companies }: { companies?: readonly Company[] 
             )}
           </div>
         )}
+        {!companyId && (
+          <FeedbackState kind="empty">
+            {search.companyId
+              ? 'As prioridades desta conta ainda não estão disponíveis.'
+              : 'Selecione uma conta para consultar suas prioridades e seu resumo mensal.'}
+          </FeedbackState>
+        )}
       </section>
-      {companyId && <AdminMonthlySummary service={service} actor={actor} companyId={companyId} />}
-      {!companyId && adminPortfolio && (
+      {companyId && (
+        <AdminMonthlySummary
+          service={service}
+          actor={actor}
+          companyId={companyId}
+          companyName={
+            pilotCompanies.find((company) => company.id === companyId)?.displayName ??
+            'Empresa selecionada'
+          }
+        />
+      )}
+      {!companyId && !search.companyId && adminPortfolio && (
         <AdminPortfolioSummary service={adminPortfolio} actor={actor} />
       )}
     </>

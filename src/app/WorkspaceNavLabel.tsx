@@ -1,26 +1,28 @@
 import {
-  Activity,
-  Bell,
   BriefcaseBusiness,
   Building2,
   CalendarDays,
   ClipboardList,
   Clock3,
-  FileChartColumn,
+  FileBarChart2,
   Fingerprint,
-  Folder,
+  FolderOpen,
   History,
+  CircleHelp,
   LayoutDashboard,
-  MessageSquare,
+  MessageCircleMore,
+  Megaphone,
   Network,
   ShieldCheck,
   Star,
   Users,
-  UsersRound,
+  Target,
+  UserCog,
 } from 'lucide-react';
 
 const icons = {
   Início: LayoutDashboard,
+  Ajuda: CircleHelp,
   'Minha empresa': Building2,
   'Minha conta': Users,
   'Termos e privacidade': ShieldCheck,
@@ -31,16 +33,16 @@ const icons = {
   Horas: Clock3,
   'Minhas horas': Clock3,
   Agenda: CalendarDays,
-  Ocorrências: MessageSquare,
-  Documentos: Folder,
-  Relatórios: FileChartColumn,
-  Avisos: Bell,
+  Ocorrências: MessageCircleMore,
+  Documentos: FolderOpen,
+  Relatórios: FileBarChart2,
+  Avisos: Megaphone,
   'Frentes contratadas': Network,
   Privacidade: ShieldCheck,
   Formulários: ClipboardList,
   Propostas: BriefcaseBusiness,
-  'Mapa de People': Activity,
-  'Equipe CALI': UsersRound,
+  'Mapa de People': Target,
+  'Equipe CALI': UserCog,
   Auditoria: History,
   Satisfação: Star,
 };
@@ -49,7 +51,7 @@ export function WorkspaceNavLabel({ label }: { label: keyof typeof icons }) {
   const Icon = icons[label];
   return (
     <span title={label} className="tw:flex tw:min-w-0 tw:items-center tw:gap-3">
-      <Icon size={17} aria-hidden="true" className="tw:shrink-0" />
+      <Icon size={17} strokeWidth={1.6} aria-hidden="true" className="tw:shrink-0" />
       <span className="workspace-nav-label">{label}</span>
     </span>
   );

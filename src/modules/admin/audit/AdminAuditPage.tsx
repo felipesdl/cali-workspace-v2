@@ -1,5 +1,5 @@
 import { Input } from '../../../components/ds/field/Controls';
-import { AuditResults } from '../../../components/workspace/AdminReadResults';
+import { AuditResults } from './components/AuditResults';
 import { AdminDailyPreview } from './components/AdminDailyPreview';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { getRouteApi, useRouteContext } from '@tanstack/react-router';
@@ -27,20 +27,22 @@ function AdminAudit({ search, update }: Props) {
   return (
     <div className="tw:grid tw:gap-4">
       <AdminDailyPreview actor={actor} />
-      <CompanySelect search={search} update={update} />
-      <Field id="audit-month" label="Mês da auditoria">
-        <Input
-          id="audit-month"
-          type="month"
-          value={month?.slice(0, 7) ?? ''}
-          onChange={(event) =>
-            update({
-              month: event.currentTarget.value ? `${event.currentTarget.value}-01` : undefined,
-              page: 1,
-            })
-          }
-        />
-      </Field>
+      <div className="tw:grid tw:min-w-0 tw:items-end tw:gap-2 tw:min-[601px]:grid-cols-[minmax(0,280px)_minmax(0,200px)]">
+        <CompanySelect search={search} update={update} />
+        <Field id="audit-month" label="Mês da auditoria">
+          <Input
+            id="audit-month"
+            type="month"
+            value={month?.slice(0, 7) ?? ''}
+            onChange={(event) =>
+              update({
+                month: event.currentTarget.value ? `${event.currentTarget.value}-01` : undefined,
+                page: 1,
+              })
+            }
+          />
+        </Field>
+      </div>
       {!companyId ? (
         <p>Selecione uma empresa.</p>
       ) : result.isPending ? (

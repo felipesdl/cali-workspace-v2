@@ -1,3 +1,5 @@
+import { OverviewExport } from './OverviewExport';
+import { overviewHours } from './overview-format';
 import { currentBrasiliaMonth } from '../../../../lib/dates';
 import { useQuery } from '@tanstack/react-query';
 import { getRouteApi, Link } from '@tanstack/react-router';
@@ -41,10 +43,12 @@ export function AdminMonthlySummary({
   service,
   actor,
   companyId,
+  companyName,
 }: {
   service: NonNullable<ReturnType<typeof useProjectWorkspaceScope>['service']>;
   actor?: string;
   companyId: string;
+  companyName: string;
 }) {
   const search = overview.useSearch();
   const navigate = overview.useNavigate();
@@ -73,6 +77,21 @@ export function AdminMonthlySummary({
           update={({ month }) => void navigate({ search: { ...search, month } })}
         />
       </div>
+      {hours.isSuccess && calendar.isSuccess && (
+        <OverviewExport
+          month={month}
+          scope={companyName}
+          content={{
+            metrics: [
+              [
+                'Horas registradas',
+                hours.data.visible ? overviewHours(hours.data.minutes) : 'Extrato indisponível',
+              ],
+              ['Itens na agenda', String(calendar.data.total)],
+            ],
+          }}
+        />
+      )}
       <div className="tw:grid tw:min-w-0 tw:gap-3 tw:wide:grid-cols-2">
         <MonthlyMetric
           title="Horas registradas"

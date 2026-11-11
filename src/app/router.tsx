@@ -1,7 +1,11 @@
+import { LegalPage } from '../modules/public/legal/LegalPage';
+import { type ClientDriveService } from '../api/client/drive';
+import { type PublicFormsService } from '../api/shared/forms/public';
+import { type FormLifecycle } from '../api/admin/forms/lifecycle';
 import { type AdminPortfolioService } from '../api/admin/workspace/admin-portfolio';
 import { type NotificationsService } from '../api/shared/notifications/schemas';
 import { type OwnProfileService } from '../api/access/own-profile';
-import type { PartnerPilot } from '../api/partner/pilot';
+import { partnerModule, type PartnerModule, type PartnerPilot } from '../api/partner/pilot';
 import { type ProjectJournal } from '../api/shared/workspace/project-journal';
 import { type AdminReadService } from '../api/admin/workspace/admin-read';
 import { type DocumentOperations } from '../api/shared/workspace/documents';
@@ -17,6 +21,7 @@ import { type TeamService } from '../api/shared/team/hosted';
 import { type TeamMonthlyService } from '../api/shared/team/monthly';
 import { type ReactElement } from 'react';
 import { ClientOverview } from '../modules/client/home/ClientOverview';
+import { ClientFaqPage } from '../modules/client/help/ClientFaqPage';
 import { ClientCompanyPage } from '../modules/client/company/ClientCompanyPage';
 import { ClientTermsPage } from '../modules/client/terms/ClientTermsPage';
 import { ClientModulePending } from '../components/workspace/ClientModulePending';
@@ -38,7 +43,7 @@ import { AdminOverview } from '../modules/admin/overview/AdminOverview';
 import { ClientWorkspace } from './ClientWorkspace';
 import { NotFoundPage } from './routes/NotFoundPage';
 import { RouteErrorPage } from './routes/RouteErrorPage';
-import { AccessGatePage } from '../modules/access/sign-in/AccessGatePage';
+import { AccessGatePage, LoginPage } from '../modules/access/sign-in/AccessGatePage';
 import { type SessionController } from './session/controller';
 import { safeReturnPath, sessionGuard } from './session/guard';
 import { type HostedAccessApi } from '../api/access/api';
@@ -68,6 +73,9 @@ const rootRoute = createRootRouteWithContext<{
   agendaOperations?: AgendaOperations | null;
   adminRead?: AdminReadService | null;
   adminPortfolio?: AdminPortfolioService | null;
+  clientDrive?: ClientDriveService | null;
+  publicForms?: PublicFormsService | null;
+  formLifecycle?: FormLifecycle | null;
 }>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
@@ -76,13 +84,31 @@ const rootRoute = createRootRouteWithContext<{
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  beforeLoad: async ({ context }) => {
-    const state = await context.session?.resolve();
-    if (state?.phase === 'resolved' && state.access.profile?.role === workspaceRole.Admin)
-      throw redirect({ to: '/admin/clientes', search: { q: '', status: 'all' } });
-    throw redirect({ to: '/cliente' });
-  },
+  component: lazyRouteComponent(
+    () => import('../modules/public/landing/LandingPage'),
+    'LandingPage',
+  ),
 });
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  validateSearch: (search): { returnTo?: string } => ({
+    returnTo: typeof search.returnTo === 'string' ? safeReturnPath(search.returnTo) : undefined,
+  }),
+  component: LoginPage,
+});
+function legalRoute<const Path extends string>(path: Path, kind: 'privacy' | 'terms' | 'site') {
+  return createRoute({
+    getParentRoute: () => rootRoute,
+    path,
+    component: () => <LegalPage kind={kind} />,
+  });
+}
+const legalRoutes = [
+  legalRoute('/privacidade', 'privacy'),
+  legalRoute('/termos', 'terms'),
+  legalRoute('/politica-do-site', 'site'),
+] as const;
 const clientRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/cliente',
@@ -142,6 +168,13 @@ function workspaceCatalogChild<
   });
 }
 const clientChildren = [
+  createRoute({
+    getParentRoute: () => clientRoute,
+    path: 'perfil',
+    beforeLoad: () => {
+      throw redirect({ to: '/cliente/perfil-comportamental', replace: true });
+    },
+  }),
   workspaceCatalogChild(
     clientRoute,
     'frentes',
@@ -151,6 +184,7 @@ const clientChildren = [
     ),
   ),
   clientChild('/', ClientOverview),
+  clientChild('ajuda', ClientFaqPage),
   clientAccountChild('empresa', ClientCompanyPage),
   clientAccountChild(
     'minha-conta',
@@ -171,7 +205,7 @@ const clientChildren = [
   }),
   createRoute({
     getParentRoute: () => clientRoute,
-    path: 'perfil',
+    path: 'perfil-comportamental',
     component: lazyRouteComponent(
       () => import('../modules/client/disc/ClientDiscPage'),
       'ClientDiscPage',
@@ -245,6 +279,28 @@ const clientChildren = [
   ),
 ] as const;
 const adminChildren = [
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'perfil',
+    beforeLoad: ({ search }) => {
+      throw redirect({
+        to: '/admin/perfil-comportamental',
+        search: z.object({ campaign: z.uuid().optional().catch(undefined) }).parse(search),
+        replace: true,
+      });
+    },
+  }),
+  createRoute({
+    getParentRoute: () => adminRoute,
+    path: 'mapa-people',
+    beforeLoad: ({ search }) => {
+      throw redirect({
+        to: '/admin/mapa-de-people',
+        search: workspaceSearch.parse(search),
+        replace: true,
+      });
+    },
+  }),
   workspaceCatalogChild(
     adminRoute,
     'frentes',
@@ -348,7 +404,7 @@ const adminChildren = [
   }),
   createRoute({
     getParentRoute: () => adminRoute,
-    path: 'perfil',
+    path: 'perfil-comportamental',
     validateSearch: (search) => z.object({ campaign: z.uuid().optional() }).parse(search),
     component: lazyRouteComponent(
       () => import('../modules/admin/disc/AdminDiscRoute'),
@@ -375,7 +431,7 @@ const adminChildren = [
   }),
   createRoute({
     getParentRoute: () => adminRoute,
-    path: 'mapa-people',
+    path: 'mapa-de-people',
     validateSearch: workspaceSearch,
     component: lazyRouteComponent(
       () => import('../modules/admin/people-map/AdminMapaPage'),
@@ -459,20 +515,63 @@ const externalCommercialRoute = createRoute({
 const partnerPilotRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/equipe',
+  validateSearch: z.object({ modulo: partnerModule.optional().catch(undefined) }),
   component: lazyRouteComponent(
     () => import('../modules/partner/home/PartnerWorkspace'),
     'PartnerWorkspace',
   ),
 });
 
+function partnerModuleRoute<const Path extends `/equipe/${string}`>(
+  path: Path,
+  modulo: PartnerModule,
+) {
+  return createRoute({
+    getParentRoute: () => rootRoute,
+    path,
+    beforeLoad: () => {
+      throw redirect({ to: '/equipe', search: { modulo }, replace: true });
+    },
+  });
+}
+
+const partnerModuleRoutes = [
+  partnerModuleRoute('/equipe/projetos', 'projects'),
+  partnerModuleRoute('/equipe/ocorrencias', 'records'),
+  partnerModuleRoute('/equipe/horas', 'hours'),
+  partnerModuleRoute('/equipe/calendario', 'calendar'),
+  partnerModuleRoute('/equipe/documentos', 'documents'),
+  partnerModuleRoute('/equipe/relatorios', 'reports'),
+  partnerModuleRoute('/equipe/avisos', 'notices'),
+  partnerModuleRoute('/equipe/pessoas', 'team'),
+] as const;
+
+const driveCallback = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/oauth/google/callback',
+  validateSearch: z.object({
+    code: z.string().min(1).max(4000).optional().catch(undefined),
+    state: z.string().min(1).max(4000).optional().catch(undefined),
+    error: z.string().min(1).max(4000).optional().catch(undefined),
+  }),
+  component: lazyRouteComponent(
+    () => import('../modules/client/documents/GoogleDriveCallback'),
+    'GoogleDriveCallback',
+  ),
+});
+
 const routeTree = rootRoute.addChildren([
+  driveCallback,
   externalCommercialRoute,
   partnerPilotRoute,
+  ...partnerModuleRoutes,
   publicTextFormRoute,
   discRespondentRoute,
   accessGateRoute,
   callbackRoute,
   indexRoute,
+  loginRoute,
+  ...legalRoutes,
   clientRoute.addChildren(clientChildren),
   adminRoute.addChildren([...adminChildren, companiesRoute]),
 ]);
@@ -499,6 +598,9 @@ export function createAppRouter(
     agendaOperations?: AgendaOperations | null;
     adminRead?: AdminReadService | null;
     adminPortfolio?: AdminPortfolioService | null;
+    clientDrive?: ClientDriveService | null;
+    publicForms?: PublicFormsService | null;
+    formLifecycle?: FormLifecycle | null;
   },
 ) {
   return createRouter({
@@ -524,6 +626,9 @@ export function createAppRouter(
       agendaOperations: services?.agendaOperations ?? null,
       adminRead: services?.adminRead ?? null,
       adminPortfolio: services?.adminPortfolio ?? null,
+      clientDrive: services?.clientDrive ?? null,
+      publicForms: services?.publicForms ?? null,
+      formLifecycle: services?.formLifecycle ?? null,
     },
     defaultPreload: false,
   });

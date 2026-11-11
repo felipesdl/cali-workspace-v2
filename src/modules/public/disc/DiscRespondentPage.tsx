@@ -4,6 +4,7 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from '@tanstack/react-router';
 import { z } from 'zod';
 import { useDiscPublic, useDiscPublicCommand } from '../../../api/shared/disc/hooks';
+import '../../../components/cali-flow-frame.css';
 import { Button } from '../../../components/ds/button/Button';
 import { Checkbox } from '../../../components/ds/checkbox/Checkbox';
 import { FeedbackState } from '../../../components/ds/feedback/FeedbackState';
@@ -230,173 +231,207 @@ export function DiscRespondentPage() {
   }
 
   return (
-    <main className="tw:min-h-screen tw:bg-ivory tw:px-6 tw:py-8 tw:text-copy tw:mobile:px-4">
-      <section className="tw:mx-auto tw:box-border tw:grid tw:w-full tw:max-w-3xl tw:gap-6 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-10 tw:shadow-sm tw:mobile:p-6">
-        <header className="tw:grid tw:gap-2">
-          <p className="tw:text-caption tw:font-bold tw:tracking-widest tw:text-brand">
-            CALI · PERFIL COMPORTAMENTAL
-          </p>
-          <h1 className="tw:text-section tw:font-bold tw:text-brand">
-            {query.data?.title ?? 'Questionário'}
-          </h1>
-          {query.data?.organization && <p className="tw:text-body">{query.data.organization}</p>}
-          {query.data?.person_name && (
-            <p className="tw:text-body">Convite para {query.data.person_name}</p>
-          )}
-          {deadline && <p className="tw:text-caption">Prazo: {deadline} (horário de Brasília)</p>}
-        </header>
-
-        {!started ? (
-          <div className="tw:grid tw:gap-5">
-            <p className="tw:text-body tw:leading-relaxed">
-              Este formulário usa dados sintéticos para validar o fluxo. Não informe respostas,
-              nomes ou situações reais.
+    <main className="cali-form-page cali-disc-page">
+      <div className="cf-leaf cf-leaf-intro" aria-hidden="true" />
+      <div
+        className="cf-progress"
+        role="progressbar"
+        aria-label="Progresso do questionário"
+        aria-valuemin={0}
+        aria-valuemax={questionCount}
+        aria-valuenow={currentIndex}
+      >
+        <i style={{ width: `${(currentIndex / questionCount) * 100}%` }} />
+      </div>
+      <header className="cf-top">
+        <img src="/brand/cali-rh-bordo.png" alt="CALI RH" />
+      </header>
+      <section className="cf-stage">
+        <div className="cf-screen cf-enter">
+          <header className="tw:grid tw:gap-2">
+            <p className="tw:text-caption tw:font-bold tw:tracking-widest tw:text-brand">
+              CALI · PERFIL COMPORTAMENTAL
             </p>
-            {(query.data?.last_block ?? 0) > 0 && (
-              <p className="tw:text-caption">
-                Andamento anterior registrado até o bloco {query.data?.last_block}. As respostas não
-                são recuperadas ao reabrir a página.
-              </p>
+            <h1 className="tw:text-section tw:font-bold tw:text-brand">
+              {query.data?.title ?? 'Questionário'}
+            </h1>
+            {query.data?.organization && <p className="tw:text-body">{query.data.organization}</p>}
+            {query.data?.person_name && (
+              <p className="tw:text-body">Convite para {query.data.person_name}</p>
             )}
-            <Checkbox
-              checked={consent}
-              onChange={(event) => setConsent(event.currentTarget.checked)}
-            >
-              Confirmo o uso de dados sintéticos e concordo com o registro das respostas
-              exclusivamente para validar este fluxo.
-            </Checkbox>
-            <div className="tw:flex tw:flex-wrap tw:gap-3">
-              <Button disabled={!consent} onClick={() => setStarted(true)}>
-                Começar questionário
-              </Button>
-              <Button
-                variant="secondary"
-                pending={command.isPending}
-                onClick={() => void decline()}
-              >
-                Não quero responder
-              </Button>
-            </div>
-          </div>
-        ) : currentIndex < questionCount && question ? (
-          <div className="tw:grid tw:gap-5" aria-live="polite">
-            <div className="tw:grid tw:gap-2">
-              <p className="tw:text-caption tw:font-semibold tw:text-brand">
-                {pressure ? 'Pensando em uma semana difícil' : 'Pensando no seu dia a dia'} · Bloco{' '}
-                {currentIndex + 1} de {questionCount}
+            {deadline && <p className="tw:text-caption">Prazo: {deadline} (horário de Brasília)</p>}
+          </header>
+
+          {!started ? (
+            <div className="tw:grid tw:gap-5">
+              <p className="tw:text-body tw:leading-relaxed">
+                Este formulário usa dados sintéticos para validar o fluxo. Não informe respostas,
+                nomes ou situações reais.
               </p>
-              <div
-                className="tw:h-2 tw:overflow-hidden tw:rounded-full tw:bg-border-default"
-                role="progressbar"
-                aria-label="Progresso do questionário"
-                aria-valuemin={0}
-                aria-valuemax={questionCount}
-                aria-valuenow={completeCount}
+              {(query.data?.last_block ?? 0) > 0 && (
+                <p className="tw:text-caption">
+                  Andamento anterior registrado até o bloco {query.data?.last_block}. As respostas
+                  não são recuperadas ao reabrir a página.
+                </p>
+              )}
+              <Checkbox
+                checked={consent}
+                onChange={(event) => setConsent(event.currentTarget.checked)}
               >
-                <div
-                  className="tw:h-full tw:bg-action-primary"
-                  style={{ width: `${(completeCount / questionCount) * 100}%` }}
-                />
+                Confirmo o uso de dados sintéticos e concordo com o registro das respostas
+                exclusivamente para validar este fluxo.
+              </Checkbox>
+              <div className="tw:flex tw:flex-wrap tw:gap-3">
+                <Button disabled={!consent} onClick={() => setStarted(true)}>
+                  Começar questionário
+                </Button>
+                <Button
+                  variant="secondary"
+                  pending={command.isPending}
+                  onClick={() => void decline()}
+                >
+                  Não quero responder
+                </Button>
               </div>
             </div>
-            <h2 className="tw:text-subsection tw:font-bold">
-              Escolha uma frase que combina mais e outra que combina menos com você.
-            </h2>
-            <div className="tw:grid tw:gap-3">
-              {orderedChoices(question, pressure).map(({ id, text }) => {
-                const moreSelected = currentAnswer?.mais === id;
-                const lessSelected = currentAnswer?.menos === id;
-                return (
-                  <article
-                    key={`${question.block}-${id}`}
-                    className="tw:grid tw:grid-cols-[minmax(0,1fr)_auto_auto] tw:items-center tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:mobile:grid-cols-1"
-                  >
-                    <p className="tw:m-0 tw:text-body">{text}</p>
-                    <Button
-                      variant={moreSelected ? 'primary' : 'secondary'}
-                      aria-pressed={moreSelected}
-                      aria-label={`${text}: combina mais`}
-                      onClick={() => setChoice('mais', id)}
+          ) : currentIndex < questionCount && question ? (
+            <div className="tw:grid tw:gap-5" aria-live="polite">
+              <div className="tw:grid tw:gap-2">
+                <p className="tw:text-caption tw:font-semibold tw:text-brand">
+                  {pressure ? 'Pensando em uma semana difícil' : 'Pensando no seu dia a dia'} ·
+                  Bloco {currentIndex + 1} de {questionCount}
+                </p>
+                <div
+                  className="tw:h-2 tw:overflow-hidden tw:rounded-full tw:bg-border-default"
+                  role="progressbar"
+                  aria-label="Progresso do questionário"
+                  aria-valuemin={0}
+                  aria-valuemax={questionCount}
+                  aria-valuenow={completeCount}
+                >
+                  <div
+                    className="tw:h-full tw:bg-action-primary"
+                    style={{ width: `${(completeCount / questionCount) * 100}%` }}
+                  />
+                </div>
+              </div>
+              <h2 className="tw:text-subsection tw:font-bold">
+                Escolha uma frase que combina mais e outra que combina menos com você.
+              </h2>
+              <div className="tw:grid tw:gap-3">
+                {orderedChoices(question, pressure).map(({ id, text }) => {
+                  const moreSelected = currentAnswer?.mais === id;
+                  const lessSelected = currentAnswer?.menos === id;
+                  return (
+                    <article
+                      key={`${question.block}-${id}`}
+                      className="tw:grid tw:grid-cols-[minmax(0,1fr)_auto_auto] tw:items-center tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:mobile:grid-cols-1"
                     >
-                      Combina mais
-                    </Button>
-                    <Button
-                      variant={lessSelected ? 'primary' : 'secondary'}
-                      aria-pressed={lessSelected}
-                      aria-label={`${text}: combina menos`}
-                      onClick={() => setChoice('menos', id)}
-                    >
-                      Combina menos
-                    </Button>
-                  </article>
-                );
-              })}
+                      <p className="tw:m-0 tw:text-body">{text}</p>
+                      <Button
+                        variant={moreSelected ? 'primary' : 'secondary'}
+                        aria-pressed={moreSelected}
+                        aria-label={`${text}: combina mais`}
+                        onClick={() => setChoice('mais', id)}
+                      >
+                        Combina mais
+                      </Button>
+                      <Button
+                        variant={lessSelected ? 'primary' : 'secondary'}
+                        aria-pressed={lessSelected}
+                        aria-label={`${text}: combina menos`}
+                        onClick={() => setChoice('menos', id)}
+                      >
+                        Combina menos
+                      </Button>
+                    </article>
+                  );
+                })}
+              </div>
+              {message && <FeedbackMessage tone="error">{message}</FeedbackMessage>}
+              <div className="tw:flex tw:justify-between tw:gap-3">
+                <Button
+                  variant="secondary"
+                  disabled={currentIndex === 0}
+                  onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
+                >
+                  Voltar
+                </Button>
+                <Button onClick={() => void moveNext()}>
+                  {currentIndex + 1 === questionCount ? 'Revisar respostas' : 'Continuar'}
+                </Button>
+              </div>
             </div>
-            {message && <FeedbackMessage tone="error">{message}</FeedbackMessage>}
-            <div className="tw:flex tw:justify-between tw:gap-3">
-              <Button
-                variant="secondary"
-                disabled={currentIndex === 0}
-                onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
+          ) : (
+            <div className="tw:grid tw:gap-5">
+              <h2 className="tw:text-subsection tw:font-bold">Revise antes de enviar</h2>
+              <p className="tw:text-body">
+                Blocos respondidos: {completeCount} de {questionCount}.
+              </p>
+              <Field id="disc-job-title" label="Cargo ou função (opcional)">
+                <Input
+                  id="disc-job-title"
+                  maxLength={200}
+                  value={jobTitle}
+                  onChange={(event) => setJobTitle(event.currentTarget.value)}
+                />
+              </Field>
+              <Checkbox
+                checked={consent}
+                onChange={(event) => setConsent(event.currentTarget.checked)}
               >
-                Voltar
-              </Button>
-              <Button onClick={() => void moveNext()}>
-                {currentIndex + 1 === questionCount ? 'Revisar respostas' : 'Continuar'}
-              </Button>
+                Confirmo novamente o uso de dados sintéticos e concordo com o registro das respostas
+                exclusivamente para validar este fluxo.
+              </Checkbox>
+              {message && <FeedbackMessage tone="error">{message}</FeedbackMessage>}
+              <div className="tw:flex tw:flex-wrap tw:gap-3">
+                <Button variant="secondary" onClick={() => setCurrentIndex(questionCount - 1)}>
+                  Voltar ao questionário
+                </Button>
+                <Button
+                  pending={command.isPending}
+                  disabled={!canSubmit}
+                  onClick={() => void submit()}
+                >
+                  Enviar respostas
+                </Button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div className="tw:grid tw:gap-5">
-            <h2 className="tw:text-subsection tw:font-bold">Revise antes de enviar</h2>
-            <p className="tw:text-body">
-              Blocos respondidos: {completeCount} de {questionCount}.
-            </p>
-            <Field id="disc-job-title" label="Cargo ou função (opcional)">
-              <Input
-                id="disc-job-title"
-                maxLength={200}
-                value={jobTitle}
-                onChange={(event) => setJobTitle(event.currentTarget.value)}
-              />
-            </Field>
-            <Checkbox
-              checked={consent}
-              onChange={(event) => setConsent(event.currentTarget.checked)}
-            >
-              Confirmo novamente o uso de dados sintéticos e concordo com o registro das respostas
-              exclusivamente para validar este fluxo.
-            </Checkbox>
-            {message && <FeedbackMessage tone="error">{message}</FeedbackMessage>}
-            <div className="tw:flex tw:flex-wrap tw:gap-3">
-              <Button variant="secondary" onClick={() => setCurrentIndex(questionCount - 1)}>
-                Voltar ao questionário
-              </Button>
-              <Button
-                pending={command.isPending}
-                disabled={!canSubmit}
-                onClick={() => void submit()}
-              >
-                Enviar respostas
-              </Button>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </section>
+      <footer className="cf-foot">
+        <a href="https://calirh.com" target="_blank" rel="noopener noreferrer">
+          CALI RH
+        </a>
+        <span>·</span>
+        <a href="/privacidade">Privacidade</a>
+      </footer>
     </main>
   );
 }
 
 function StatusPage({ title, children }: { title?: string; children: ReactNode }) {
   return (
-    <main className="tw:grid tw:min-h-screen tw:place-items-center tw:bg-ivory tw:p-4 tw:text-copy">
-      <section className="tw:box-border tw:grid tw:w-full tw:max-w-xl tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-10 tw:mobile:p-6">
-        <p className="tw:text-caption tw:font-bold tw:tracking-widest tw:text-brand">
-          CALI · PERFIL COMPORTAMENTAL
-        </p>
-        {title && <h1 className="tw:text-section tw:font-bold tw:text-brand">{title}</h1>}
-        {children}
+    <main className="cali-form-page cali-disc-page">
+      <div className="cf-leaf cf-leaf-intro" aria-hidden="true" />
+      <header className="cf-top">
+        <img src="/brand/cali-rh-bordo.png" alt="CALI RH" />
+      </header>
+      <section className="cf-stage">
+        <section className="cf-screen cf-center">
+          <small>CALI · PERFIL COMPORTAMENTAL</small>
+          {title && <h1>{title}</h1>}
+          <div className="cali-disc-status-copy">{children}</div>
+        </section>
       </section>
+      <footer className="cf-foot">
+        <a href="https://calirh.com" target="_blank" rel="noopener noreferrer">
+          CALI RH
+        </a>
+        <span>·</span>
+        <a href="/privacidade">Privacidade</a>
+      </footer>
     </main>
   );
 }

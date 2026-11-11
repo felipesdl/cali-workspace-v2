@@ -1,9 +1,47 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { Link, useRouteContext } from '@tanstack/react-router';
+import { workspaceRole } from '../../api/access/schemas';
+import { useWorkspaceSession } from '../../api/access/hooks/useWorkspaceSession';
 import { FeedbackState } from '../../components/ds/feedback/FeedbackState';
 import '../../styles/workspace-frame.css';
 
 export const recoveryLinkClass =
   'tw:justify-self-start tw:rounded-control tw:px-3 tw:py-2 tw:font-medium tw:text-brand tw:underline tw:underline-offset-4 tw:focus-visible:outline-2 tw:focus-visible:outline-offset-2 tw:focus-visible:outline-focus';
+
+export function WorkspaceRecoveryLink() {
+  const { session } = useRouteContext({ from: '__root__' });
+  const state = useWorkspaceSession();
+  useEffect(() => {
+    void session?.resolve();
+  }, [session]);
+
+  if (state.phase === 'idle' || state.phase === 'loading') return null;
+  const role =
+    state.phase === 'resolved' && state.access.status === 'ready'
+      ? state.access.profile?.role
+      : undefined;
+  if (role === workspaceRole.Admin) {
+    return (
+      <Link
+        to="/admin/clientes"
+        search={{ q: '', status: 'all' }}
+        replace
+        className={recoveryLinkClass}
+      >
+        Voltar ao início
+      </Link>
+    );
+  }
+  return (
+    <Link
+      to={role === workspaceRole.Client ? '/cliente' : '/'}
+      replace
+      className={recoveryLinkClass}
+    >
+      Voltar ao início
+    </Link>
+  );
+}
 
 export function RouteStatusPage({
   title,

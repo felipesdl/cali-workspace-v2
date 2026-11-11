@@ -4,7 +4,7 @@ import {
   EmailCommercialOffer,
   SendCommercialOffer,
 } from './components/CommercialDraftEditor';
-import { CommercialResults } from '../../../components/workspace/AdminReadResults';
+import { CommercialResults } from './CommercialResults';
 import { skipToken, useQuery } from '@tanstack/react-query';
 import { getRouteApi, useRouteContext } from '@tanstack/react-router';
 import { useProjectWorkspaceScope } from '../../../components/workspace/useProjectWorkspaceScope';

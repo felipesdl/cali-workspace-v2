@@ -38,7 +38,7 @@ export function MapaReview({
     entry.status === 'em_revisao' ? 'em_andamento' : entry.status,
   );
   return (
-    <article className="tw:grid tw:min-w-0 tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere">
+    <article className="tw:grid tw:min-w-0 tw:gap-2 tw:wrap-anywhere">
       <h2>{entry.protocol}</h2>
       <p>
         {formatServerInstant(entry.createdAt)} ·{' '}

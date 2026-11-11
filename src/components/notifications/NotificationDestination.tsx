@@ -56,6 +56,17 @@ export function NotificationDestination({
           Abrir projeto
         </Link>
       );
+    case 'notice':
+      return (
+        <Link
+          to={admin ? '/admin/avisos' : '/cliente/avisos'}
+          search={workspaceSearch.parse({ companyId, aviso: item.entityId })}
+          className={destinationClass}
+          onClick={close}
+        >
+          Abrir comunicado
+        </Link>
+      );
     default:
       return null;
   }

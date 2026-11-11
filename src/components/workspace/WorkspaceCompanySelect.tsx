@@ -19,6 +19,7 @@ export function CompanySelect({ search, update }: Props) {
     <Field id="operations-company" label="Empresa de homologação">
       <Select
         id="operations-company"
+        className="tw:w-[280px]"
         value={search.companyId ?? ''}
         onChange={(event) =>
           update({
@@ -28,6 +29,7 @@ export function CompanySelect({ search, update }: Props) {
             delivery: undefined,
             task: undefined,
             record: undefined,
+            aviso: undefined,
             report: undefined,
             reportView: undefined,
             page: 1,

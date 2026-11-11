@@ -2,7 +2,7 @@
 
 Estado: **diretrizes propostas**, consolidadas em 25/10/2026 a partir do código V2, contexto e handoff. Identidade e escopo foram confirmados; detalhes de interação/composição ainda precisam de validação. Não houve pesquisa com usuários, auditoria visual ou teste de usabilidade nesta revisão.
 
-Atualização de produto em 26/10: [Regras de produto](PRODUCT_RULES.md) confirmam UI-01 a UI-14 e os públicos/fluxos DISC. Base funcional histórica: [publicação 83](BASELINE_REFERENCE_2026-10-26.md). Base de comparação visual vigente: [main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2). Diretriz proposta não substitui essas regras; o detalhamento abaixo as aplica sem afirmar QA já executado.
+As [regras de produto](PRODUCT_RULES.md) confirmam UI-01 a UI-14 e os públicos e fluxos DISC. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é a base funcional histórica. Para a consolidação, a composição em uso no `app.cali` publicado é a referência visual. O [plano de consolidação](COMPARACAO_FUNCIONAL_APP_CALI.md#plano-de-consolidação) define como adaptar a experiência às regras e aos componentes da V2. A [comparação com a main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2) registra a rodada anterior.
 
 ## Responsabilidade deste documento
 

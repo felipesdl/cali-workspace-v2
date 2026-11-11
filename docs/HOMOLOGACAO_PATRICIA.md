@@ -17,6 +17,26 @@ Na rodada final, usar empresas e dados de teste no projeto separado de homologa�
 
 [Operação de acesso e automações](RUNBOOK.md) · [Contrato DISC](contracts/DISC_3.md)
 
+## Escolhas de fluxo para a Patrícia
+
+Patrícia, estamos trazendo para o novo Workspace as telas que você já usa. A ideia é manter os caminhos familiares e proteger os links, arquivos e históricos que já existem. Queremos confirmar em quais pontos você prefere manter o fluxo atual e o que pode entrar depois. Você pode indicar a opção por tema e marcar o que precisa estar pronto no primeiro dia.
+
+| Tema | Escolha e impacto no dia a dia |
+| --- | --- |
+| DISC em andamento | Deixar os convites já enviados terminarem no sistema atual e abrir as próximas coletas no novo. Ou fazer a troca só depois de conferir que os mesmos links retomam respostas em andamento e que os relatórios antigos continuam disponíveis. |
+| Formulários abertos | Manter os links já distribuídos e o acesso às respostas e anexos como condição da troca. Além disso, quais recursos você usa desde o primeiro dia: QR e cartão de divulgação, e-mail de confirmação, tipos de anexo, colunas da planilha ou recuperação de formulários excluídos? Os demais podem entrar depois, se você preferir. |
+| Agenda | Continuar marcando no Workspace e sincronizar com Google Calendar e Meet desde o primeiro dia. Ou lançar com solicitação, confirmação e remarcação no Workspace, com a equipe incluindo o link da reunião enquanto a sincronização é validada. |
+| Documentos e Drive | Oferecer cópia de arquivos e pastas para o Drive do cliente desde a estreia. Ou começar com consulta e download dos documentos, deixando a cópia para uma segunda etapa. Em ambos os casos, confirmar quais pastas, versões e links antigos precisam continuar acessíveis. |
+| Relatórios, propostas e Mapa de People | Os links já compartilhados precisam continuar levando ao material correto. Para trabalhos novos, escolher se a equipe prepara, envia e acompanha a proposta no Portal Comercial ou no Workspace. Confirmar também quais etapas de revisão e liberação você quer antes de o cliente receber relatórios e devolutivas. |
+| Início Cliente e contato com a CALI | Manter um atalho direto de conversa, como o cliente vê hoje. Ou concentrar o contato em Ocorrências, com um assunto por conversa e histórico no mesmo lugar. Confirmar se responsável da conta, plano contratado e próximas decisões precisam aparecer já na primeira tela. |
+| Minha conta e frentes contratadas | Em Minha conta, manter os contatos de trabalho ou incluir também redes sociais. Nas frentes contratadas, abrir a conversa pelo WhatsApp como hoje ou registrar o interesse no Workspace para a equipe acompanhar o histórico. |
+| Cadastro de empresas e acessos | Usar uma ficha única com as informações da empresa ou etapas separadas para cadastro, documentos e liberação de acessos. Confirmar em que momento o responsável recebe o convite para entrar e quais etapas a CALI precisa conferir antes disso. |
+| Horas e Equipe CALI | Ter cronômetro visível em qualquer tela ou concentrá-lo em Horas e nos trabalhos que podem ser cronometrados. Para parceiros, dizer o que precisam conseguir fazer no primeiro dia: consultar trabalhos, registrar horas, enviar para revisão ou aprovar. |
+| Satisfação e PDF Admin | Priorizar a fila de notas baixas para acompanhamento, ou incluir também tendências e avaliações positivas para análise. No PDF, decidir se basta exportar a empresa e o mês selecionados ou se você precisa mudar o recorte na hora de exportar. |
+| Histórico e privacidade | Consultar o histórico por empresa e mês ou buscar um assunto e ver suas movimentações em vários módulos. Para pedidos de remoção de dados, confirmar quem revisa, quem autoriza e se a execução deve acontecer dentro do Workspace ou em uma etapa acompanhada pela equipe. |
+
+As escolhas acima tratam de como as pessoas usam o Workspace. A troca depende da conferência dos links ativos, dados, anexos e permissões com o fluxo escolhido. O [plano de consolidação](COMPARACAO_FUNCIONAL_APP_CALI.md#compatibilidade-e-decisões-de-produto) registra a implementação e a verificação técnica.
+
 ## Roteiro da Patrícia
 
 1. **Admin.** Entrar com MFA, abrir Empresas e acessos e conferir cadastro, ficha, comprovação e gestão de convites na empresa de teste.

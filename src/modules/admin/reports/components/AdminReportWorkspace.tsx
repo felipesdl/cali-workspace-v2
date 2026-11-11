@@ -42,8 +42,18 @@ export function AdminReportWorkspace({
   select,
   changePage,
 }: Props) {
-  const current = data.entries.find((entry) => entry.id === report) ?? data.entries[0];
+  const current = report ? data.entries.find((entry) => entry.id === report) : data.entries[0];
 
+  if (!current && report) {
+    return (
+      <div className="tw:grid tw:gap-3">
+        <FeedbackState kind="empty">
+          O relatório selecionado não aparece nesta página.
+        </FeedbackState>
+        <WorkspacePagination total={data.total} page={page} change={changePage} />
+      </div>
+    );
+  }
   if (!current) {
     return (
       <>
@@ -62,7 +72,7 @@ export function AdminReportWorkspace({
     >
       <article
         key={current.id}
-        className="tw:grid tw:min-w-0 tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
+        className="tw:grid tw:min-w-0 tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4 tw:wide:p-5"
       >
         <header className="tw:border-b tw:border-border-default tw:pb-4">
           <p className="tw:text-caption tw:text-muted-copy">
@@ -74,7 +84,7 @@ export function AdminReportWorkspace({
               .filter(Boolean)
               .join(' · ')}
           </p>
-          <h2 className="tw:text-section tw:font-semibold">{current.title}</h2>
+          <h2 className="tw:m-0 tw:text-section tw:font-semibold tw:text-brand">{current.title}</h2>
         </header>
         {stages.some(({ status }) => status === stage) && (
           <ol
@@ -139,15 +149,22 @@ export function AdminReportWorkspace({
       </article>
       <aside
         aria-label="Histórico de relatórios"
-        className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4"
+        className="tw:grid tw:min-w-0 tw:content-start tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4 tw:wide:p-5"
       >
-        <h2 className="tw:text-section tw:font-semibold">Histórico de relatórios</h2>
-        <ul className="tw:grid tw:gap-2">
+        <header className="tw:grid tw:gap-1 tw:border-b tw:border-border-default tw:pb-3">
+          <h2 className="tw:m-0 tw:text-section tw:font-semibold tw:text-brand">
+            Histórico de relatórios
+          </h2>
+          <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
+            Selecione um fechamento desta página.
+          </p>
+        </header>
+        <ul className="tw:m-0 tw:grid tw:list-none tw:gap-2 tw:p-0">
           {data.entries.map((entry) => (
             <li key={entry.id}>
               <Button
                 variant="secondary"
-                className="tw:max-w-full"
+                className="tw:w-full tw:justify-start tw:text-left tw:whitespace-normal"
                 aria-pressed={current.id === entry.id}
                 onClick={() => select(entry.id)}
               >

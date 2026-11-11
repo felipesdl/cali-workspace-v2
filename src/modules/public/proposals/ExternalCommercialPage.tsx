@@ -5,6 +5,7 @@ import { useRouteContext } from '@tanstack/react-router';
 import { FeedbackState } from '../../../components/ds/feedback/FeedbackState';
 import { formatServerInstant } from '../../../lib/dates';
 import { ActionForm } from '../../../components/workspace/ActionForm';
+import { Panel } from '../../../components/ds/panel/Panel';
 
 const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -42,17 +43,28 @@ export function ExternalCommercialPage() {
       )}
       {(!enabled || (result.isSuccess && !offer)) && <p>Link de teste indisponível ou vencido.</p>}
       {enabled && offer && (
-        <>
-          <h2>
-            {offer.protocol} · Versão {offer.version}
-          </h2>
-          <p>
-            CALI Build {offer.package} · {offer.months} meses
+        <Panel className="tw:grid tw:gap-4 tw:p-6 tw:mobile:p-4">
+          <header className="tw:flex tw:flex-wrap tw:items-start tw:justify-between tw:gap-3">
+            <div className="tw:grid tw:gap-1">
+              <h2 className="tw:m-0 tw:text-section tw:font-bold tw:text-brand">
+                {offer.protocol} · Versão {offer.version}
+              </h2>
+              <p className="tw:m-0 tw:text-muted-copy">
+                CALI Build {offer.package} · {offer.months} meses
+              </p>
+            </div>
+            <strong className="tw:text-section tw:text-brand">
+              {money.format(offer.total)}
+              <span className="tw:text-caption tw:font-normal"> / mês</span>
+            </strong>
+          </header>
+          {offer.paymentTerms && <p className="tw:m-0">{offer.paymentTerms}</p>}
+          {offer.publicNotes && (
+            <p className="tw:m-0 tw:whitespace-pre-line">{offer.publicNotes}</p>
+          )}
+          <p className="tw:m-0 tw:text-muted-copy">
+            Válida até {formatServerInstant(offer.deadline)} (Brasília)
           </p>
-          <p>Mensalidade: {money.format(offer.total)}</p>
-          {offer.paymentTerms && <p>{offer.paymentTerms}</p>}
-          {offer.publicNotes && <p>{offer.publicNotes}</p>}
-          <p>Validade: {formatServerInstant(offer.deadline)} (Brasília)</p>
           {offer.acceptedAt ? (
             <FeedbackMessage ref={receiptRef} tone="success" tabIndex={-1}>
               Aceite de teste registrado.
@@ -70,7 +82,7 @@ export function ExternalCommercialPage() {
               }}
             />
           )}
-        </>
+        </Panel>
       )}
     </main>
   );

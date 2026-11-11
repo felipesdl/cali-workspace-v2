@@ -160,7 +160,7 @@ describe('navegação e formulário de empresas', () => {
     act(() => {
       void router.navigate({ to: '/admin' });
     });
-    expect(await screen.findByRole('heading', { name: /Visão executiva/ })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: /Visão geral/ })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Carteira de empresas' })).toBeTruthy();
     await act(async () => {
       await router.history.push('/rota-inexistente');

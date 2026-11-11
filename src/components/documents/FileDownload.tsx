@@ -1,12 +1,14 @@
 import { FeedbackMessage } from '../ds/feedback/FeedbackMessage';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Button } from '../ds/button/Button';
 
 export function FileDownload({
   download,
   label,
+  buttonContent,
 }: {
   label: string;
+  buttonContent?: ReactNode;
   download: (signal: AbortSignal) => Promise<{ blob: Blob; fileName: string }>;
 }) {
   const pending = useRef<AbortController | null>(null);
@@ -54,8 +56,14 @@ export function FileDownload({
 
   return (
     <div className="tw:grid tw:min-w-0 tw:justify-items-start tw:gap-3 tw:wrap-anywhere">
-      <Button ref={button} variant="secondary" pending={busy} onClick={() => void save()}>
-        {busy ? 'Baixando…' : label}
+      <Button
+        ref={button}
+        variant="secondary"
+        pending={busy}
+        aria-label={buttonContent && !busy ? label : undefined}
+        onClick={() => void save()}
+      >
+        {busy ? 'Baixando…' : (buttonContent ?? label)}
       </Button>
       {error && (
         <FeedbackMessage

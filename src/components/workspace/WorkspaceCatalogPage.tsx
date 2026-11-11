@@ -34,7 +34,12 @@ import { type Props } from './workspace-presentation';
 type CatalogViews = {
   renderCompanyActions?: (scope: { company: string; actor?: string }) => ReactNode;
   renderResults?: (
-    scope: Props & { company: string; actor?: string; data: z.infer<typeof catalog> },
+    scope: Props & {
+      company: string;
+      actor?: string;
+      data: z.infer<typeof catalog>;
+      canOpenConversation: boolean;
+    },
   ) => ReactNode;
 };
 
@@ -53,14 +58,23 @@ function Catalog({
   const result = useQuery({
     queryKey: ['phase4-catalog', actor, companyId, module, month, search.page],
     queryFn:
-      service && companyId && !record
+      service && companyId
         ? ({ signal }) => service.catalog(companyId, module, month, search.page, signal)
         : skipToken,
   });
   if (!service) return admin ? null : <ClientModulePending />;
   return (
     <div className="tw:grid tw:gap-4">
-      {admin && <CompanySelect search={search} update={update} />}
+      {(admin || month) && (
+        <div
+          className="tw:flex tw:min-w-0 tw:flex-wrap tw:items-end tw:gap-x-3 tw:gap-y-2"
+          aria-label="Filtros do módulo"
+          role="group"
+        >
+          {admin && <CompanySelect search={search} update={update} />}
+          {month && <MonthSelect month={month} update={update} />}
+        </div>
+      )}
       {module === 'documents' && companyId && documentOperations && (
         <DocumentLibrary
           key={companyId}
@@ -70,7 +84,6 @@ function Catalog({
           admin={admin}
         />
       )}
-      {month && <MonthSelect month={month} update={update} />}
       {module === 'calendar' && companyId && (
         <AgendaActions key={companyId} company={companyId} actor={actor} admin={admin} />
       )}
@@ -96,7 +109,7 @@ function Catalog({
         <PublishNotice key={companyId} company={companyId} actor={actor} />
       )}
       {companyId && renderCompanyActions?.({ company: companyId, actor })}
-      {module === 'records' && companyId && !record && (
+      {module === 'records' && companyId && (
         <OpenRecord
           key={companyId}
           company={companyId}
@@ -105,11 +118,7 @@ function Catalog({
           select={(id) => update({ record: id })}
         />
       )}
-      {!companyId ? (
-        <FeedbackState kind="empty">
-          {admin ? 'Selecione uma empresa.' : 'Consulta indisponível para esta empresa.'}
-        </FeedbackState>
-      ) : record ? (
+      {record && companyId && (
         <RecordConversation
           key={record}
           company={companyId}
@@ -118,6 +127,11 @@ function Catalog({
           record={record}
           back={() => update({ record: undefined })}
         />
+      )}
+      {!companyId ? (
+        <FeedbackState kind="empty">
+          {admin ? 'Selecione uma empresa.' : 'Consulta indisponível para esta empresa.'}
+        </FeedbackState>
       ) : result.isPending ? (
         <FeedbackState kind="loading">Carregando informações…</FeedbackState>
       ) : result.isError ? (
@@ -125,7 +139,14 @@ function Catalog({
           Não foi possível carregar as informações.
         </FeedbackState>
       ) : renderResults ? (
-        renderResults({ company: companyId, actor, data: result.data, search, update })
+        renderResults({
+          company: companyId,
+          actor,
+          data: result.data,
+          search,
+          update,
+          canOpenConversation: Boolean(domainOperations),
+        })
       ) : (
         <>
           {module === 'documents' && documentOperations && (

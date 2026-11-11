@@ -9,6 +9,7 @@ import { isPilotCompany } from '../../../api/admin/companies/onboarding';
 import { FeedbackState } from '../../../components/ds/feedback/FeedbackState';
 import { formatServerInstant } from '../../../lib/dates';
 import { ActionForm } from '../../../components/workspace/ActionForm';
+import { Panel } from '../../../components/ds/panel/Panel';
 
 const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 type Offer = Awaited<ReturnType<AdminReadService['receivedOffers']>>[number];
@@ -32,30 +33,36 @@ function ReceivedOffer({
   }, [acceptedAt]);
 
   return (
-    <li className="tw:grid tw:min-w-0 tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere">
-      <h2 className="tw:text-section">
-        {offer.protocol} · Versão {offer.version}
-      </h2>
-      <p>Valor: {money.format(offer.total)}</p>
-      {offer.paymentTerms && <p>Condições: {offer.paymentTerms}</p>}
-      {offer.publicNotes && <p>{offer.publicNotes}</p>}
-      <p>Validade: {formatServerInstant(offer.acceptBy)} (Brasília)</p>
-      {acceptedAt && (
-        <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
-          Proposta aceita em {formatServerInstant(acceptedAt)} (Brasília).
-        </FeedbackMessage>
-      )}
-      {offer.canAccept && (
-        <ActionForm
-          label="Aceitar proposta de teste"
-          submit={async () => {
-            const result = await accept();
-            justAccepted.current = true;
-            await refresh();
-            return result;
-          }}
-        />
-      )}
+    <li>
+      <Panel className="tw:grid tw:min-w-0 tw:gap-3 tw:p-5 tw:wrap-anywhere">
+        <header className="tw:flex tw:flex-wrap tw:items-start tw:justify-between tw:gap-3">
+          <h2 className="tw:m-0 tw:text-section tw:font-bold tw:text-brand">
+            {offer.protocol} · Versão {offer.version}
+          </h2>
+          <strong className="tw:text-section tw:text-brand">{money.format(offer.total)}</strong>
+        </header>
+        {offer.paymentTerms && <p className="tw:m-0">Condições: {offer.paymentTerms}</p>}
+        {offer.publicNotes && <p className="tw:m-0 tw:whitespace-pre-line">{offer.publicNotes}</p>}
+        <p className="tw:m-0 tw:text-muted-copy">
+          Válida até {formatServerInstant(offer.acceptBy)} (Brasília)
+        </p>
+        {acceptedAt && (
+          <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
+            Proposta aceita em {formatServerInstant(acceptedAt)} (Brasília).
+          </FeedbackMessage>
+        )}
+        {offer.canAccept && (
+          <ActionForm
+            label="Aceitar proposta de teste"
+            submit={async () => {
+              const result = await accept();
+              justAccepted.current = true;
+              await refresh();
+              return result;
+            }}
+          />
+        )}
+      </Panel>
     </li>
   );
 }

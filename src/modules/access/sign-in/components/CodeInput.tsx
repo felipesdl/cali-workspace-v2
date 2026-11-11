@@ -12,6 +12,7 @@ export function CodeInput({ id, value, onChange, length = 6, autoFocus }: CodeIn
     <Input
       id={id}
       inputMode="numeric"
+      placeholder={'0'.repeat(length)}
       autoComplete="one-time-code"
       pattern={`[0-9]{${length}}`}
       minLength={length}
@@ -19,7 +20,7 @@ export function CodeInput({ id, value, onChange, length = 6, autoFocus }: CodeIn
       required
       autoFocus={autoFocus}
       value={value}
-      onChange={(event) => onChange(event.target.value)}
+      onChange={(event) => onChange(event.target.value.replace(/\D/g, '').slice(0, length))}
     />
   );
 }

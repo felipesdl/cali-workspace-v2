@@ -17,7 +17,7 @@ export function useAccessFlow(session: SessionController, returnTo: string) {
     const target = safeReturnPath(returnTo);
     const isAdmin = access.profile?.role === workspaceRole.Admin;
     const ownPrefix = isAdmin ? '/admin' : '/cliente';
-    const fallback = isAdmin ? '/admin/clientes' : '/cliente';
+    const fallback = isAdmin ? '/admin' : '/cliente';
     const destination = target.split(/[/?]/)[1] === ownPrefix.slice(1) ? target : fallback;
     void navigate({ to: destination, replace: true });
   }, [access, navigate, returnTo]);

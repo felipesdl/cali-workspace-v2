@@ -4,6 +4,7 @@ import interBold from '@fontsource/inter/files/inter-latin-700-normal.woff?inlin
 import { PDFDocument, PageSizes, rgb, type PDFFont } from 'pdf-lib';
 import { type MapaReport } from '../../api/admin/workspace/admin-read';
 import { formatServerInstant } from '../dates';
+import { pdfLines } from '../pdf-lines';
 import { mapaReportContent } from './mapa-report-content';
 
 export async function mapaReportPdf(report: MapaReport) {
@@ -95,26 +96,4 @@ export async function mapaReportPdf(report: MapaReport) {
     blob: new Blob([new Uint8Array(await pdf.save())], { type: 'application/pdf' }),
     fileName: (report.protocol ?? 'cali-mapa-de-people').replace(/[^a-zA-Z0-9-]/g, '') + '.pdf',
   };
-}
-
-function pdfLines(text: string, font: PDFFont, size: number, width: number) {
-  const lines: string[] = [];
-  let line = '';
-  for (const word of text.trim().split(/\s+/)) {
-    const joined = line ? line + ' ' + word : word;
-    if (font.widthOfTextAtSize(joined, size) <= width) {
-      line = joined;
-      continue;
-    }
-    if (line) lines.push(line);
-    line = '';
-    for (const char of word) {
-      if (font.widthOfTextAtSize(line + char, size) > width) {
-        lines.push(line);
-        line = '';
-      }
-      line += char;
-    }
-  }
-  return [...lines, line];
 }

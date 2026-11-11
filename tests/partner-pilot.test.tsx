@@ -63,8 +63,8 @@ it('abre apenas o módulo atribuído e retira o detalhe após o corte de acesso'
   render(<App router={router} />);
 
   expect(await screen.findByRole('heading', { name: 'Empresa fictícia' })).toBeTruthy();
-  expect(screen.queryByRole('button', { name: 'Ocorrências' })).toBeNull();
-  expect(screen.queryByRole('button', { name: 'Minhas horas' })).toBeNull();
+  expect(screen.queryByRole('link', { name: 'Ocorrências' })).toBeNull();
+  expect(screen.queryByRole('link', { name: 'Minhas horas' })).toBeNull();
   await userEvent.click(await screen.findByRole('button', { name: 'Abrir Projeto de teste' }));
   expect(await screen.findByText('Entrega de teste')).toBeTruthy();
   expect(detail).toHaveBeenCalledWith(company, 'projects', id, 1, expect.any(AbortSignal));
@@ -74,6 +74,20 @@ it('abre apenas o módulo atribuído e retira o detalhe após o corte de acesso'
   const open = await screen.findByRole('button', { name: 'Abrir Projeto de teste' });
   expect(document.activeElement).toBe(open);
   await userEvent.click(open);
+  expect(await screen.findByText('Entrega de teste')).toBeTruthy();
+
+  await act(async () => {
+    router.history.push('/equipe/horas');
+  });
+  expect(
+    await screen.findByText('Este módulo não está disponível para o seu acesso.'),
+  ).toBeTruthy();
+  expect(router.state.location.search.modulo).toBe('hours');
+  expect(screen.queryByText('Entrega de teste')).toBeNull();
+  await act(async () => {
+    router.history.push('/equipe/projetos');
+  });
+  await userEvent.click(await screen.findByRole('button', { name: 'Abrir Projeto de teste' }));
   expect(await screen.findByText('Entrega de teste')).toBeTruthy();
 
   revoked = true;

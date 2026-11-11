@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from '@tanstack/react-router';
 import { describe, expect, it, vi } from 'vitest';
@@ -105,8 +105,14 @@ describe('Equipe conectada', () => {
     });
     render(<App router={router} />);
     const user = userEvent.setup();
+    const compactDirectory = await screen.findByRole('region', {
+      name: 'Lista compacta de pessoas',
+    });
+    expect(within(compactDirectory).getByText('Pessoa sintética B')).toBeTruthy();
     await user.click(
-      await screen.findByRole('button', { name: 'Ver ficha de Pessoa sintética B' }),
+      within(compactDirectory).getByRole('button', {
+        name: 'Ver ficha compacta de Pessoa sintética B',
+      }),
     );
     await screen.findByRole('heading', { name: member.full_name });
     expect(team.list).toHaveBeenCalledWith(companyB, expect.any(Object), expect.any(AbortSignal));

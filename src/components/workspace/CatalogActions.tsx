@@ -35,6 +35,7 @@ export function PublishNotice({ company, actor }: Scope) {
   return (
     <ActionForm
       label="Publicar aviso para esta empresa"
+      dialog={{ title: 'Novo aviso', trigger: 'Novo aviso' }}
       submit={async (fields, id) =>
         refresh(
           await operations.publishNotice(

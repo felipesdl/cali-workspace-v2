@@ -1,3 +1,4 @@
+import { createProfileMedia } from './profile-media';
 import { type WorkspaceClient } from '../supabase';
 import {
   ownProfile,
@@ -8,6 +9,7 @@ import {
 
 export function createOwnProfileService(client: WorkspaceClient, canEdit = false) {
   return {
+    media: canEdit ? createProfileMedia(client) : undefined,
     async read(actor: string, signal: AbortSignal) {
       const { data, error } = await client
         .from('profiles')
@@ -37,4 +39,4 @@ export function createOwnProfileService(client: WorkspaceClient, canEdit = false
 }
 
 type Service = ReturnType<typeof createOwnProfileService>;
-export type OwnProfileService = Pick<Service, 'read'> & Partial<Pick<Service, 'update'>>;
+export type OwnProfileService = Pick<Service, 'read'> & Partial<Pick<Service, 'update' | 'media'>>;

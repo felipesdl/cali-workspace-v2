@@ -48,15 +48,23 @@ export function ClientCompanyPage() {
       aria-busy={query.isFetching}
       className="tw:grid tw:min-w-0 tw:gap-4"
     >
-      <p className="tw:m-0">
-        Consulte a identificação da empresa vinculada ao seu acesso. Para corrigir estes dados,
-        entre em contato com a CALI.
-      </p>
-      <dl className="tw:m-0 tw:grid tw:grid-cols-2 tw:gap-4 tw:wrap-anywhere tw:mobile:grid-cols-1">
-        <div>
-          <dt className="tw:text-caption tw:text-muted-copy">Nome da empresa</dt>
-          <dd className="tw:m-0 tw:font-semibold">{company.displayName}</dd>
+      <header className="tw:grid tw:min-w-0 tw:grid-cols-[3.5rem_minmax(0,1fr)] tw:items-center tw:gap-4 tw:rounded-control tw:bg-brand tw:p-4 tw:wrap-anywhere tw:text-panel">
+        <span
+          aria-hidden="true"
+          className="tw:grid tw:size-14 tw:place-items-center tw:rounded-control tw:bg-panel tw:text-[1.5rem] tw:font-bold tw:text-brand"
+        >
+          {company.displayName.trim().slice(0, 1).toLocaleUpperCase('pt-BR')}
+        </span>
+        <div className="tw:min-w-0">
+          <p className="tw:m-0 tw:text-caption tw:font-semibold tw:tracking-wide tw:uppercase">
+            Empresa vinculada ao seu acesso
+          </p>
+          <h2 className="tw:m-0 tw:text-section tw:font-bold tw:text-panel">
+            {company.displayName}
+          </h2>
         </div>
+      </header>
+      <dl className="tw:m-0 tw:grid tw:grid-cols-2 tw:gap-4 tw:wrap-anywhere tw:mobile:grid-cols-1">
         <div>
           <dt className="tw:text-caption tw:text-muted-copy">Razão social</dt>
           <dd className="tw:m-0">{company.legalName || 'Não informada'}</dd>
@@ -71,8 +79,9 @@ export function ClientCompanyPage() {
       {company.status === companyStatus.Paused && (
         <p className="tw:m-0">Sua conta está pausada. A consulta permanece disponível.</p>
       )}
-      <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
-        A gestão cadastral, contratual e de acessos é realizada pela CALI.
+      <p className="tw:m-0 tw:border-t tw:border-border-default tw:pt-3 tw:text-caption tw:text-muted-copy">
+        Para corrigir os dados ou consultar informações cadastrais, contratuais e de acessos, entre
+        em contato com a CALI.
       </p>
     </section>
   );

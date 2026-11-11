@@ -27,6 +27,7 @@
   --color-feedback-error-border: var(--feedback-error-border);
   --radius-control: var(--radius-control);
   --radius-media: var(--radius-media);
+  --radius-panel: var(--radius-panel);
   --text-body: var(--font-size-body);
   --text-body--line-height: normal;
   --text-caption: var(--font-size-caption);

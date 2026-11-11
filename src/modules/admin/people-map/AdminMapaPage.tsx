@@ -11,7 +11,7 @@ import { CompanySelect } from '../../../components/workspace/WorkspaceCompanySel
 import { Pages } from '../../../components/workspace/WorkspacePages';
 import { type Props } from '../../../components/workspace/workspace-presentation';
 
-const adminMapa = getRouteApi('/admin/mapa-people');
+const adminMapa = getRouteApi('/admin/mapa-de-people');
 
 export function AdminMapaPage() {
   const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
@@ -68,29 +68,31 @@ export function AdminMapaPage() {
           {result.data.entries.length === 0 && (
             <FeedbackState kind="empty">Nenhum registro vinculado nesta página.</FeedbackState>
           )}
-          {result.data.entries.map((entry) => (
-            <div key={entry.id} className="tw:grid tw:gap-2">
-              <MapaReview
-                entry={entry}
-                company={companyId}
-                operations={domainOperations}
-                saved={async () => {
-                  await Promise.all([
-                    cache.invalidateQueries({ queryKey: key }),
-                    cache.invalidateQueries({
-                      queryKey: ['phase4-mapa-report', actor, companyId, entry.id],
-                    }),
-                  ]);
-                }}
-              />
-              <MapaReportSummary
-                record={entry.id}
-                company={companyId}
-                actor={actor}
-                service={adminRead}
-              />
-            </div>
-          ))}
+          <ul className="tw:m-0 tw:grid tw:list-none tw:p-0">
+            {result.data.entries.map((entry) => (
+              <li key={entry.id} className="tw:border-line tw:grid tw:gap-2 tw:border-b tw:py-4">
+                <MapaReview
+                  entry={entry}
+                  company={companyId}
+                  operations={domainOperations}
+                  saved={async () => {
+                    await Promise.all([
+                      cache.invalidateQueries({ queryKey: key }),
+                      cache.invalidateQueries({
+                        queryKey: ['phase4-mapa-report', actor, companyId, entry.id],
+                      }),
+                    ]);
+                  }}
+                />
+                <MapaReportSummary
+                  record={entry.id}
+                  company={companyId}
+                  actor={actor}
+                  service={adminRead}
+                />
+              </li>
+            ))}
+          </ul>
           <Pages total={result.data.total} search={search} update={update} />
         </>
       )}

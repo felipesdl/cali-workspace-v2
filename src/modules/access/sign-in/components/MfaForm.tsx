@@ -80,7 +80,7 @@ export function MfaForm({
           <Field id="totp-secret" label="Chave para configuração manual">
             <Input
               id="totp-secret"
-              type="password"
+              type="text"
               readOnly
               autoComplete="off"
               value={enrollment.secret}

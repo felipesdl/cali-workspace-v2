@@ -6,6 +6,7 @@ import {
   type DiscCampaign,
   type DiscCommandDraft,
   type DiscCommandInput,
+  type DiscInvite,
   type DiscManagement,
   type DiscStyle,
 } from '../../../../api/shared/disc/schemas';
@@ -17,6 +18,7 @@ import {
   DiscPdfDownloadButton,
   ManagementReport,
 } from '../../../../components/disc/ManagementReport';
+import { inviteProgressLabel, inviteStatusLabel } from '../invite-presentation';
 
 const styles: DiscStyle[] = ['D', 'I', 'S', 'C'];
 const styleNames: Record<DiscStyle, string> = {
@@ -98,15 +100,18 @@ export function AdminDiscPage({ campaignId, onCampaignChange }: AdminDiscPagePro
   }
 
   return (
-    <div data-feature="disc-admin" className="tw:grid tw:gap-5 tw:text-body tw:text-copy">
-      <header className="tw:grid tw:gap-2">
-        <p className="tw:m-0 tw:text-caption tw:font-semibold tw:tracking-wide tw:text-muted-copy tw:uppercase">
-          Gestão CALI
+    <div
+      data-feature="disc-admin"
+      className="tw:mx-auto tw:grid tw:w-full tw:max-w-6xl tw:gap-5 tw:text-body tw:text-copy"
+    >
+      <header className="tw:grid tw:gap-2 tw:border-b tw:border-border-default tw:pb-4">
+        <p className="tw:m-0 tw:text-caption tw:font-bold tw:tracking-widest tw:text-brand tw:uppercase">
+          Backoffice / CALI RH
         </p>
-        <h2 className="tw:m-0 tw:text-section tw:font-semibold tw:text-brand">
+        <h1 className="tw:m-0 tw:text-section tw:font-semibold tw:text-brand">
           Perfil comportamental
-        </h2>
-        <p className="tw:m-0 tw:max-w-3xl tw:text-copy">
+        </h1>
+        <p className="tw:m-0 tw:max-w-3xl tw:text-body tw:text-muted-copy">
           Administre campanhas, convites, avaliações internas e liberação da leitura de gestão.
         </p>
       </header>
@@ -123,7 +128,7 @@ export function AdminDiscPage({ campaignId, onCampaignChange }: AdminDiscPagePro
         </FeedbackState>
       ) : (
         <>
-          <div className="tw:grid tw:grid-cols-[minmax(12rem,1fr)_auto] tw:items-end tw:gap-3">
+          <div className="tw:grid tw:grid-cols-[minmax(12rem,1fr)_auto] tw:items-end tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-4">
             <Field id="disc-campaign" label="Campanha">
               <Select
                 id="disc-campaign"
@@ -237,7 +242,7 @@ export function AdminDiscPage({ campaignId, onCampaignChange }: AdminDiscPagePro
                 }
               />
 
-              <section className="tw:grid tw:gap-3 tw:border tw:border-border-default tw:bg-panel tw:p-5">
+              <section className="tw:grid tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5 tw:shadow-sm">
                 <h3 className="tw:m-0 tw:text-body tw:font-semibold">
                   Avaliações individuais · uso interno CALI
                 </h3>
@@ -410,7 +415,7 @@ function CreateCampaign({
   return (
     <form
       onSubmit={submit}
-      className="tw:grid tw:gap-4 tw:border tw:border-border-default tw:bg-panel tw:p-5"
+      className="tw:grid tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5 tw:shadow-sm"
     >
       <h3 className="tw:m-0 tw:text-body tw:font-semibold">Criar campanha DISC</h3>
       <div className="tw:tablet:grid-cols-2 tw:grid tw:grid-cols-1 tw:gap-4">
@@ -503,7 +508,7 @@ function CampaignHeader({
     onReopen(reason.trim());
   }
   return (
-    <section className="tw:grid tw:gap-3 tw:border tw:border-border-default tw:bg-panel tw:p-5">
+    <section className="tw:grid tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5 tw:shadow-sm">
       <div className="tw:flex tw:flex-wrap tw:items-start tw:justify-between tw:gap-3">
         <div className="tw:grid tw:gap-1">
           <h3 className="tw:m-0 tw:text-body tw:font-semibold">{campaign.title}</h3>
@@ -564,7 +569,7 @@ function InvitePanel({
     id: string;
     person_name: string;
     email: string;
-    state: string;
+    state: DiscInvite['state'];
     deadline_at: string | null;
     last_block: number | null;
   }>;
@@ -581,7 +586,7 @@ function InvitePanel({
     setEmail('');
   }
   return (
-    <section className="tw:grid tw:gap-4 tw:border tw:border-border-default tw:bg-panel tw:p-5">
+    <section className="tw:grid tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5 tw:shadow-sm">
       <h3 className="tw:m-0 tw:text-body tw:font-semibold">Convites</h3>
       <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
         Convites vencem ao fim do sétimo dia em Brasília. Até três lembretes, em dias úteis, entre
@@ -622,8 +627,11 @@ function InvitePanel({
               <div>
                 <strong>{invite.person_name}</strong>
                 <p className="tw:m-0 tw:text-caption">
-                  {invite.email} · {invite.state} · prazo {formatDate(invite.deadline_at)}
-                  {invite.last_block ? ` · progresso ${invite.last_block}` : ''}
+                  {invite.email} · {inviteStatusLabel(invite.state)} · prazo{' '}
+                  {formatDate(invite.deadline_at)}
+                  {inviteProgressLabel(invite.state, invite.last_block)
+                    ? ` · ${inviteProgressLabel(invite.state, invite.last_block)}`
+                    : ''}
                 </p>
               </div>
               {invite.state === 'created' && (
@@ -733,7 +741,7 @@ function ManagementEditor({
     if (result) setOriginal({ revision: result.revision, fields: original.fields });
   }
   return (
-    <section className="tw:grid tw:gap-4 tw:border tw:border-border-default tw:bg-panel tw:p-5">
+    <section className="tw:grid tw:gap-4 tw:rounded-control tw:border tw:border-border-default tw:bg-panel tw:p-5 tw:shadow-sm">
       <div className="tw:grid tw:gap-1">
         <h3 className="tw:m-0 tw:text-body tw:font-semibold">Relatório de gestão</h3>
         <p className="tw:m-0 tw:text-caption tw:text-muted-copy">

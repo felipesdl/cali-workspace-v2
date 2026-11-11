@@ -12,6 +12,7 @@ import { companyStatusLabels } from '../workspace/company-status-labels';
 import { ActionForm } from '../workspace/ActionForm';
 import { FileDownload } from '../documents/FileDownload';
 import { type DomainOperations } from '../../api/shared/workspace/domain-operations';
+import { ShieldCheck } from 'lucide-react';
 
 const kinds = {
   access: 'Acesso aos dados',
@@ -244,10 +245,16 @@ export function PrivacyActions({
     return result;
   }
   return (
-    <section aria-label="Pedidos de privacidade" className="tw:grid tw:gap-3">
-      <h2 className="tw:text-section">
-        {admin ? 'Pedidos da empresa' : 'Meus pedidos de privacidade'}
-      </h2>
+    <section
+      aria-label="Pedidos de privacidade"
+      className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-panel tw:border tw:border-border-default tw:bg-panel tw:p-4"
+    >
+      <header className="tw:flex tw:items-start tw:gap-2.5">
+        <ShieldCheck size={18} className="tw:shrink-0 tw:text-brand" aria-hidden="true" />
+        <h2 className="tw:m-0 tw:text-[15px] tw:font-bold">
+          {admin ? 'Pedidos da empresa' : 'Meus pedidos de privacidade'}
+        </h2>
+      </header>
       {!admin && (
         <ActionForm
           label="Registrar pedido de privacidade"
@@ -300,13 +307,24 @@ export function PrivacyActions({
       {requests.data?.map((request) => (
         <article
           key={request.id}
-          className="tw:grid tw:min-w-0 tw:gap-2 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere"
+          className={`tw:grid tw:min-w-0 tw:gap-2 tw:rounded-control tw:border tw:border-l-4 tw:border-border-default tw:px-3.5 tw:py-3 tw:wrap-anywhere ${
+            request.status === 'open'
+              ? 'tw:border-l-gold tw:bg-ivory'
+              : 'tw:border-l-border-default'
+          }`}
         >
-          <h3>
-            {kinds[request.kind]} · {formatServerInstant(request.created_at)}
-          </h3>
-          <p className="tw:whitespace-pre-line">{request.details}</p>
-          {request.answer && <p className="tw:whitespace-pre-line">{request.answer}</p>}
+          <header className="tw:flex tw:flex-wrap tw:items-baseline tw:justify-between tw:gap-x-3">
+            <h3 className="tw:m-0 tw:text-[13px] tw:font-bold">{kinds[request.kind]}</h3>
+            <time dateTime={request.created_at} className="tw:text-caption tw:text-muted-copy">
+              {formatServerInstant(request.created_at)}
+            </time>
+          </header>
+          <p className="tw:m-0 tw:whitespace-pre-line">{request.details}</p>
+          {request.answer && (
+            <p className="tw:m-0 tw:whitespace-pre-line">
+              <strong>Resposta</strong> {request.answer}
+            </p>
+          )}
           {answeredId === request.id && (
             <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
               Resposta registrada.

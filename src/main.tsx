@@ -1,3 +1,6 @@
+import { createClientDrive } from './api/client/drive';
+import { createPublicForms } from './api/shared/forms/public';
+import { createFormLifecycle } from './api/admin/forms/lifecycle';
 import { createAdminPortfolio } from './api/admin/workspace/admin-portfolio';
 import { createNotificationsService } from './api/shared/notifications/service';
 import { createOwnProfileService } from './api/access/own-profile';
@@ -59,6 +62,7 @@ try {
   const reportRelease = Boolean(
     phase4Write && import.meta.env.VITE_CALI_PHASE4_REPORT_RELEASE === 'true',
   );
+  const domainOperations = phase4Write ? createDomainOperations(phase4Write) : null;
   const router = createAppRouter(
     undefined,
     cache,
@@ -90,7 +94,13 @@ try {
           projectJournal: phase4 ? createProjectJournal(phase4, Boolean(phase4Write)) : null,
           projectOperations: phase4Write ? createProjectOperations(phase4Write) : null,
           hourOperations: phase4Write ? createHourOperations(phase4Write) : null,
-          domainOperations: phase4Write ? createDomainOperations(phase4Write) : null,
+          domainOperations,
+          clientDrive: phase4Write ? createClientDrive(phase4Write) : null,
+          formLifecycle: client && accountOperations ? createFormLifecycle(client) : null,
+          publicForms:
+            environment.mode === 'supabase'
+              ? createPublicForms(environment.url, environment.publishableKey)
+              : null,
           documentOperations: phase4Write ? createDocumentOperations(phase4Write) : null,
           agendaOperations: phase4Write ? createAgendaOperations(phase4Write) : null,
           adminRead:

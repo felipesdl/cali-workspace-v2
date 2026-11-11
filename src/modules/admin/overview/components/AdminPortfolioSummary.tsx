@@ -1,3 +1,5 @@
+import { OverviewExport } from './OverviewExport';
+import { overviewHours } from './overview-format';
 import { useQuery } from '@tanstack/react-query';
 import { getRouteApi } from '@tanstack/react-router';
 import { type AdminPortfolioService } from '../../../../api/admin/workspace/admin-portfolio';
@@ -75,6 +77,31 @@ export function AdminPortfolioSummary({
         <FeedbackState kind="error" onRetry={() => void result.refetch()}>
           Não foi possível consultar os totais da carteira.
         </FeedbackState>
+      )}
+      {data && (
+        <OverviewExport
+          month={data.month}
+          scope="Carteira de empresas"
+          content={{
+            metrics: [
+              ['Horas registradas', overviewHours(data.hoursMinutes)],
+              [
+                'Eventos e avisos na agenda',
+                `${data.calendarEvents} eventos · ${data.calendarNotices} avisos`,
+              ],
+              [
+                'Prioridades operacionais',
+                `${data.projectAdjustments} ajustes em projetos · ${data.recordsInProgress} ocorrências em atendimento`,
+              ],
+              [
+                'Satisfação',
+                data.satisfactionAverage === null
+                  ? 'Sem avaliações'
+                  : `${score.format(data.satisfactionAverage)} / 5 · ${data.satisfactionCount} avaliações`,
+              ],
+            ],
+          }}
+        />
       )}
       {metrics && (
         <dl className="tw:m-0 tw:grid tw:min-w-0 tw:gap-3 tw:wide:grid-cols-4">

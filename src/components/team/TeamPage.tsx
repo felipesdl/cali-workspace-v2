@@ -11,6 +11,7 @@ import { useCompaniesQuery } from '../../api/admin/companies/hooks/useCompaniesQ
 import { teamSearchSchema, teamViews, type TeamSearch } from '../../api/shared/team/schemas';
 import { useTeam } from '../../api/shared/team/useTeam';
 import { Button } from '../ds/button/Button';
+import { Dialog } from '../ds/dialog/Dialog';
 import { FeedbackState } from '../ds/feedback/FeedbackState';
 import { Field } from '../ds/field/Field';
 import { TeamDirectory } from './TeamDirectory';
@@ -299,7 +300,12 @@ export function TeamPage({
         </section>
       )}
       {team.enabled && search.view === teamViews.Directory && search.member && (
-        <section className={`${panel} tw:wrap-anywhere`} aria-label="Ficha profissional">
+        <Dialog
+          title="Ficha profissional"
+          layout="drawer"
+          pending={team.save.isPending || team.archive.isPending}
+          onDismiss={() => navigate({ member: undefined })}
+        >
           {team.member.isPending && <FeedbackState kind="loading">Carregando ficha…</FeedbackState>}
           {team.member.isError && (
             <FeedbackState kind="error" onRetry={() => void team.member.refetch()}>
@@ -335,7 +341,7 @@ export function TeamPage({
               Fechar ficha
             </Button>
           </div>
-        </section>
+        </Dialog>
       )}
     </div>
   );

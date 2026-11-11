@@ -36,3 +36,63 @@ it('mostra uma leitura por vez e abre o relatório escolhido no arquivo sem dar 
   expect(screen.getByRole('heading', { name: 'Relatório anterior' })).toBeTruthy();
   expect(screen.queryByText('Relatório recente')).toBeNull();
 });
+
+it('mostra protocolo, versão, publicação e ciência disponíveis no catálogo', () => {
+  const data = catalog.parse({
+    companyId: '9c5ab148-78b8-4410-9338-58c44222a5db',
+    module: 'reports',
+    month: null,
+    total: 1,
+    entries: [
+      {
+        id: '10000000-0000-4000-8000-000000000003',
+        title: 'Fechamento de novembro',
+        protocol: 'REL-2026-11-01',
+        status: 'published',
+        instant: '2026-11-10T15:00:00Z',
+        day: '2026-11-01',
+        summary: null,
+        reportVersion: 2,
+        acknowledgmentAvailable: true,
+        reportAcknowledged: true,
+      },
+    ],
+  });
+  render(
+    <ClientReportReading
+      company="9c5ab148-78b8-4410-9338-58c44222a5db"
+      data={data}
+      showList
+      page={1}
+      select={vi.fn()}
+      changePage={vi.fn()}
+      toggleList={vi.fn()}
+    />,
+  );
+  expect(screen.getByText('REL-2026-11-01')).toBeTruthy();
+  expect(screen.getByText('01/11/2026 · v2')).toBeTruthy();
+  expect(screen.getByText('Ciência registrada')).toBeTruthy();
+  expect(screen.getByText(/10\/11\/2026/)).toBeTruthy();
+});
+
+it('distingue acervo realmente vazio de página sem registros', () => {
+  const data = catalog.parse({
+    companyId: '9c5ab148-78b8-4410-9338-58c44222a5db',
+    module: 'reports',
+    month: null,
+    total: 0,
+    entries: [],
+  });
+  render(
+    <ClientReportReading
+      company="9c5ab148-78b8-4410-9338-58c44222a5db"
+      data={data}
+      showList
+      page={1}
+      select={vi.fn()}
+      changePage={vi.fn()}
+      toggleList={vi.fn()}
+    />,
+  );
+  expect(screen.getByText('Nenhum relatório disponível ainda.')).toBeTruthy();
+});

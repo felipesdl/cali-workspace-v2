@@ -1,6 +1,7 @@
 import { PartnerHoursQueue } from '../../partner/home/components/PartnerHoursQueue';
 import { PartnerReviewQueue } from '../../partner/home/components/PartnerReviewQueue';
 import { StaffActivation, StaffDraftEditor } from './components/StaffDraftEditor';
+import { staffModuleLabels } from './staff-module-labels';
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getRouteApi, useRouteContext } from '@tanstack/react-router';
 import { useProjectWorkspaceScope } from '../../../components/workspace/useProjectWorkspaceScope';
@@ -8,7 +9,6 @@ import { FeedbackState } from '../../../components/ds/feedback/FeedbackState';
 import { formatServerInstant } from '../../../lib/dates';
 import { CompanySelect } from '../../../components/workspace/WorkspaceCompanySelect';
 import { Pages } from '../../../components/workspace/WorkspacePages';
-import { panel } from '../../../components/workspace/workspace-presentation';
 import { type Props } from '../../../components/workspace/workspace-presentation';
 
 const adminStaffRoster = getRouteApi('/admin/equipe-cali');
@@ -77,43 +77,76 @@ export function AdminStaffRosterPage() {
       ) : (
         <>
           {result.data.entries.length ? (
-            <ul className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
+            <ul className="tw:m-0 tw:grid tw:list-none tw:p-0">
               {result.data.entries.map((member) => (
-                <li key={member.id} className={`${panel} tw:wrap-anywhere`}>
-                  <h2 className="tw:font-semibold">{member.name ?? 'Nome não informado'}</h2>
-                  <p>
-                    {member.active ? 'Ativo' : 'Inativo'} ·{' '}
-                    {staffInvitationLabels[member.invitation]}
-                  </p>
-                  <p>Módulos · {member.modules?.join(', ') || 'Sem módulos atribuídos'}</p>
-                  {member.assignedAt && (
-                    <p>Vínculo desde {formatServerInstant(member.assignedAt)} (Brasília)</p>
-                  )}
-                  {domainOperations && member.activationRevision && (
-                    <StaffActivation
-                      key={'activation-' + member.activationRevision}
-                      company={companyId}
-                      member={member.id}
-                      active={member.active}
-                      revision={member.activationRevision}
-                      operations={domainOperations}
-                      saved={refresh}
-                    />
-                  )}
-                  {domainOperations && member.draftRevision && (
-                    <StaffDraftEditor
-                      key={member.draftRevision}
-                      company={companyId}
-                      operations={domainOperations}
-                      saved={refresh}
-                      draft={{
-                        id: member.id,
-                        revision: member.draftRevision,
-                        name: member.name?.replace(/^\[TESTE V2\] /, '') ?? '',
-                        modules: member.modules ?? [],
-                      }}
-                    />
-                  )}
+                <li
+                  key={member.id}
+                  className="tw:border-line first:tw:border-t tw:grid tw:gap-3 tw:border-b tw:px-0 tw:py-4 tw:wrap-anywhere"
+                >
+                  <div className="tw:grid tw:min-w-0 tw:gap-2 tw:mobile:grid-cols-[minmax(0,1fr)_auto] tw:mobile:items-start">
+                    <div className="tw:min-w-0">
+                      <h2 className="tw:m-0 tw:font-semibold">
+                        {member.name ?? 'Nome não informado'}
+                      </h2>
+                      <p className="tw:text-detail tw:m-0 tw:mt-1 tw:text-muted-copy">
+                        {member.active ? 'Ativo' : 'Inativo'} ·{' '}
+                        {staffInvitationLabels[member.invitation]}
+                      </p>
+                    </div>
+                    {member.assignedAt && (
+                      <p className="tw:text-detail tw:m-0 tw:text-muted-copy">
+                        Vínculo desde {formatServerInstant(member.assignedAt)} (Brasília)
+                      </p>
+                    )}
+                  </div>
+                  <div
+                    className="tw:flex tw:flex-wrap tw:items-center tw:gap-2"
+                    aria-label="Módulos atribuídos"
+                  >
+                    {member.modules?.length ? (
+                      member.modules.map((module) => (
+                        <span
+                          key={
+                            staffModuleLabels[module as keyof typeof staffModuleLabels] ?? module
+                          }
+                          className="tw:border-line tw:text-detail tw:border tw:px-2 tw:py-1"
+                        >
+                          {staffModuleLabels[module as keyof typeof staffModuleLabels] ?? module}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="tw:text-detail tw:text-muted-copy">
+                        Sem módulos atribuídos
+                      </span>
+                    )}
+                  </div>
+                  <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-3">
+                    {domainOperations && member.activationRevision && (
+                      <StaffActivation
+                        key={'activation-' + member.activationRevision}
+                        company={companyId}
+                        member={member.id}
+                        active={member.active}
+                        revision={member.activationRevision}
+                        operations={domainOperations}
+                        saved={refresh}
+                      />
+                    )}
+                    {domainOperations && member.draftRevision && (
+                      <StaffDraftEditor
+                        key={member.draftRevision}
+                        company={companyId}
+                        operations={domainOperations}
+                        saved={refresh}
+                        draft={{
+                          id: member.id,
+                          revision: member.draftRevision,
+                          name: member.name?.replace(/^\[TESTE V2\] /, '') ?? '',
+                          modules: member.modules ?? [],
+                        }}
+                      />
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

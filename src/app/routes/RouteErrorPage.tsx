@@ -1,5 +1,4 @@
-import { Link } from '@tanstack/react-router';
-import { recoveryLinkClass, RouteStatusPage } from './RouteStatusPage';
+import { RouteStatusPage, WorkspaceRecoveryLink } from './RouteStatusPage';
 
 export function RouteErrorPage() {
   return (
@@ -8,9 +7,7 @@ export function RouteErrorPage() {
       kind="error"
       message="Volte ao início do Workspace para continuar."
     >
-      <Link to="/" replace className={recoveryLinkClass}>
-        Voltar ao início
-      </Link>
+      <WorkspaceRecoveryLink />
     </RouteStatusPage>
   );
 }

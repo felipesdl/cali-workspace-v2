@@ -6,8 +6,8 @@ import { type ReactNode } from 'react';
 import { Link, useMatches, useRouteContext } from '@tanstack/react-router';
 import { isPilotCompany } from '../api/admin/companies/onboarding';
 import { teamSearchSchema } from '../api/shared/team/schemas';
-import { Button } from '../components/ds/button/Button';
 import { WorkspaceFrame } from './WorkspaceFrame';
+import { WorkspaceProfileMenu } from './WorkspaceProfileMenu';
 import { workspaceModuleLink, type WorkspaceModuleLink } from './workspace-navigation';
 import { useWorkspaceSession } from '../api/access/hooks/useWorkspaceSession';
 
@@ -19,22 +19,75 @@ const companyScopedAdminPaths = new Set([
   '/admin/formularios',
   '/admin/privacidade',
   '/admin/propostas',
-  '/admin/mapa-people',
+  '/admin/mapa-de-people',
   '/admin/equipe-cali',
   '/admin/auditoria',
   '/admin/satisfacao',
 ]);
+const adminModuleOrder = [
+  'Início',
+  'Empresas e acessos',
+  'Equipe',
+  'Projetos',
+  'Horas',
+  'Agenda',
+  'Ocorrências',
+  'Documentos',
+  'Relatórios',
+  'Satisfação',
+  'Avisos',
+  'Equipe CALI',
+  'Auditoria',
+  'Frentes contratadas',
+  'Propostas',
+  'Mapa de People',
+  'Perfil comportamental',
+  'Formulários',
+  'Privacidade',
+  'Minha conta',
+] as const;
+const clientModuleOrder = [
+  'Início',
+  'Equipe',
+  'Horas',
+  'Agenda',
+  'Ocorrências',
+  'Documentos',
+  'Relatórios',
+  'Projetos',
+  'Avisos',
+  'Frentes contratadas',
+  'Perfil comportamental',
+  'Propostas',
+  'Minha empresa',
+  'Minha conta',
+  'Termos e privacidade',
+  'Ajuda',
+] as const;
+const adminShortcuts = [
+  'Propostas',
+  'Mapa de People',
+  'Formulários',
+  'Perfil comportamental',
+] as const;
+const clientShortcuts = ['Frentes contratadas'] as const;
 
 export function WorkspaceLayout({
   title,
   role,
   children,
   navigation,
+  headingArea,
+  headingDescription,
+  headingAction,
 }: {
   title: string;
   role: typeof workspaceRole.Admin | typeof workspaceRole.Client;
   children: ReactNode;
   navigation?: readonly WorkspaceModuleLink[];
+  headingArea?: string;
+  headingDescription?: string;
+  headingAction?: ReactNode;
 }) {
   const {
     session,
@@ -57,25 +110,26 @@ export function WorkspaceLayout({
     (profile.role === workspaceRole.Admin || profile.role === workspaceRole.Client)
       ? { id: profile.id, role: profile.role, company_id: profile.company_id }
       : null;
-  const selectedCompany = useMatches({
+  const activeSearch = useMatches({
     select: (matches) => {
       const match = matches[matches.length - 1];
       const pathname = match?.pathname.replace(/\/$/, '');
       if (!match || !pathname) return undefined;
       if (!companyScopedAdminPaths.has(pathname) && !phase4CatalogFromPath(pathname))
         return undefined;
-      if (!('companyId' in match.search)) return undefined;
-      const company = match.search.companyId;
-      return typeof company === 'string' && isPilotCompany(company) ? company : undefined;
+      return match.search;
     },
   });
+  const { companyId, month } = workspaceSearch.parse(activeSearch ?? {});
+  const selectedCompany = isPilotCompany(companyId) ? companyId : undefined;
   const workspaceNavigationSearch = workspaceSearch.parse({
     companyId: admin ? selectedCompany : undefined,
+    month,
   });
   const modules = [...(navigation ?? [])];
   if (admin) {
     modules.push(
-      workspaceModuleLink('Início', <Link to="/admin" search={{ companyId: selectedCompany }} />),
+      workspaceModuleLink('Início', <Link to="/admin" search={{ companyId, month }} />),
       workspaceModuleLink(
         'Empresas e acessos',
         <Link to="/admin/clientes" search={{ q: '', status: 'all' }} />,
@@ -94,7 +148,10 @@ export function WorkspaceLayout({
     }
     if (disc)
       modules.push(
-        workspaceModuleLink('Perfil comportamental', <Link to="/admin/perfil" search={{}} />),
+        workspaceModuleLink(
+          'Perfil comportamental',
+          <Link to="/admin/perfil-comportamental" search={{}} />,
+        ),
       );
   }
   if (ownProfile) {
@@ -146,7 +203,7 @@ export function WorkspaceLayout({
       ),
       workspaceModuleLink(
         'Mapa de People',
-        <Link to="/admin/mapa-people" search={workspaceNavigationSearch} />,
+        <Link to="/admin/mapa-de-people" search={workspaceNavigationSearch} />,
       ),
       workspaceModuleLink(
         'Equipe CALI',
@@ -165,13 +222,22 @@ export function WorkspaceLayout({
   if (!admin && adminRead && domainOperations) {
     modules.push(workspaceModuleLink('Propostas', <Link to="/cliente/propostas" />));
   }
+  const order: readonly string[] = admin ? adminModuleOrder : clientModuleOrder;
+  const orderOf = (label: string) => {
+    const position = order.indexOf(label);
+    return position === -1 ? order.length : position;
+  };
+  modules.sort((a, b) => orderOf(a.label) - orderOf(b.label));
 
   return (
     <WorkspaceFrame
       title={title}
-      area={admin ? 'Backoffice / CALI RH' : 'Área da empresa'}
+      area={headingArea ?? (admin ? 'Backoffice / CALI RH' : 'Área da empresa')}
+      headingDescription={headingDescription}
+      headingAction={headingAction}
+      shortcutLabels={admin ? adminShortcuts : clientShortcuts}
       actions={
-        <div className="tw:relative tw:flex tw:shrink-0 tw:items-center tw:gap-2">
+        <div className="workspace-account-actions">
           {notifications && recipient && (
             <NotificationInbox
               key={`${recipient.id}:${recipient.role}:${recipient.company_id}`}
@@ -180,9 +246,11 @@ export function WorkspaceLayout({
             />
           )}
           {session && (
-            <Button variant="secondary" onClick={() => void session.signOut()}>
-              Sair
-            </Button>
+            <WorkspaceProfileMenu
+              key={profile?.id}
+              admin={admin}
+              onLogout={() => void session.signOut()}
+            />
           )}
         </div>
       }

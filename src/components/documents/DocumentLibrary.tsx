@@ -10,6 +10,7 @@ import { FeedbackState } from '../ds/feedback/FeedbackState';
 import { Checkbox } from '../ds/checkbox/Checkbox';
 import { Field } from '../ds/field/Field';
 import { ActionForm } from '../workspace/ActionForm';
+import { Panel } from '../ds/panel/Panel';
 
 type Scope = {
   company: string;
@@ -182,97 +183,101 @@ function DocumentItem({
     }
   }, [completed, message]);
   return (
-    <li className="tw:grid tw:min-w-0 tw:gap-3 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere">
-      <strong>{item.title}</strong>
-      <p>
-        Revisão {item.number} · {item.fileName}
-        {latestPublished && ' · Publicada'}
-      </p>
-      <Download
-        key={item.revisionId}
-        company={company}
-        operations={operations}
-        documentId={item.id}
-        revisionId={item.revisionId}
-      />
-      {admin ? (
-        <>
-          <Upload company={company} operations={operations} item={item} refresh={refresh} />
-          {!latestPublished && (
+    <li>
+      <Panel className="tw:grid tw:min-w-0 tw:gap-4 tw:p-4 tw:wrap-anywhere">
+        <header className="tw:grid tw:gap-2 tw:border-b tw:border-border-default tw:pb-3">
+          <h3 className="tw:m-0 tw:text-section tw:font-semibold tw:text-brand">{item.title}</h3>
+          <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
+            Revisão {item.number} · {item.fileName}
+            {latestPublished && ' · Publicada'}
+          </p>
+        </header>
+        <Download
+          key={item.revisionId}
+          company={company}
+          operations={operations}
+          documentId={item.id}
+          revisionId={item.revisionId}
+        />
+        {admin ? (
+          <>
+            <Upload company={company} operations={operations} item={item} refresh={refresh} />
+            {!latestPublished && (
+              <ActionForm
+                label="Publicar revisão mais recente"
+                submit={async () => {
+                  setLastAction(undefined);
+                  const result = await operations.publication(
+                    company,
+                    item.id,
+                    item.publishedRevision,
+                    item.revisionId,
+                  );
+                  await refresh();
+                  setLastAction({ revision: item.revisionId, kind: 'publish' });
+                  return result;
+                }}
+              />
+            )}
+            {item.publishedRevision && (
+              <ActionForm
+                label="Retirar versão publicada"
+                submit={async (values) => {
+                  if (!values.has('confirmWithdrawal')) throw new Error('Confirme a retirada.');
+                  setLastAction(undefined);
+                  const result = await operations.publication(
+                    company,
+                    item.id,
+                    item.publishedRevision,
+                    null,
+                  );
+                  await refresh();
+                  setLastAction({ revision: item.revisionId, kind: 'withdraw' });
+                  return result;
+                }}
+              >
+                {() => (
+                  <Checkbox name="confirmWithdrawal" required>
+                    Confirmo a retirada{' '}
+                    {latestPublished ? `da revisão ${item.number}` : 'da versão publicada'} de{' '}
+                    {item.title}. O Cliente perde acesso a essa publicação e o histórico continua
+                    disponível para a CALI.
+                  </Checkbox>
+                )}
+              </ActionForm>
+            )}
+            <div className="tw:border-t tw:border-border-default tw:pt-3">
+              <Button
+                variant="secondary"
+                aria-expanded={showHistory}
+                onClick={() => setShowHistory(!showHistory)}
+              >
+                {showHistory ? 'Ocultar histórico' : 'Ver histórico'}
+              </Button>
+            </div>
+            {showHistory && (
+              <History company={company} actor={actor} operations={operations} item={item} />
+            )}
+          </>
+        ) : (
+          !item.acknowledged && (
             <ActionForm
-              label="Publicar revisão mais recente"
+              label="Registrar ciência desta revisão"
               submit={async () => {
-                setLastAction(undefined);
-                const result = await operations.publication(
-                  company,
-                  item.id,
-                  item.publishedRevision,
-                  item.revisionId,
-                );
+                const result = await operations.acknowledge(company, item.id, item.revisionId);
                 await refresh();
-                setLastAction({ revision: item.revisionId, kind: 'publish' });
+                setLastAction({ revision: item.revisionId, kind: 'acknowledge' });
                 return result;
               }}
             />
-          )}
-          {item.publishedRevision && (
-            <ActionForm
-              label="Retirar versão publicada"
-              submit={async (values) => {
-                if (!values.has('confirmWithdrawal')) throw new Error('Confirme a retirada.');
-                setLastAction(undefined);
-                const result = await operations.publication(
-                  company,
-                  item.id,
-                  item.publishedRevision,
-                  null,
-                );
-                await refresh();
-                setLastAction({ revision: item.revisionId, kind: 'withdraw' });
-                return result;
-              }}
-            >
-              {() => (
-                <Checkbox name="confirmWithdrawal" required>
-                  Confirmo a retirada{' '}
-                  {latestPublished ? `da revisão ${item.number}` : 'da versão publicada'} de{' '}
-                  {item.title}. O Cliente perde acesso a essa publicação e o histórico continua
-                  disponível para a CALI.
-                </Checkbox>
-              )}
-            </ActionForm>
-          )}
-          <div>
-            <Button
-              variant="secondary"
-              aria-expanded={showHistory}
-              onClick={() => setShowHistory(!showHistory)}
-            >
-              {showHistory ? 'Ocultar histórico' : 'Ver histórico'}
-            </Button>
-          </div>
-          {showHistory && (
-            <History company={company} actor={actor} operations={operations} item={item} />
-          )}
-        </>
-      ) : (
-        !item.acknowledged && (
-          <ActionForm
-            label="Registrar ciência desta revisão"
-            submit={async () => {
-              const result = await operations.acknowledge(company, item.id, item.revisionId);
-              await refresh();
-              setLastAction({ revision: item.revisionId, kind: 'acknowledge' });
-              return result;
-            }}
-          />
-        )
-      )}
-      {message && (
-        <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
-          {message}
-        </FeedbackMessage>
-      )}
+          )
+        )}
+        {message && (
+          <FeedbackMessage ref={receipt} tone="success" tabIndex={-1}>
+            {message}
+          </FeedbackMessage>
+        )}
+      </Panel>
     </li>
   );
 }
@@ -292,7 +297,12 @@ export function DocumentLibrary({ company, actor, operations, admin }: Scope & {
   }
   return (
     <section aria-label="PDFs versionados" className="tw:grid tw:gap-3">
-      <h2 className="tw:text-section">PDFs versionados</h2>
+      <header className="tw:grid tw:gap-1">
+        <h2 className="tw:m-0 tw:text-section tw:font-semibold tw:text-brand">PDFs versionados</h2>
+        <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
+          Arquivos PDF, revisões, publicação e ciência deste acervo.
+        </p>
+      </header>
       {admin && (
         <Upload
           company={company}

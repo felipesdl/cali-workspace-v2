@@ -1,5 +1,5 @@
 import { StrictMode } from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from '@tanstack/react-router';
 import { describe, expect, it, vi } from 'vitest';
@@ -57,6 +57,16 @@ async function add(user: ReturnType<typeof userEvent.setup>, email = 'novo@examp
   await screen.findByRole('button', { name: `Revogar acesso de ${email}` });
 }
 describe('jornada demonstrativa de cadastro, adesão e gestão de acessos', () => {
+  it('oferece uma única ação de acesso por empresa em uma tabela responsiva', async () => {
+    const { user, router } = await openApp();
+    const table = await screen.findByRole('table');
+    expect(within(table).getByText('Aurora Tecnologia')).toBeTruthy();
+    expect(within(table).getByText('CALI Full')).toBeTruthy();
+    await user.click(screen.getByRole('button', { name: 'Ver acessos de Aurora Tecnologia' }));
+    await screen.findByRole('heading', { name: 'Acessos · Aurora Tecnologia' });
+    expect(router.state.location.search.companyId).toBe(mockCompanyIds.Aurora);
+  });
+
   it('cadastra, exige adesão, autoriza, edita nome e revoga/reativa com histórico', async () => {
     const errors = vi.spyOn(console, 'error');
     const { user, router, service } = await openApp();

@@ -1,6 +1,6 @@
 # Design system CALI
 
-Estado: **tokens, ações, controles de formulário e feedback implementados. Demais contratos conforme o catálogo**. Atualização de 09/11/2026. Fonte visual vigente em [main da V2](HOMOLOGACAO_PATRICIA.md#revisão-visual-contra-a-main-da-v2). As [regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios.
+Estado: **tokens, ações, controles de formulário e feedback implementados. Demais contratos conforme o catálogo**. O [plano de consolidação](COMPARACAO_FUNCIONAL_APP_CALI.md#plano-de-consolidação) usa a experiência publicada do `app.cali` como referência de composição. Este catálogo define tokens e primitivas da V2. As [regras de produto](PRODUCT_RULES.md), UI-01 a UI-14, definem os resultados obrigatórios.
 
 Este documento é dono de tokens, primitivas e seus contratos. Composição de telas, hierarquia de ações, escolha de página/drawer/modal e continuidade de tarefas pertencem a [UX/UI](UX_UI.md). Usar o [Catálogo de fluxos](FLOW_CATALOG.md) para aplicar essas peças a uma jornada concreta.
 
@@ -53,6 +53,7 @@ São valores de referência, não certificação de acessibilidade. Definir pare
 - Declarar escala única de títulos, corpo, auxiliar e dados tabulares. Não continuar adicionando valores independentes de 9–13 px para caber conteúdo.
 - Conflito a homologar: PRODUCT_RULES oficial recomenda corpo de 16 px; V2 define raiz de 13 px e auxiliares menores. Proposta: corpo legível de 16 px e variante compacta explícita para tabelas, validada nas quatro larguras, sem encolher globalmente a interface.
 - Proposta de escala: 4/8/12/16/24/32 px; referência de separação entre cards de 14–16 px, com padrão técnico proposto de 16 px e alinhamento conferido no layout. Raios gerais de 4/8/12 px são proposta; fotos/logos têm regra específica de 7 px.
+- O porte do shell do `app.cali` usa Inter com corpo de 13 px no workspace, detalhes de 12 px e controles compactos de 11 px quando a origem usa essa escala. O frame aplica a escala local aos aliases da V2 e reduz o mínimo dos controles para 38 px em desktop. Em largura de toque o mínimo permanece 42 px. As superfícies fora do frame mantêm seus próprios contratos.
 - Centralizar z-index por camada: navegação, popover, overlay, toast. Não elevar z-index por tentativa em cada módulo.
 - Motion breve e funcional; respeitar preferência de movimento reduzido. Ação essencial funciona sem hover.
 
@@ -112,7 +113,8 @@ Field explicita herança da família tipográfica nos controles nativos, incluin
 | `Tabs` | Controlado, identificadores estáveis; navegação ou painel local explicitamente definidos | Equipe e Projetos |
 | `Field`/`Input`/`Select`/`TextArea`/`FileInput`/`CheckboxInput` | Label, ajuda, erro associado, required/disabled; sem placeholder como único label | Busca e formulários |
 | `Badge`/`StatusBadge` | Texto + semântica, sem inferir permissão; estados oficiais mapeados por domínio | Entregas, ocorrências, avisos |
-| `Dialog`/`Drawer` | Título, foco inicial/contenção/retorno, Escape, overlay, scroll e ação pendente | Pessoa, documento, ocorrência |
+| `Panel` | Seção semântica com borda, superfície, raio de 12 px e largura mínima da V2. O consumidor define título, ação e estado. | Visão geral Admin, Satisfação e retorno Drive |
+| `Dialog` | Diálogo modal nativo com título acessível, fechamento, retorno de foco, bloqueio durante gravação e animação condicionada à preferência de movimento. A variante lateral mantém o contexto da lista. | Agenda, Horas, Ocorrências, Entregáveis, Avisos e Equipe |
 | `Popover`/`DropdownMenu` | Dono único de posicionamento, colisão, teclado e fechamento | Perfil, notificações, flyout |
 | `Table`/`List` | Identidade estável, cabeçalhos/semântica, vazio, overflow e paginação quando real | Equipe, contas, extrato |
 | `FeedbackState` (implementado no recorte) | Loading/erro/vazio, mensagem específica e retry explícito opcional | Acesso/MFA e consultas de empresas/acessos/histórico |
@@ -122,7 +124,7 @@ Field explicita herança da família tipográfica nos controles nativos, incluin
 
 O consumidor visual de foto/logo mantém formato quadrado e raio de 7 px mesmo quando a API interna da peça usa o nome `Avatar`. Barras de controles priorizam linha única sem cortar ações em mobile; rolagem discreta mantém operação por toque/teclado e indicação de continuação. Alertas de atenção/erro usam âmbar/vermelho e orientação textual; demais estados mantêm a semântica da paleta.
 
-Dialog de confirmação, inclusive exclusão, deve seguir o padrão visual observado na main da V2 ou, se a operação só existir no domínio publicado, o equivalente ali observado e registrado e explicar objeto/efeito. Não criar novo formato a partir de um texto genérico de confirmação. Formulário por seções e notas de rodapé são decisões de composição em UX/UI. Foco, teclado e rolagem pertencem ao contrato do componente.
+Dialog de confirmação, inclusive exclusão, deve seguir a composição publicada quando houver operação equivalente. Reusar o padrão da V2 nos fluxos próprios. Explicitar objeto e efeito da confirmação. Formulário por seções e notas de rodapé são decisões de composição em UX/UI. Foco, teclado e rolagem pertencem ao contrato do componente.
 
 Não criar `DataTable` universal com todos os filtros/ações do produto. DS fornece semântica e composição; coluna, escopo e permissão continuam no domínio. Charts recebem dados com origem e período; não calculam indicador oficial.
 

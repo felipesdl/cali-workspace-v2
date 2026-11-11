@@ -1,6 +1,6 @@
 # Arquitetura de desenvolvimento
 
-Atualização em 09/11/2026. A V2 organiza a interface por área e página. A main da V2 é a referência visual. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é referência funcional histórica. Evidências e limites de ambiente ficam no [runbook](RUNBOOK.md) e no [roteiro de homologação](HOMOLOGACAO_PATRICIA.md).
+Atualização em 10/11/2026. A V2 organiza a interface por área e página e é a base técnica. Para a consolidação, a referência visual e de experiência é o `app.cali` em uso no domínio publicado. A [publicação 83](BASELINE_REFERENCE_2026-10-26.md) é referência funcional histórica. O [plano de consolidação](COMPARACAO_FUNCIONAL_APP_CALI.md#plano-de-consolidação) define o recorte. Evidências e limites de ambiente ficam no [runbook](RUNBOOK.md) e no [roteiro de homologação](HOMOLOGACAO_PATRICIA.md).
 
 Ler [Regras de produto](PRODUCT_RULES.md), [referência funcional publicação 83](BASELINE_REFERENCE_2026-10-26.md), [fichas](flows/README.md) e [roadmap](ROADMAP.md). Estrutura de código não aprova regra nova. A V2 é a base, o repositório oficial permanece somente leitura; uso do backend hospedado segue DEC-27.
 

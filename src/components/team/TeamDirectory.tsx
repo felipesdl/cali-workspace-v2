@@ -23,7 +23,7 @@ export function TeamDirectory({
         role="region"
         aria-label="Diretório de Equipe"
         tabIndex={0}
-        className="tw:max-w-full tw:min-w-0 tw:overflow-x-auto"
+        className="tw:max-w-full tw:min-w-0 tw:overflow-x-auto tw:mobile:hidden"
       >
         <table className="tw:w-full tw:min-w-[34rem] tw:border-collapse tw:text-left tw:wrap-anywhere tw:[&_:is(th,td)]:border-b tw:[&_:is(th,td)]:border-border-default tw:[&_:is(th,td)]:p-3">
           <caption className="tw:pb-2 tw:text-left tw:text-muted-copy">
@@ -71,6 +71,59 @@ export function TeamDirectory({
             ))}
           </tbody>
         </table>
+      </div>
+      <div
+        role="region"
+        aria-label="Lista compacta de pessoas"
+        className="tw:hidden tw:gap-3 tw:mobile:grid"
+      >
+        <p className="tw:m-0 tw:text-caption tw:text-muted-copy">
+          {directory.total} {directory.total === 1 ? 'registro' : 'registros'} no diretório
+        </p>
+        {directory.members.map((member) => (
+          <details
+            key={member.id}
+            className="tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:p-3"
+          >
+            <summary className="tw:grid tw:min-h-11 tw:grid-cols-[minmax(0,1fr)_auto] tw:items-center tw:gap-x-3 tw:gap-y-1 tw:font-semibold tw:wrap-anywhere">
+              <span>{member.full_name}</span>
+              <span className="tw:row-span-2 tw:text-caption tw:text-muted-copy">
+                {member.archived_at ? teamStatusLabels.archived : teamStatusLabels[member.status]}
+              </span>
+              <span className="tw:text-caption tw:font-normal tw:text-muted-copy">
+                {member.job_title} · {member.department}
+              </span>
+            </summary>
+            <dl className="tw:my-3 tw:grid tw:grid-cols-2 tw:gap-3 tw:wrap-anywhere">
+              <div>
+                <dt className="tw:text-caption tw:text-muted-copy">Código</dt>
+                <dd className="tw:m-0">{member.employee_code}</dd>
+              </div>
+              <div>
+                <dt className="tw:text-caption tw:text-muted-copy">Gestão direta</dt>
+                <dd className="tw:m-0">{member.manager_name ?? member.manager_code ?? '—'}</dd>
+              </div>
+              <div>
+                <dt className="tw:text-caption tw:text-muted-copy">Admissão</dt>
+                <dd className="tw:m-0">{formatCalendarDate(member.admission_date)}</dd>
+              </div>
+              <div>
+                <dt className="tw:text-caption tw:text-muted-copy">Cargo e departamento</dt>
+                <dd className="tw:m-0">
+                  {member.job_title} · {member.department}
+                </dd>
+              </div>
+            </dl>
+            <Button
+              variant="secondary"
+              className="tw:w-full"
+              aria-label={`Ver ficha compacta de ${member.full_name}`}
+              onClick={() => navigate({ member: member.id })}
+            >
+              Ver ficha
+            </Button>
+          </details>
+        ))}
       </div>
       {pages > 1 && (
         <nav

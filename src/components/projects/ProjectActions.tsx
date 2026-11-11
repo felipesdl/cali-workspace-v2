@@ -1,4 +1,5 @@
 import { FeedbackMessage } from '../ds/feedback/FeedbackMessage';
+import { Star } from 'lucide-react';
 import { Input, Select, TextArea } from '../ds/field/Controls';
 import { ActionForm } from '../workspace/ActionForm';
 import { useState } from 'react';
@@ -372,6 +373,7 @@ export function DeliveryActions({
     <div className="tw:grid tw:gap-3">
       <ActionForm
         label="Aprovar entregável"
+        dialog={{ title: 'Avaliar e aprovar entregável', trigger: 'Aprovar entregável' }}
         submit={(fields) =>
           submit({
             ...scope,
@@ -383,18 +385,27 @@ export function DeliveryActions({
       >
         {(prefix) => (
           <>
-            <Field id={prefix + 'score'} label="Avaliação de 1 a 5">
-              <Select id={prefix + 'score'} name="score" required defaultValue="">
-                <option value="" disabled>
-                  Selecione
-                </option>
+            <fieldset className="tw:m-0 tw:min-w-0 tw:border-0 tw:p-0">
+              <legend className="tw:mb-2 tw:font-semibold">Avaliação de 1 a 5</legend>
+              <div className="tw:flex tw:flex-wrap tw:gap-2">
                 {[1, 2, 3, 4, 5].map((score) => (
-                  <option key={score} value={score}>
-                    {score}
-                  </option>
+                  <label key={score} className="tw:cursor-pointer">
+                    <input
+                      name="score"
+                      type="radio"
+                      value={score}
+                      aria-label={`${score} de 5`}
+                      required
+                      className="tw:peer tw:sr-only"
+                    />
+                    <span className="tw:flex tw:min-h-10 tw:items-center tw:gap-1 tw:rounded-control tw:border tw:border-border-default tw:px-2 tw:text-brand tw:peer-checked:border-brand tw:peer-checked:bg-ivory tw:peer-focus-visible:outline-2 tw:peer-focus-visible:outline-offset-2 tw:peer-focus-visible:outline-focus">
+                      <Star size={15} aria-hidden="true" />
+                      {score}
+                    </span>
+                  </label>
                 ))}
-              </Select>
-            </Field>
+              </div>
+            </fieldset>
             <Field id={prefix + 'note'} label="Comentário obrigatório para notas de 1 a 3">
               <TextArea id={prefix + 'note'} name="note" maxLength={4000} />
             </Field>
@@ -403,6 +414,7 @@ export function DeliveryActions({
       </ActionForm>
       <ActionForm
         label="Solicitar ajuste do entregável"
+        dialog={{ title: 'Solicitar ajuste', trigger: 'Pedir ajuste' }}
         submit={(fields) =>
           submit({
             ...scope,

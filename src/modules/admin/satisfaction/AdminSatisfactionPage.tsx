@@ -6,12 +6,19 @@ import { FeedbackState } from '../../../components/ds/feedback/FeedbackState';
 import { CompanySelect } from '../../../components/workspace/WorkspaceCompanySelect';
 import { Pages } from '../../../components/workspace/WorkspacePages';
 import { type Props } from '../../../components/workspace/workspace-presentation';
+import { useAdminOverviewSnapshot } from '../../../api/admin/workspace/useAdminOverviewSnapshot';
+import { currentBrasiliaMonth } from '../../../lib/dates';
+import { SatisfactionSummary } from './components/SatisfactionSummary';
 
 const adminSatisfaction = getRouteApi('/admin/satisfacao');
 
 function AdminSatisfaction({ search, update }: Props) {
   const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
   const { companyId, actor, admin } = useProjectWorkspaceScope(search);
+  const overview = useAdminOverviewSnapshot(
+    search.companyId,
+    search.month ?? currentBrasiliaMonth(),
+  );
   const cache = useQueryClient();
   const key = ['phase4-satisfaction', actor, companyId];
   const result = useQuery({
@@ -26,6 +33,20 @@ function AdminSatisfaction({ search, update }: Props) {
   return (
     <div className="tw:grid tw:gap-4">
       <CompanySelect search={search} update={update} />
+      {overview.available && overview.query.isPending && (
+        <FeedbackState kind="loading">Consultando o resumo de satisfação…</FeedbackState>
+      )}
+      {overview.available && overview.query.isError && (
+        <FeedbackState kind="error" onRetry={() => void overview.query.refetch()}>
+          Não foi possível consultar o resumo de satisfação.
+        </FeedbackState>
+      )}
+      {overview.query.isSuccess && overview.query.data && (
+        <SatisfactionSummary
+          value={overview.query.data.satisfaction}
+          accountSelected={Boolean(search.companyId)}
+        />
+      )}
       {!companyId ? (
         <p>Selecione uma empresa.</p>
       ) : result.isPending ? (

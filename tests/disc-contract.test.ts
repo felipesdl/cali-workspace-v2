@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { discManagementSchema } from '../src/api/shared/disc/schemas';
+import { discManagementSchema, discPublicProjectionSchema } from '../src/api/shared/disc/schemas';
 
 const qualitativeManagement = {
   id: 'f947c5a0-6c02-4494-8c67-31adab0fd28e',
@@ -60,5 +60,27 @@ describe('DISC management contract', () => {
     });
 
     expect(parsed.success).toBe(false);
+  });
+});
+
+describe('DISC projection pública', () => {
+  it('retorna apenas contexto do convite e não aceita respostas ou resultado individual', () => {
+    const projection = {
+      state: 'started',
+      title: 'Campanha sintética',
+      organization: 'Organização sintética',
+      person_name: 'Respondente sintético',
+      deadline_at: '2026-11-17T23:59:59-03:00',
+      last_block: 7,
+    } as const;
+
+    expect(discPublicProjectionSchema.parse(projection)).toEqual(projection);
+    expect(
+      discPublicProjectionSchema.safeParse({
+        ...projection,
+        answers: { natural: [], pressure: [] },
+        result: { primary_style: 'D', scores: {} },
+      }).success,
+    ).toBe(false);
   });
 });
