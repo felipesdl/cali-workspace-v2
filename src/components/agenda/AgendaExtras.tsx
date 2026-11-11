@@ -168,10 +168,7 @@ export function AgendaExtras({
                 {calendarFeedback[item.id]?.tone === 'error' &&
                   agenda.calendarSyncEnabled &&
                   item.status !== 'confirmed' && (
-                    <Button
-                      variant="secondary"
-                      onClick={() => void syncExtra(item.id, true)}
-                    >
+                    <Button variant="secondary" onClick={() => void syncExtra(item.id, true)}>
                       Tentar atualizar cancelamento no Google
                     </Button>
                   )}
