@@ -10,7 +10,7 @@ Em 11/11/2026, Felipe repassou as respostas da Patrícia sobre envio de materiai
 
 As respostas complementam as decisões de adesão, MFA, revisão e visibilidade. Os públicos do DISC (DEC-13) e a regra de que mensagem de chat não envia e-mail continuam vigentes. A decisão aprova o fluxo de produto; não comprova implementação, não muda por si o escopo do preview atual e não autoriza disparos, migrations ou publicação em produção.
 
-Em aberto: aprovação dos contatos e perfis públicos de Minha conta; tratamento e responsáveis por pedidos de dados após o recebimento; destino do interesse em frentes contratadas. Para o timer, reconciliar a janela de inatividade e o sinal da V1 antes de propor mudança. Para satisfação, conferir a fonte de solicitações e a janela de resposta antes de calcular não respostas.
+Felipe autorizou os [contatos e perfis públicos de Minha conta](HOMOLOGACAO_PATRICIA.md#contatos-e-redes-em-minha-conta). Em aberto: tratamento e responsáveis por pedidos de dados após o recebimento; destino do interesse em frentes contratadas. Para o timer, reconciliar a janela de inatividade e o sinal da V1 antes de propor mudança. Satisfação usa a finalização de uma ocorrência visível ao Cliente como evidência da solicitação. Como o fluxo não define prazo, o Admin registra explicitamente quando encerra a espera sem resposta.
 
 ## DEC-28 — Recuperação comprovada e separação staging/produção
 

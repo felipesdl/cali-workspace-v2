@@ -243,6 +243,17 @@ const satisfactionEntry = z.object({
 });
 export type SatisfactionEntry = z.infer<typeof satisfactionEntry>;
 const satisfaction = page.extend({ entries: z.array(satisfactionEntry) });
+const satisfactionRequests = z.object({
+  companyId: z.uuid().nullable(),
+  month: z.iso.date().nullable(),
+  answered: z.number().int().nonnegative(),
+  waiting: z.number().int().nonnegative(),
+  unanswered: z.number().int().nonnegative(),
+  requests: z.array(
+    z.object({ id: z.uuid(), title: z.string(), requestedAt: z.iso.datetime({ offset: true }) }),
+  ),
+});
+export type SatisfactionRequests = z.infer<typeof satisfactionRequests>;
 
 export const commercialScopeMode = z.enum(['integral', 'prioritized']);
 type CommercialPricingOptions = {
@@ -334,6 +345,36 @@ export function createAdminRead(client: WorkspaceClient) {
       const result = satisfaction.parse(data);
       if (result.companyId !== company) throw new Error('Contexto divergente.');
       return result;
+    },
+    async satisfactionRequests(
+      company: string | null,
+      month: string | null,
+      page: number,
+      signal: AbortSignal,
+    ) {
+      const { data, error } = await client
+        .rpc('v2_read_satisfaction_requests', { p_company: company, p_month: month, p_page: page })
+        .abortSignal(signal);
+      if (error?.code === 'PGRST202' || error?.code === '42883') return null;
+      if (error) throw new Error('Não foi possível consultar as solicitações de avaliação.');
+      const result = satisfactionRequests.parse(data);
+      if (result.companyId !== company || result.month !== month)
+        throw new Error('Recorte divergente.');
+      return result;
+    },
+    async closeSatisfactionRequest(
+      company: string,
+      request: SatisfactionRequests['requests'][number],
+    ) {
+      const { error } = await client.rpc('v2_close_satisfaction_request', {
+        p_company: company,
+        p_record: request.id,
+        p_requested_at: request.requestedAt,
+      });
+      if (error)
+        throw new Error(
+          'Não foi possível encerrar a solicitação. Atualize a lista e tente novamente.',
+        );
     },
     async saveFollowup(company: string, entry: SatisfactionEntry, nextTheme: string, note: string) {
       const { data, error } = await client.rpc('v2_save_pilot_satisfaction_followup', {

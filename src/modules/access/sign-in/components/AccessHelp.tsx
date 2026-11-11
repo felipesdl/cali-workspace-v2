@@ -1,4 +1,5 @@
-import { LifeBuoy, Mail, MessageCircle } from 'lucide-react';
+import { LifeBuoy, Mail } from 'lucide-react';
+import { accessSupportLink } from '../../../../lib/cali-contacts';
 
 export function AccessHelp() {
   return (
@@ -18,17 +19,9 @@ export function AccessHelp() {
           fale com a CALI.
         </p>
         <div className="cali-access-help-links">
-          <a
-            href="https://wa.me/5541987791933?text=Preciso%20de%20ajuda%20com%20o%20CALI%20Workspace"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <MessageCircle size={15} aria-hidden="true" />
-            WhatsApp
-          </a>
-          <a href="mailto:patricia@calirh.com?subject=Acesso%20ao%20CALI%20Workspace">
+          <a href={accessSupportLink}>
             <Mail size={15} aria-hidden="true" />
-            E-mail
+            Problemas de acesso
           </a>
         </div>
       </div>

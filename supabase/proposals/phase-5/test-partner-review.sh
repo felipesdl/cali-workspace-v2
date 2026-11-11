@@ -10,7 +10,10 @@ psql -X -h "$qa" -U postgres -v ON_ERROR_STOP=1 -q \
   -f "$suite/../../../tests/fixtures/phase5/partner-review.sql" \
   -f "$suite/../phase-4/staff-pilot-admission.sql" \
   -f "$suite/partner-pilot.sql" \
+  -f "$suite/../phase-4/operation-receipts.sql" \
+  -f "$suite/partner-hour-review.sql" \
   -f "$suite/partner-timer.sql" \
   -f "$suite/partner-review.sql" \
   -c "set cali.qa.review_admin = 'on'" \
-  -f "$suite/prove-partner-review.sql"
+  -f "$suite/prove-partner-review.sql" \
+  -f "$suite/prove-partner-timer.sql"

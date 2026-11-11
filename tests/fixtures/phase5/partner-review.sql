@@ -57,6 +57,28 @@ create function cali_workspace.change_deliverable_status(item uuid,new_status te
 returns void language sql as $$ update cali_workspace.deliverables set status=new_status where id=item $$;
 create function cali_workspace.set_account_record_status(item uuid,new_status text)
 returns void language sql as $$ update cali_workspace.account_records set workflow_status=new_status where id=item $$;
-create table cali_workspace.work_timers(id uuid primary key);
--- Asserções desta prova exercitam apenas o contrato de revisão.
-set check_function_bodies=off;
+create table cali_workspace.work_timers(
+  id uuid primary key default gen_random_uuid(),company_id uuid,project_id uuid,deliverable_id uuid,
+  task_id uuid,account_record_id uuid,cycle_id uuid,user_id uuid,category text,description text,note text,
+  client_visible boolean,status text,last_seen_at timestamptz,started_at timestamptz default clock_timestamp(),
+  stopped_at timestamptz,paused_at timestamptz,paused_seconds integer,minutes integer
+);
+create table cali_workspace.hour_entries(
+  id uuid primary key default gen_random_uuid(),company_id uuid,project_id uuid,deliverable_id uuid,task_id uuid,
+  account_record_id uuid,cycle_id uuid,work_date date,minutes integer,description text,category text,
+  client_visible boolean,created_by uuid,source_type text,started_at timestamptz,ended_at timestamptz,internal_note text
+);
+create table cali_workspace.projects(id uuid primary key,company_id uuid,name text,execution_status text);
+create table cali_workspace.deliverable_tasks(
+  id uuid primary key,company_id uuid,deliverable_id uuid,title text,status text,work_closed_at timestamptz
+);
+alter table cali_workspace.deliverables add column cycle_id uuid,
+  add column execution_status text not null default 'normal';
+alter table cali_workspace.account_records add column project_id uuid;
+create function cali_workspace.hour_project_operational(uuid) returns boolean language sql as $$select true$$;
+create function cali_workspace.add_manual_hour_entry(
+  p_company_id uuid,p_work_date date,p_minutes integer,p_description text,p_client_visible boolean,p_internal_note text
+) returns uuid language sql as $$
+  insert into cali_workspace.hour_entries(company_id,work_date,minutes,description,client_visible,internal_note)
+  values(p_company_id,p_work_date,p_minutes,p_description,p_client_visible,p_internal_note) returning id
+$$;

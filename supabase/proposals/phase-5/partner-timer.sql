@@ -1,12 +1,12 @@
 -- Aplicar após partner-pilot e partner-hour-review. Somente convites sintéticos do piloto.
-create table cali_session_guard.phase5_partner_timers (
+create table if not exists cali_session_guard.phase5_partner_timers (
   timer_id uuid primary key references cali_workspace.work_timers(id) on delete cascade,
   invite_id uuid not null references cali_session_guard.phase4_staff_invites(id)
 );
 alter table cali_session_guard.phase5_partner_timers enable row level security;
 revoke all on cali_session_guard.phase5_partner_timers from public,anon,authenticated,service_role;
 
-create function cali_session_guard.require_phase5_partner(p_company uuid,p_module text)
+create or replace function cali_session_guard.require_phase5_partner(p_company uuid,p_module text)
 returns jsonb language plpgsql stable set search_path='' as $$
 declare
   access jsonb:=cali_workspace.v2_read_partner_pilot();
@@ -19,7 +19,7 @@ begin
 end;
 $$;
 
-create function cali_session_guard.phase5_partner_hour_targets(p_company uuid)
+create or replace function cali_session_guard.phase5_partner_hour_targets(p_company uuid)
 returns table(kind text,id uuid,title text,project_id uuid,delivery_id uuid,task_id uuid,record_id uuid)
 language sql stable set search_path='' as $$
   with projects as (
@@ -50,7 +50,7 @@ language sql stable set search_path='' as $$
       and (r.project_id is null or exists(select 1 from projects p where p.id=r.project_id))
 $$;
 
-create function cali_workspace.v2_read_partner_pilot_timer(p_company uuid)
+create or replace function cali_workspace.v2_read_partner_pilot_timer(p_company uuid)
 returns jsonb language plpgsql stable security definer set search_path='' as $$
 declare
   access jsonb:=cali_session_guard.require_phase5_partner(p_company,'hours');
@@ -70,7 +70,7 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_change_partner_pilot_timer(
+create or replace function cali_workspace.v2_change_partner_pilot_timer(
   p_company uuid,p_request uuid,p_action text,p_timer uuid,p_kind text,p_target uuid,p_description text
 )
 returns jsonb language plpgsql security definer set search_path='' as $$
@@ -81,7 +81,7 @@ declare
   target record;
   active cali_workspace.work_timers;
   result uuid;
-  entry uuid;
+  submission uuid;
   cycle uuid;
   ended timestamptz;
   seconds integer;
@@ -149,11 +149,9 @@ begin
     seconds:=greatest(0,floor(extract(epoch from (ended-active.started_at)))::integer);
     duration:=case when seconds<30 then 0 else least(1440,ceil(seconds/60.0)::integer) end;
     if duration>0 then
-      insert into cali_workspace.hour_entries(company_id,project_id,deliverable_id,task_id,account_record_id,
-        cycle_id,work_date,minutes,description,category,client_visible,created_by,source_type,started_at,ended_at,internal_note)
-      values(p_company,active.project_id,active.deliverable_id,active.task_id,active.account_record_id,
-        active.cycle_id,(ended at time zone 'America/Sao_Paulo')::date,duration,active.description,'Execução',
-        false,actor,'timer',active.started_at,ended,'Cronômetro da Equipe CALI') returning id into entry;
+      submission:=cali_session_guard.enqueue_phase5_partner_timer(
+        active,invitation.id,ended,duration,'Trecho registrado pelo cronômetro.'
+      );
       update cali_workspace.work_timers set status='stopped',stopped_at=ended,minutes=duration where id=p_timer;
     else
       update cali_workspace.work_timers set status='discarded',stopped_at=ended,minutes=0 where id=p_timer;
@@ -165,7 +163,7 @@ begin
     insert into cali_session_guard.phase4_operation_receipts values(actor,p_company,p_request,signature,result);
     insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
       values(p_company,actor,'partner_pilot_timer_'||p_action,'work_timer',result,
-        jsonb_build_object('hour_entry_id',entry,'minutes',duration));
+        jsonb_build_object('submission_id',submission,'minutes',duration));
   end if;
   return (select jsonb_build_object('id',t.id,'status',t.status,'minutes',t.minutes)
     from cali_workspace.work_timers t where t.id=result);
@@ -179,3 +177,70 @@ revoke all on function cali_session_guard.require_phase5_partner(uuid,text),
   from public,anon,authenticated,service_role;
 grant execute on function cali_workspace.v2_read_partner_pilot_timer(uuid),
   cali_workspace.v2_change_partner_pilot_timer(uuid,uuid,text,uuid,text,uuid,text) to authenticated;
+
+-- Os caminhos antigos também enxergam work_timers. Restringir somente timers inscritos no piloto.
+do $$
+declare
+  legacy_stop regprocedure:=to_regprocedure('cali_workspace.partner_stop_timer(uuid,text)');
+  legacy_close regprocedure:=to_regprocedure('cali_workspace.close_timer_session_at(uuid,timestamptz,text,uuid)');
+  legacy_idle regprocedure:=to_regprocedure('cali_workspace.close_stale_timers(interval)');
+  definition text;
+  anchor text;
+begin
+  if legacy_stop is not null then
+    definition:=pg_get_functiondef(legacy_stop);
+    anchor:=$anchor$  if v_timer.status not in ('active', 'paused')$anchor$;
+    if strpos(definition,'Cronômetro do piloto: encerre pelo Workspace V2.')=0 then
+      if strpos(definition,anchor)=0 then raise exception 'Confira a preimagem de partner_stop_timer.'; end if;
+      execute replace(definition,anchor,$replacement$  if exists(
+    select 1 from cali_session_guard.phase5_partner_timers p where p.timer_id=p_timer_id
+  ) then
+    raise exception 'Cronômetro do piloto: encerre pelo Workspace V2.' using errcode='42501';
+  end if;
+  if v_timer.status not in ('active', 'paused')$replacement$);
+    end if;
+  end if;
+  if legacy_close is not null then
+    definition:=pg_get_functiondef(legacy_close);
+    anchor:=$anchor$  insert into cali_workspace.hour_entries($anchor$;
+    if strpos(definition,'enqueue_phase5_partner_timer')=0 then
+      if strpos(definition,anchor)=0 or strpos(definition,'v_raw_seconds')=0
+        then raise exception 'Confira a preimagem de close_timer_session_at.'; end if;
+      execute replace(definition,anchor,$replacement$  if exists(
+    select 1 from cali_session_guard.phase5_partner_timers p where p.timer_id=v.id
+  ) then
+    v.description := v_description;
+    v_minutes := least(v_minutes,1440);
+    update cali_workspace.work_timers set minutes=v_minutes where id=v.id;
+    v_entry_id := cali_session_guard.enqueue_phase5_partner_timer(
+      v, (select p.invite_id from cali_session_guard.phase5_partner_timers p where p.timer_id=v.id),
+      v_end, v_minutes, 'Trecho encerrado pelo Workspace. Revise o tempo registrado.'
+    );
+    insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
+    values(v.company_id,coalesce(p_actor_user_id,auth.uid()),'partner_pilot_timer_queued','work_timer',v.id,
+      jsonb_build_object('submission_id',v_entry_id,'minutes',v_minutes,'closing_event',p_event_type));
+    return v_minutes;
+  end if;
+
+  insert into cali_workspace.hour_entries($replacement$);
+    end if;
+  end if;
+  if legacy_idle is not null then
+    if legacy_close is null then raise exception 'Confira a preimagem de close_timer_session_at.'; end if;
+    definition:=pg_get_functiondef(legacy_idle);
+    anchor:=$anchor$    if v_role = 'partner' then
+      v_seconds :=$anchor$;
+    if strpos(definition,'cali_session_guard.phase5_partner_timers')=0 then
+      if strpos(definition,anchor)=0 then raise exception 'Confira a preimagem de close_stale_timers.'; end if;
+      execute replace(definition,anchor,$replacement$    if exists(
+      select 1 from cali_session_guard.phase5_partner_timers p where p.timer_id=t.id
+    ) then
+      perform cali_workspace.close_timer_session_at(t.id,v_until,'timer_auto_paused_inactivity',t.user_id);
+      v_role := 'partner';
+    elsif v_role = 'partner' then
+      v_seconds :=$replacement$);
+    end if;
+  end if;
+end;
+$$;
+notify pgrst,'reload schema';

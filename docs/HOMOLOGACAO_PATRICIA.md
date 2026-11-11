@@ -21,11 +21,11 @@ Na rodada final, usar empresas e dados de teste no projeto separado de homologa�
 
 As respostas da Patrícia de 11/11 foram registradas na [DEC-29](DECISIONS.md#dec-29--fluxos-confirmados-pela-patrícia). As [regras aprovadas](PRODUCT_RULES.md#fluxos-confirmados-pela-patrícia-em-1111) substituem as alternativas da consulta anterior. O [roadmap](ROADMAP.md#entregas-da-dec-29) mostra o que já existe e o que precisa ser desenvolvido e validado em cada frente.
 
-### Proposta de contatos e redes em Minha conta
+### Contatos e redes em Minha conta
 
-Mostrar uma área “Ajuda e contato” com duas entradas: **Acompanhar um assunto**, que abre Ocorrências para atendimento e histórico da empresa, e **Problemas de acesso**, com o e-mail oficial de suporte. O canal de acesso também deve estar disponível na tela de entrada, para quem não consegue fazer login. Manter **Pedidos sobre meus dados** como ação própria em Minha conta.
+Felipe autorizou o desenho em 11/11. **Acompanhar um assunto** abre Ocorrências. **Problemas de acesso** usa o mesmo e-mail institucional de suporte em Minha conta e no login. **Pedidos sobre meus dados** leva ao formulário da conta Cliente quando a operação estiver disponível e ao e-mail institucional de privacidade nos demais casos.
 
-Separar os links institucionais do atendimento. Sugestão: oferecer Instagram e LinkedIn da CALI como links opcionais em “Sobre a CALI”, após confirmar os perfis oficiais. Não mostrar telefone pessoal nem usar WhatsApp para atendimento de assuntos da conta; se a CALI quiser manter WhatsApp para ajuda de acesso, aprovar o número institucional e sua finalidade. A configuração de contatos e redes aguarda aprovação de Patrícia.
+**Sobre a CALI** oferece links opcionais para o Instagram e o LinkedIn institucional. Para verificar, abrir Minha conta com Cliente e Admin, conferir o destino por papel e comparar o suporte com o login. Na conta Cliente de teste, registrar e acompanhar um pedido em Minha conta e confirmar a consulta dos documentos em Termos.
 
 ### Aceite dos quatro fluxos de estreia
 

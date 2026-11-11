@@ -47,6 +47,7 @@ export function PartnerTimer({
       await Promise.all([
         cache.invalidateQueries({ queryKey: timerKey }),
         cache.invalidateQueries({ queryKey: ['partner-items', actor, company, 'hours'] }),
+        cache.invalidateQueries({ queryKey: ['partner-hour-requests', actor, company] }),
       ]);
     },
   });
@@ -150,7 +151,7 @@ export function PartnerTimer({
       )}
       {result?.status === 'stopped' && (
         <FeedbackMessage ref={feedback} tone="success" tabIndex={-1}>
-          Trecho registrado: {result.minutes} min.
+          Trecho enviado para revisão: {result.minutes} min.
         </FeedbackMessage>
       )}
     </section>

@@ -345,6 +345,11 @@ export function AdminOverviewSnapshot({
         <OverviewExport
           month={data.month}
           scope={scope}
+          readSatisfaction={
+            adminRead
+              ? (signal) => adminRead.satisfactionRequests(data.companyId, data.month, 1, signal)
+              : undefined
+          }
           content={{
             metrics: metrics.map(({ label, value }) => [label, value]),
             sections: lists.map(({ title, empty, rows }) => ({

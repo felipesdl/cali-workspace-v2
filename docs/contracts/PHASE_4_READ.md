@@ -131,6 +131,14 @@ Tema e anotação ficam em `satisfaction_followups`, separados da avaliação. S
 
 Instalar `satisfaction-operations.sql` depois das operações de entregáveis e ocorrências, com as tabelas legadas `nps_responses` e `satisfaction_followups` conferidas. A consulta usa `VITE_CALI_PHASE4_ADMIN_READ=true`; o formulário requer também `VITE_CALI_PHASE4_WRITE=true`. O rollback retira RPCs, mantendo avaliações e acompanhamentos. PostgreSQL descartável validou escopo, MFA, reexecução, conflito, separação da revisão e preservação do feedback. O [lote hospedado](#lote-de-ocorrências-avisos-e-satisfação-no-cali-mapa) confirmou o acompanhamento de ocorrência. Painel agregado e outras fontes de avaliação exigem provas próprias.
 
+### Solicitações de avaliação de ocorrência
+
+Pela DEC-29, uma ocorrência visível ao Cliente e finalizada com data registrada abre uma solicitação de avaliação. A base tem uma solicitação por ocorrência, independentemente de quantos acessos Cliente respondam. O período usa a data da solicitação em Brasília. Avaliações de entregáveis continuam nos indicadores de notas, pois a nota faz parte da aprovação.
+
+Uma solicitação aberta sem avaliação fica **Aguardando resposta**. O Admin pode registrar **Sem resposta** nas empresas de teste com escrita habilitada. Uma resposta posterior entra como **Respondida**. O histórico anterior só entra quando há data registrada. O PDF mensal Admin usa a mesma consulta para a empresa e o mês do relatório.
+
+Instalar [solicitações](../../supabase/proposals/phase-4/satisfaction-requests.sql) depois do contrato de Ocorrências no projeto isolado. A leitura usa `VITE_CALI_PHASE4_ADMIN_READ=true` e o encerramento também usa `VITE_CALI_PHASE4_WRITE=true`. [Rollback](../../supabase/proposals/phase-4/rollback-satisfaction-requests.sql) retira a leitura e o gatilho e preserva os registros. A prova local cobre filtro por empresa e mês, duplicidade de respostas, falta de data, autorização, encerramento, resposta tardia e rollback.
+
 ## Rascunho e aprovação interna de propostas
 
 Em 06/11/2026, a consulta ao catálogo do CALI MAPA confirmou RLS nas quatro tabelas do Portal, com escrita de propostas restrita à identidade administrativa do Portal. Confirmou também os estados textuais, a validade de 1 a 120 dias, a chave única por oportunidade e versão e a ausência de gatilhos próprios de proposta. A função `portal-send-proposal` está ativa com JWT. Essa inspeção não estabeleceu a correspondência do PDF com a revisão aprovada, a proteção do valor após o envio ou o comportamento efetivo de repetição e aceite externo.
