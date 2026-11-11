@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { Input, Select, TextArea } from '../ds/field/Controls';
+import { Button } from '../ds/button/Button';
+import { FeedbackMessage } from '../ds/feedback/FeedbackMessage';
 import { type AgendaOperations, type AppointmentChange } from '../../api/shared/workspace/agenda';
 import { Field } from '../ds/field/Field';
 import { formatServerInstant } from '../../lib/dates';
@@ -10,6 +13,19 @@ const options = [
   { id: 'second', number: 2 },
 ] as const;
 const changeStatus = { pending: 'Em análise', approved: 'Aprovada', declined: 'Recusada' } as const;
+type CalendarFeedback = { tone: 'success' | 'error'; message: string };
+
+function calendarStatusMessage(status: string) {
+  const messages: Record<string, string> = {
+    synced: 'Google Calendar atualizado. O link Meet pode levar alguns instantes para aparecer.',
+    cancelled_google: 'Cancelamento atualizado no Google Calendar.',
+    not_synced: 'Nenhum evento Google anterior encontrado.',
+    not_approved: 'A alteração CALI ainda não foi aprovada.',
+    cancelled_local: 'Evento CALI cancelado; sincronização Google não foi aplicada.',
+    disabled: 'Sincronização Google desligada neste ambiente.',
+  };
+  return messages[status] ?? 'Google Calendar precisa de revisão.';
+}
 
 function Reason({ prefix, label }: { prefix: string; label: string }) {
   return (
@@ -38,10 +54,41 @@ export function AgendaChangeActions({
   agenda: AgendaOperations;
   refresh: (id: string) => Promise<string>;
 }) {
+  const [calendarFeedback, setCalendarFeedback] = useState<CalendarFeedback | null>(null);
+  const [calendarRetry, setCalendarRetry] = useState(false);
   const pending = change?.status === 'pending';
   const label = change?.action === 'reschedule' ? 'Remarcação' : 'Cancelamento';
+  async function retryCalendarChange() {
+    if (!change) return;
+    setCalendarRetry(true);
+    setCalendarFeedback(null);
+    try {
+      const result = await agenda.syncApprovedCalendarChange(change.id);
+      setCalendarFeedback({
+        tone:
+          result.status === 'synced' ||
+          result.status === 'cancelled_google' ||
+          result.status === 'disabled'
+            ? 'success'
+            : 'error',
+        message: `Decisão CALI preservada. ${calendarStatusMessage(result.status)}`,
+      });
+    } catch {
+      setCalendarFeedback({
+        tone: 'error',
+        message:
+          'Decisão CALI preservada. Google Calendar não sincronizou; confira a conexão ou tente novamente.',
+      });
+    } finally {
+      setCalendarRetry(false);
+      await refresh(change.id);
+    }
+  }
   return (
     <>
+      {calendarFeedback && (
+        <FeedbackMessage tone={calendarFeedback.tone}>{calendarFeedback.message}</FeedbackMessage>
+      )}
       {change && (
         <div className="tw:grid tw:gap-2">
           <p>
@@ -49,22 +96,47 @@ export function AgendaChangeActions({
           </p>
           <p className="tw:break-words">Motivo: {change.reason}</p>
           {change.note && <p className="tw:break-words">Decisão da CALI: {change.note}</p>}
+          {admin && change.status === 'approved' && agenda.calendarSyncEnabled && (
+            <Button
+              variant="secondary"
+              pending={calendarRetry}
+              onClick={() => void retryCalendarChange()}
+            >
+              Tentar sincronização Google
+            </Button>
+          )}
           {admin && pending && active && (
             <>
               {eligible && (
                 <ActionForm
                   label={`Aprovar ${label.toLowerCase()}`}
-                  submit={async (fields) =>
-                    refresh(
-                      await agenda.decideChange(
-                        company,
-                        change.id,
-                        true,
-                        read(fields, 'reason'),
-                        change.action === 'reschedule' ? Number(read(fields, 'slot')) : null,
-                      ),
-                    )
-                  }
+                  submit={async (fields) => {
+                    const saved = await agenda.decideChange(
+                      company,
+                      change.id,
+                      true,
+                      read(fields, 'reason'),
+                      change.action === 'reschedule' ? Number(read(fields, 'slot')) : null,
+                    );
+                    try {
+                      const integration = await agenda.syncApprovedCalendarChange(change.id);
+                      setCalendarFeedback({
+                        tone: ['synced', 'cancelled_google', 'not_synced', 'disabled'].includes(
+                          integration.status,
+                        )
+                          ? 'success'
+                          : 'error',
+                        message: `Decisão CALI aprovada. ${calendarStatusMessage(integration.status)}`,
+                      });
+                    } catch {
+                      setCalendarFeedback({
+                        tone: 'error',
+                        message:
+                          'Decisão CALI aprovada. Google Calendar não sincronizou; confira a conexão ou tente novamente.',
+                      });
+                    }
+                    return refresh(saved);
+                  }}
                 >
                   {(prefix) => (
                     <>

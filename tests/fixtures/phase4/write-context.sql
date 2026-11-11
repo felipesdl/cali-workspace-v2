@@ -176,7 +176,7 @@ begin
 end;
 $$;
 
-alter table cali_workspace.events add column sync_status text;
+alter table cali_workspace.events add column sync_status text, add column meeting_url text;
 create table cali_workspace.scheduling_requests (
  id uuid primary key default gen_random_uuid(),company_id uuid,title text,request_mode text,status text default 'submitted',
  created_at timestamptz default clock_timestamp(),admin_note text,requested_slots jsonb,admin_proposed_slots jsonb default '[]',

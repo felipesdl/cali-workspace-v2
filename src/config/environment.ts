@@ -11,12 +11,17 @@ const environmentSchema = z
     VITE_SUPABASE_URL: z.string().optional(),
     VITE_SUPABASE_PUBLISHABLE_KEY: z.string().optional(),
     VITE_CALI_RELEASE_CORE: z.enum(['true', 'false']).optional(),
+    VITE_CALI_PREVIEW_ORIGIN: z.string().optional(),
   })
   .transform((input, context) => {
     const configured = Boolean(input.VITE_SUPABASE_URL || input.VITE_SUPABASE_PUBLISHABLE_KEY);
     const mode = input.VITE_DATA_MODE ?? (configured ? 'supabase' : 'demo');
     const releaseCore = input.VITE_CALI_RELEASE_CORE === 'true';
-    if (mode === 'demo' && (configured || input.VITE_DEMO_MODE === 'false' || releaseCore)) {
+    const previewOrigin = input.VITE_CALI_PREVIEW_ORIGIN;
+    if (
+      mode === 'demo' &&
+      (configured || input.VITE_DEMO_MODE === 'false' || releaseCore || previewOrigin !== undefined)
+    ) {
       context.addIssue({ code: 'custom', message: 'Configuração demonstrativa contraditória.' });
       return z.NEVER;
     }
@@ -48,12 +53,25 @@ const environmentSchema = z
       context.addIssue({ code: 'custom', message: 'A configuração de release exige o CALI MAPA.' });
       return z.NEVER;
     }
+    if (
+      previewOrigin !== undefined &&
+      (releaseCore ||
+        target.origin === caliMapBackend ||
+        !/^https:\/\/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.vercel\.app$/.test(previewOrigin))
+    ) {
+      context.addIssue({
+        code: 'custom',
+        message: 'O preview exige uma origem Vercel exata e um projeto Supabase separado.',
+      });
+      return z.NEVER;
+    }
     return {
       mode,
       VITE_DATA_MODE: mode,
       url: target.origin,
       publishableKey: key,
       releaseCore,
+      previewOrigin,
     } as const;
   });
 
@@ -77,6 +95,11 @@ export function resolveCaliRuntime(
   const isCaliMap = environment.mode === 'supabase' && environment.url === caliMapBackend;
   return {
     pilot: isCaliMap && development,
+    preview:
+      environment.mode === 'supabase' &&
+      !development &&
+      environment.previewOrigin !== undefined &&
+      environment.previewOrigin === origin,
     releaseCore:
       isCaliMap && !development && environment.releaseCore && origin === caliProductionOrigin,
   };

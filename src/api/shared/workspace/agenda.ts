@@ -25,6 +25,15 @@ const localSlot = z.object({
   start: z.iso.datetime({ local: true }),
   end: z.iso.datetime({ local: true }),
 });
+const meetingUrl = z
+  .string()
+  .url()
+  .refine((value) => {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.hostname === 'meet.google.com' && !url.port;
+  })
+  .nullable()
+  .catch(null);
 const appointments = z.array(
   z.object({
     id: z.uuid(),
@@ -37,6 +46,7 @@ const appointments = z.array(
     admin_proposed_slots: z.array(slot),
     sync_status: z.string().nullable(),
     meetingAt: z.string().nullable().optional(),
+    meetingUrl: meetingUrl.optional(),
     canReadMaterial: z.boolean().optional(),
     canManageGuests: z.boolean().optional(),
     minutes: z.string().nullish(),
@@ -148,8 +158,43 @@ const extras = z.object({
 });
 export type AgendaExtra = z.infer<typeof extras>['entries'][number];
 
-export function createAgendaOperations(client: WorkspaceClient) {
+export function createAgendaOperations(client: WorkspaceClient, calendarSyncEnabled = false) {
+  async function syncCalendar(
+    body:
+      | { action: 'sync_appointment'; appointmentId: string }
+      | { action: 'sync_change'; changeId: string },
+  ) {
+    if (!calendarSyncEnabled) return { status: 'disabled' as const };
+    const { data, error } = await client.functions.invoke('workspace-agenda-calendar', { body });
+    if (error) throw new Error('Não foi possível sincronizar a reunião no Google Calendar.');
+    return z
+      .object({
+        status: z.enum([
+          'synced',
+          'not_confirmed',
+          'not_approved',
+          'cancelled_local',
+          'admin_calendar_unavailable',
+          'cancelled_google',
+          'not_synced',
+          'disabled',
+        ]),
+        meetingUrl: z.string().nullable().optional(),
+      })
+      .parse(data);
+  }
+
   return {
+    calendarSyncEnabled,
+    syncConfirmedCalendar(appointment: string) {
+      return syncCalendar({
+        action: 'sync_appointment',
+        appointmentId: z.uuid().parse(appointment),
+      });
+    },
+    syncApprovedCalendarChange(change: string) {
+      return syncCalendar({ action: 'sync_change', changeId: z.uuid().parse(change) });
+    },
     async requestExtra(company: string, requestId: string, input: ExtraRequest) {
       const values = extraRequest.parse(input);
       const { data, error } = await client.rpc('v2_request_pilot_extra_appointment', {

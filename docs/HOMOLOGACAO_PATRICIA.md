@@ -39,7 +39,7 @@ As escolhas acima tratam de como as pessoas usam o Workspace. A troca depende da
 
 ### Aceite dos quatro fluxos de estreia
 
-Felipe confirmou este escopo em 11/11/2026. Ele vai subir o preview no Vercel. Usar a origem HTTPS protegida e o projeto separado de homologação para os percursos externos. O build atual restringe partes de DISC, Forms, Agenda e Documentos ao piloto de desenvolvimento. Adaptar a composição e as origens autorizadas para o endereço de homologação antes de executar a rodada. [Roteiro de preview](RUNBOOK.md#preview-protegido-para-homologação)
+Felipe confirmou este escopo em 11/11/2026. Ele vai subir o preview no Vercel. O build habilita os serviços deste recorte na origem exata do preview e com o projeto Supabase separado. Configurar o backend de homologação, as origens autorizadas e as contas de teste antes da rodada. [Roteiro de preview](RUNBOOK.md#preview-protegido-para-homologação)
 
 | Fluxo | Prova local | Prova na homologação |
 | --- | --- | --- |

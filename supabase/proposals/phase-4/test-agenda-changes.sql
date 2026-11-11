@@ -25,6 +25,7 @@ declare
 begin
   insert into cali_workspace.events(id,company_id,title,event_type,starts_at,ends_at,visibility,sync_status,source_type,source_entity_id)
   values(e,a,'Encontro de teste','meeting',current_at,current_at+interval '1 hour','client','synced','scheduling_request',appointment);
+  update cali_workspace.events set meeting_url='https://meet.google.com/abc-defg-hij' where id=e;
   insert into cali_workspace.scheduling_requests(id,company_id,title,request_mode,status,requested_slots,confirmed_event_id)
   values(appointment,a,'Encontro de teste','remote','confirmed','[]',e);
   set local role authenticated;
@@ -42,6 +43,7 @@ begin
   change := cali_workspace.v2_request_pilot_agenda_change(a,appointment,request,'reschedule','Conflito de agenda',choices);
   assert cali_workspace.v2_request_pilot_agenda_change(a,appointment,request,'reschedule','Conflito de agenda',choices)=change;
   assert (cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,meetingAt}')::timestamptz=current_at;
+  assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,meetingUrl}'='https://meet.google.com/abc-defg-hij';
   begin
     perform cali_workspace.v2_request_pilot_agenda_change(a,appointment,gen_random_uuid(),'cancel','Pedido concorrente','[]');
     raise exception 'Segundo pedido pendente aceito';
@@ -88,6 +90,7 @@ begin
   assert cali_workspace.v2_decide_pilot_agenda_change(a,change,true,'Cancelamento confirmado',null)=change;
   assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,status}'='cancelled';
   assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,sync_status}' is null;
+  assert cali_workspace.v2_list_pilot_appointments(a,1)#>>'{0,meetingUrl}' is null;
   reset role;
   assert (select count(*) from cali_workspace.events where title='Encontro de teste')=1;
   assert (select count(*) from cali_workspace.agenda_change_requests where event_id=e)=3;

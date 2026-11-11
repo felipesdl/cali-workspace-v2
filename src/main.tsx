@@ -35,6 +35,8 @@ const root = createRoot(rootElement);
 try {
   const environment = readEnvironment(import.meta.env);
   const runtime = resolveCaliRuntime(environment, import.meta.env.DEV, window.location.origin);
+  if (environment.mode === 'supabase' && environment.previewOrigin && !runtime.preview)
+    throw new Error('Abra a URL configurada para este preview de homologação.');
   const cache = createQueryClient();
   const client =
     environment.mode === 'supabase'
@@ -57,7 +59,10 @@ try {
   const session = access ? createSessionController(access, cache) : null;
   const team = client && runtime.pilot ? createHostedTeam(client) : null;
   const accountOperations = Boolean(team) || runtime.releaseCore;
-  const phase4 = team && client && import.meta.env.VITE_CALI_PHASE4_READ === 'true' ? client : null;
+  const phase4 =
+    (runtime.pilot || runtime.preview) && client && import.meta.env.VITE_CALI_PHASE4_READ === 'true'
+      ? client
+      : null;
   const phase4Write = import.meta.env.VITE_CALI_PHASE4_WRITE === 'true' ? phase4 : null;
   const reportRelease = Boolean(
     phase4Write && import.meta.env.VITE_CALI_PHASE4_REPORT_RELEASE === 'true',
@@ -87,7 +92,7 @@ try {
               : null,
           team,
           monthly: team && client ? createHostedTeamMonthly(client) : null,
-          disc: team && client ? createHostedDisc(client) : null,
+          disc: client && (runtime.pilot || runtime.preview) ? createHostedDisc(client) : null,
           projectWorkspace: phase4 ? createProjectWorkspace(phase4, reportRelease) : null,
           adminPortfolio:
             client && (phase4 || runtime.releaseCore) ? createAdminPortfolio(client) : null,
@@ -96,13 +101,21 @@ try {
           hourOperations: phase4Write ? createHourOperations(phase4Write) : null,
           domainOperations,
           clientDrive: phase4Write ? createClientDrive(phase4Write) : null,
-          formLifecycle: client && accountOperations ? createFormLifecycle(client) : null,
+          formLifecycle:
+            client && (accountOperations || (runtime.preview && phase4Write))
+              ? createFormLifecycle(client)
+              : null,
           publicForms:
             environment.mode === 'supabase'
               ? createPublicForms(environment.url, environment.publishableKey)
               : null,
           documentOperations: phase4Write ? createDocumentOperations(phase4Write) : null,
-          agendaOperations: phase4Write ? createAgendaOperations(phase4Write) : null,
+          agendaOperations: phase4Write
+            ? createAgendaOperations(
+                phase4Write,
+                runtime.preview && import.meta.env.VITE_CALI_GOOGLE_CALENDAR_SYNC === 'true',
+              )
+            : null,
           adminRead:
             phase4 && import.meta.env.VITE_CALI_PHASE4_ADMIN_READ === 'true'
               ? createAdminRead(phase4)
@@ -119,7 +132,7 @@ try {
   root.render(
     <main role="alert" className="tw:p-6">
       <h1>Configuração indisponível</h1>
-      <p>Revise a configuração de dados, URL e chave pública do ambiente.</p>
+      <p>Revise a URL, a chave pública e a origem configurada para este ambiente.</p>
     </main>,
   );
 }

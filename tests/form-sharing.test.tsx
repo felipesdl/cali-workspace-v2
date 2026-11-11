@@ -10,7 +10,9 @@ it('mostra instrução de cópia manual quando Clipboard API não existe', async
 
   await user.click(screen.getByRole('button', { name: 'Copiar link' }));
 
-  expect(await screen.findByText('Não foi possível copiar. Selecione o endereço acima.')).toBeTruthy();
+  expect(
+    await screen.findByText('Não foi possível copiar. Selecione o endereço acima.'),
+  ).toBeTruthy();
   expect(screen.getByRole('link', { name: 'http://localhost:3000/f/pesquisa-teste' })).toBeTruthy();
   vi.unstubAllGlobals();
 });

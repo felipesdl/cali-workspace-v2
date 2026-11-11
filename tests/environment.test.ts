@@ -33,19 +33,23 @@ describe('núcleo publicado do CALI MAPA', () => {
   it('exige ativação explícita e não liga o piloto no build publicado', () => {
     expect(resolveCaliRuntime(readEnvironment(caliMap), false, origin)).toEqual({
       pilot: false,
+      preview: false,
       releaseCore: false,
     });
     const environment = readEnvironment({ ...caliMap, VITE_CALI_RELEASE_CORE: 'true' });
     expect(resolveCaliRuntime(environment, false, origin)).toEqual({
       pilot: false,
+      preview: false,
       releaseCore: true,
     });
     expect(resolveCaliRuntime(environment, true, 'http://127.0.0.1:5173')).toEqual({
       pilot: true,
+      preview: false,
       releaseCore: false,
     });
     expect(resolveCaliRuntime(environment, false, 'https://preview.example.com')).toEqual({
       pilot: false,
+      preview: false,
       releaseCore: false,
     });
   });
@@ -57,5 +61,39 @@ describe('núcleo publicado do CALI MAPA', () => {
     expect(() => readEnvironment({ ...hosted, VITE_CALI_RELEASE_CORE: 'true' })).toThrow(
       'Configuração de ambiente inválida',
     );
+  });
+});
+
+describe('preview isolado no Vercel', () => {
+  const origin = 'https://cali-qa.vercel.app';
+
+  it('habilita o recorte do preview só na origem HTTPS configurada e no build publicado', () => {
+    const environment = readEnvironment({ ...hosted, VITE_CALI_PREVIEW_ORIGIN: origin });
+    expect(resolveCaliRuntime(environment, false, origin)).toEqual({
+      pilot: false,
+      preview: true,
+      releaseCore: false,
+    });
+    expect(resolveCaliRuntime(environment, true, origin).preview).toBe(false);
+    expect(resolveCaliRuntime(environment, false, 'https://cali-other.vercel.app').preview).toBe(
+      false,
+    );
+    expect(resolveCaliRuntime(environment, false, 'https://app.calirh.com').preview).toBe(false);
+  });
+
+  it.each([
+    { VITE_CALI_PREVIEW_ORIGIN: origin },
+    { ...hosted, VITE_CALI_PREVIEW_ORIGIN: `${origin}/` },
+    { ...hosted, VITE_CALI_PREVIEW_ORIGIN: 'http://cali-qa.vercel.app' },
+    { ...hosted, VITE_CALI_PREVIEW_ORIGIN: 'https://cali-qa.vercel.app.example.test' },
+    { ...hosted, VITE_CALI_PREVIEW_ORIGIN: 'https://app.calirh.com' },
+    { ...hosted, VITE_CALI_PREVIEW_ORIGIN: origin, VITE_CALI_RELEASE_CORE: 'true' },
+    {
+      ...hosted,
+      VITE_CALI_PREVIEW_ORIGIN: origin,
+      VITE_SUPABASE_URL: 'https://kqtbfeeqbcllwvlkbrkq.supabase.co',
+    },
+  ])('recusa preview fora do contrato: %j', (value) => {
+    expect(() => readEnvironment(value)).toThrow('Configuração de ambiente inválida');
   });
 });

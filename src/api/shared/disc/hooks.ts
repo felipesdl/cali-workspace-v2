@@ -13,9 +13,7 @@ export function useDiscAdmin(campaignId: string | null) {
     session.phase === 'resolved' && session.access.status === 'ready'
       ? session.access.profile
       : null;
-  const allowed = Boolean(
-    disc && import.meta.env.DEV && profile?.active && profile.role === workspaceRole.Admin,
-  );
+  const allowed = Boolean(disc && profile?.active && profile.role === workspaceRole.Admin);
   const cache = useQueryClient();
   const key = ['disc', profile?.id ?? 'unauthorized'] as const;
   const query = useQuery({
@@ -51,7 +49,6 @@ export function useDiscDownload(audience: 'admin' | 'client') {
       : null;
   const allowed = Boolean(
     disc &&
-    import.meta.env.DEV &&
     profile?.active &&
     profile.role === audience &&
     (audience === 'admin' || isDiscPilotCompany(profile.company_id)),
@@ -80,7 +77,6 @@ export function useDiscClient() {
       : null;
   const allowed = Boolean(
     disc &&
-    import.meta.env.DEV &&
     profile?.active &&
     profile.role === workspaceRole.Client &&
     isDiscPilotCompany(profile.company_id),
@@ -95,7 +91,7 @@ export function useDiscClient() {
 
 export function useDiscPublic(token: string) {
   const { disc } = useRouteContext({ from: '__root__' });
-  const allowed = Boolean(disc && import.meta.env.DEV && z.uuid().safeParse(token).success);
+  const allowed = Boolean(disc && z.uuid().safeParse(token).success);
   return useQuery({
     queryKey: ['disc', 'public', token],
     queryFn: allowed && disc ? ({ signal }) => disc.readPublic(token, signal) : skipToken,
@@ -106,7 +102,7 @@ export function useDiscPublic(token: string) {
 export function useDiscPublicCommand(token: string) {
   const { disc } = useRouteContext({ from: '__root__' });
   const cache = useQueryClient();
-  const allowed = Boolean(disc && import.meta.env.DEV && z.uuid().safeParse(token).success);
+  const allowed = Boolean(disc && z.uuid().safeParse(token).success);
   return useMutation({
     mutationFn: (command: DiscPublicCommand) => {
       if (!allowed || !disc) throw new Error('Link de resposta indisponível.');

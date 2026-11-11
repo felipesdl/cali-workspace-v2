@@ -17,6 +17,7 @@ begin
       select r.id,r.title,case when e.cancelled_at is not null then 'cancelled' else r.status end as status,
         r.request_mode,r.created_at,r.admin_note,r.requested_slots,r.admin_proposed_slots,
         case when e.cancelled_at is null then e.sync_status end as sync_status,
+        case when e.cancelled_at is null then e.meeting_url end as "meetingUrl",
         e.starts_at as "meetingAt",
         coalesce(r.status='completed' and e.event_type='meeting' and e.visibility='client'
           and e.cancelled_at is null and e.schedule_class='contractual'

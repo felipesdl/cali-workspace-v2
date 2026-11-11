@@ -13,6 +13,7 @@ import { AgendaMaterials } from './AgendaMaterials';
 import { appointmentStatusLabel } from '../workspace/workspace-labels';
 import { absenceCategory } from '../../api/shared/workspace/agenda';
 import { FeedbackState } from '../ds/feedback/FeedbackState';
+import { FeedbackMessage } from '../ds/feedback/FeedbackMessage';
 import { Checkbox } from '../ds/checkbox/Checkbox';
 
 const read = (fields: FormData, name: string) => String(fields.get(name) ?? '');
@@ -24,6 +25,20 @@ const absenceLabels = {
   travel_vacation: 'Viagem ou férias',
   other: 'Outro',
 } as const satisfies Record<(typeof absenceCategory.options)[number], string>;
+type CalendarFeedback = { tone: 'success' | 'error'; message: string };
+
+function calendarStatusMessage(status: string) {
+  const messages: Record<string, string> = {
+    synced: 'Google Calendar atualizado. O link Meet pode levar alguns instantes para aparecer.',
+    not_confirmed: 'O encontro ainda não foi confirmado na CALI.',
+    cancelled_local: 'Evento CALI cancelado; sincronização Google não foi aplicada.',
+    admin_calendar_unavailable: 'Agenda CALI preservada. Agenda Google da CALI indisponível.',
+    cancelled_google: 'Cancelamento atualizado no Google Calendar.',
+    not_synced: 'Agenda CALI preservada. Nenhum evento Google anterior encontrado.',
+    disabled: 'Sincronização Google desligada neste ambiente.',
+  };
+  return messages[status] ?? 'Agenda CALI preservada. Google Calendar precisa de revisão.';
+}
 
 export function AgendaActions({
   company,
@@ -36,6 +51,8 @@ export function AgendaActions({
 }) {
   const { agendaOperations } = useRouteContext({ from: '__root__' });
   const [page, setPage] = useState(1);
+  const [calendarFeedback, setCalendarFeedback] = useState<CalendarFeedback | null>(null);
+  const [calendarRetry, setCalendarRetry] = useState(false);
   const cache = useQueryClient();
   const key = ['phase4-appointments', actor, company];
   const result = useQuery({
@@ -53,9 +70,34 @@ export function AgendaActions({
     ]);
     return id;
   }
+  async function retryCalendar(appointment: string) {
+    setCalendarRetry(true);
+    setCalendarFeedback(null);
+    try {
+      const result = await agenda.syncConfirmedCalendar(appointment);
+      setCalendarFeedback({
+        tone: ['synced', 'disabled', 'cancelled_local', 'not_synced'].includes(result.status)
+          ? 'success'
+          : 'error',
+        message: calendarStatusMessage(result.status),
+      });
+    } catch {
+      setCalendarFeedback({
+        tone: 'error',
+        message:
+          'Agenda CALI preservada. Google Calendar não sincronizou; confira a conexão ou tente novamente.',
+      });
+    } finally {
+      setCalendarRetry(false);
+      await refresh(appointment);
+    }
+  }
   return (
     <section aria-label="Solicitações de agenda" className="tw:grid tw:gap-3">
       <h2 className="tw:text-section">Solicitações de agenda</h2>
+      {calendarFeedback && (
+        <FeedbackMessage tone={calendarFeedback.tone}>{calendarFeedback.message}</FeedbackMessage>
+      )}
       {!admin && (
         <ActionForm
           label="Solicitar encontro do contrato"
@@ -147,6 +189,16 @@ export function AgendaActions({
                 {item.replacementPending && 'Horário anterior · '}
                 {formatServerInstant(item.meetingAt)} (Brasília)
               </p>
+            )}
+            {item.meetingUrl && item.status !== 'cancelled' && (
+              <a
+                href={item.meetingUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="tw:text-brand tw:underline"
+              >
+                Abrir link do Google Meet
+              </a>
             )}
             <AgendaParticipants
               people={item.participants}
@@ -308,20 +360,50 @@ export function AgendaActions({
                 {item.sync_status === 'pending' ? 'Aguardando integração' : item.sync_status}
               </p>
             )}
+            {agenda.calendarSyncEnabled &&
+              item.status === 'confirmed' &&
+              (item.sync_status === 'pending' ||
+                item.sync_status === 'error' ||
+                (item.request_mode === 'remote' && !item.meetingUrl)) && (
+                <Button
+                  variant="secondary"
+                  pending={calendarRetry}
+                  onClick={() => void retryCalendar(item.id)}
+                >
+                  Tentar sincronização Google
+                </Button>
+              )}
             {(offer || confirm) && options.length > 0 && (
               <ActionForm
                 label={offer ? 'Oferecer horário' : 'Confirmar horário'}
-                submit={async (fields) =>
-                  refresh(
-                    await agenda.respond(
-                      company,
-                      item.id,
-                      offer ? 'offer' : 'confirm',
-                      Number(fields.get('index')),
-                      read(fields, 'note'),
-                    ),
-                  )
-                }
+                submit={async (fields) => {
+                  const saved = await agenda.respond(
+                    company,
+                    item.id,
+                    offer ? 'offer' : 'confirm',
+                    Number(fields.get('index')),
+                    read(fields, 'note'),
+                  );
+                  if (!offer) {
+                    try {
+                      const integration = await agenda.syncConfirmedCalendar(item.id);
+                      setCalendarFeedback({
+                        tone:
+                          integration.status === 'synced' || integration.status === 'disabled'
+                            ? 'success'
+                            : 'error',
+                        message: `Reunião confirmada na CALI. ${calendarStatusMessage(integration.status)}`,
+                      });
+                    } catch {
+                      setCalendarFeedback({
+                        tone: 'error',
+                        message:
+                          'Reunião confirmada na CALI. Google Calendar não sincronizou; confira a conexão ou tente novamente.',
+                      });
+                    }
+                  }
+                  return refresh(saved);
+                }}
               >
                 {(prefix) => (
                   <>
