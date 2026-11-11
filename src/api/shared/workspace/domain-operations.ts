@@ -264,6 +264,7 @@ const formTriageResponse = z.object({
   respondent_name: z.string().nullable(),
   submitted_at: z.string(),
   pdfAvailable: z.boolean().optional(),
+  attachmentsAvailable: z.boolean().optional(),
   stage: z.string().nullable(),
   owner: z.string().nullable(),
 });
@@ -723,6 +724,28 @@ export function createDomainOperations(client: WorkspaceClient) {
       const result = pdfPayload.parse(data);
       if (result.id !== response) throw rejected();
       return decodePdf(result);
+    },
+    async formResponseAttachments(company: string, form: string, response: string) {
+      const { data, error } = await client.rpc('v2_list_pilot_form_attachments', {
+        p_company_id: company,
+        p_form_id: form,
+        p_response_id: response,
+      });
+      if (error) throw rejected(error.code);
+      const files = z
+        .array(z.object({ id: z.string(), fileName: z.string(), path: z.string() }))
+        .parse(data);
+      return Promise.all(
+        files.map(async ({ id, fileName, path }) => {
+          if (/^https:\/\/(drive\.google\.com|docs\.google\.com)\//.test(path))
+            return { id, fileName, url: path };
+          const { data: signed, error: signError } = await client.storage
+            .from('cali-forms')
+            .createSignedUrl(path, 60);
+          if (signError || !signed?.signedUrl) throw rejected();
+          return { id, fileName, url: signed.signedUrl };
+        }),
+      );
     },
     async formExport(company: string, form: string, signal: AbortSignal) {
       const { data, error } = await client

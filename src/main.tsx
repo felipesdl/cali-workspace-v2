@@ -48,12 +48,14 @@ try {
           client,
           environment.url,
           environment.publishableKey,
-          runtime.pilot &&
-            import.meta.env.VITE_CALI_PILOT_ACCESS === 'true' &&
-            window.location.hostname === '127.0.0.1' &&
-            ['5181', '5182'].includes(window.location.port)
-            ? 'workspace-access-pilot'
-            : 'workspace-access',
+          runtime.preview
+            ? 'workspace-access-preview'
+            : runtime.pilot &&
+                import.meta.env.VITE_CALI_PILOT_ACCESS === 'true' &&
+                window.location.hostname === '127.0.0.1' &&
+                ['5181', '5182'].includes(window.location.port)
+              ? 'workspace-access-pilot'
+              : 'workspace-access',
         )
       : null;
   const session = access ? createSessionController(access, cache) : null;

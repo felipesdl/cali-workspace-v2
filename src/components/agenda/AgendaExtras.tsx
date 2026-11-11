@@ -10,6 +10,7 @@ import { Checkbox } from '../ds/checkbox/Checkbox';
 import { AgendaExtraActions } from './AgendaExtraActions';
 import { AgendaExtraAdmin } from './AgendaExtraAdmin';
 import { AgendaExtraRequest } from './AgendaExtraRequest';
+import { Button } from '../ds/button/Button';
 
 const reais = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -24,10 +25,49 @@ export function AgendaExtras({
 }) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [calendarFeedback, setCalendarFeedback] = useState<
+    Record<string, { tone: 'success' | 'error'; message: string; meetingUrl?: string }>
+  >({});
   const result = useQuery({
     queryKey: ['phase4-agenda-extras', actor, company, page],
     queryFn: open ? ({ signal }) => agenda.listExtras(company, page, signal) : skipToken,
   });
+  async function syncExtra(appointmentId: string, cancelled = false) {
+    if (!agenda.calendarSyncEnabled) return;
+    setCalendarFeedback((previous) => ({
+      ...previous,
+      [appointmentId]: { tone: 'success', message: 'Sincronizando com Google Calendar…' },
+    }));
+    try {
+      const integration = cancelled
+        ? await agenda.syncCancelledExtraCalendar(appointmentId)
+        : await agenda.syncConfirmedCalendar(appointmentId);
+      const synced = integration.status === 'synced' || integration.status === 'cancelled_google';
+      setCalendarFeedback((previous) => ({
+        ...previous,
+        [appointmentId]: {
+          tone: synced ? 'success' : 'error',
+          message: synced
+            ? cancelled
+              ? 'Cancelamento atualizado no Google Calendar.'
+              : 'Evento sincronizado no Google Calendar.'
+            : integration.status === 'busy'
+              ? 'Outra sincronização está em andamento. Tente novamente em instantes.'
+              : 'Visita preservada no CALI. Google Calendar ainda não confirmou a sincronização.',
+          meetingUrl: integration.meetingUrl ?? undefined,
+        },
+      }));
+    } catch {
+      setCalendarFeedback((previous) => ({
+        ...previous,
+        [appointmentId]: {
+          tone: 'error',
+          message: 'Visita preservada no CALI. Google Calendar não sincronizou; tente novamente.',
+        },
+      }));
+    }
+    await result.refetch();
+  }
   return (
     <details
       className="tw:min-w-0 tw:rounded-control tw:border tw:border-border-default tw:p-4 tw:wrap-anywhere"
@@ -114,10 +154,44 @@ export function AgendaExtras({
                   item={item}
                   company={company}
                   agenda={agenda}
+                  syncAfterConfirmed={() => syncExtra(item.id)}
+                  syncAfterCancelled={() => syncExtra(item.id, true)}
                   refresh={async () => {
                     await result.refetch();
                   }}
                 />
+                {item.status === 'confirmed' && agenda.calendarSyncEnabled && (
+                  <Button variant="secondary" onClick={() => void syncExtra(item.id)}>
+                    Tentar sincronização Google
+                  </Button>
+                )}
+                {calendarFeedback[item.id]?.tone === 'error' &&
+                  agenda.calendarSyncEnabled &&
+                  item.status !== 'confirmed' && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => void syncExtra(item.id, true)}
+                    >
+                      Tentar atualizar cancelamento no Google
+                    </Button>
+                  )}
+                {calendarFeedback[item.id] && (
+                  <p role={calendarFeedback[item.id].tone === 'error' ? 'alert' : 'status'}>
+                    {calendarFeedback[item.id].message}
+                    {calendarFeedback[item.id].meetingUrl && (
+                      <>
+                        {' '}
+                        <a
+                          href={calendarFeedback[item.id].meetingUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Abrir Meet
+                        </a>
+                      </>
+                    )}
+                  </p>
+                )}
               </li>
             ))}
           </ul>

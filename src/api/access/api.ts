@@ -18,7 +18,8 @@ export function createHostedAccessApi(
   client: WorkspaceClient,
   url: string,
   publishableKey: string,
-  endpoint: 'workspace-access' | 'workspace-access-pilot' = 'workspace-access',
+  endpoint:
+    'workspace-access' | 'workspace-access-pilot' | 'workspace-access-preview' = 'workspace-access',
 ) {
   const termsStateSchema = acceptCurrentTermsSchema.extend({ accepted: z.boolean() });
   async function termsState(signal: AbortSignal) {
@@ -99,7 +100,7 @@ export function createHostedAccessApi(
         ),
       );
       if ('error' in result) throw unavailable();
-      if (endpoint === 'workspace-access-pilot' && !('session' in result)) throw unavailable();
+      if (endpoint !== 'workspace-access' && !('session' in result)) throw unavailable();
       // Compatibilidade com a Edge hospedada atual; o laboratório V2 devolve sessão admitida.
       const { error } =
         'session' in result

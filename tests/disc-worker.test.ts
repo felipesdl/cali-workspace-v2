@@ -38,6 +38,83 @@ const request = (
     body: JSON.stringify(body),
   });
 describe('worker DISC por público e confirmação do provedor', () => {
+  it('restringe origem e destinatários no preview e mantém o scheduler desligado', async () => {
+    const { ports } = fixture();
+    const origin = 'https://cali-qa.vercel.app';
+    const handler = createDiscHandler(ports, {
+      origin,
+      recipients: new Set(['approved@example.test']),
+    });
+    const headers = { Authorization: 'Bearer synthetic-session', Origin: origin };
+    expect(
+      (await handler(request({}, { ...headers, Origin: 'https://other.vercel.app' }))).status,
+    ).toBe(403);
+    expect((await handler(request({ action: 'scheduled' }))).status).toBe(403);
+    const invite = scheduledInvite();
+    vi.mocked(ports.claim)
+      .mockResolvedValueOnce(invite)
+      .mockResolvedValueOnce({
+        ...invite,
+        id: '10000000-0000-4000-8000-000000000008',
+        recipient: 'approved@example.test',
+      });
+    const response = await handler(request({}, headers));
+    expect(await response.json()).toEqual({ processed: 1, failed: 1 });
+    expect(response.headers.get('access-control-allow-origin')).toBe(origin);
+    expect(ports.send).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        to: 'approved@example.test',
+        html: expect.stringContaining(`${origin}/disc/convite/${invite.token}`),
+      }),
+    );
+  });
+
+  it('entrega PDF privado legado e registra o recibo na reserva que gerou o envio', async () => {
+    const { ports } = fixture();
+    const legacyLease = '10000000-0000-4000-8000-000000000009';
+    const job = discJobSchema.parse({
+      ...scheduledInvite(),
+      kind: 'respondent_pdf',
+      legacyLease,
+      token: null,
+      respondent: {
+        audience: 'respondent',
+        title: 'Perfil legado',
+        organization: 'Empresa sintética',
+        protocol: 'DISC-TESTE',
+        personName: 'Pessoa sintética',
+        primary: 'D',
+        secondary: 'I',
+        mixed: false,
+        createdAt: '2026-11-11T12:00:00Z',
+        signer: null,
+      },
+    });
+    const origin = 'https://cali-qa.vercel.app';
+    const handler = createDiscHandler(ports, { origin, recipients: new Set([job.recipient]) });
+    vi.mocked(ports.claim).mockResolvedValueOnce(job);
+    const response = await handler(
+      request({}, { Origin: origin, Authorization: 'Bearer session-fixture' }),
+    );
+
+    expect(await response.json()).toEqual({ processed: 1, failed: 0 });
+    expect(ports.validate).toHaveBeenCalledWith(job.id, legacyLease);
+    expect(ports.record).toHaveBeenCalledWith(
+      job.id,
+      'sent',
+      { providerId: 'provider-qa' },
+      legacyLease,
+    );
+    expect(ports.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: job.recipient,
+        key: `cali-disc-${job.id}`,
+        attachment: expect.any(Uint8Array),
+      }),
+    );
+    expect(vi.mocked(ports.send).mock.calls[0][0].html).not.toContain('/perfil/relatorio/');
+  });
+
   it('exige o JWT de serviço exato, sem aceitar chave sb_secret ou token de sessão', async () => {
     const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
     const jwt = 'machine.payload.signature';

@@ -74,4 +74,64 @@ describe('sincronização Agenda Google simulada', () => {
     );
     expect(urls[0]).toContain('sendUpdates=none');
   });
+
+  it('atualiza vínculo externo já persistido sem trocar ID do Google', async () => {
+    const legacyGoogleId = 'legacy-google-event-42';
+    const requests: Array<{ url: string; method: string; body: string }> = [];
+    const fetcher: typeof fetch = async (input, init = {}) => {
+      const url = String(input);
+      const method = init.method ?? 'GET';
+      const body = typeof init.body === 'string' ? init.body : '';
+      requests.push({ url, method, body });
+      return method === 'POST'
+        ? Response.json({ error: 'duplicate' }, { status: 409 })
+        : Response.json({ id: legacyGoogleId, htmlLink: 'https://calendar.google.test/event' });
+    };
+
+    const result = await syncGoogleCalendarEvent(
+      meeting,
+      'test-calendar',
+      'fixture-token',
+      fetcher,
+      legacyGoogleId,
+    );
+
+    expect(result.id).toBe(legacyGoogleId);
+    expect(requests[0].url).toContain('/events?');
+    expect(JSON.parse(requests[0].body)).toHaveProperty('id', legacyGoogleId);
+    expect(requests[1].url).toContain(`/events/${legacyGoogleId}?`);
+    expect(JSON.parse(requests[1].body)).not.toHaveProperty('id');
+  });
+
+  it('não pede Meet para visita presencial', () => {
+    expect(googleEventBody({ ...meeting, mode: 'in_person' }).conferenceData).toBeUndefined();
+  });
+
+  it('converge duas tentativas concorrentes no mesmo ID determinístico', async () => {
+    const requests: Array<{ method: string; url: string }> = [];
+    let firstPost = true;
+    const fetcher: typeof fetch = async (input, init = {}) => {
+      const method = init.method ?? 'GET';
+      const url = String(input);
+      requests.push({ method, url });
+      if (method === 'POST' && firstPost) {
+        firstPost = false;
+        return Response.json({ id: stableGoogleEventId(meeting.id) });
+      }
+      if (method === 'POST') return Response.json({ error: 'duplicate' }, { status: 409 });
+      return Response.json({ id: stableGoogleEventId(meeting.id) });
+    };
+
+    const results = await Promise.all([
+      syncGoogleCalendarEvent(meeting, 'test-calendar', 'fixture-token', fetcher),
+      syncGoogleCalendarEvent(meeting, 'test-calendar', 'fixture-token', fetcher),
+    ]);
+
+    expect(results.map(({ id }) => id)).toEqual([
+      stableGoogleEventId(meeting.id),
+      stableGoogleEventId(meeting.id),
+    ]);
+    expect(requests.filter(({ method }) => method === 'PATCH')).toHaveLength(1);
+    expect(requests.every(({ url }) => url.includes('sendUpdates=none'))).toBe(true);
+  });
 });

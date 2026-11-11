@@ -14,5 +14,10 @@ Deno.serve(
     service: required('SUPABASE_SERVICE_ROLE_KEY'),
     resend: required('RESEND_API_KEY'),
     app: new URL(required('CALI_APP_ORIGIN')).origin,
+    testRecipients: Deno.env
+      .get('CALI_FORMS_TEST_RECIPIENTS')
+      ?.split(',')
+      .map((email) => email.trim())
+      .filter(Boolean),
   }),
 );

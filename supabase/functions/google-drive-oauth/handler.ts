@@ -8,7 +8,11 @@ const command = z.discriminatedUnion('action', [
     code: z.string().min(1).max(4000),
     state: z.string().min(1).max(4000),
   }),
-  z.object({ action: z.literal('copy_file'), fileId: z.uuid() }),
+  z.object({
+    action: z.literal('copy_file'),
+    fileId: z.uuid(),
+    source: z.enum(['legacy', 'document']),
+  }),
   z.object({ action: z.literal('copy_folder'), deliverableId: z.uuid() }),
 ]);
 const connectionSchema = z.object({
@@ -44,12 +48,16 @@ const leaseSchema = z.discriminatedUnion('done', [
     done: z.literal(false),
     lease: z.uuid(),
     providerId: z.string().nullable(),
-    path: z.string(),
-    name: z.string(),
-    fileType: z.string().nullable(),
-    deliverable: z.uuid().nullable(),
   }),
 ]);
+const sourceKind = z.enum(['legacy', 'document']);
+const driveSource = z.object({
+  version: z.string().regex(/^[a-f0-9]{64}$/),
+  path: z.string().nullable(),
+  revisionId: z.uuid().nullable(),
+  name: z.string(),
+  deliveryId: z.uuid().nullable(),
+});
 type Config = {
   project: string;
   anon: string;
@@ -58,6 +66,7 @@ type Config = {
   clientSecret: string;
   redirectUri: string;
   origins: string[];
+  testAccounts?: string[];
 };
 const encoder = new TextEncoder();
 function base64(bytes: Uint8Array) {
@@ -83,6 +92,26 @@ function decode(value: string) {
 }
 
 export function createDriveHandler(config: Config, transport: typeof fetch = fetch) {
+  const project = new URL(config.project);
+  const preview =
+    config.origins.some((origin) => new URL(origin).hostname.endsWith('.vercel.app')) ||
+    (project.hostname.endsWith('.supabase.co') &&
+      project.hostname !== 'kqtbfeeqbcllwvlkbrkq.supabase.co');
+  const redirect = new URL(config.redirectUri);
+  if (
+    preview &&
+    (redirect.protocol !== 'https:' ||
+      !config.origins.includes(redirect.origin) ||
+      !redirect.hostname.endsWith('.vercel.app') ||
+      redirect.pathname !== '/oauth/google/callback' ||
+      redirect.search ||
+      redirect.hash ||
+      redirect.username ||
+      redirect.password)
+  )
+    throw new Error('O retorno Google deve apontar para o preview autorizado.');
+  const testAccounts = new Set(config.testAccounts?.map((email) => email.toLowerCase()));
+  const allowedAccount = (email: string) => !preview || testAccounts.has(email.toLowerCase());
   return async (request: Request) => {
     const origin = request.headers.get('origin') ?? '';
     const headers = {
@@ -201,6 +230,8 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
         return token.access_token;
       }
       if (input.action === 'authorize') {
+        if (preview && testAccounts.size === 0)
+          return reply({ error: 'test_account_required' }, 503);
         const payload = base64(
           encoder.encode(
             JSON.stringify({
@@ -270,6 +301,7 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
           z.object({ email: z.email(), sub: z.string().min(1) }),
           { headers: { Authorization: `Bearer ${tokens.access_token}` } },
         );
+        if (!allowedAccount(identity.email)) return reply({ error: 'test_account_required' }, 403);
         const key = `drive:${actor}:${company}:${identity.sub}`;
         const previous = await root
           .from('google_calendar_credentials')
@@ -330,6 +362,8 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
         return reply({ ok: true, purpose: 'drive', accountEmail: identity.email });
       }
       const conn = await connection(input.action === 'disconnect');
+      if (conn && !allowedAccount(conn.account_email))
+        return reply({ error: 'test_account_required' }, 403);
       if (input.action === 'status')
         return reply({
           connected: Boolean(conn),
@@ -390,9 +424,9 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
       if (!conn) return reply({ error: 'drive_not_connected' }, 409);
       const token = await accessToken(conn);
       const googleHeaders = { Authorization: `Bearer ${token}` };
-      async function folder(name: string, parent?: string) {
-        const safe = name.replace(/[\\']/g, ' ').trim().slice(0, 180) || 'CALI Workspace';
-        const q = `name='${safe}' and mimeType='application/vnd.google-apps.folder' and trashed=false${parent ? ` and '${parent}' in parents` : " and 'root' in parents"}`;
+      async function folder(name: string, identity: string, parent?: string) {
+        const safe = name.trim().slice(0, 180) || 'CALI Workspace';
+        const q = `appProperties has { key='caliFolder' and value='${identity}' } and mimeType='application/vnd.google-apps.folder' and trashed=false${parent ? ` and '${parent}' in parents` : " and 'root' in parents"}`;
         const found = await google(
           `https://www.googleapis.com/drive/v3/files?${new URLSearchParams({ q, fields: 'files(id)', pageSize: '1' })}`,
           z.object({ files: z.array(fileSchema) }),
@@ -406,26 +440,34 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
             body: JSON.stringify({
               name: safe,
               mimeType: 'application/vnd.google-apps.folder',
+              appProperties: { caliFolder: identity },
               ...(parent ? { parents: [parent] } : {}),
             }),
           })
         ).id;
       }
-      let rootId = conn.root_folder_id;
-      if (rootId) {
-        const check = await transport(
-          `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(rootId)}?fields=id,trashed`,
-          { headers: googleHeaders, signal: AbortSignal.timeout(8000) },
-        );
-        if (!check.ok || fileSchema.parse(await check.json()).trashed) rootId = null;
-      }
-      if (!rootId) {
-        rootId = await folder('CALI Workspace');
-        await updateConnection(
-          conn.id,
-          { root_folder_id: rootId, root_folder_name: 'CALI Workspace' },
-          conn.credential_key,
-        );
+      let rootFolder: Promise<string> | undefined;
+      function rootFolderId() {
+        rootFolder ??= (async () => {
+          const current = conn!.root_folder_id;
+          if (current) {
+            const check = await transport(
+              `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(current)}?fields=id,trashed`,
+              { headers: googleHeaders, signal: AbortSignal.timeout(8000) },
+            );
+            if (check.ok && !fileSchema.parse(await check.json()).trashed) return current;
+            if (!check.ok && check.status !== 404)
+              throw new Error('Não foi possível consultar a pasta do Workspace.');
+          }
+          const created = await folder('CALI Workspace', company);
+          await updateConnection(
+            conn!.id,
+            { root_folder_id: created, root_folder_name: 'CALI Workspace' },
+            conn!.credential_key,
+          );
+          return created;
+        })();
+        return rootFolder;
       }
       async function deliveryFolder(id: string) {
         const result = await user
@@ -440,15 +482,24 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
           .parse(result.data);
         return folder(
           `${delivery.title}${delivery.protocol ? ` (${delivery.protocol})` : ''}`,
-          rootId ?? undefined,
+          `${company}:${id}`,
+          await rootFolderId(),
         );
       }
-      async function job(action: string, file: string, lease?: string, provider?: string) {
-        const result = await user.rpc('v2_drive_copy', {
+      async function job(
+        action: string,
+        file: string,
+        version: string,
+        lease?: string,
+        provider?: string,
+      ) {
+        const result = await root.rpc('v2_drive_copy', {
+          p_actor: actor,
           p_action: action,
           p_file: file,
           p_connection: conn!.id,
           p_account: conn!.google_account_id,
+          p_version: version,
           p_lease: lease ?? null,
           p_provider: provider ?? null,
         });
@@ -456,8 +507,15 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
           throw new Error('Cópia indisponível, em andamento ou com versão alterada.');
         return result.data;
       }
-      async function copy(file: string) {
-        const claim = leaseSchema.parse(await job('claim', file));
+      async function readSource(file: string, source: z.infer<typeof sourceKind>) {
+        const result = await user.rpc('v2_read_drive_source', { p_file: file, p_source: source });
+        if (result.error) throw new Error('Arquivo indisponível.');
+        return driveSource.parse(result.data);
+      }
+      async function copy(file: string, source: z.infer<typeof sourceKind>, folderId?: string) {
+        const origin = await readSource(file, source);
+        const { version } = origin;
+        const claim = leaseSchema.parse(await job('claim', file, version));
         if (claim.done) return { status: 'synced', url: claim.url };
         try {
           const provider =
@@ -469,7 +527,7 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
                 { headers: googleHeaders },
               )
             ).ids[0];
-          await job('reserve', file, claim.lease, provider);
+          await job('reserve', file, version, claim.lease, provider);
           // O ID reservado também recupera upload concluído cuja resposta se perdeu.
           const existing = await transport(
             `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(provider)}?fields=id,trashed`,
@@ -481,22 +539,45 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
             if (fileSchema.parse(await existing.json()).trashed)
               throw new Error('A cópia foi removida do Drive.');
           } else {
-            const destination = claim.deliverable
-              ? await deliveryFolder(claim.deliverable)
-              : rootId;
-            const source = await root.storage.from('cali-workspace-private').download(claim.path);
-            if (source.error || !source.data) throw new Error('Arquivo indisponível.');
-            await job('reserve', file, claim.lease, provider);
+            const destination =
+              folderId ??
+              (origin.deliveryId ? await deliveryFolder(origin.deliveryId) : await rootFolderId());
+            let contents: Blob;
+            if (source === 'document' && origin.revisionId) {
+              const result = await user.rpc('v2_read_pilot_document_pdf', {
+                p_company_id: company,
+                p_document_id: file,
+                p_revision_id: origin.revisionId,
+              });
+              if (result.error) throw new Error('Documento indisponível.');
+              const { content } = z
+                .object({ content: z.string().max(3_000_000) })
+                .parse(result.data);
+              contents = new Blob([Uint8Array.from(atob(content), (char) => char.charCodeAt(0))], {
+                type: 'application/pdf',
+              });
+            } else if (source === 'legacy' && origin.path) {
+              const download = await user.storage
+                .from('cali-workspace-private')
+                .download(origin.path);
+              if (download.error || !download.data) throw new Error('Arquivo indisponível.');
+              contents = download.data;
+            } else {
+              throw new Error('Origem do arquivo indisponível.');
+            }
+            if ((await readSource(file, source)).version !== version)
+              throw new Error('A versão disponível mudou. Tente novamente.');
+            await job('reserve', file, version, claim.lease, provider);
             const boundary = `cali_${crypto.randomUUID()}`;
-            const mime = source.data.type || 'application/octet-stream';
+            const mime = contents.type || 'application/octet-stream';
             const metadata = JSON.stringify({
               id: provider,
-              name: claim.name,
+              name: origin.name,
               parents: [destination],
             });
             const body = new Blob([
               `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n--${boundary}\r\nContent-Type: ${mime}\r\n\r\n`,
-              source.data,
+              contents,
               `\r\n--${boundary}--`,
             ]);
             await google(
@@ -514,30 +595,28 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
           }
           const finished = z
             .object({ done: z.literal(true), url: z.url() })
-            .parse(await job('complete', file, claim.lease));
+            .parse(await job('complete', file, version, claim.lease));
           return { status: 'synced', url: finished.url };
         } catch (error) {
-          await job('fail', file, claim.lease).catch(() => null);
+          await job('fail', file, version, claim.lease).catch(() => null);
           throw error;
         }
       }
-      if (input.action === 'copy_file') return reply(await copy(input.fileId));
+      if (input.action === 'copy_file') return reply(await copy(input.fileId, input.source));
       if (input.action !== 'copy_folder') return reply({ error: 'unknown_action' }, 400);
-      const result = await user
-        .from('files')
-        .select('id')
-        .eq('company_id', company)
-        .eq('deliverable_id', input.deliverableId)
-        .eq('status', 'published')
-        .eq('client_visible', true)
-        .not('storage_path', 'is', null)
-        .limit(501);
-      if (result.error) throw new Error('Pasta indisponível.');
-      const files = z
-        .array(z.object({ id: z.uuid() }))
-        .min(1)
-        .max(500)
-        .parse(result.data);
+      const folderItems = z.array(z.object({ id: z.uuid(), source: sourceKind })).max(100);
+      const files: z.infer<typeof folderItems> = [];
+      for (let page = 1; page <= 6; page++) {
+        const result = await user.rpc('v2_list_drive_sources', {
+          p_page: page,
+          p_delivery: input.deliverableId,
+        });
+        if (result.error) throw new Error('Pasta indisponível.');
+        const items = folderItems.parse(result.data);
+        files.push(...items);
+        if (items.length < 100) break;
+      }
+      if (files.length === 0 || files.length > 500) throw new Error('Pasta indisponível.');
       const folderId = await deliveryFolder(input.deliverableId);
       let copied = 0,
         failed = 0;
@@ -545,7 +624,7 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
       for (const file of files) {
         if (Date.now() > deadline) break;
         try {
-          await copy(file.id);
+          await copy(file.id, file.source, folderId);
           copied++;
         } catch {
           /* O item permanece disponível para nova tentativa. */

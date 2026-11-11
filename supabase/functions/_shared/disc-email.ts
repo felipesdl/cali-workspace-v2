@@ -35,19 +35,26 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;');
 }
 
-function safeLink(value: string | undefined): string | null {
+function safeLink(value: string | undefined, previewOrigin?: string): string | null {
   if (!value) return null;
   try {
     const url = new URL(value);
-    if (!ALLOWED_LINK_ORIGINS.has(url.origin) || url.username || url.password) return null;
+    const allowed = previewOrigin
+      ? url.origin === previewOrigin
+      : ALLOWED_LINK_ORIGINS.has(url.origin);
+    if (!allowed || url.username || url.password) return null;
     return url.toString();
   } catch {
     return null;
   }
 }
 
-function emailCopy(input: DiscEmailInput, title: string, name: string): EmailCopy {
-  const hasLink = Boolean(safeLink(input.url));
+function emailCopy(
+  input: DiscEmailInput,
+  title: string,
+  name: string,
+  hasLink: boolean,
+): EmailCopy {
   const deadline = input.deadline ? ` Prazo: ${plainText(input.deadline)}.` : '';
   switch (input.kind) {
     case 'invite':
@@ -129,15 +136,18 @@ function emailCopy(input: DiscEmailInput, title: string, name: string): EmailCop
   }
 }
 
-export function renderDiscEmail(input: DiscEmailInput): {
+export function renderDiscEmail(
+  input: DiscEmailInput,
+  previewOrigin?: string,
+): {
   subject: string;
   html: string;
   text: string;
 } {
   const title = plainText(input.title) || 'Perfil Comportamental';
   const name = input.name ? plainText(input.name) : '';
-  const copy = emailCopy(input, title, name);
-  const url = safeLink(input.url);
+  const url = safeLink(input.url, previewOrigin);
+  const copy = emailCopy(input, title, name, Boolean(url));
   const action =
     copy.action && url
       ? `<p style="margin:28px 0 24px;text-align:center"><a href="${escapeHtml(url)}" style="display:inline-block;padding:13px 21px;border-radius:6px;background:#5A1E2D;color:#FFFFFF;text-decoration:none;font:700 14px/20px Arial,Helvetica,sans-serif">${escapeHtml(copy.action)}</a></p>`

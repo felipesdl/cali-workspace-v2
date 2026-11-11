@@ -33,8 +33,9 @@ const status = z.object({
 const sourceFile = z.object({
   id: z.uuid(),
   title: z.string(),
-  deliverable_id: z.uuid().nullable(),
-  storage_path: z.string().nullable(),
+  deliveryId: z.uuid().nullable(),
+  deliveryTitle: z.string().nullable(),
+  source: z.enum(['legacy', 'document']),
 });
 
 export function isDriveCallbackState(state: string) {
@@ -62,16 +63,9 @@ export function createClientDrive(client: WorkspaceClient) {
     async status(signal: AbortSignal) {
       return status.parse(await call({ action: 'status' }, signal));
     },
-    async files(company: string, signal: AbortSignal) {
+    async files(page: number, signal: AbortSignal) {
       const { data, error } = await client
-        .from('files')
-        .select('id,title,deliverable_id,storage_path')
-        .eq('company_id', company)
-        .eq('status', 'published')
-        .eq('client_visible', true)
-        .not('storage_path', 'is', null)
-        .order('title')
-        .limit(100)
+        .rpc('v2_list_drive_sources', { p_page: page })
         .abortSignal(signal);
       if (error) throw new Error('Não foi possível consultar os arquivos disponíveis para cópia.');
       return z.array(sourceFile).parse(data);
@@ -95,10 +89,10 @@ export function createClientDrive(client: WorkspaceClient) {
       exchange = { code, state, promise };
       return promise;
     },
-    async copyFile(file: string) {
+    async copyFile(file: string, source: z.infer<typeof sourceFile>['source']) {
       return z
         .object({ status: z.literal('synced'), url: driveUrl })
-        .parse(await call({ action: 'copy_file', fileId: file }));
+        .parse(await call({ action: 'copy_file', fileId: file, source }));
     },
     async copyFolder(folder: string) {
       return z

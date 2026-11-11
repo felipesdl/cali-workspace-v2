@@ -42,17 +42,18 @@ it('reusa a identidade do e-mail se o registro falhar após o provedor aceitar',
     }
     return new Response(null, { status: 500 });
   });
+  const config = {
+    project: 'https://supabase.example.test',
+    service: 'service-fixture',
+    resend: 'resend-fixture',
+    app: 'https://cali-qa.vercel.app',
+  };
   const handle = createFormConfirmationHandler(
-    {
-      project: 'https://supabase.example.test',
-      service: 'service-fixture',
-      resend: 'resend-fixture',
-      app: 'https://preview.example.test',
-    },
+    { ...config, testRecipients: ['pessoa@example.test'] },
     transport,
   );
-  const send = () =>
-    handle(
+  const send = (handler = handle) =>
+    handler(
       new Request('https://supabase.example.test/functions/v1/cali-forms-confirmation', {
         method: 'POST',
         headers: { 'x-workspace-hook': 'fixture' },
@@ -60,6 +61,9 @@ it('reusa a identidade do e-mail se o registro falhar após o provedor aceitar',
       }),
     );
 
+  const restricted = createFormConfirmationHandler(config, transport);
+  expect(await (await send(restricted)).json()).toEqual({ ok: true, skipped: true });
+  expect(receipts.size).toBe(0);
   expect((await send()).status).toBe(500);
   expect(await (await send()).json()).toEqual({ ok: true });
   expect(await (await send()).json()).toEqual({ ok: true, skipped: true });

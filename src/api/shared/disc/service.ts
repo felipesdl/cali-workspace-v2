@@ -5,6 +5,7 @@ import {
   discClientSnapshotSchema,
   discCommandResultSchema,
   discCommandSchema,
+  discLegacyAdminSnapshotSchema,
   DISC_PILOT_COMPANY_IDS,
   discProcessJobsResultSchema,
   discPublicCommandSchema,
@@ -12,6 +13,7 @@ import {
   type DiscAdminSnapshot,
   type DiscClientSnapshot,
   type DiscCommandInput,
+  type DiscLegacyAdminSnapshot,
   type DiscPublicCommand,
   type DiscPublicProjection,
 } from './schemas';
@@ -45,6 +47,14 @@ export interface DiscService {
   download(campaignId: string | null, resultId: string | null): Promise<Blob>;
   readPublic(token: string, signal: AbortSignal): Promise<DiscPublicProjection>;
   publicCommand(token: string, command: DiscPublicCommand): Promise<DiscPublicProjection>;
+  readLegacyPublic(slug: string, token: string, signal: AbortSignal): Promise<DiscPublicProjection>;
+  legacyPublicCommand(
+    slug: string,
+    token: string,
+    command: DiscPublicCommand,
+  ): Promise<DiscPublicProjection>;
+  legacyAdminSnapshot(linkId: string | null, signal: AbortSignal): Promise<DiscLegacyAdminSnapshot>;
+  downloadLegacyEvaluation(path: string): Promise<Blob>;
 }
 
 export function createHostedDisc(client: WorkspaceClient): DiscService {
@@ -152,6 +162,70 @@ export function createHostedDisc(client: WorkspaceClient): DiscService {
       });
       if (error) throw unavailable();
       return discPublicProjectionSchema.parse(data);
+    },
+
+    async readLegacyPublic(slug, token, signal) {
+      const parsedSlug = z
+        .string()
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+        .parse(slug);
+      const parsedToken = z.uuid().parse(token);
+      const { data, error } = await client
+        .rpc('v2_disc_legacy_public', {
+          p_slug: parsedSlug,
+          p_token: parsedToken,
+          p_kind: 'read',
+          p_fields: {},
+        })
+        .abortSignal(signal);
+      if (error) throw unavailable();
+      return discPublicProjectionSchema.parse(data);
+    },
+
+    async legacyPublicCommand(slug, token, input) {
+      const parsedSlug = z
+        .string()
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+        .parse(slug);
+      const parsedToken = z.uuid().parse(token);
+      const command = discPublicCommandSchema.parse(input);
+      const { data, error } = await client.rpc('v2_disc_legacy_public', {
+        p_slug: parsedSlug,
+        p_token: parsedToken,
+        p_kind: command.kind,
+        p_fields: command.fields,
+      });
+      if (error) throw commandError(error);
+      return discPublicProjectionSchema.parse(data);
+    },
+
+    async legacyAdminSnapshot(linkId, signal) {
+      const parsedLink = linkId === null ? null : z.uuid().parse(linkId);
+      const { data, error } = await client
+        .rpc('v2_disc_legacy_admin', { p_link: parsedLink })
+        .abortSignal(signal);
+      if (error) throw unavailable();
+      return discLegacyAdminSnapshotSchema.parse(data);
+    },
+
+    async downloadLegacyEvaluation(path) {
+      const parsedPath = z
+        .string()
+        .max(300)
+        .regex(
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\/[A-Za-z0-9._-]+\.pdf$/i,
+        )
+        .parse(path);
+      const { data, error } = await client.storage.from('cali-profiles').download(parsedPath);
+      if (
+        error ||
+        data.type.toLowerCase() !== 'application/pdf' ||
+        data.size === 0 ||
+        data.size > 15 * 1024 * 1024
+      ) {
+        throw new Error('PDF legado indisponível para este acesso Admin.');
+      }
+      return data;
     },
   };
 }

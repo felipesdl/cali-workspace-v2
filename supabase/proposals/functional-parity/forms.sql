@@ -13,11 +13,7 @@ revoke all on cali_session_guard.form_trash_pdfs from public,anon,authenticated,
 create function cali_session_guard.require_form_admin(p_company uuid) returns void
 language plpgsql security definer set search_path='' as $$
 begin
-  if auth.uid() is null or (cali_workspace.v2_read_terms_state()->>'accepted') is distinct from 'true'
-    or not exists(select 1 from cali_workspace.profiles p where p.id=auth.uid() and p.active and p.role='admin')
-    or not exists(select 1 from cali_workspace.companies c where c.id=p_company) then
-    raise exception using errcode='42501',message='Gestão de formulário indisponível.';
-  end if;
+  perform cali_session_guard.require_phase4_role(p_company,'admin');
 end $$;
 revoke all on function cali_session_guard.require_form_admin(uuid) from public,anon,authenticated,service_role;
 
@@ -44,9 +40,13 @@ begin
     select 1 from jsonb_array_elements(f.questions) q where q->>'kind'='email' and q->>'required'='true')) then
     raise exception using errcode='22023',message='Encerre a coleta e inclua uma pergunta obrigatória de e-mail.';
   end if;
-  if p_enabled and not exists(select 1 from cali_workspace.runtime_secrets where secret_key='forms_confirmation_url'
-    and secret_value ~ '^https://[a-z0-9-]+[.]supabase[.]co/functions/v1/cali-forms-confirmation$') then
-    raise exception using errcode='22023',message='Canal de confirmação ainda não configurado.';
+  if p_enabled then
+    if to_regprocedure('cali_session_guard.form_confirmation_transport()') is null then
+      raise exception using errcode='22023',message='Canal de confirmação ainda não configurado.';
+    end if;
+    if cali_session_guard.form_confirmation_transport() is null then
+      raise exception using errcode='22023',message='Canal de confirmação ainda não configurado.';
+    end if;
   end if;
   update cali_workspace.forms set confirm_email=p_enabled,updated_at=clock_timestamp() where id=p_form;
 end $$;

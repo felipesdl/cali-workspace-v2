@@ -74,6 +74,12 @@ O piloto V2 precisa de associação explícita por identificador, projeção por
 
 Na devolutiva sintética V2, Admin com MFA confere a revisão do diagnóstico e confirma o envio. O servidor confere a delegação e a revisão antes de gerar o mesmo PDF do download. O piloto só entrega ao endereço do simulador e registra a aceitação do provedor. Veja [escopo, testes e rollback](../contracts/PHASE_4_READ.md#devolutiva-sintética-do-mapa).
 
+## Exportação, anexos e lixeira — 11/11/2026
+
+Admin com MFA pode exportar respostas de Forms legado e V2 enquanto a coleta estiver aberta ou encerrada. Excel preserva ordem e valores das perguntas, incluindo dados de contato informados como respostas. Não inclui colunas internas de e-mail/nome extraídas no servidor nem caminhos de Storage; campo de arquivo vira marcador genérico. Limite: 500 respostas/2 MiB. Auditoria registra origem e quantidade. Arquivos legado seguem acessíveis na triagem por RPC Admin/MFA, escopo form/resposta/pergunta, bucket privado e URL assinada de 60 s; aceita múltiplos caminhos por pergunta e links de Drive já armazenados.
+
+Lixeira mantém cópia completa de formulário/respostas por 30 dias, com IDs e anexos. Restaurar resposta exige formulário ativo; restaurar formulário preserva dados, mantém coleta encerrada e exige slug disponível. Objetos do bucket permanecem no mesmo path durante exclusão lógica e restauração. Fixtures PostgreSQL cobrem origem V2/legada, coleta aberta/fechada, anonimização de metadados/path na exportação, múltiplos anexos, escopo e MFA. Esses ensaios não homologam configuração/RLS do Storage hospedado nem URLs de download reais.
+
 Em 07/11, o catálogo hospedado confirmou que o leitor público por slug não exige vínculo mesmo com audiência Cliente. A coleta da fixture ficou fechada. [Evidência](../contracts/PHASE_4_READ.md#lote-de-homologação-de-forms-no-cali-mapa).
 
 A V2 exige [confirmação explícita de coleta pública](../contracts/PHASE_4_READ.md#confirmação-de-coleta-pública-em-forms). Abertura privada por vínculo não faz parte do leitor legado.

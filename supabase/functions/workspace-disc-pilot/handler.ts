@@ -71,6 +71,7 @@ const documentSchema = z.union([
 ]);
 const jobSchema = z.object({
   id: z.uuid(),
+  legacyLease: z.uuid().optional(),
   kind: z.string(),
   recipient: z.email(),
   title: z.string(),
@@ -111,12 +112,13 @@ export type DiscWorkerPorts = {
     campaign: string | null,
     result: string | null,
   ) => Promise<z.infer<typeof documentSchema>>;
-  validate: (id: string) => Promise<boolean>;
+  validate: (id: string, legacyLease?: string) => Promise<boolean>;
   claim: () => Promise<z.infer<typeof jobSchema> | null>;
   record: (
     id: string,
     state: 'sent' | 'failed',
     fields: { providerId?: string; error?: string },
+    legacyLease?: string,
   ) => Promise<void>;
   send: (input: {
     to: string;
@@ -158,12 +160,16 @@ async function artifact(input: DiscPdfInput, ports: DiscWorkerPorts, photo?: str
     throw new Error('Foto da assinatura indisponível.');
   return createDiscPdf({ ...input, avatar, signature });
 }
-export function createDiscHandler(ports: DiscWorkerPorts) {
+export function createDiscHandler(
+  ports: DiscWorkerPorts,
+  preview?: { origin: string; recipients: ReadonlySet<string> },
+) {
+  const allowedOrigins = preview ? new Set([preview.origin]) : origins;
   return async (request: Request): Promise<Response> => {
     const origin = request.headers.get('Origin');
     const headers = {
       ...baseHeaders,
-      ...(origin && origins.has(origin) ? { 'Access-Control-Allow-Origin': origin } : {}),
+      ...(origin && allowedOrigins.has(origin) ? { 'Access-Control-Allow-Origin': origin } : {}),
       'Access-Control-Allow-Headers': 'authorization,apikey,x-client-info,content-type',
       'Access-Control-Allow-Methods': 'POST,OPTIONS',
     };
@@ -172,7 +178,8 @@ export function createDiscHandler(ports: DiscWorkerPorts) {
         status,
         headers: { ...headers, 'Content-Type': 'application/json' },
       });
-    if (origin && !origins.has(origin)) return json({ error: 'Origem não autorizada.' }, 403);
+    if (origin && !allowedOrigins.has(origin))
+      return json({ error: 'Origem não autorizada.' }, 403);
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers });
     if (request.method !== 'POST') return json({ error: 'Método indisponível.' }, 405);
     const authorization = request.headers.get('Authorization') ?? '';
@@ -184,6 +191,7 @@ export function createDiscHandler(ports: DiscWorkerPorts) {
       const parsed = commandSchema.safeParse(JSON.parse(raw || '{}'));
       if (!parsed.success) return json({ error: 'Pedido inválido.' }, 400);
       const scheduled = parsed.data.action === 'scheduled';
+      if (scheduled && preview) return json({ error: 'Agenda desligada na homologação.' }, 403);
       if (
         scheduled &&
         (origin || parsed.data.campaignId !== undefined || parsed.data.resultId !== undefined)
@@ -237,7 +245,19 @@ export function createDiscHandler(ports: DiscWorkerPorts) {
         const claimed = await ports.claim();
         if (!claimed) break;
         const job = jobSchema.parse(claimed);
+        const record = (
+          state: 'sent' | 'failed',
+          fields: { providerId?: string; error?: string },
+        ) =>
+          job.legacyLease
+            ? ports.record(job.id, state, fields, job.legacyLease)
+            : ports.record(job.id, state, fields);
         try {
+          if (preview && !preview.recipients.has(job.recipient.toLowerCase())) {
+            await record('failed', { error: 'recipient_outside_preview' });
+            failed++;
+            continue;
+          }
           let attachment: Uint8Array | undefined;
           if (job.kind === 'respondent_pdf') {
             if (!job.respondent) throw new Error('Resultado individual ausente.');
@@ -250,12 +270,14 @@ export function createDiscHandler(ports: DiscWorkerPorts) {
               job.payload.report.signer?.avatar_url,
             );
           }
+          const clientOrigin = preview?.origin ?? 'http://127.0.0.1:5181';
+          const adminOrigin = preview?.origin ?? 'http://127.0.0.1:5173';
           const url =
             job.kind === 'gestao_released'
-              ? 'http://127.0.0.1:5181/cliente/perfil'
+              ? `${clientOrigin}/cliente/perfil`
               : job.token
-                ? `http://127.0.0.1:5181/disc/convite/${job.token}`
-                : 'http://127.0.0.1:5173/admin/perfil';
+                ? `${clientOrigin}/disc/convite/${job.token}`
+                : `${adminOrigin}/admin/perfil`;
           const deadline = job.deadline
             ? new Intl.DateTimeFormat('pt-BR', {
                 dateStyle: 'long',
@@ -263,18 +285,24 @@ export function createDiscHandler(ports: DiscWorkerPorts) {
                 timeZone: 'America/Sao_Paulo',
               }).format(new Date(job.deadline))
             : undefined;
-          const email = renderDiscEmail({
-            kind: job.kind,
-            title: job.title,
-            name: job.name,
-            url,
-            deadline,
-            message:
-              job.payload.pending === undefined
-                ? undefined
-                : `Participações pendentes: ${job.payload.pending}.`,
-          });
-          if (!(await ports.validate(job.id))) throw new Error('Contexto do envio alterado.');
+          const email = renderDiscEmail(
+            {
+              kind: job.kind,
+              title: job.title,
+              name: job.name,
+              url,
+              deadline,
+              message:
+                job.payload.pending === undefined
+                  ? undefined
+                  : `Participações pendentes: ${job.payload.pending}.`,
+            },
+            preview?.origin,
+          );
+          const validated = job.legacyLease
+            ? await ports.validate(job.id, job.legacyLease)
+            : await ports.validate(job.id);
+          if (!validated) throw new Error('Contexto do envio alterado.');
           if (scheduled && !(await ports.authorizeHook(hook)))
             throw new Error('Agenda desativada durante o processamento.');
           const providerId = await ports.send({
@@ -283,10 +311,10 @@ export function createDiscHandler(ports: DiscWorkerPorts) {
             key: `cali-disc-${job.id}`,
             attachment,
           });
-          await ports.record(job.id, 'sent', { providerId });
+          await record('sent', { providerId });
           processed++;
         } catch {
-          await ports.record(job.id, 'failed', {
+          await record('failed', {
             error:
               'Envio não confirmado. Consulte o provedor antes de repetir fora da janela idempotente.',
           });

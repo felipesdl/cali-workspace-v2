@@ -19,6 +19,7 @@ import {
   ManagementReport,
 } from '../../../../components/disc/ManagementReport';
 import { inviteProgressLabel, inviteStatusLabel } from '../invite-presentation';
+import { LegacyDiscHistory } from './LegacyDiscHistory';
 
 const styles: DiscStyle[] = ['D', 'I', 'S', 'C'];
 const styleNames: Record<DiscStyle, string> = {
@@ -115,6 +116,8 @@ export function AdminDiscPage({ campaignId, onCampaignChange }: AdminDiscPagePro
           Administre campanhas, convites, avaliações internas e liberação da leitura de gestão.
         </p>
       </header>
+
+      <LegacyDiscHistory />
 
       {!disc.available ? (
         <FeedbackState kind="empty">

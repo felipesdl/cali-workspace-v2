@@ -28,11 +28,15 @@ export function AgendaExtraActions({
   company,
   agenda,
   refresh,
+  syncAfterConfirmed,
+  syncAfterCancelled,
 }: {
   item: AgendaExtra;
   company: string;
   agenda: AgendaOperations;
   refresh: () => Promise<void>;
+  syncAfterConfirmed: () => Promise<void>;
+  syncAfterCancelled: () => Promise<void>;
 }) {
   const version = item.version;
   if (!version || !item.actions?.length) return null;
@@ -63,6 +67,9 @@ export function AgendaExtraActions({
                     : [],
                   charge: action === 'fee' ? read('fee') === 'charge' : null,
                 });
+                if (action === 'book-visit' || action === 'confirm') await syncAfterConfirmed();
+                if ((action === 'cancel' || action === 'reschedule') && item.status === 'confirmed')
+                  await syncAfterCancelled();
                 await refresh();
                 return result;
               }}

@@ -58,9 +58,19 @@ function html(app: string, title: string, name: string, thankYou: string, rows: 
 }
 
 export function createFormConfirmationHandler(
-  config: { project: string; service: string; resend: string; app: string },
+  config: {
+    project: string;
+    service: string;
+    resend: string;
+    app: string;
+    testRecipients?: string[];
+  },
   transport: typeof fetch = fetch,
 ) {
+  const live =
+    new URL(config.app).origin === 'https://app.calirh.com' &&
+    new URL(config.project).origin === 'https://kqtbfeeqbcllwvlkbrkq.supabase.co';
+  const testRecipients = new Set(config.testRecipients?.map((email) => email.toLowerCase()));
   const ws = createClient(config.project, config.service, {
     db: { schema: 'cali_workspace' },
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
@@ -94,6 +104,8 @@ export function createFormConfirmationHandler(
       const row = entry.parse(result.data);
       const details = row.forms;
       if (row.confirmation_sent_at || !row.respondent_email || !details?.confirm_email)
+        return reply({ ok: true, skipped: true });
+      if (!live && !testRecipients.has(row.respondent_email.toLowerCase()))
         return reply({ ok: true, skipped: true });
       const quota = await ws
         .from('form_responses')

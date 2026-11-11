@@ -19,5 +19,10 @@ Deno.serve(
     origins: required('CALI_ALLOWED_ORIGINS')
       .split(',')
       .map((value) => new URL(value.trim()).origin),
+    testAccounts: Deno.env
+      .get('CALI_DRIVE_TEST_ACCOUNTS')
+      ?.split(',')
+      .map((email) => email.trim())
+      .filter(Boolean),
   }),
 );

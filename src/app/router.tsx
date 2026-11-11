@@ -494,6 +494,18 @@ const discRespondentRoute = createRoute({
   ),
 });
 
+// Legacy V1 invitations keep their public URL shape; the token+slug pair is
+// resolved only by the explicit server bridge, never by a V1 report endpoint.
+const discLegacyRespondentRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/perfil/$slug',
+  validateSearch: (search) => ({ c: typeof search.c === 'string' ? search.c : '' }),
+  component: lazyRouteComponent(
+    () => import('../modules/public/disc/DiscRespondentPage'),
+    'DiscRespondentPage',
+  ),
+});
+
 const publicTextFormRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/f/$slug',
@@ -567,6 +579,7 @@ const routeTree = rootRoute.addChildren([
   ...partnerModuleRoutes,
   publicTextFormRoute,
   discRespondentRoute,
+  discLegacyRespondentRoute,
   accessGateRoute,
   callbackRoute,
   indexRoute,

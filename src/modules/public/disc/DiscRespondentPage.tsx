@@ -1,7 +1,7 @@
 import { FeedbackMessage } from '../../../components/ds/feedback/FeedbackMessage';
 import { Input } from '../../../components/ds/field/Controls';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from '@tanstack/react-router';
+import { useParams, useSearch } from '@tanstack/react-router';
 import { z } from 'zod';
 import { useDiscPublic, useDiscPublicCommand } from '../../../api/shared/disc/hooks';
 import '../../../components/cali-flow-frame.css';
@@ -17,10 +17,44 @@ import {
   type DiscBlockAnswer,
   type DiscChoice,
 } from './components/questionnaire';
+import { convertLegacyDiscDraft } from './components/legacy-draft';
 
 const inviteTokenSchema = z.uuid();
 type AnswerSet = Record<string, DiscBlockAnswer>;
 type SubmissionIdentity = { fingerprint: string; requestId: string };
+const respondentDraftSchema = z.object({
+  started: z.boolean(),
+  consent: z.boolean(),
+  jobTitle: z.string().max(120),
+  currentIndex: z.number().int().min(0).max(24),
+  answers: z.record(
+    z.string(),
+    z.object({
+      b: z.number().int().min(1).max(18),
+      mais: z.enum(['D', 'I', 'S', 'C']).nullable(),
+      menos: z.enum(['D', 'I', 'S', 'C']).nullable(),
+    }),
+  ),
+  submission: z.object({ fingerprint: z.string(), requestId: z.uuid() }).nullable(),
+});
+
+function readRespondentDraft(key: string) {
+  try {
+    const raw = window.localStorage.getItem(key);
+    const parsed = raw ? respondentDraftSchema.safeParse(JSON.parse(raw)) : null;
+    return parsed?.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
+function clearRespondentDraft(key: string) {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // Remoção local é opcional; conclusão segue determinada pelo servidor.
+  }
+}
 
 function answerKey(block: number, pressure: boolean) {
   return `${pressure ? 'pressure' : 'natural'}:${block}`;
@@ -38,29 +72,104 @@ function formatDeadline(value: string) {
 
 export function DiscRespondentPage() {
   const params = useParams({ strict: false });
-  const parsedToken = inviteTokenSchema.safeParse(params.token);
+  const search = useSearch({ strict: false });
+  const legacySlug = typeof params.slug === 'string' ? params.slug : undefined;
+  const legacyToken = legacySlug && typeof search.c === 'string' ? search.c : '';
+  const parsedToken = inviteTokenSchema.safeParse(params.token ?? legacyToken);
   const token = parsedToken.success ? parsedToken.data : '';
-  const query = useDiscPublic(token);
-  const command = useDiscPublicCommand(token);
+  return (
+    <DiscRespondentForm
+      key={`${legacySlug ?? ''}:${token}`}
+      token={token}
+      legacySlug={legacySlug}
+    />
+  );
+}
+
+function DiscRespondentForm({ token, legacySlug }: { token: string; legacySlug?: string }) {
+  const query = useDiscPublic(token, legacySlug);
+  const command = useDiscPublicCommand(token, legacySlug);
   const openedToken = useRef('');
-  const submissionIdentity = useRef<SubmissionIdentity | null>(null);
-  const [consent, setConsent] = useState(false);
-  const [started, setStarted] = useState(false);
-  const [jobTitle, setJobTitle] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<AnswerSet>({});
+  const draftKey = legacySlug
+    ? `cali-disc:draft:${legacySlug}:${token}`
+    : `cali-disc:draft:${token}`;
+  const legacyDraftKey = legacySlug && token ? `cali-perfil:${token}` : null;
+  const [initialDraft] = useState(() => {
+    const saved = readRespondentDraft(draftKey);
+    if (saved || !legacyDraftKey) return saved;
+    try {
+      const raw = window.localStorage.getItem(legacyDraftKey);
+      return raw ? convertLegacyDiscDraft(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+  const submissionIdentity = useRef<SubmissionIdentity | null>(initialDraft?.submission ?? null);
+  const [consent, setConsent] = useState(initialDraft?.consent ?? false);
+  const [started, setStarted] = useState(initialDraft?.started ?? false);
+  const [jobTitle, setJobTitle] = useState(initialDraft?.jobTitle ?? '');
+  const [currentIndex, setCurrentIndex] = useState(initialDraft?.currentIndex ?? 0);
+  const [answers, setAnswers] = useState<AnswerSet>(initialDraft?.answers ?? {});
   const [submitted, setSubmitted] = useState(false);
   const [declined, setDeclined] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    if (!parsedToken.success || query.data?.state !== 'sent' || openedToken.current === token)
+    if (
+      !started ||
+      submitted ||
+      !token ||
+      (query.data?.state !== 'started' &&
+        query.data?.state !== 'opened' &&
+        query.data?.state !== 'sent')
+    )
       return;
+    try {
+      window.localStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          started,
+          consent,
+          jobTitle,
+          currentIndex,
+          answers,
+          submission: submissionIdentity.current,
+        }),
+      );
+    } catch {
+      // Retomada local é opcional; questionário segue em memória.
+    }
+  }, [
+    answers,
+    consent,
+    currentIndex,
+    draftKey,
+    jobTitle,
+    query.data?.state,
+    token,
+    started,
+    submitted,
+  ]);
+
+  useEffect(() => {
+    if (
+      query.data?.state === 'completed' ||
+      query.data?.state === 'declined' ||
+      query.data?.state === 'expired' ||
+      query.data?.state === 'missing'
+    ) {
+      clearRespondentDraft(draftKey);
+      if (legacyDraftKey && query.data.state !== 'missing') clearRespondentDraft(legacyDraftKey);
+    }
+  }, [draftKey, legacyDraftKey, query.data?.state]);
+
+  useEffect(() => {
+    if (!token || query.data?.state !== 'sent' || openedToken.current === token) return;
     openedToken.current = token;
     void command.mutateAsync({ kind: 'open', fields: {} }).catch(() => {
       openedToken.current = '';
     });
-  }, [command, parsedToken.success, query.data?.state, token]);
+  }, [command, query.data?.state, token]);
 
   const questionCount = BANK.length + PRESSURE_BLOCKS.length;
   const pressure = currentIndex >= BANK.length;
@@ -138,6 +247,21 @@ export function DiscRespondentPage() {
     if (submissionIdentity.current?.fingerprint !== fingerprint) {
       submissionIdentity.current = { fingerprint, requestId: crypto.randomUUID() };
     }
+    try {
+      window.localStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          started,
+          consent,
+          jobTitle,
+          currentIndex,
+          answers,
+          submission: submissionIdentity.current,
+        }),
+      );
+    } catch {
+      // Sem armazenamento persistente, a identidade fica válida durante esta sessão.
+    }
 
     setMessage('');
     try {
@@ -151,6 +275,8 @@ export function DiscRespondentPage() {
         },
       });
       setSubmitted(true);
+      clearRespondentDraft(draftKey);
+      if (legacyDraftKey) clearRespondentDraft(legacyDraftKey);
     } catch {
       setMessage('Não foi possível registrar agora. Tente novamente.');
     }
@@ -165,7 +291,7 @@ export function DiscRespondentPage() {
     }
   }
 
-  if (!parsedToken.success)
+  if (!token)
     return (
       <StatusPage title="Convite inválido">Confira o link recebido e tente novamente.</StatusPage>
     );
@@ -270,8 +396,8 @@ export function DiscRespondentPage() {
               </p>
               {(query.data?.last_block ?? 0) > 0 && (
                 <p className="tw:text-caption">
-                  Andamento anterior registrado até o bloco {query.data?.last_block}. As respostas
-                  não são recuperadas ao reabrir a página.
+                  Andamento anterior registrado até o bloco {query.data?.last_block}. Para retomar
+                  as respostas salvas, abra o convite no navegador em que começou.
                 </p>
               )}
               <Checkbox
@@ -371,7 +497,7 @@ export function DiscRespondentPage() {
               <Field id="disc-job-title" label="Cargo ou função (opcional)">
                 <Input
                   id="disc-job-title"
-                  maxLength={200}
+                  maxLength={120}
                   value={jobTitle}
                   onChange={(event) => setJobTitle(event.currentTarget.value)}
                 />

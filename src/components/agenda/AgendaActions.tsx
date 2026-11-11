@@ -36,6 +36,7 @@ function calendarStatusMessage(status: string) {
     cancelled_google: 'Cancelamento atualizado no Google Calendar.',
     not_synced: 'Agenda CALI preservada. Nenhum evento Google anterior encontrado.',
     disabled: 'Sincronização Google desligada neste ambiente.',
+    busy: 'Outra sincronização está em andamento. Tente novamente em instantes.',
   };
   return messages[status] ?? 'Agenda CALI preservada. Google Calendar precisa de revisão.';
 }

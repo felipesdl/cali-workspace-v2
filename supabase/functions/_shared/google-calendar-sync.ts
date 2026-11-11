@@ -58,26 +58,27 @@ export async function syncGoogleCalendarEvent(
   calendarId: string,
   accessToken: string,
   fetcher: typeof fetch = fetch,
+  existingEventId?: string,
 ): Promise<CalendarEventResult> {
-  const stableId = stableGoogleEventId(event.id);
+  const googleEventId = existingEventId ?? stableGoogleEventId(event.id);
   const body = googleEventBody(event);
   const headers = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
   const query = '?sendUpdates=none&conferenceDataVersion=1';
   let response = await fetcher(`${eventUrl(calendarId)}${query}`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ ...body, id: stableId }),
+    body: JSON.stringify({ ...body, id: googleEventId }),
   });
   let result = calendarEventResult.safeParse(await response.json().catch(() => ({})));
   if (response.status === 409) {
-    response = await fetcher(`${eventUrl(calendarId, stableId)}${query}`, {
+    response = await fetcher(`${eventUrl(calendarId, googleEventId)}${query}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify(body),
     });
     result = calendarEventResult.safeParse(await response.json().catch(() => ({})));
   }
-  if (!response.ok || !result.success || result.data.id !== stableId)
+  if (!response.ok || !result.success || result.data.id !== googleEventId)
     throw new Error('google_calendar_sync_failed');
   return result.data;
 }

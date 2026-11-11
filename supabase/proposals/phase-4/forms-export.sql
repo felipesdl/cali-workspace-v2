@@ -1,4 +1,4 @@
--- FLOW-17. Planilha de uma coleta V2 de texto encerrada, por Admin com MFA.
+-- FLOW-17. Exportação de coleta aberta/encerrada, legado ou V2, por Admin com MFA.
 begin;
 set local lock_timeout='5s';
 
@@ -8,16 +8,22 @@ as $$
 declare
   actor uuid := cali_session_guard.require_phase4_role(p_company_id,'admin');
   form cali_workspace.forms;
+  is_v2 boolean;
   export_questions jsonb;
   result jsonb;
   response_count integer;
   response_bytes bigint;
 begin
   select f.* into form from cali_workspace.forms f
-  where f.id=p_form_id and f.company_id=p_company_id and f.status='closed'
-    and f.id=(cali_session_guard.phase4_public_text_form(f.slug)).id
+  where f.id=p_form_id and f.company_id=p_company_id and f.status in ('open','closed')
   for share of f;
   if not found then
+    raise exception using errcode='42501',message='Formulário indisponível para exportação.';
+  end if;
+  select exists(select 1 from cali_workspace.activity_log l
+    where l.company_id=p_company_id and l.entity_type='form' and l.entity_id=form.id
+      and l.event_type='form_draft_created') into is_v2;
+  if is_v2 and (cali_session_guard.phase4_public_text_form(form.slug)).id is distinct from form.id then
     raise exception using errcode='42501',message='Formulário indisponível para exportação.';
   end if;
   select count(*),coalesce(sum(octet_length(row::text)),0) into response_count,response_bytes
@@ -26,19 +32,22 @@ begin
     raise exception using errcode='P4F01',message='A coleta excede o limite da exportação.';
   end if;
 
+  -- Keep legacy question definitions and answer order. File values never expose Storage paths.
   export_questions:=jsonb_path_query_array(form.questions,'$[*] ? (@.kind != "statement")');
   select jsonb_build_object(
     'slug',form.slug,
     'questions',export_questions,
     'responses',coalesce(jsonb_agg(jsonb_build_object(
       'submittedAt',r.submitted_at,'stage',r.stage,'owner',r.owner,'values',
-      (select jsonb_agg(case jsonb_typeof(r.answers->(q->>'id'))
+      (select jsonb_agg(case when q->>'kind'='file' and r.answers ? (q->>'id')
+        then '[Anexo disponível no CALI Forms]'
+        else case jsonb_typeof(r.answers->(q->>'id'))
         when 'array' then coalesce((select string_agg(choice#>>'{}',', ' order by position)
           from jsonb_array_elements(r.answers->(q->>'id')) with ordinality as choices(choice,position)
           where jsonb_typeof(choice)='string'),'')
         when 'number' then r.answers->>(q->>'id')
         when 'string' then r.answers->>(q->>'id')
-        else '' end order by pos)
+        else '' end end order by pos)
        from jsonb_array_elements(export_questions) with ordinality as questions(q,pos))
     ) order by r.submitted_at,r.id),'[]'::jsonb)
   ) into result
@@ -48,7 +57,7 @@ begin
   end if;
   insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
   values(p_company_id,actor,'form_responses_exported','form',form.id,
-    jsonb_build_object('count',jsonb_array_length(result->'responses')));
+    jsonb_build_object('count',jsonb_array_length(result->'responses'),'origin',case when is_v2 then 'v2' else 'legacy' end));
   perform set_config('response.headers','[{"Cache-Control":"private, no-store"}]',true);
   return result;
 end;
@@ -61,7 +70,7 @@ declare
   definition text := pg_get_functiondef('cali_workspace.v2_list_pilot_forms(uuid,integer)'::regprocedure);
   previous constant text := 'as "publicTextLink",';
   next constant text := previous||
-    ' (f.status=''closed'' and (cali_session_guard.phase4_public_text_form(f.slug)).id is not null) as "textExportAvailable",';
+    ' (f.status in (''open'',''closed'') and (not exists(select 1 from cali_workspace.activity_log l where l.company_id=f.company_id and l.entity_type=''form'' and l.entity_id=f.id and l.event_type=''form_draft_created'') or (cali_session_guard.phase4_public_text_form(f.slug)).id is not distinct from f.id)) as "textExportAvailable",';
 begin
   if strpos(definition,next)>0 then return; end if;
   if (length(definition)-length(replace(definition,previous,'')))/length(previous)<>1 then

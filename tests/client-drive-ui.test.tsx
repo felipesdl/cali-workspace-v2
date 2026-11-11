@@ -18,7 +18,13 @@ it('mostra conexão Drive e ação de cópia no acervo do Cliente', async () => 
       jobs: [],
     })),
     files: vi.fn(async () => [
-      { id: fileId, title: 'Relatório aprovado', deliverable_id: null, storage_path: 'report.pdf' },
+      {
+        id: fileId,
+        title: 'Relatório aprovado',
+        deliveryId: null,
+        deliveryTitle: null,
+        source: 'document' as const,
+      },
     ]),
     authorize: vi.fn(async () => 'https://accounts.google.com/authorize'),
     copyFile: vi.fn(async () => ({
@@ -49,5 +55,5 @@ it('mostra conexão Drive e ação de cópia no acervo do Cliente', async () => 
   ).toBeTruthy();
   fireEvent.click(await screen.findByRole('button', { name: 'Copiar Relatório aprovado' }));
   expect(await screen.findByText('Cópia concluída no Google Drive.')).toBeTruthy();
-  expect(service.copyFile).toHaveBeenCalledWith(fileId);
+  expect(service.copyFile).toHaveBeenCalledWith(fileId, 'document');
 });

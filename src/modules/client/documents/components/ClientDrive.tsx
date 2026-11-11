@@ -1,9 +1,10 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Cloud } from 'lucide-react';
 import { type ClientDriveService } from '../../../../api/client/drive';
 import { ActionForm } from '../../../../components/workspace/ActionForm';
 import { Checkbox } from '../../../../components/ds/checkbox/Checkbox';
 import { FeedbackState } from '../../../../components/ds/feedback/FeedbackState';
+import { Button } from '../../../../components/ds/button/Button';
 
 export function ClientDrive({
   service,
@@ -20,14 +21,19 @@ export function ClientDrive({
     queryKey: key,
     queryFn: ({ signal }) => service.status(signal),
   });
-  const files = useQuery({
+  const files = useInfiniteQuery({
     queryKey: [...key, 'files'],
-    queryFn: ({ signal }) => service.files(company, signal),
+    queryFn: ({ signal, pageParam }) => service.files(pageParam, signal),
+    initialPageParam: 1,
+    getNextPageParam: (last, pages) => (last.length === 100 ? pages.length + 1 : undefined),
     enabled: connection.data?.connected === true,
   });
-  const folders = [
-    ...new Set(files.data?.flatMap((file) => (file.deliverable_id ? [file.deliverable_id] : []))),
-  ];
+  const visibleFiles = files.data?.pages.flat() ?? [];
+  const folders = new Map(
+    visibleFiles.flatMap((file) =>
+      file.deliveryId ? [[file.deliveryId, file.deliveryTitle ?? 'entregáveis'] as const] : [],
+    ),
+  );
   return (
     <section
       aria-label="Cópias no Google Drive"
@@ -82,19 +88,21 @@ export function ClientDrive({
               </FeedbackState>
             )}
             {files.isPending && <FeedbackState kind="loading">Consultando arquivos…</FeedbackState>}
-            {files.data?.length === 0 && <p>Nenhum arquivo do acervo disponível para cópia.</p>}
-            {files.data?.map((file) => (
+            {files.isSuccess && visibleFiles.length === 0 && (
+              <p>Nenhum arquivo do acervo disponível para cópia.</p>
+            )}
+            {visibleFiles.map((file) => (
               <ActionForm
                 key={file.id}
                 label={`Copiar ${file.title}`}
                 success="Cópia concluída no Google Drive."
-                submit={() => service.copyFile(file.id)}
+                submit={() => service.copyFile(file.id, file.source)}
               />
             ))}
-            {folders.map((folder) => (
+            {Array.from(folders, ([folder, title]) => (
               <ActionForm
                 key={folder}
-                label={`Copiar pasta de ${files.data?.find((file) => file.deliverable_id === folder)?.title ?? 'entregáveis'}`}
+                label={`Copiar pasta de ${title}`}
                 submit={async () => {
                   const result = await service.copyFolder(folder);
                   if (result.failed)
@@ -106,6 +114,15 @@ export function ClientDrive({
                 success="Pasta copiada para o Google Drive."
               />
             ))}
+            {files.hasNextPage && (
+              <Button
+                variant="secondary"
+                pending={files.isFetchingNextPage}
+                onClick={() => void files.fetchNextPage()}
+              >
+                Carregar mais arquivos
+              </Button>
+            )}
             <ActionForm
               label="Desconectar Google Drive"
               submit={async () => {

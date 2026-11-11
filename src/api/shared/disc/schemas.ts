@@ -153,6 +153,93 @@ export const discAdminSnapshotSchema = z.strictObject({
 
 export const discClientSnapshotSchema = z.strictObject({ reports: z.array(discManagementSchema) });
 
+const discLegacyLinkSchema = z.strictObject({
+  id: z.uuid(),
+  slug: z.string(),
+  title: z.string(),
+  purpose: z.enum(['selecao', 'desenvolvimento', 'diagnostico']),
+  status: z.enum(['open', 'closed']),
+  created_at: z.iso.datetime({ offset: true }),
+  company_id: z.uuid().nullable(),
+  company_name: nullableText,
+  invite_count: z.number().int().nonnegative(),
+  result_count: z.number().int().nonnegative(),
+  management: z.strictObject({
+    goal: nullableText,
+    note: nullableText,
+    moment: nullableText,
+    sector: nullableText,
+    approved_at: timestamp,
+    released_at: timestamp,
+    protocol: nullableText,
+  }),
+});
+const discLegacyEvaluationSchema = z.strictObject({
+  id: z.uuid(),
+  person_name: z.string(),
+  job_title: nullableText,
+  primary_style: discStyle,
+  secondary_style: discStyle,
+  mixed: z.boolean(),
+  scores: z.strictObject({
+    natural: scoreByStyle,
+    natural6: scoreByStyle,
+    pressure: scoreByStyle,
+    adaptation: adaptationByStyle,
+  }),
+  protocol: nullableText,
+  method_version: z.string(),
+  created_at: z.iso.datetime({ offset: true }),
+  report_path: nullableText,
+  report_emailed_at: timestamp,
+});
+const discLegacyHistorySchema = z.strictObject({
+  kind: z.string(),
+  occurred_at: z.iso.datetime({ offset: true }),
+  subject: nullableText,
+  summary: z.string(),
+});
+const discLegacyDistributionSchema = z.strictObject({
+  primary: discCountsByStyleSchema,
+  secondary: discCountsByStyleSchema,
+  mixed: z.number().int().nonnegative(),
+  bands: discManagementQuantitativeSchema.shape.bands,
+  pressure: discManagementQuantitativeSchema.shape.pressure,
+});
+const discLegacyManagementReportSchema = z.strictObject({
+  link_id: z.uuid(),
+  title: z.string(),
+  company: nullableText,
+  purpose: z.enum(['selecao', 'desenvolvimento', 'diagnostico']),
+  moment: nullableText,
+  sector: nullableText,
+  goal: nullableText,
+  released_at: timestamp,
+  n: z.number().int().nonnegative(),
+  invites: z.strictObject({
+    sent: z.number().int().nonnegative(),
+    completed: z.number().int().nonnegative(),
+    declined: z.number().int().nonnegative(),
+    started: z.number().int().nonnegative(),
+    expired: z.number().int().nonnegative(),
+    median_minutes: z.number().nullable(),
+  }),
+  dates: z.strictObject({ min: timestamp, max: timestamp, method: nullableText }),
+  dist: discLegacyDistributionSchema.nullable(),
+});
+export const discLegacyAdminSnapshotSchema = z.strictObject({
+  links: z.array(discLegacyLinkSchema),
+  selected: z
+    .strictObject({
+      link: discLegacyLinkSchema,
+      evaluations: z.array(discLegacyEvaluationSchema),
+      history: z.array(discLegacyHistorySchema),
+      management_report: discLegacyManagementReportSchema.nullable(),
+      history_completeness: z.string(),
+    })
+    .nullable(),
+});
+
 export const discPublicProjectionSchema = z.strictObject({
   state: z.enum([
     'open',
@@ -276,7 +363,7 @@ export const discPublicCommandSchema = z.discriminatedUnion('kind', [
     kind: z.literal('submit'),
     fields: z.strictObject({
       requestId: z.uuid(),
-      jobTitle: z.string().trim().max(200),
+      jobTitle: z.string().trim().max(120),
       consent: z.literal(true),
       answers: publicAnswersSchema,
     }),
@@ -292,6 +379,7 @@ export type DiscJob = z.infer<typeof discJobSchema>;
 export type DiscHistory = z.infer<typeof discHistorySchema>;
 export type DiscAdminSnapshot = z.infer<typeof discAdminSnapshotSchema>;
 export type DiscClientSnapshot = z.infer<typeof discClientSnapshotSchema>;
+export type DiscLegacyAdminSnapshot = z.infer<typeof discLegacyAdminSnapshotSchema>;
 export type DiscPublicProjection = z.infer<typeof discPublicProjectionSchema>;
 export type DiscCommand = z.infer<typeof discCommandSchema>;
 export type DiscPublicCommand = z.infer<typeof discPublicCommandSchema>;

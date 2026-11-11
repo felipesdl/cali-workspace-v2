@@ -162,6 +162,7 @@ export function createAgendaOperations(client: WorkspaceClient, calendarSyncEnab
   async function syncCalendar(
     body:
       | { action: 'sync_appointment'; appointmentId: string }
+      | { action: 'sync_extra_cancellation'; appointmentId: string }
       | { action: 'sync_change'; changeId: string },
   ) {
     if (!calendarSyncEnabled) return { status: 'disabled' as const };
@@ -178,8 +179,10 @@ export function createAgendaOperations(client: WorkspaceClient, calendarSyncEnab
           'cancelled_google',
           'not_synced',
           'disabled',
+          'busy',
         ]),
         meetingUrl: z.string().nullable().optional(),
+        retryAfterSeconds: z.number().int().positive().optional(),
       })
       .parse(data);
   }
@@ -189,6 +192,12 @@ export function createAgendaOperations(client: WorkspaceClient, calendarSyncEnab
     syncConfirmedCalendar(appointment: string) {
       return syncCalendar({
         action: 'sync_appointment',
+        appointmentId: z.uuid().parse(appointment),
+      });
+    },
+    syncCancelledExtraCalendar(appointment: string) {
+      return syncCalendar({
+        action: 'sync_extra_cancellation',
         appointmentId: z.uuid().parse(appointment),
       });
     },

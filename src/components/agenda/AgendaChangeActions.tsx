@@ -23,6 +23,7 @@ function calendarStatusMessage(status: string) {
     not_approved: 'A alteração CALI ainda não foi aprovada.',
     cancelled_local: 'Evento CALI cancelado; sincronização Google não foi aplicada.',
     disabled: 'Sincronização Google desligada neste ambiente.',
+    busy: 'Outra sincronização está em andamento. Tente novamente em instantes.',
   };
   return messages[status] ?? 'Google Calendar precisa de revisão.';
 }

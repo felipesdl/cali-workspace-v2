@@ -8,7 +8,7 @@ Na rodada final, usar empresas e dados de teste no projeto separado de homologa�
 
 | Item | Ação de Felipe ou da equipe técnica |
 | --- | --- |
-| Link da V2 | Definir a URL de homologação. Hoje Equipe, dados mensais, DISC e as consultas piloto da fase 4 dependem do modo de desenvolvimento, e o acesso A/B, arquivos privados e DISC aceitam origens locais específicas. Para Patrícia testar do próprio computador via link, preparar um preview protegido, adaptar os gates ao domínio de teste, configurar origens e callbacks e trocar os links locais nos e-mails. Conferir login, link de convite e PDF nessa URL antes do envio. |
+| Link da V2 | Definir o alias protegido e preparar o projeto separado. O recorte de estreia usa a origem exata para login, DISC, Forms, Agenda e Documentos. Configurar as funções do [runbook de preview](RUNBOOK.md#preview-protegido-para-homologação) e conferir login, convite, callback e PDF no endereço escolhido. |
 | Banco e acesso | Apontar o frontend para o projeto de homologação em modo Supabase, com URL e chave pública. Conferir serviços de login, arquivos e DISC, Auth, aceite vigente e documentos sintéticos. Preparar a conta Admin de Patrícia com MFA e os vínculos Cliente A/B com endereços de teste aprovados. Conferir revogação ou suspensão anterior antes de reautorizar um vínculo. |
 | Homologação acompanhada no ambiente local | Servir a V2 em `127.0.0.1:5173` para Admin e em `127.0.0.1:5181` e `127.0.0.1:5182` para os Clientes A/B, com `VITE_CALI_PILOT_ACCESS=true` nas duas instâncias Cliente. Esses endereços abrem na máquina que executa os servidores. |
 | E-mails de acesso e DISC | Conferir remetente, provedor e destinatários permitidos antes de solicitar códigos ou processar campanhas sintéticas. Patrícia recebe os próprios códigos pelo canal autorizado. Combinar com ela os destinatários de cada teste. |
@@ -43,10 +43,10 @@ Felipe confirmou este escopo em 11/11/2026. Ele vai subir o preview no Vercel. O
 
 | Fluxo | Prova local | Prova na homologação |
 | --- | --- | --- |
-| DISC | Reproduzir um convite legado sintético com rascunho no navegador e um convite novo da V2. Verificar origem, retomada, envio único e separação dos públicos do relatório. | Abrir o caminho e parâmetros originais em cenário equivalente ao corte. Validar retomada no navegador de origem e consulta de respostas e relatórios com os públicos autorizados. |
+| DISC | Reproduzir um convite legado sintético com rascunho no navegador e um convite novo da V2. Verificar slug/token, retomada, envio único e separação dos públicos do relatório. | Abrir o caminho e os parâmetros originais e semear o rascunho sintético na origem do preview. O navegador separa rascunhos por domínio. Conferir respostas concluídas e acesso por papel. |
 | Forms | Exercitar resolução do mesmo slug, coleta condicional, anexo, recibo repetido, QR/cartão, prévia, planilha e restauração. Simular o transporte do e-mail. | Confirmar que um link de formulário já aberto preserva identidade, versão, respostas e anexos. Verificar prévia pelo endereço de homologação, exportação e confirmação única para destinatário de teste. |
-| Calendar e Meet | Simular o Google ao criar, remarcar e cancelar. Verificar a identidade do evento, repetição da operação e resultado de falha externa. | Usar o calendário de teste e as credenciais existentes após conferir escopos, callback e calendário selecionado. Criar o link Meet e confirmar remarcação/cancelamento do mesmo evento com convidados de teste. |
-| Drive | Exercitar permissões, troca de conta, cópia de arquivo e pasta e retomada de uma cópia parcial com respostas simuladas. | Conectar a conta de teste, copiar arquivo e pasta, verificar a conta de destino, repetir sem duplicar e confirmar a separação entre empresas. |
+| Calendar e Meet | Simular o Google ao criar, remarcar e cancelar. Verificar a identidade do evento, repetição da operação e resultado de falha externa. | Usar o calendário de teste e as credenciais existentes após conferir escopos, callback e calendário selecionado. Criar o link Meet e conferir a remarcação e o cancelamento do evento. Confirmar que os convidados ficam registrados no Workspace e que o preview não envia convites pelo Google. |
+| Drive | Exercitar permissões, troca de conta, cópia de arquivo legado e PDF V2, pasta mista e retomada de cópia parcial. | Conectar a conta de teste, copiar arquivo e pasta, verificar o destino, repetir sem duplicar e confirmar a separação entre empresas. |
 
 ## Roteiro da Patrícia
 

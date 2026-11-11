@@ -1,4 +1,6 @@
 -- Simula só o contrato de persistência da submissão legada.
+create schema if not exists storage;
+create table storage.objects(bucket_id text not null,name text not null,primary key(bucket_id,name));
 create function public.cali_form_submit(p_slug text,p_answers jsonb)
 returns jsonb language sql security definer set search_path=''
 as $$
@@ -119,10 +121,9 @@ begin
   exception when serialization_failure then null; end;
   set local role authenticated;
   perform cali_workspace.fixture_as('admin');
-  begin
-    perform cali_workspace.v2_export_pilot_form_responses(a,form);
-    raise exception 'Coleta aberta exportada';
-  exception when insufficient_privilege then null; end;
+  exported:=cali_workspace.v2_export_pilot_form_responses(a,form);
+  assert jsonb_array_length(exported->'responses')=1;
+  assert exported#>>'{responses,0,values,6}'='Pessoa de teste';
   perform cali_workspace.v2_set_pilot_form_state(a,form,'open','closed');
   exported:=cali_workspace.v2_export_pilot_form_responses(a,form);
   assert exported#>>'{responses,0,values,0}'='Resposta sintética';
@@ -158,7 +159,7 @@ begin
   exception when insufficient_privilege then null; end;
   reset role;
   assert not has_function_privilege('anon','cali_workspace.v2_export_pilot_form_responses(uuid,uuid)','execute');
-  assert (select count(*) from cali_workspace.activity_log where entity_id=form and event_type='form_responses_exported')=1;
+  assert (select count(*) from cali_workspace.activity_log where entity_id=form and event_type='form_responses_exported')=2;
   assert (select count(*) from cali_workspace.form_responses where form_id=form)=1;
 end;
 $$;
@@ -338,14 +339,60 @@ begin
   end loop;
   assert public.v2_submit_pilot_public_text_form(slug,gen_random_uuid(),jsonb_build_object(scale_id,0));
   set local role authenticated;
+  -- Export remains available while collection is open. File path stays private.
+  assert exists(select 1 from jsonb_array_elements(cali_workspace.v2_list_pilot_forms(company,1)) item
+    where item->>'id'=form::text and item->>'textExportAvailable'='true');
+  report:=cali_workspace.v2_export_pilot_form_responses(company,form);
+  assert jsonb_array_length(report->'responses')=1;
+  assert report#>'{responses,0,values}'='["0"]'::jsonb;
   perform cali_workspace.v2_set_pilot_form_state(company,form,'open','closed');
   report:=cali_workspace.v2_export_pilot_form_responses(company,form);
+  assert exists(select 1 from jsonb_array_elements(cali_workspace.v2_list_pilot_forms(company,1)) item
+    where item->>'id'=form::text and item->>'textExportAvailable'='true');
   assert jsonb_array_length(report->'questions')=1;
   assert report#>>'{questions,0,id}'=scale_id;
   assert report#>'{responses,0,values}'='["0"]'::jsonb;
   reset role;
   assert (select r.answers from cali_workspace.form_responses r where r.form_id=form)
     =jsonb_build_object(scale_id,0);
+end;
+$$;
+do $$
+declare
+  company constant uuid:='9c5ab148-78b8-4410-9338-58c44222a5db';
+  form constant uuid:='a4ba5ac1-b502-4f11-8b6d-ef1dc26291e1';
+  report jsonb;
+begin
+  -- Legacy shape has V1 answers and Storage path. Export preserves answers, never path.
+  insert into cali_workspace.forms(id,company_id,slug,title,status,questions)
+  values(form,company,'legacy-forms-qa','Forms legado','open',
+    '[{"id":"q-name","kind":"name","label":"Nome","required":true},{"id":"q-file","kind":"file","label":"Arquivo","required":false}]');
+  insert into cali_workspace.form_responses(id,form_id,answers,respondent_name,respondent_email)
+  values('a4ba5ac1-b502-4f11-8b6d-ef1dc26291e2',form,
+    '{"q-name":"Pessoa sintética","q-file":["a4ba5ac1-b502-4f11-8b6d-ef1dc26291e1/q-file/arquivo-1.pdf","a4ba5ac1-b502-4f11-8b6d-ef1dc26291e1/q-file/arquivo-2.pdf"]}',
+    'Pessoa sintética','pessoa@example.invalid');
+  insert into storage.objects values
+    ('cali-forms',form::text||'/q-file/arquivo-1.pdf'),
+    ('cali-forms',form::text||'/q-file/arquivo-2.pdf');
+  set local role authenticated;
+  perform cali_workspace.fixture_as('admin');
+  report:=cali_workspace.v2_export_pilot_form_responses(company,form);
+  assert report#>>'{responses,0,values,0}'='Pessoa sintética';
+  assert report#>>'{responses,0,values,1}'='[Anexo disponível no CALI Forms]';
+  assert report::text not like '%arquivo-1.pdf%';
+  assert report::text not like '%arquivo-2.pdf%';
+  assert report::text not like '%pessoa@example.invalid%';
+  assert cali_workspace.v2_list_pilot_form_attachments(company,form,'a4ba5ac1-b502-4f11-8b6d-ef1dc26291e2')
+    = '[{"id":"q-file:1","fileName":"arquivo-1.pdf","path":"a4ba5ac1-b502-4f11-8b6d-ef1dc26291e1/q-file/arquivo-1.pdf"},{"id":"q-file:2","fileName":"arquivo-2.pdf","path":"a4ba5ac1-b502-4f11-8b6d-ef1dc26291e1/q-file/arquivo-2.pdf"}]'::jsonb;
+  begin
+    perform cali_workspace.v2_list_pilot_form_attachments(company,form,'a4ba5ac1-b502-4f11-8b6d-ef1dc26291e2');
+    perform cali_workspace.fixture_as('clientA');
+    perform cali_workspace.v2_list_pilot_form_attachments(company,form,'a4ba5ac1-b502-4f11-8b6d-ef1dc26291e2');
+    raise exception 'Cliente leu anexos Forms';
+  exception when insufficient_privilege then null; end;
+  reset role;
+  assert (select answers->'q-file'='["a4ba5ac1-b502-4f11-8b6d-ef1dc26291e1/q-file/arquivo-1.pdf","a4ba5ac1-b502-4f11-8b6d-ef1dc26291e1/q-file/arquivo-2.pdf"]'::jsonb
+    from cali_workspace.form_responses where id='a4ba5ac1-b502-4f11-8b6d-ef1dc26291e2');
 end;
 $$;
 rollback;

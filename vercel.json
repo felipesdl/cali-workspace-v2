@@ -12,7 +12,7 @@
       "destination": "/api/form-preview?slug=:slug"
     },
     {
-      "source": "/((?!assets/).*)",
+      "source": "/((?!(?:api|assets|brand|landing|licenses)/).*)",
       "destination": "/index.html"
     }
   ],

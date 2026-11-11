@@ -132,6 +132,7 @@ it('impede cópia quando a credencial pertence a uma conta Google diferente da c
   const result = await send({
     action: 'copy_file',
     fileId: '10000000-0000-4000-8000-000000000004',
+    source: 'legacy',
   });
 
   expect(result.status).toBe(400);
@@ -145,23 +146,23 @@ it('retoma pasta com falha parcial, preservando a cópia já concluída', async 
   const first = '10000000-0000-4000-8000-000000000011';
   const second = '10000000-0000-4000-8000-000000000012';
   const lease = '10000000-0000-4000-8000-000000000013';
+  const revision = '10000000-0000-4000-8000-000000000014';
+  const version = 'a'.repeat(64);
   const completed = new Map<string, string>();
   const uploads: string[] = [];
   const copyTransport: typeof fetch = async (input, init) => {
     const url = new URL(input instanceof Request ? input.url : input);
     if (url.pathname.endsWith('/rpc/v2_drive_copy')) {
-      const { p_action, p_file, p_account } = JSON.parse(String(init?.body));
+      const { p_action, p_file, p_account, p_version } = JSON.parse(String(init?.body));
       expect(p_account).toBe('old-account');
+      expect(p_version).toBe(version);
+      expect(new Headers(init?.headers).get('authorization')).toBe('Bearer service-fixture');
       if (p_action === 'claim') {
         if (completed.has(p_file)) return Response.json({ done: true, url: completed.get(p_file) });
         return Response.json({
           done: false,
           lease,
           providerId: `drive-item-${p_file.slice(-2)}`,
-          path: `${p_file}.pdf`,
-          name: `${p_file}.pdf`,
-          fileType: 'application/pdf',
-          deliverable: deliverableId,
         });
       }
       if (p_action === 'complete') {
@@ -171,7 +172,30 @@ it('retoma pasta com falha parcial, preservando a cópia já concluída', async 
       }
       return Response.json({ done: false });
     }
-    if (url.pathname === '/rest/v1/files') return Response.json([{ id: first }, { id: second }]);
+    if (url.pathname.endsWith('/rpc/v2_read_drive_source')) {
+      const { p_file, p_source } = JSON.parse(String(init?.body));
+      expect(new Headers(init?.headers).get('authorization')).toBe('Bearer session-fixture');
+      return Response.json({
+        version,
+        path: p_source === 'legacy' ? `${p_file}.pdf` : null,
+        revisionId: p_source === 'document' ? revision : null,
+        name: `${p_file}.pdf`,
+        deliveryId: deliverableId,
+      });
+    }
+    if (url.pathname.endsWith('/rpc/v2_read_pilot_document_pdf')) {
+      expect(JSON.parse(String(init?.body))).toEqual({
+        p_company_id: company,
+        p_document_id: second,
+        p_revision_id: revision,
+      });
+      return Response.json({ content: btoa('PDF publicado pela V2') });
+    }
+    if (url.pathname.endsWith('/rpc/v2_list_drive_sources'))
+      return Response.json([
+        { id: first, source: 'legacy' },
+        { id: second, source: 'document' },
+      ]);
     if (url.pathname === '/rest/v1/deliverables')
       return Response.json({ title: 'Entrega de teste', protocol: 'QA' });
     if (url.pathname.startsWith('/storage/v1/'))

@@ -10,6 +10,7 @@ import { Button } from '../../../../components/ds/button/Button';
 import { Field } from '../../../../components/ds/field/Field';
 import { formatServerInstant } from '../../../../lib/dates';
 import { ActionForm } from '../../../../components/workspace/ActionForm';
+import { Paperclip } from 'lucide-react';
 
 export function FormTriage({
   company,
@@ -104,6 +105,11 @@ export function FormTriage({
                 )}
               </ActionForm>
             )}
+            {response.attachmentsAvailable && (
+              <ResponseAttachments
+                load={() => operations.formResponseAttachments(company, form, response.id)}
+              />
+            )}
             {response.pdfAvailable && (
               <PdfDownload
                 download={(signal) =>
@@ -129,5 +135,56 @@ export function FormTriage({
         </div>
       )}
     </section>
+  );
+}
+
+function ResponseAttachments({
+  load,
+}: {
+  load: () => Promise<Array<{ id: string; fileName: string; url: string }>>;
+}) {
+  const [files, setFiles] = useState<Array<{ id: string; fileName: string; url: string }> | null>(
+    null,
+  );
+  const [error, setError] = useState(false);
+  const [busy, setBusy] = useState(false);
+  return (
+    <div className="tw:grid tw:gap-2">
+      {files ? (
+        files.length ? (
+          files.map((file) => (
+            <a key={file.id} href={file.url} target="_blank" rel="noopener noreferrer">
+              <Paperclip size={14} /> {file.fileName}
+            </a>
+          ))
+        ) : (
+          <p>Nenhum anexo disponível.</p>
+        )
+      ) : (
+        <Button
+          variant="secondary"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            setError(false);
+            try {
+              setFiles(await load());
+            } catch {
+              setError(true);
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          <Paperclip size={14} /> {busy ? 'Preparando anexos…' : 'Ver anexos'}
+        </Button>
+      )}
+      {error && <FeedbackMessage tone="error">Anexos indisponíveis.</FeedbackMessage>}
+      {files && (
+        <Button variant="secondary" onClick={() => setFiles(null)}>
+          Fechar anexos
+        </Button>
+      )}
+    </div>
   );
 }

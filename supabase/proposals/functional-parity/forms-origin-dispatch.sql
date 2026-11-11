@@ -114,7 +114,9 @@ begin
     if jsonb_typeof(p_answers->'__visited') is distinct from 'array' then
       raise exception using errcode = '22023', message = 'Confira o caminho percorrido.';
     end if;
+    perform set_config('cali.forms.public_submit','on',true);
     perform public.v2_submit_pilot_public_text_form(normalized_slug, p_request_id, p_answers - '__visited');
+    perform set_config('cali.forms.public_submit','off',true);
     return jsonb_build_object('ok', true, 'confirmation', false);
   end if;
   if resolved->>'source' is distinct from 'legacy' then

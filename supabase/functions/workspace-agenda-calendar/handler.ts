@@ -10,6 +10,7 @@ import {
 const command = z.discriminatedUnion('action', [
   z.object({ action: z.literal('sync_appointment'), appointmentId: z.uuid() }),
   z.object({ action: z.literal('sync_change'), changeId: z.uuid() }),
+  z.object({ action: z.literal('sync_extra_cancellation'), appointmentId: z.uuid() }),
 ]);
 const profileSchema = z.object({
   id: z.uuid(),
@@ -18,7 +19,7 @@ const profileSchema = z.object({
   active: z.literal(true),
 });
 const appointmentSchema = z.object({
-  id: z.uuid().optional(),
+  id: z.uuid(),
   company_id: z.uuid(),
   status: z.string().optional(),
   confirmed_event_id: z.uuid().nullable().optional(),
@@ -27,6 +28,10 @@ const appointmentSchema = z.object({
   billable_extra: z.boolean(),
   urgency_fee_applies: z.boolean(),
   online_extra_requested: z.boolean(),
+  online_extra_quote_accepted_at: z.string().nullable().optional(),
+  extra_visit_change_kind: z.enum(['cancel', 'reschedule']).nullable().optional(),
+  extra_visit_change_was_confirmed: z.boolean().nullable().optional(),
+  extra_visit_change_at: z.string().nullable().optional(),
 });
 const changeSchema = z.object({
   id: z.uuid(),
@@ -43,6 +48,12 @@ const eventSchema = z.object({
   location: z.string().nullable().optional(),
   starts_at: z.string(),
   ends_at: z.string(),
+  mode: z.enum(['remote', 'in_person']),
+  event_type: z.string(),
+  visibility: z.string(),
+  schedule_class: z.string().nullable().optional(),
+  source_type: z.string().nullable().optional(),
+  source_entity_id: z.uuid().nullable().optional(),
   cancelled_at: z.string().nullable(),
   google_calendar_id: z.string().nullable().optional(),
   google_event_id: z.string().nullable(),
@@ -67,6 +78,10 @@ const credentialSchema = z.object({
   expires_at: z.string().nullable(),
 });
 const tokenSchema = z.object({ access_token: z.string(), expires_in: z.number().optional() });
+const leaseSchema = z.discriminatedUnion('acquired', [
+  z.object({ acquired: z.literal(true), token: z.uuid() }),
+  z.object({ acquired: z.literal(false), retryAfterSeconds: z.number().int().positive() }),
+]);
 const aalClaims = z.object({ aal: z.enum(['aal1', 'aal2']) });
 
 type Config = {
@@ -141,6 +156,7 @@ export function createAgendaCalendarHandler(config: Config, transport: typeof fe
       db: { schema: 'cali_workspace' },
       global: { fetch: boundedTransport },
     });
+    let heldLease: { eventId: string; token: string } | null = null;
 
     try {
       const input = command.parse(await request.json());
@@ -161,13 +177,15 @@ export function createAgendaCalendarHandler(config: Config, transport: typeof fe
 
       let companyId = '';
       let eventId = '';
+      let appointmentIdForEvent = '';
       let meetingMode: 'remote' | 'in_person' = 'remote';
+      let expectedScheduleClass = 'contractual';
       let shouldCancel = false;
-      if (input.action === 'sync_appointment') {
+      if (input.action === 'sync_appointment' || input.action === 'sync_extra_cancellation') {
         let query = root
           .from('scheduling_requests')
           .select(
-            'company_id,status,confirmed_event_id,request_mode,extra_visit,billable_extra,urgency_fee_applies,online_extra_requested',
+            'id,company_id,status,confirmed_event_id,request_mode,extra_visit,billable_extra,urgency_fee_applies,online_extra_requested,online_extra_quote_accepted_at,extra_visit_change_kind,extra_visit_change_was_confirmed,extra_visit_change_at',
           )
           .eq('id', input.appointmentId);
         if (profile.data.role === 'client') {
@@ -178,20 +196,62 @@ export function createAgendaCalendarHandler(config: Config, transport: typeof fe
         const parsed = appointmentSchema.safeParse(result.data);
         if (!parsed.success) return reply({ status: 'not_confirmed' });
         const appointment = parsed.data;
-        if (profile.data.role === 'client' && profile.data.company_id !== appointment.company_id)
-          return reply({ error: 'event_access_denied' }, 403);
-        if (appointment.status !== 'confirmed' || !appointment.confirmed_event_id)
-          return reply({ status: 'not_confirmed' });
-        if (
-          appointment.extra_visit ||
-          appointment.billable_extra ||
-          appointment.urgency_fee_applies ||
-          appointment.online_extra_requested
-        )
-          return reply({ error: 'unsupported_agenda_item' }, 403);
-        companyId = appointment.company_id;
-        eventId = appointment.confirmed_event_id;
-        meetingMode = appointment.request_mode;
+        if (input.action === 'sync_extra_cancellation') {
+          if (
+            profile.data.role !== 'client' ||
+            !['cancelled', 'reschedule_review'].includes(appointment.status ?? '') ||
+            !appointment.extra_visit ||
+            !appointment.extra_visit_change_was_confirmed ||
+            !appointment.extra_visit_change_at ||
+            !appointment.extra_visit_change_kind
+          )
+            return reply({ error: 'event_access_denied' }, 403);
+          if (profile.data.company_id !== appointment.company_id)
+            return reply({ error: 'event_access_denied' }, 403);
+          const cancelledEvent = await root
+            .from('events')
+            .select('id')
+            .eq('company_id', appointment.company_id)
+            .eq('source_type', 'scheduling_request')
+            .eq('source_entity_id', appointment.id)
+            .eq('schedule_class', 'extra')
+            .eq('cancelled_at', appointment.extra_visit_change_at)
+            .maybeSingle();
+          const cancelledEventId = z.uuid().safeParse(cancelledEvent.data?.id);
+          if (!cancelledEventId.success) return reply({ status: 'not_cancelled' });
+          companyId = appointment.company_id;
+          eventId = cancelledEventId.data;
+          appointmentIdForEvent = appointment.id;
+          meetingMode = appointment.request_mode;
+          expectedScheduleClass = 'extra';
+          shouldCancel = true;
+        } else {
+          if (profile.data.role === 'client' && profile.data.company_id !== appointment.company_id)
+            return reply({ error: 'event_access_denied' }, 403);
+          if (appointment.status !== 'confirmed' || !appointment.confirmed_event_id)
+            return reply({ status: 'not_confirmed' });
+          const ordinaryMeeting =
+            !appointment.extra_visit &&
+            !appointment.billable_extra &&
+            !appointment.urgency_fee_applies &&
+            !appointment.online_extra_requested;
+          const confirmedInPersonVisit =
+            appointment.extra_visit &&
+            !appointment.online_extra_requested &&
+            appointment.request_mode === 'in_person';
+          const acceptedOnlineExtra =
+            appointment.online_extra_requested &&
+            !appointment.extra_visit &&
+            appointment.request_mode === 'remote' &&
+            Boolean(appointment.online_extra_quote_accepted_at);
+          if (!ordinaryMeeting && !confirmedInPersonVisit && !acceptedOnlineExtra)
+            return reply({ error: 'unsupported_agenda_item' }, 403);
+          companyId = appointment.company_id;
+          eventId = appointment.confirmed_event_id;
+          appointmentIdForEvent = appointment.id;
+          meetingMode = appointment.request_mode;
+          expectedScheduleClass = ordinaryMeeting ? 'contractual' : 'extra';
+        }
       } else {
         if (profile.data.role !== 'admin') return reply({ error: 'admin_required' }, 403);
         const result = await root
@@ -209,7 +269,7 @@ export function createAgendaCalendarHandler(config: Config, transport: typeof fe
         const appointmentResult = await root
           .from('scheduling_requests')
           .select(
-            'company_id,request_mode,extra_visit,billable_extra,urgency_fee_applies,online_extra_requested',
+            'id,company_id,request_mode,extra_visit,billable_extra,urgency_fee_applies,online_extra_requested,online_extra_quote_accepted_at',
           )
           .eq('company_id', companyId)
           .eq('confirmed_event_id', eventId)
@@ -223,12 +283,84 @@ export function createAgendaCalendarHandler(config: Config, transport: typeof fe
           appointment.data.online_extra_requested
         )
           return reply({ error: 'unsupported_agenda_item' }, 403);
+        appointmentIdForEvent = appointment.data.id;
         meetingMode = appointment.data.request_mode;
+      }
+      const leaseResult = await root.rpc('v2_agenda_calendar_lease', {
+        p_event_id: eventId,
+        p_action: 'acquire',
+        p_token: null,
+      });
+      const lease = leaseSchema.safeParse(leaseResult.data);
+      if (leaseResult.error || !lease.success)
+        return reply({ error: 'calendar_lease_unavailable' }, 503);
+      if (!lease.data.acquired)
+        return reply({ status: 'busy', retryAfterSeconds: lease.data.retryAfterSeconds });
+      heldLease = { eventId, token: lease.data.token };
+
+      // Re-read the source after acquiring the lease; pre-lock state is stale by definition.
+      if (input.action === 'sync_appointment' || input.action === 'sync_extra_cancellation') {
+        const currentResult = await root
+          .from('scheduling_requests')
+          .select(
+            'id,company_id,status,confirmed_event_id,request_mode,extra_visit,billable_extra,urgency_fee_applies,online_extra_requested,online_extra_quote_accepted_at,extra_visit_change_kind,extra_visit_change_was_confirmed,extra_visit_change_at',
+          )
+          .eq('id', input.appointmentId)
+          .eq('company_id', companyId)
+          .maybeSingle();
+        const current = appointmentSchema.safeParse(currentResult.data);
+        if (input.action === 'sync_extra_cancellation') {
+          if (
+            !current.success ||
+            !['cancelled', 'reschedule_review'].includes(current.data.status ?? '') ||
+            !current.data.extra_visit ||
+            !current.data.extra_visit_change_was_confirmed ||
+            !current.data.extra_visit_change_at ||
+            !current.data.extra_visit_change_kind ||
+            profile.data.company_id !== companyId
+          )
+            return reply({ status: 'not_cancelled' });
+          const currentEvent = await root
+            .from('events')
+            .select('id')
+            .eq('id', eventId)
+            .eq('company_id', companyId)
+            .eq('source_type', 'scheduling_request')
+            .eq('source_entity_id', input.appointmentId)
+            .eq('schedule_class', 'extra')
+            .eq('cancelled_at', current.data.extra_visit_change_at)
+            .maybeSingle();
+          if (!currentEvent.data) return reply({ status: 'not_cancelled' });
+        } else if (
+          !current.success ||
+          current.data.status !== 'confirmed' ||
+          current.data.confirmed_event_id !== eventId ||
+          current.data.request_mode !== meetingMode ||
+          (expectedScheduleClass === 'extra' &&
+            current.data.online_extra_requested &&
+            !current.data.online_extra_quote_accepted_at)
+        )
+          return reply({ status: 'not_confirmed' });
+      } else {
+        const currentResult = await root
+          .from('agenda_change_requests')
+          .select('id,company_id,event_id,action,status')
+          .eq('id', input.changeId)
+          .maybeSingle();
+        const current = changeSchema.safeParse(currentResult.data);
+        if (
+          !current.success ||
+          current.data.status !== 'approved' ||
+          current.data.company_id !== companyId ||
+          current.data.event_id !== eventId ||
+          (current.data.action === 'cancel') !== shouldCancel
+        )
+          return reply({ status: 'not_approved' });
       }
       const eventResult = await root
         .from('events')
         .select(
-          'id,company_id,title,description,location,starts_at,ends_at,cancelled_at,google_calendar_id,google_event_id,meeting_url',
+          'id,company_id,title,description,location,starts_at,ends_at,mode,event_type,visibility,schedule_class,source_type,source_entity_id,cancelled_at,google_calendar_id,google_event_id,meeting_url',
         )
         .eq('id', eventId)
         .eq('company_id', companyId)
@@ -236,13 +368,26 @@ export function createAgendaCalendarHandler(config: Config, transport: typeof fe
       const parsedEvent = eventSchema.safeParse(eventResult.data);
       if (!parsedEvent.success) return reply({ error: 'event_not_found' }, 404);
       const event = parsedEvent.data;
+      if (
+        event.event_type !== 'meeting' ||
+        event.visibility !== 'client' ||
+        event.source_type !== 'scheduling_request' ||
+        event.source_entity_id !== appointmentIdForEvent ||
+        event.mode !== meetingMode ||
+        event.schedule_class !== expectedScheduleClass
+      )
+        return reply({ error: 'unsupported_agenda_item' }, 403);
       if (!shouldCancel && event.cancelled_at) return reply({ status: 'cancelled_local' });
       if (shouldCancel && !event.cancelled_at) return reply({ error: 'event_not_cancelled' }, 409);
       const expectedGoogleId = stableGoogleEventId(event.id);
-      if (event.google_event_id && event.google_event_id !== expectedGoogleId)
-        return reply({ error: 'legacy_google_event_requires_manual_review' }, 409);
       if (event.google_calendar_id && event.google_calendar_id !== config.testCalendarId)
         return reply({ error: 'calendar_target_mismatch' }, 409);
+      if (
+        event.google_event_id &&
+        event.google_event_id !== expectedGoogleId &&
+        !event.google_calendar_id
+      )
+        return reply({ error: 'legacy_google_event_requires_manual_review' }, 409);
 
       const connectionResult = await root
         .from('calendar_connections')
@@ -353,6 +498,7 @@ export function createAgendaCalendarHandler(config: Config, transport: typeof fe
         config.testCalendarId,
         accessToken,
         googleFetch,
+        event.google_event_id ?? undefined,
       );
       const meetingUrl = synced.hangoutLink || meeting.meetingUrl;
       let saveQuery = root
@@ -375,10 +521,52 @@ export function createAgendaCalendarHandler(config: Config, transport: typeof fe
         ? saveQuery.eq('google_calendar_id', event.google_calendar_id)
         : saveQuery.is('google_calendar_id', null);
       const { data: savedEvent, error: saveError } = await saveQuery.select('id').maybeSingle();
-      if (saveError || !savedEvent) return reply({ error: 'calendar_sync_receipt_failed' }, 503);
+      if (saveError || !savedEvent) {
+        const latestResult = await root
+          .from('events')
+          .select('id,cancelled_at')
+          .eq('id', eventId)
+          .eq('company_id', companyId)
+          .maybeSingle();
+        if (latestResult.data?.cancelled_at) {
+          await deleteGoogleCalendarEvent(
+            config.testCalendarId,
+            synced.id,
+            accessToken,
+            googleFetch,
+          );
+          const compensation = await root
+            .from('events')
+            .update({
+              google_calendar_id: config.testCalendarId,
+              google_event_id: synced.id,
+              sync_status: 'cancelled_google',
+            })
+            .eq('id', eventId)
+            .eq('company_id', companyId)
+            .not('cancelled_at', 'is', null)
+            .select('id')
+            .maybeSingle();
+          if (!compensation.error && compensation.data)
+            return reply({ status: 'cancelled_google' });
+        }
+        return reply({ error: 'calendar_sync_receipt_failed' }, 503);
+      }
       return reply({ status: 'synced', meetingUrl });
     } catch {
       return reply({ error: 'calendar_sync_failed' }, 503);
+    } finally {
+      if (heldLease) {
+        try {
+          await root.rpc('v2_agenda_calendar_lease', {
+            p_event_id: heldLease.eventId,
+            p_action: 'release',
+            p_token: heldLease.token,
+          });
+        } catch {
+          // TTL reclaims leases after an interrupted request.
+        }
+      }
     }
   };
 }
