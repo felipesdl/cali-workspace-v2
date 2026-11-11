@@ -19,7 +19,7 @@ Na rodada final, usar empresas e dados de teste no projeto separado de homologa�
 
 ## Escolhas de fluxo para a Patrícia
 
-As respostas da Patrícia de 11/11 foram registradas na [DEC-29](DECISIONS.md#dec-29--fluxos-confirmados-pela-patrícia). As [regras aprovadas](PRODUCT_RULES.md#fluxos-confirmados-pela-patrícia-em-1111) substituem as alternativas da consulta anterior. O [roadmap](ROADMAP.md#entregas-da-dec-29) mostra o que já existe e o que precisa ser desenvolvido e validado em cada frente.
+As respostas da Patrícia de 11/11 foram registradas na [DEC-29](DECISIONS.md#dec-29--fluxos-confirmados-pela-patrícia). As [regras aprovadas](PRODUCT_RULES.md#fluxos-confirmados-pela-patrícia-em-1111) substituem as alternativas da consulta anterior. O [roadmap](ROADMAP.md#entregas-da-dec-29) registra a candidata e os cenários de aceite de cada frente.
 
 ### Contatos e redes em Minha conta
 
@@ -37,6 +37,21 @@ Felipe confirmou este escopo em 11/11/2026. Ele vai subir o preview no Vercel. O
 | Forms | Exercitar resolução do mesmo slug, coleta condicional, anexo, recibo repetido, QR/cartão, prévia, planilha e restauração. Simular o transporte do e-mail. | Confirmar que um link de formulário já aberto preserva identidade, versão, respostas e anexos. Verificar prévia pelo endereço de homologação, exportação e confirmação única para destinatário de teste. |
 | Calendar e Meet | Simular o Google ao criar, remarcar e cancelar. Verificar a identidade do evento, repetição da operação e resultado de falha externa. | Usar o calendário de teste e as credenciais existentes após conferir escopos, callback e calendário selecionado. Criar o link Meet e conferir a remarcação e o cancelamento do evento. Confirmar que os convidados ficam registrados no Workspace e que o preview não envia convites pelo Google. |
 | Drive | Exercitar permissões, troca de conta, cópia de arquivo legado e PDF V2, pasta mista e retomada de cópia parcial. | Conectar a conta de teste, copiar arquivo e pasta, verificar o destino, repetir sem duplicar e confirmar a separação entre empresas. |
+
+## Regressão do PR #3 no preview
+
+Usar Admin, Clientes A/B e Partner com dados sintéticos. Registrar SHA, origem, papel, cenário, resultado e evidência. Testar desktop e celular com navegação direta, recarga, teclado e diálogos de confirmação.
+
+| Percurso | Evidência esperada |
+| --- | --- |
+| Empresa e pré-cadastro | Abrir o mesmo cadastro nas abas. Enviar o link ao cliente de teste, completar os dados no Admin e confirmar contrato e acessos. Uma reserva recusada mantém a ficha sem liberação. Após liberar, cada destinatário autorizado completa o primeiro login. |
+| Início e atendimento Cliente | Mostrar o plano e as pessoas designadas para a conta. Abrir uma ocorrência por assunto, seguir mensagens, arquivos, horas e aprovações com a visibilidade correta. Conferir Termos e pedidos pessoais em Minha conta. |
+| Proposta, relatório e devolutiva | Partner prepara material no escopo atribuído. Admin devolve para ajuste ou incorpora ao fluxo oficial. Conferir o conteúdo revisado e cancelar em cada confirmação. Enviar e reenviar a mesma versão por Admin. Repetir a mesma tentativa sem duplicar. Em Propostas, verificar as respostas do portal pela oportunidade e pelo Admin de Forms. |
+| Horas Partner | Navegar com o cronômetro aberto, testar inatividade, recarregar e localizar o alerta. Verificar o aviso por e-mail para os destinatários de teste. Corrigir tempo com justificativa e conferir o lançamento após revisão Admin. |
+| Satisfação e PDF | Com a mesma empresa, comparar mês e período completo na tela e no PDF. Conferir avaliações positivas, notas baixas, tendência e quantidades de solicitações respondidas, pendentes e encerradas sem resposta. Exercitar também o PDF executivo privado. |
+| Controles de acesso | Conferir Admin com MFA, Clientes A/B, Partner com e sem atribuição, expiração e revogação. Confirmar que outra empresa ou outro parceiro não lê o material, nem acessa diretamente seu PDF, anexo ou ação. |
+
+Antes do aceite, conferir também os [quatro fluxos de estreia](#aceite-dos-quatro-fluxos-de-estreia). Felipe publica a revisão no Vercel. A configuração e o [preflight do Supabase isolado](RUNBOOK.md#preview-protegido-para-homologação) antecedem os testes pela URL.
 
 ## Roteiro da Patrícia
 

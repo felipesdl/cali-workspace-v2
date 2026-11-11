@@ -57,9 +57,17 @@ declare
   invitation cali_session_guard.phase4_staff_invites:=cali_session_guard.phase5_partner_invite();
 begin
   return jsonb_build_object('active',(
-    select jsonb_build_object('id',t.id,'description',t.description,'startedAt',t.started_at)
+    select jsonb_build_object('id',t.id,'description',t.description,'startedAt',t.started_at,
+      'lastSeenAt',coalesce(t.last_seen_at,t.started_at))
     from cali_workspace.work_timers t join cali_session_guard.phase5_partner_timers p on p.timer_id=t.id
     where t.company_id=p_company and t.user_id=auth.uid() and t.status='active' and p.invite_id=invitation.id
+  ),'recoveryPending',exists(
+    select 1 from cali_session_guard.phase5_partner_hours h
+    join cali_workspace.activity_log l on l.entity_id=h.timer_id and l.entity_type='work_timer'
+    where h.company_id=p_company and h.actor_id=auth.uid() and h.invite_id=invitation.id
+      and h.status='pending' and h.adjustment_request_id is null
+      and l.event_type='partner_pilot_timer_queued'
+      and l.metadata->>'closing_event'='timer_auto_paused_inactivity'
   ),'targets',coalesce((
     select jsonb_agg(to_jsonb(x) order by x.title,x.kind,x.id) from (
       select h.kind,h.id,h.title from cali_session_guard.phase5_partner_hour_targets(p_company) h
@@ -67,6 +75,28 @@ begin
       order by h.title,h.kind,h.id limit 200
     ) x
   ),'[]'::jsonb));
+end;
+$$;
+
+-- Atualiza presença somente após interação explícita na tela; o servidor limita a 1 evento/90 s.
+create or replace function cali_workspace.v2_touch_partner_pilot_timer(p_company uuid,p_timer uuid)
+returns boolean language plpgsql security definer set search_path='' as $$
+declare
+  invitation cali_session_guard.phase4_staff_invites:=cali_session_guard.phase5_partner_invite();
+  touched uuid;
+begin
+  perform cali_session_guard.require_phase5_partner(p_company,'hours');
+  update cali_workspace.work_timers t set last_seen_at=clock_timestamp()
+    from cali_session_guard.phase5_partner_timers p
+    where t.id=p_timer and t.company_id=p_company and t.user_id=auth.uid()
+      and t.status='active' and p.timer_id=t.id and p.invite_id=invitation.id
+      and t.last_seen_at<=clock_timestamp()-interval '90 seconds'
+    returning t.id into touched;
+  if touched is null then return false; end if;
+  insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
+    values(p_company,auth.uid(),'partner_pilot_timer_activity','work_timer',touched,
+      jsonb_build_object('source','explicit_workspace_interaction'));
+  return true;
 end;
 $$;
 
@@ -173,9 +203,11 @@ $$;
 revoke all on function cali_session_guard.require_phase5_partner(uuid,text),
   cali_session_guard.phase5_partner_hour_targets(uuid),
   cali_workspace.v2_read_partner_pilot_timer(uuid),
+  cali_workspace.v2_touch_partner_pilot_timer(uuid,uuid),
   cali_workspace.v2_change_partner_pilot_timer(uuid,uuid,text,uuid,text,uuid,text)
   from public,anon,authenticated,service_role;
 grant execute on function cali_workspace.v2_read_partner_pilot_timer(uuid),
+  cali_workspace.v2_touch_partner_pilot_timer(uuid,uuid),
   cali_workspace.v2_change_partner_pilot_timer(uuid,uuid,text,uuid,text,uuid,text) to authenticated;
 
 -- Os caminhos antigos também enxergam work_timers. Restringir somente timers inscritos no piloto.

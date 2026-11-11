@@ -107,6 +107,73 @@ export function PartnerHoursQueue({
                   </p>
                   {row.member_name && <p>{row.member_name}</p>}
                   <p>{row.justification}</p>
+                  {!admin && row.recoverable && row.status === 'pending' && (
+                    <ActionForm
+                      label="Ajustar trecho recuperado"
+                      saved={refresh}
+                      submit={(fields, request) =>
+                        api.adjustRecoveredHours(company, request, {
+                          submission: row.id,
+                          day: String(fields.get('day') ?? ''),
+                          minutes: Number(fields.get('minutes')),
+                          description: String(fields.get('description') ?? ''),
+                          justification: String(fields.get('justification') ?? ''),
+                        })
+                      }
+                    >
+                      {(prefix) => (
+                        <>
+                          <p>
+                            O cronômetro encerrou após inatividade. Revise o tempo antes da
+                            aprovação.
+                          </p>
+                          <Field id={prefix + 'day'} label="Data do trabalho">
+                            <Input
+                              id={prefix + 'day'}
+                              name="day"
+                              type="date"
+                              defaultValue={row.day}
+                              required
+                            />
+                          </Field>
+                          <Field id={prefix + 'minutes'} label="Duração correta em minutos">
+                            <Input
+                              id={prefix + 'minutes'}
+                              name="minutes"
+                              type="number"
+                              min={1}
+                              max={1440}
+                              defaultValue={row.minutes}
+                              required
+                            />
+                          </Field>
+                          <Field id={prefix + 'description'} label="Trabalho realizado">
+                            <TextArea
+                              id={prefix + 'description'}
+                              name="description"
+                              minLength={3}
+                              maxLength={1000}
+                              defaultValue={row.description}
+                              required
+                            />
+                          </Field>
+                          <Field
+                            id={prefix + 'justification'}
+                            label="O que aconteceu com o cronômetro"
+                          >
+                            <TextArea
+                              id={prefix + 'justification'}
+                              name="justification"
+                              minLength={3}
+                              maxLength={1000}
+                              defaultValue={row.justification}
+                              required
+                            />
+                          </Field>
+                        </>
+                      )}
+                    </ActionForm>
+                  )}
                   {row.decision_note && <p>Decisão CALI · {row.decision_note}</p>}
                   {admin && row.status === 'pending' && (
                     <ActionForm

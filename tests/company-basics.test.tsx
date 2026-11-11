@@ -41,9 +41,11 @@ describe('edição básica de empresa', () => {
     await user.clear(screen.getByLabelText('Razão social'));
     await user.click(screen.getByRole('button', { name: 'Salvar dados' }));
     expect(await screen.findByText('Dados da empresa salvos.')).toBeTruthy();
+    await user.click(screen.getByRole('tab', { name: 'Acessos' }));
     expect(await screen.findByRole('heading', { name: 'Acessos · Aurora Revisada' })).toBeTruthy();
     expect(screen.getByText('contato1.empresa1@example.test')).toBeTruthy();
     expect(update).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole('tab', { name: 'Cadastro' }));
     await user.click(screen.getByRole('button', { name: 'Editar dados da empresa' }));
     expect((screen.getByLabelText('Razão social') as HTMLInputElement).value).toBe(
       'Aurora Revisada',

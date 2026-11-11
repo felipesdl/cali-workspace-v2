@@ -1,3 +1,4 @@
+import { PartnerProposalReview } from './components/PartnerProposalReview';
 import {
   CommercialDraftEditor,
   CreateCommercialDraft,
@@ -16,7 +17,9 @@ import { type Props } from '../../../components/workspace/workspace-presentation
 const adminCommercial = getRouteApi('/admin/propostas');
 
 function AdminCommercial({ search, update }: Props) {
-  const { adminRead, domainOperations } = useRouteContext({ from: '__root__' });
+  const { adminRead, domainOperations, partnerProposalDrafts } = useRouteContext({
+    from: '__root__',
+  });
   const { companyId, actor, admin } = useProjectWorkspaceScope(search);
   const result = useQuery({
     queryKey: ['phase4-commercial', actor, companyId, search.page],
@@ -42,6 +45,18 @@ function AdminCommercial({ search, update }: Props) {
           {result.data.entries.length ? (
             <CommercialResults
               entries={result.data.entries}
+              partnerReview={
+                partnerProposalDrafts
+                  ? (opportunity) => (
+                      <PartnerProposalReview
+                        company={companyId}
+                        opportunity={opportunity}
+                        actor={actor}
+                        service={partnerProposalDrafts}
+                      />
+                    )
+                  : undefined
+              }
               email={
                 domainOperations && import.meta.env.VITE_CALI_PHASE4_COMMERCIAL_EMAIL === 'true'
                   ? (proposal, expected) => (
@@ -63,6 +78,20 @@ function AdminCommercial({ search, update }: Props) {
                         proposal={proposal}
                         expected={expected}
                         service={adminRead}
+                      />
+                    )
+                  : undefined
+              }
+              resend={
+                domainOperations
+                  ? (proposal, expected) => (
+                      <SendCommercialOffer
+                        company={companyId}
+                        actor={actor}
+                        proposal={proposal}
+                        expected={expected}
+                        service={adminRead}
+                        resend
                       />
                     )
                   : undefined

@@ -36,12 +36,12 @@ async function openApp(unavailable = false) {
       <App router={router} />
     </StrictMode>,
   );
-  await screen.findByRole('heading', { name: 'Acessos · Aurora Tecnologia' }, { timeout: 5000 });
+  await screen.findByRole('heading', { name: 'Ficha da empresa' }, { timeout: 5000 });
   if (!unavailable) await screen.findByRole('button', { name: 'Editar cadastro da empresa' });
   return { user: userEvent.setup(), registration, service, cache, read };
 }
 async function edit(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('button', { name: 'Editar cadastro da empresa' }));
+  await user.click(await screen.findByRole('button', { name: 'Editar cadastro da empresa' }));
   await screen.findByRole('form', { name: 'Editar dados cadastrais' });
 }
 describe('cadastro empresarial complementar na demonstração', () => {
@@ -127,6 +127,7 @@ describe('cadastro empresarial complementar na demonstração', () => {
     ).toBe(true);
     await user.click(screen.getByRole('button', { name: 'Ver acessos de Norte Digital' }));
     await screen.findByRole('heading', { name: 'Acessos · Norte Digital' });
+    await user.click(screen.getByRole('tab', { name: 'Cadastro' }));
     expect(signal?.aborted).toBe(true);
     await act(async () => {
       finish(companyLogoFixture);

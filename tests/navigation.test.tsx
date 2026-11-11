@@ -97,7 +97,7 @@ describe('navegação e formulário de empresas', () => {
   });
 
   it('abre acesso por URL direta sem visitar lista antes', async () => {
-    await openApp(`/admin/clientes?companyId=${mockCompanyIds.Aurora}`);
+    await openApp(`/admin/clientes?companyId=${mockCompanyIds.Aurora}&tab=Acessos`);
     expect(
       await screen.findByRole('heading', { name: 'Acessos · Aurora Tecnologia' }),
     ).toBeTruthy();

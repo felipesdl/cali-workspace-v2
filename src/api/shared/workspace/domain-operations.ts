@@ -265,6 +265,9 @@ const formTriageResponse = z.object({
   submitted_at: z.string(),
   pdfAvailable: z.boolean().optional(),
   attachmentsAvailable: z.boolean().optional(),
+  answers: z
+    .array(z.object({ questionId: z.string(), question: z.string(), answer: z.string() }))
+    .optional(),
   stage: z.string().nullable(),
   owner: z.string().nullable(),
 });
@@ -613,6 +616,16 @@ export function createDomainOperations(client: WorkspaceClient) {
       if (error) throw rejected(error.code);
       return z.literal(report).parse(data);
     },
+    async resendReport(company: string, report: string, version: number, request: string) {
+      const { data, error } = await client.rpc('v2_resend_pilot_report', {
+        p_company: company,
+        p_report: report,
+        p_version: version,
+        p_request: request,
+      });
+      if (error) throw rejected(error.code);
+      return z.literal(report).parse(data);
+    },
     async reportPdf(company: string, report: string, version: number, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_read_pilot_report_pdf', {
@@ -821,6 +834,47 @@ export function createDomainOperations(client: WorkspaceClient) {
         throw new Error('Este formulário não é compatível com a coleta da V2.');
       if (error) throw rejected(error.code);
       return z.literal(id).parse(data);
+    },
+    async subjectHistory(
+      company: string,
+      kind: 'record' | 'delivery',
+      id: string,
+      page: number,
+      signal: AbortSignal,
+    ) {
+      const { data, error } = await client
+        .rpc('v2_read_subject_history', {
+          p_company: company,
+          p_kind: kind,
+          p_subject: id,
+          p_page: page,
+        })
+        .abortSignal(signal);
+      if (error?.code === 'PGRST202' || error?.code === '42883') return null;
+      if (error) throw rejected(error.code);
+      return z
+        .object({
+          id: z.literal(id),
+          total: z.number().int().nonnegative(),
+          entries: z.array(
+            z.discriminatedUnion('kind', [
+              z.object({
+                kind: z.literal('hours'),
+                id: z.string(),
+                at: z.iso.date(),
+                title: z.string(),
+                minutes: z.number().int().positive(),
+              }),
+              z.object({
+                kind: z.literal('approval'),
+                id: z.string(),
+                at: z.iso.datetime({ offset: true }),
+                title: z.string(),
+              }),
+            ]),
+          ),
+        })
+        .parse(data);
     },
     async readRecord(company: string, record: string, page: number, signal: AbortSignal) {
       const { data, error } = await client

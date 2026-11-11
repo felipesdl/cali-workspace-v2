@@ -1,4 +1,4 @@
-import { type AdminOverviewSnapshot } from '../../../../api/admin/workspace/admin-portfolio';
+import { type SatisfactionPeriod } from '../../../../api/admin/workspace/admin-read';
 import { Panel } from '../../../../components/ds/panel/Panel';
 
 const scoreFormat = new Intl.NumberFormat('pt-BR', {
@@ -10,7 +10,7 @@ export function SatisfactionSummary({
   value,
   accountSelected,
 }: {
-  value: AdminOverviewSnapshot['satisfaction'];
+  value: Pick<SatisfactionPeriod, 'average' | 'total' | 'distribution' | 'trend'>;
   accountSelected: boolean;
 }) {
   // Faixa de indicadores e distribuição de AdminSatisfactionPage do app.cali.
@@ -94,6 +94,48 @@ export function SatisfactionSummary({
               </li>
             ))}
           </ul>
+        ) : (
+          <p className="tw:m-0 tw:text-muted-copy">Sem avaliações neste recorte.</p>
+        )}
+      </Panel>
+      <Panel aria-labelledby="satisfaction-trend-title" className="tw:grid tw:gap-4">
+        <header>
+          <p className="workspace-eyebrow tw:m-0">Evolução</p>
+          <h2 id="satisfaction-trend-title" className="tw:mt-1 tw:mb-0 tw:text-body tw:font-bold">
+            Tendência das avaliações
+          </h2>
+        </header>
+        {value.trend.length ? (
+          <div className="tw:overflow-x-auto">
+            <table className="tw:w-full tw:min-w-[34rem] tw:border-collapse tw:text-caption">
+              <thead>
+                <tr className="tw:border-b tw:border-border-default tw:text-left">
+                  <th className="tw:py-2">Mês</th>
+                  <th className="tw:py-2">Média</th>
+                  <th className="tw:py-2">Avaliações</th>
+                  <th className="tw:py-2">Notas 1–3</th>
+                  <th className="tw:py-2">Notas 4–5</th>
+                </tr>
+              </thead>
+              <tbody>
+                {value.trend.map((row) => (
+                  <tr key={row.month} className="tw:border-b tw:border-border-default">
+                    <th className="tw:py-2 tw:text-left tw:font-medium">
+                      {new Intl.DateTimeFormat('pt-BR', {
+                        month: 'short',
+                        year: 'numeric',
+                        timeZone: 'UTC',
+                      }).format(new Date(`${row.month}T12:00:00Z`))}
+                    </th>
+                    <td className="tw:py-2">{scoreFormat.format(row.average)}/5</td>
+                    <td className="tw:py-2">{row.total}</td>
+                    <td className="tw:py-2">{row.attention}</td>
+                    <td className="tw:py-2">{row.positive}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
           <p className="tw:m-0 tw:text-muted-copy">Sem avaliações neste recorte.</p>
         )}

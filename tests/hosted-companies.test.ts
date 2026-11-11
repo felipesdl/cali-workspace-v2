@@ -146,6 +146,7 @@ describe('projeções de empresas do hospedado', () => {
       display_name: 'Empresa própria',
       legal_name: 'Razão própria',
       status: 'paused',
+      service_plan: 'partner',
     };
     const { service, request } = backend(identity);
     const controller = new AbortController();
@@ -154,10 +155,11 @@ describe('projeções de empresas do hospedado', () => {
       displayName: 'Empresa própria',
       legalName: 'Razão própria',
       status: 'paused',
+      plan: 'partner',
     });
     const [input, init] = request.mock.calls[0];
     const url = new URL(String(input));
-    expect(url.searchParams.get('select')).toBe('id,display_name,legal_name,status');
+    expect(url.searchParams.get('select')).toBe('id,display_name,legal_name,status,service_plan');
     expect(url.searchParams.get('id')).toBe(`eq.${id}`);
     expect(init?.method).toBe('GET');
     expect(init?.signal).toBe(controller.signal);

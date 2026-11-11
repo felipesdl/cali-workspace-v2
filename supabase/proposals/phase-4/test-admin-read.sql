@@ -10,9 +10,10 @@ declare
   item uuid := gen_random_uuid();
   payload jsonb;
 begin
-  insert into public.cali_submissions(id,protocol,status,service_slug,updated_at,contact_email,internal_notes)
-  values(mapped,'PORTAL-QA-01','negociacao','cali-full',now(),'contato@example.invalid','NOTA RESERVADA'),
-    (unmapped,'PORTAL-FORA-PILOTO','novo','cali-full',now(),null,null);
+  insert into public.cali_submissions(id,protocol,status,service_slug,updated_at,contact_email,internal_notes,answers)
+  values(mapped,'PORTAL-QA-01','negociacao','cali-full',now(),'contato@example.invalid','NOTA RESERVADA',
+      '{"frentes":["clima","cargos"],"comentario":"Priorizar desenvolvimento da liderança.","email_contato":"lead@example.invalid","telefone":"+55 41 99999-9999","arquivo_path":"empresa/documento.pdf"}'),
+    (unmapped,'PORTAL-FORA-PILOTO','novo','cali-full',now(),null,null,'{}'::jsonb);
   insert into public.cali_proposals(id,submission_id,status,version,total_value,package_code,updated_at,pdf_path,calculator_data)
   values(gen_random_uuid(),mapped,'aceita',1,1234.56,'full','2026-10-10','CAMINHO RESERVADO','{"internal":"BASE PRIVADA"}'),
     (delegated_draft,mapped,'rascunho',2,1720.00,'full','2026-10-11',null,null),
@@ -60,8 +61,14 @@ begin
   assert payload#>>'{entries,0,proposalStatus}'='rascunho'
     and (payload#>>'{entries,0,total}')::numeric=1720
     and payload#>>'{entries,0,version}'='2';
+  assert payload#>>'{entries,0,briefing,0,key}'='comentario'
+    and payload#>>'{entries,0,briefing,0,value}'='Priorizar desenvolvimento da liderança.';
+  assert payload#>>'{entries,0,briefing,1,key}'='frentes'
+    and payload#>>'{entries,0,briefing,1,value}'='clima · cargos';
   assert payload::text not like '%FORA-PILOTO%' and payload::text not like '%example.invalid%'
-    and payload::text not like '%RESERVAD%' and payload::text not like '%BASE PRIVADA%';
+    and payload::text not like '%RESERVAD%' and payload::text not like '%BASE PRIVADA%'
+    and payload::text not like '%telefone%' and payload::text not like '%arquivo_path%'
+    and payload::text not like '%empresa/documento.pdf%';
   assert cali_workspace.v2_read_pilot_commercial(a,2)->'entries'='[]'::jsonb;
   assert cali_workspace.v2_read_pilot_commercial(b,1)->>'total'='0';
   begin

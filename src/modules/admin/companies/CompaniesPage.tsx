@@ -1,20 +1,12 @@
-import { HostedBrand } from './components/HostedBrand';
-import { HostedRegistration } from './components/HostedRegistration';
-import { CompanyContractDocuments } from './components/CompanyContractDocuments';
-import { CompanyRegistrationData } from './components/CompanyRegistrationData';
-import { CompanyAdministration } from './components/CompanyAdministration';
+import { CompanySheet } from './components/CompanySheet';
 import { useState } from 'react';
 import { getRouteApi, useRouter } from '@tanstack/react-router';
 import { adminPaths } from '../../../app/navigation';
 import { useCompanyManagementAvailable } from '../../../api/admin/companies/hooks/useCompanyManagement';
-import { CompanyBasics } from './components/CompanyBasics';
 import { CompanyRegistration } from './components/CompanyRegistration';
-import { CompanyAdhesions } from './components/CompanyAdhesions';
 import { CompanyFilters } from './components/CompanyFilters';
 import { CompaniesTable } from './components/CompaniesTable';
-import { CompanyAccessPanel } from './components/CompanyAccessPanel';
 import { HostedCompanyDrafts } from './components/HostedCompanyDrafts';
-import { CompanyCycles } from './components/CompanyCycles';
 
 const companiesRoute = getRouteApi(adminPaths.accounts);
 
@@ -52,41 +44,22 @@ export function CompaniesPage() {
       <CompanyFilters />
       <CompaniesTable
         filters={{ q: search.q, status: search.status }}
-        onSelect={(companyId) => void navigate({ search: { ...search, companyId } })}
+        onSelect={(companyId) =>
+          void navigate({ search: { ...search, companyId, tab: 'Acessos' } })
+        }
       />
       {search.companyId && (
-        <>
-          <CompanyBasics
-            key={`basics:${search.companyId}`}
-            companyId={search.companyId}
-            focusOnMount={createdCompanyId === search.companyId}
-          />
-          <HostedRegistration
-            key={`hosted-registration:${search.companyId}`}
-            companyId={search.companyId}
-          />
-          <HostedBrand key={`hosted-brand:${search.companyId}`} companyId={search.companyId} />
-          <CompanyRegistrationData
-            key={`registration-data:${search.companyId}`}
-            companyId={search.companyId}
-          />
-          <CompanyAdministration
-            key={`administration:${search.companyId}`}
-            companyId={search.companyId}
-          />
-          <CompanyContractDocuments
-            key={`contract-documents:${search.companyId}`}
-            companyId={search.companyId}
-          />
-          <CompanyAdhesions key={`adhesions:${search.companyId}`} companyId={search.companyId} />
-          <CompanyCycles key={`cycles:${search.companyId}`} companyId={search.companyId} />
-          <CompanyAccessPanel
-            key={`accesses:${search.companyId}`}
-            companyId={search.companyId}
-            canManage={canManage}
-            onClose={() => void navigate({ search: { ...search, companyId: undefined } })}
-          />
-        </>
+        <CompanySheet
+          key={search.companyId}
+          companyId={search.companyId}
+          focusOnMount={createdCompanyId === search.companyId}
+          canManage={canManage}
+          tab={search.tab ?? 'Cadastro'}
+          onTab={(tab) => void navigate({ search: { ...search, tab }, replace: true })}
+          onClose={() =>
+            void navigate({ search: { ...search, companyId: undefined, tab: undefined } })
+          }
+        />
       )}
     </div>
   );

@@ -7,6 +7,7 @@ const project = 'https://kqtbfeeqbcllwvlkbrkq.supabase.co';
 const origin = 'http://127.0.0.1:5173';
 const jobId = '40000000-0000-4000-8000-000000000041';
 const providerId = '40000000-0000-4000-8000-000000000042';
+const requestId = '40000000-0000-4000-8000-000000000044';
 const report = {
   companyId: '9c5ab148-78b8-4410-9338-58c44222a5db',
   recordId: '40000000-0000-4000-8000-000000000043',
@@ -29,11 +30,15 @@ const env: Record<string, string> = {
   RESEND_API_KEY: 'test-resend',
 };
 
-function send(body: object = { report }, getEnv = (name: string) => env[name]) {
+function send(
+  body: object = { report, requestId },
+  getEnv = (name: string) => env[name],
+  requestOrigin = origin,
+) {
   return handleMapaEmail(
-    new Request(origin, {
+    new Request(requestOrigin, {
       method: 'POST',
-      headers: { origin, authorization: 'Bearer test-admin' },
+      headers: { origin: requestOrigin, authorization: 'Bearer test-admin' },
       body: JSON.stringify(body),
     }),
     getEnv,
@@ -45,13 +50,19 @@ afterEach(() => vi.unstubAllGlobals());
 it('repete o mesmo PDF e a mesma chave se a confirmação local falhar', async () => {
   const transport = vi
     .fn<typeof fetch>()
-    .mockResolvedValueOnce(Response.json({ id: jobId, sent: false, report }))
+    .mockResolvedValueOnce(
+      Response.json({ id: jobId, sent: false, report, recipients: ['delivered@resend.dev'] }),
+    )
     .mockResolvedValueOnce(Response.json({ id: providerId }))
     .mockResolvedValueOnce(new Response(null, { status: 503 }))
-    .mockResolvedValueOnce(Response.json({ id: jobId, sent: false, report }))
+    .mockResolvedValueOnce(
+      Response.json({ id: jobId, sent: false, report, recipients: ['delivered@resend.dev'] }),
+    )
     .mockResolvedValueOnce(Response.json({ id: providerId }))
     .mockResolvedValueOnce(new Response(null, { status: 204 }))
-    .mockResolvedValueOnce(Response.json({ id: jobId, sent: true, report }));
+    .mockResolvedValueOnce(
+      Response.json({ id: jobId, sent: true, report, recipients: ['delivered@resend.dev'] }),
+    );
   vi.stubGlobal('fetch', transport);
 
   expect((await send()).status).toBe(400);
@@ -77,6 +88,75 @@ it('repete o mesmo PDF e a mesma chave se a confirmação local falhar', async (
   expect(transport.mock.calls[2][1]?.headers).toMatchObject({
     Authorization: 'Bearer test-service',
   });
+});
+
+it('entrega apenas à allowlist no preview isolado com snapshot e PDF relidos pelo servidor', async () => {
+  const previewOrigin = 'https://cali-qa.vercel.app';
+  const previewProject = 'https://cali-staging.supabase.co';
+  const previewEnv: Record<string, string> = {
+    ...env,
+    SUPABASE_URL: previewProject,
+    CALI_PREVIEW_ORIGIN: previewOrigin,
+    CALI_PREVIEW_MAPA_EMAIL_ENABLED: 'true',
+    CALI_PREVIEW_MAPA_RECIPIENTS: 'qa-one@example.test, qa-two@example.test',
+  };
+  const transport = vi
+    .fn<typeof fetch>()
+    .mockResolvedValueOnce(
+      Response.json({
+        id: jobId,
+        sent: false,
+        report,
+        recipients: ['qa-one@example.test', 'qa-two@example.test'],
+      }),
+    )
+    .mockResolvedValueOnce(Response.json({ id: providerId }))
+    .mockResolvedValueOnce(new Response(null, { status: 204 }));
+  vi.stubGlobal('fetch', transport);
+
+  expect(
+    (
+      await send(
+        { report, requestId, to: 'outside@example.test' },
+        (name) => previewEnv[name],
+        previewOrigin,
+      )
+    ).status,
+  ).toBe(400);
+  expect(
+    (await send({ report, requestId }, (name) => previewEnv[name], previewOrigin)).status,
+  ).toBe(200);
+  const emailCall = transport.mock.calls.find(([url]) => url === 'https://api.resend.com/emails');
+  expect(emailCall).toBeDefined();
+  const message: { to: string[]; subject: string } = JSON.parse(String(emailCall?.[1]?.body));
+  expect(message.to).toEqual(['qa-one@example.test', 'qa-two@example.test']);
+  expect(message.subject).toContain('[HOMOLOGAÇÃO]');
+  expect(transport.mock.calls[0][0]).toBe(
+    previewProject + '/rest/v1/rpc/v2_prepare_pilot_mapa_email',
+  );
+});
+
+it('não habilita o Mapa preview em CALI MAPA nem fora da origem configurada', async () => {
+  const previewOrigin = 'https://cali-qa.vercel.app';
+  const previewEnv: Record<string, string> = {
+    ...env,
+    CALI_PREVIEW_ORIGIN: previewOrigin,
+    CALI_PREVIEW_MAPA_EMAIL_ENABLED: 'true',
+    CALI_PREVIEW_MAPA_RECIPIENTS: 'qa@example.test',
+  };
+  const productionPreviewEnv: Record<string, string> = {
+    ...previewEnv,
+    SUPABASE_URL: project,
+  };
+  const transport = vi.fn<typeof fetch>();
+  vi.stubGlobal('fetch', transport);
+  expect(
+    (await send({ report, requestId }, (name) => previewEnv[name], previewOrigin)).status,
+  ).toBe(403);
+  expect(
+    (await send({ report, requestId }, (name) => productionPreviewEnv[name], previewOrigin)).status,
+  ).toBe(403);
+  expect(transport).not.toHaveBeenCalled();
 });
 
 it('não consulta o provedor se o piloto estiver desligado, se houver destinatário livre ou se o banco recusar', async () => {

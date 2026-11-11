@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';
 import { createQueryClient } from '../src/api/query-client';
 import { Field } from '../src/components/ds/field/Field';
+import { Checkbox } from '../src/components/ds/checkbox/Checkbox';
 import { ActionForm } from '../src/components/workspace/ActionForm';
 
 it('preserva o conteúdo e a identificação na tentativa após erro e anuncia o sucesso', async () => {
@@ -81,4 +82,32 @@ it('mantém o diálogo e os valores enquanto a gravação está pendente e quand
   await user.click(dialog.getByRole('button', { name: 'Voltar' }));
   expect(screen.queryByRole('dialog')).toBeNull();
   expect(document.activeElement).toBe(trigger);
+});
+
+it('exige a segunda confirmação antes de executar uma ação iniciada no diálogo', async () => {
+  const submit = vi.fn(async (values: FormData) => values.get('confirm'));
+  const user = userEvent.setup();
+  render(
+    <QueryClientProvider client={createQueryClient()}>
+      <ActionForm
+        dialog={{ title: 'Deseja enviar?', trigger: 'Enviar' }}
+        label="Tem certeza? Enviar agora"
+        submit={submit}
+      >
+        {(id) => (
+          <Checkbox id={id + 'confirm'} name="confirm" required>
+            Confirmo o envio.
+          </Checkbox>
+        )}
+      </ActionForm>
+    </QueryClientProvider>,
+  );
+  await user.click(screen.getByRole('button', { name: 'Enviar' }));
+  const dialog = within(screen.getByRole('dialog', { name: 'Deseja enviar?' }));
+  await user.click(dialog.getByRole('button', { name: 'Tem certeza? Enviar agora' }));
+  expect(submit).not.toHaveBeenCalled();
+  await user.click(dialog.getByLabelText('Confirmo o envio.'));
+  await user.click(dialog.getByRole('button', { name: 'Tem certeza? Enviar agora' }));
+  await waitFor(() => expect(submit).toHaveBeenCalledOnce());
+  expect(submit.mock.calls[0][0].get('confirm')).toBe('on');
 });

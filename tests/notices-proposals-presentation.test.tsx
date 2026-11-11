@@ -73,6 +73,7 @@ describe('apresentação de avisos e propostas', () => {
         protocol: 'PROP-2026-002',
         opportunityStatus: 'edicao',
         service: 'Assessoria',
+        briefing: [{ key: 'frentes', value: 'clima · cargos' }],
         package: 'COMPLETO',
         proposalStatus: 'rascunho',
         version: 2,
@@ -80,6 +81,7 @@ describe('apresentação de avisos e propostas', () => {
         updatedAt: '2026-11-10T13:00:00Z',
         canCreate: false,
         canSend: false,
+        canResend: false,
         canEmail: false,
       },
     ];
@@ -88,5 +90,7 @@ describe('apresentação de avisos e propostas', () => {
     expect(screen.getByText('Rascunho · Versão 2')).toBeTruthy();
     expect(screen.getByText('Assessoria · COMPLETO')).toBeTruthy();
     expect(screen.getByText(/12\.500,00/)).toBeTruthy();
+    expect(screen.getByText('Briefing do cliente')).toBeTruthy();
+    expect(screen.getByText('clima · cargos')).toBeTruthy();
   });
 });

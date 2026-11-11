@@ -343,7 +343,11 @@ export function ReportPublicationActions({
       {admin && !published && pdfReady && (
         <ActionForm
           label="Publicar no Workspace"
+          dialog={{ title: 'Deseja enviar?', trigger: 'Publicar no Workspace' }}
           submit={async (fields) => {
+            if (fields.get('confirmRelease') !== 'on') {
+              throw new Error('Confirme que tem certeza antes de liberar este relatório.');
+            }
             setLastAction(undefined);
             const result = await refresh(
               await operations.releaseReport(
@@ -357,15 +361,40 @@ export function ReportPublicationActions({
             return result;
           }}
         >
-          {(prefix) =>
-            previouslyReleased ? (
-              <Checkbox id={prefix + 'requestAck'} name="requestAck">
-                Solicitar nova ciência
+          {(prefix) => (
+            <>
+              <p>Tem certeza que deseja liberar esta versão para o Cliente?</p>
+              <Checkbox id={prefix + 'confirmRelease'} name="confirmRelease" required>
+                Confirmo o envio desta versão.
               </Checkbox>
-            ) : (
-              <p>A primeira publicação solicita ciência ao Cliente.</p>
-            )
-          }
+              {previouslyReleased ? (
+                <Checkbox id={prefix + 'requestAck'} name="requestAck">
+                  Solicitar nova ciência
+                </Checkbox>
+              ) : (
+                <p>A primeira publicação solicita ciência ao Cliente.</p>
+              )}
+            </>
+          )}
+        </ActionForm>
+      )}
+      {admin && published && pdfReady && (
+        <ActionForm
+          label="Confirmar reenvio"
+          dialog={{ title: 'Deseja reenviar?', trigger: 'Reenviar no Workspace' }}
+          submit={(fields, request) => {
+            if (fields.get('confirmResend') !== 'on') {
+              throw new Error('Confirme que tem certeza antes de reenviar este relatório.');
+            }
+            return operations.resendReport(company, id, version, request);
+          }}
+          success="Relatório reenviado no Workspace."
+        >
+          {(prefix) => (
+            <Checkbox id={prefix + 'confirmResend'} name="confirmResend" required>
+              Tem certeza? Confirmo o reenvio desta versão.
+            </Checkbox>
+          )}
         </ActionForm>
       )}
       {!admin && acknowledgmentAvailable && !acknowledged && (

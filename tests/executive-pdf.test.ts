@@ -89,3 +89,23 @@ it('só grava artefato após autorização e recusa parâmetros de conteúdo do 
   expect(success.status).toBe(200);
   expect(store).toHaveBeenCalledExactlyOnceWith(command, ticket, expect.any(Uint8Array));
 });
+
+it('responde ao preflight apenas na origem configurada da homologação', async () => {
+  const origin = 'https://staging.calirh.com';
+  const handle = createExecutivePdfHandler(
+    {
+      prepare: async () => null,
+      store: async () => {},
+      readImage: async () => new Uint8Array(),
+    },
+    new Set([origin]),
+  );
+  const preflight = (value: string) =>
+    handle(
+      new Request('https://qa.example.test', { method: 'OPTIONS', headers: { Origin: value } }),
+    );
+  const allowed = await preflight(origin);
+  expect(allowed.status).toBe(204);
+  expect(allowed.headers.get('Access-Control-Allow-Origin')).toBe(origin);
+  expect((await preflight('https://app.calirh.com')).status).toBe(403);
+});

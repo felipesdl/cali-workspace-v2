@@ -1,3 +1,4 @@
+import { useRouteContext } from '@tanstack/react-router';
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { type z } from 'zod';
 import { type pilotInviteFields } from '../pilot-reservations';
@@ -7,11 +8,13 @@ import { useCompaniesScope } from './useCompaniesScope';
 
 export function usePilotReservations(companyId: string) {
   const scope = useCompaniesScope();
-  const available =
-    scope.enabled &&
+  const { preRegistration } = useRouteContext({ from: '__root__' });
+  const canReserve =
     import.meta.env.DEV &&
     import.meta.env.VITE_CALI_PILOT_PROVISIONING === 'true' &&
     isPilotCompany(companyId);
+  const available =
+    scope.enabled && isPilotCompany(companyId) && (canReserve || Boolean(preRegistration));
   const service = available ? scope.service.pilotReservations : undefined;
   const cache = useQueryClient();
   const key = [...companyKeys.accesses(scope.actor, companyId), 'pending'] as const;
@@ -28,7 +31,7 @@ export function usePilotReservations(companyId: string) {
       requestId: string;
       values: z.input<typeof pilotInviteFields>;
     }) => {
-      if (!service) throw new Error('Reservas indisponíveis.');
+      if (!service || !canReserve) throw new Error('Reservas indisponíveis.');
       return service.reserve(companyId, requestId, values);
     },
     onSuccess: () => cache.invalidateQueries({ queryKey: key }),
@@ -43,5 +46,5 @@ export function usePilotReservations(companyId: string) {
       cache.invalidateQueries({ queryKey: companyKeys.accesses(scope.actor, companyId) }),
     retry: false,
   });
-  return { available: Boolean(service), query, reserve, cancel };
+  return { available: Boolean(service), canReserve, query, reserve, cancel };
 }

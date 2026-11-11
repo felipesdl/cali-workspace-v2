@@ -18,7 +18,9 @@ async function openApp(unavailable = false) {
   const service = unavailable ? { ...original, management: null } : original;
   const cache = createQueryClient();
   const router = createAppRouter(
-    createMemoryHistory({ initialEntries: [`/admin/clientes?companyId=${mockCompanyIds.Norte}`] }),
+    createMemoryHistory({
+      initialEntries: [`/admin/clientes?companyId=${mockCompanyIds.Norte}&tab=Contrato`],
+    }),
     cache,
   );
   router.update({
@@ -32,7 +34,7 @@ async function openApp(unavailable = false) {
       <App router={router} />
     </StrictMode>,
   );
-  await screen.findByRole('heading', { name: 'Acessos · Norte Digital' }, { timeout: 5000 });
+  await screen.findByRole('heading', { name: 'Ficha da empresa' }, { timeout: 5000 });
   return { service, user: userEvent.setup() };
 }
 const syntheticFile = () =>

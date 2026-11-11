@@ -1,3 +1,4 @@
+import { isPreviewOrigin } from '../../../src/config/preview-origin.ts';
 import { PDFDocument, PageSizes, StandardFonts } from 'pdf-lib';
 import { z } from 'zod';
 
@@ -6,8 +7,17 @@ declare const Deno: {
   serve: (handler: (request: Request) => Promise<Response>) => void;
 };
 
-const project = 'https://kqtbfeeqbcllwvlkbrkq.supabase.co';
-const origin = 'http://127.0.0.1:5173';
+const productionProject = 'https://kqtbfeeqbcllwvlkbrkq.supabase.co';
+const project = Deno.env.get('SUPABASE_URL');
+const preview = Deno.env.get('CALI_PREVIEW_ORIGIN');
+const origin = preview ?? 'http://127.0.0.1:5173';
+const validProject =
+  project &&
+  (preview === undefined
+    ? project === productionProject
+    : project !== productionProject &&
+      /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(project) &&
+      isPreviewOrigin(preview));
 const encoder = new TextEncoder();
 const snapshotSchema = z.object({
   protocol: z.string().regex(/^CALI-QA-V2-[A-Z0-9-]{1,64}$/),
@@ -100,11 +110,12 @@ async function rpc(name: string, body: object, authorization: string, key: strin
 }
 
 Deno.serve(async (request) => {
-  if (request.headers.get('origin') !== origin) return new Response(null, { status: 403 });
+  if (!validProject || request.headers.get('origin') !== origin)
+    return new Response(null, { status: 403 });
   if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
   if (request.method !== 'POST') return new Response(null, { status: 405, headers: cors });
   const authorization = request.headers.get('authorization');
-  if (!authorization?.startsWith('Bearer ') || Deno.env.get('SUPABASE_URL') !== project)
+  if (!authorization?.startsWith('Bearer '))
     return new Response(null, { status: 403, headers: cors });
 
   try {

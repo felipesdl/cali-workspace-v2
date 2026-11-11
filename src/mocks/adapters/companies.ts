@@ -258,6 +258,7 @@ export function createCompaniesMockAdapter(): AxiosAdapter {
           displayName: company.displayName,
           legalName: company.legalName,
           status: company.status,
+          plan: company.plan,
         });
       if (resource === 'accesses')
         return respond(currentAccesses.filter((item) => item.companyId === company.id));

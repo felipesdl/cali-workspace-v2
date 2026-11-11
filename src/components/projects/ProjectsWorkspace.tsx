@@ -5,6 +5,7 @@ import { ProjectOverview } from './ProjectOverview';
 import { ProjectDeliverableList } from './ProjectDeliverableList';
 import { workspaceLabel as label } from '../workspace/workspace-labels';
 import { DeliveryPdf } from '../documents/DocumentLibrary';
+import { SubjectHistory } from '../workspace/SubjectHistory';
 import { HourLink } from '../hours/HourLink';
 import { EditProject, EditPlanItem, ScheduleItemRequest } from './ProjectPlanning';
 import { CreateProject, DeliveryActions, LifecycleActions, ProjectActions } from './ProjectActions';
@@ -262,6 +263,15 @@ export function Projects({ search, update }: Props) {
                             />
                           </details>
                         )}
+                      {section === 'deliverables' && (
+                        <SubjectHistory
+                          key={row.id}
+                          company={companyId}
+                          actor={actor}
+                          kind="delivery"
+                          id={row.id}
+                        />
+                      )}
                       {section === 'deliverables' && (
                         <ProjectJournalPanel
                           scope={{ company: companyId, actor, project }}

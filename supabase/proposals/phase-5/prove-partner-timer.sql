@@ -65,12 +65,21 @@ begin
   result:=cali_workspace.v2_change_partner_pilot_timer(a,start_request,'start',null,'task',target,'Timer fictício');
   timer_ref:=(result->>'id')::uuid;
   assert result->>'status'='active';
+  assert cali_workspace.v2_read_partner_pilot_timer(a)#>'{active,lastSeenAt}' is not null;
+  assert not cali_workspace.v2_touch_partner_pilot_timer(a,timer_ref);
   assert cali_workspace.v2_change_partner_pilot_timer(a,start_request,'start',null,'task',target,'Timer fictício')=result;
   begin
     perform cali_workspace.v2_change_partner_pilot_timer(a,gen_random_uuid(),'start',null,null,null,'Timer duplicado');
     raise exception 'Segundo timer aberto';
   exception when serialization_failure then null; end;
   reset role;
+  update cali_workspace.work_timers set last_seen_at=clock_timestamp()-interval '2 minutes' where id=timer_ref;
+  set local role authenticated;
+  assert cali_workspace.v2_touch_partner_pilot_timer(a,timer_ref);
+  assert not cali_workspace.v2_touch_partner_pilot_timer(a,timer_ref);
+  reset role;
+  assert (select count(*) from cali_workspace.activity_log where entity_id=timer_ref
+    and event_type='partner_pilot_timer_activity')=1;
   update cali_workspace.work_timers set started_at=clock_timestamp()-interval '61 seconds' where id=timer_ref;
   set local role authenticated;
   result:=cali_workspace.v2_change_partner_pilot_timer(a,finish_request,'stop',timer_ref,null,null,null);
@@ -160,6 +169,36 @@ begin
     assert not exists(select 1 from cali_workspace.hour_entries h
       where h.description='Trecho inativo');
   end if;
+
+  -- Simula recuperação de uma sessão encerrada por inatividade e ajuste antes da revisão Admin.
+  timer_ref:=gen_random_uuid();
+  submission_id:=gen_random_uuid();
+  finish_request:=gen_random_uuid();
+  insert into cali_workspace.work_timers(id,company_id,user_id,description,status,started_at,stopped_at,minutes)
+    values(timer_ref,a,actor,'Trecho recuperado','stopped',now()-interval '40 minutes',now(),40);
+  insert into cali_session_guard.phase5_partner_timers values(timer_ref,invite);
+  insert into cali_session_guard.phase5_partner_hours
+    (id,company_id,actor_id,invite_id,day,minutes,description,justification,timer_id)
+    values(submission_id,a,actor,invite,(now() at time zone 'America/Sao_Paulo')::date,40,
+      'Trecho recuperado','Sessão foi encerrada automaticamente.',timer_ref);
+  insert into cali_workspace.activity_log(company_id,actor_user_id,event_type,entity_type,entity_id,metadata)
+    values(a,actor,'partner_pilot_timer_queued','work_timer',timer_ref,
+      jsonb_build_object('closing_event','timer_auto_paused_inactivity'));
+  set local role authenticated;
+  assert cali_workspace.v2_read_partner_pilot_timer(a)->>'recoveryPending'='true';
+  assert cali_workspace.v2_list_partner_pilot_hour_requests(a,false,1)#>>'{rows,0,recoverable}'='true';
+  assert cali_workspace.v2_adjust_partner_pilot_hours(a,finish_request,submission_id,
+    (now() at time zone 'America/Sao_Paulo')::date,25,'Trecho recuperado revisado',
+    'Fechei a plataforma e corrigi para 25 minutos.')=submission_id;
+  assert cali_workspace.v2_adjust_partner_pilot_hours(a,finish_request,submission_id,
+    (now() at time zone 'America/Sao_Paulo')::date,25,'Trecho recuperado revisado',
+    'Fechei a plataforma e corrigi para 25 minutos.')=submission_id;
+  reset role;
+  assert (select adjustment_request_id from cali_session_guard.phase5_partner_hours where id=submission_id)=finish_request;
+  assert exists(select 1 from cali_session_guard.phase5_partner_hours h where h.id=submission_id
+    and h.status='pending' and h.minutes=25 and h.description='Trecho recuperado revisado'
+    and h.justification='Fechei a plataforma e corrigi para 25 minutos.');
+  assert (select minutes from cali_workspace.work_timers where id=timer_ref)=25;
 
   update cali_session_guard.phase4_staff_invites set revoked_at=clock_timestamp(),revoked_by=actor where id=invite;
   set local role authenticated;

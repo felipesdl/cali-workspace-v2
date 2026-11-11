@@ -26,6 +26,16 @@ it('agrupa a auditoria pelo dia de Brasília e preserva a identificação dos ev
           revision: null,
           protocol: null,
         },
+        {
+          id: 'third',
+          at: '2026-11-10T21:00:00Z',
+          event: 'commercial_proposal_resent',
+          entity: 'commercial_proposal',
+          objectId: null,
+          actorName: 'Pessoa CALI',
+          revision: 3,
+          protocol: 'PROP-003',
+        },
       ]}
     />,
   );
@@ -37,4 +47,5 @@ it('agrupa a auditoria pelo dia de Brasília e preserva a identificação dos ev
   expect(within(pdf).getByText('REL-002')).toBeTruthy();
   expect(within(pdf).getByText('Revisão 2')).toBeTruthy();
   expect(within(approval).getByText('Aprovou relatório')).toBeTruthy();
+  expect(screen.getByText('Reenviou proposta pelo Workspace')).toBeTruthy();
 });

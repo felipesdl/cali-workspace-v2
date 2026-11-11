@@ -11,12 +11,14 @@ drop function if exists cali_workspace.v2_price_pilot_commercial_draft(uuid,uuid
 drop function if exists cali_workspace.v2_accept_pilot_commercial_offer(uuid,uuid,integer);
 drop function if exists cali_workspace.v2_read_pilot_received_offers(uuid);
 drop function if exists cali_workspace.v2_send_pilot_commercial_offer(uuid,uuid,timestamptz);
+drop function if exists cali_workspace.v2_resend_pilot_commercial_offer(uuid,uuid,timestamptz,uuid);
 drop function if exists cali_workspace.v2_create_pilot_commercial_draft(uuid,uuid);
 drop function if exists cali_workspace.v2_save_pilot_commercial_draft(uuid,uuid,timestamptz,text,text,text,integer);
 drop function if exists cali_workspace.v2_read_pilot_commercial_draft(uuid,uuid);
 drop function if exists cali_workspace.v2_require_pilot_commercial_scope(uuid,uuid);
 drop function if exists cali_session_guard.require_phase4_commercial_proposal(uuid,uuid);
 drop function if exists cali_workspace.v2_read_pilot_commercial(uuid,integer);
+drop function if exists cali_session_guard.phase4_commercial_briefing(jsonb);
 
 notify pgrst,'reload schema';
 commit;

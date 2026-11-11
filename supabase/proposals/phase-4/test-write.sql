@@ -51,6 +51,7 @@ drop function cali_workspace.is_admin();
 \ir commercial-draft.sql
 \ir commercial-create.sql
 \ir commercial-delivery.sql
+\ir commercial-resend.sql
 \ir commercial-pricing.sql
 \ir commercial-email.sql
 \ir satisfaction-operations.sql

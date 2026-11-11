@@ -7,6 +7,7 @@ const auditEvents = [
   'report_approve',
   'report_pdf_generated',
   'report_released_in_app',
+  'report_resent',
   'report_reopen',
   'report_release_acknowledged',
   'document_revision_added',
@@ -29,6 +30,7 @@ const auditEvents = [
   'commercial_proposal_edited',
   'commercial_proposal_created',
   'commercial_proposal_delivered',
+  'commercial_proposal_resent',
   'commercial_proposal_accepted',
   'commercial_proposal_approved',
   'form_draft_created',
@@ -184,10 +186,12 @@ const commercial = page.extend({
       opportunityId: z.uuid(),
       canCreate: z.boolean().default(false),
       canSend: z.boolean().default(false),
+      canResend: z.boolean().default(false),
       canEmail: z.boolean().default(false),
       protocol: z.string().nullable(),
       opportunityStatus,
       service: z.string(),
+      briefing: z.array(z.object({ key: z.string(), value: z.string() })).max(100),
       proposalId: z.uuid().nullable(),
       proposalStatus: proposalStatus.nullable(),
       version: z.number().int().positive().nullable(),
@@ -254,6 +258,63 @@ const satisfactionRequests = z.object({
   ),
 });
 export type SatisfactionRequests = z.infer<typeof satisfactionRequests>;
+const satisfactionPeriod = z.object({
+  companyId: z.uuid(),
+  month: z.iso.date().nullable(),
+  average: z.number().min(1).max(5).nullable(),
+  total: z.number().int().nonnegative(),
+  attentionTotal: z.number().int().nonnegative(),
+  distribution: z
+    .array(
+      z.object({ score: z.number().int().min(1).max(5), total: z.number().int().nonnegative() }),
+    )
+    .length(5),
+  trend: z.array(
+    z.object({
+      month: z.iso.date(),
+      total: z.number().int().nonnegative(),
+      average: z.number().min(1).max(5),
+      attention: z.number().int().nonnegative(),
+      positive: z.number().int().nonnegative(),
+    }),
+  ),
+  entries: z.array(
+    z.object({
+      source: satisfactionSource,
+      response: z.string().min(1).max(64),
+      title: z.string(),
+      score: z.number().int().min(1).max(3),
+      comment: z.string().nullable(),
+      ratedAt: z.iso.datetime({ offset: true }),
+      followup: z
+        .object({
+          theme: theme.nullable(),
+          note: z.string().nullable(),
+          handledAt: z.iso.datetime({ offset: true }),
+        })
+        .nullable(),
+    }),
+  ),
+});
+export type SatisfactionPeriod = z.infer<typeof satisfactionPeriod>;
+const companyResponsible = z.object({
+  role: z.enum(['cali', 'partner']),
+  name: z.string(),
+  title: z.string(),
+});
+const companyResponsibles = z.object({
+  companyId: z.uuid(),
+  responsibles: z.array(companyResponsible).max(2),
+});
+const responsibleOptions = z.object({
+  companyId: z.uuid(),
+  updatedAt: z.iso.datetime({ offset: true }).nullable(),
+  caliAdminId: z.uuid().nullable(),
+  partnerStaffId: z.uuid().nullable(),
+  admins: z.array(z.object({ id: z.uuid(), name: z.string() })),
+  partners: z.array(z.object({ id: z.uuid(), name: z.string() })),
+});
+export type ResponsibleOptions = z.infer<typeof responsibleOptions>;
 
 export const commercialScopeMode = z.enum(['integral', 'prioritized']);
 type CommercialPricingOptions = {
@@ -311,9 +372,9 @@ export function createAdminRead(client: WorkspaceClient) {
       }
       return report;
     },
-    async emailMapaReport(report: MapaReport) {
+    async emailMapaReport(report: MapaReport, requestId: string) {
       const { data, error } = await client.functions.invoke('workspace-mapa-email-pilot', {
-        body: { report },
+        body: { report, requestId: z.uuid().parse(requestId) },
       });
       if (error) throw new Error('Não foi possível confirmar o envio de teste.');
       return z.object({ accepted: z.literal(true) }).parse(data);
@@ -345,6 +406,63 @@ export function createAdminRead(client: WorkspaceClient) {
       const result = satisfaction.parse(data);
       if (result.companyId !== company) throw new Error('Contexto divergente.');
       return result;
+    },
+    async satisfactionPeriod(
+      company: string,
+      month: string | null,
+      page: number,
+      signal: AbortSignal,
+    ) {
+      const { data, error } = await client
+        .rpc('v2_read_pilot_satisfaction_period', {
+          p_company_id: company,
+          p_month: month,
+          p_page: page,
+        })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar o período de satisfação.');
+      const result = satisfactionPeriod.parse(data);
+      if (result.companyId !== company || result.month !== month)
+        throw new Error('Recorte divergente.');
+      return result;
+    },
+    async companyResponsibles(company: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_company_responsibles', { p_company: company })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar as pessoas responsáveis pela conta.');
+      const result = companyResponsibles.parse(data);
+      if (result.companyId !== company) throw new Error('Empresa divergente.');
+      return result;
+    },
+    async responsibleOptions(company: string, signal: AbortSignal) {
+      const { data, error } = await client
+        .rpc('v2_read_company_responsible_options', { p_company: company })
+        .abortSignal(signal);
+      if (error) throw new Error('Não foi possível consultar as opções de designação.');
+      const result = responsibleOptions.parse(data);
+      if (result.companyId !== company) throw new Error('Empresa divergente.');
+      return result;
+    },
+    async saveResponsibles(
+      company: string,
+      expected: string | null,
+      admin: string,
+      partner: string | null,
+    ) {
+      const { data, error } = await client.rpc('v2_save_company_responsibles', {
+        p_company: company,
+        p_expected: expected,
+        p_admin: admin,
+        p_partner: partner,
+      });
+      if (error)
+        throw new Error(
+          error.code === '40001'
+            ? 'As designações mudaram. Atualize a ficha.'
+            : 'Não foi possível salvar as designações.',
+        );
+      return z.iso.datetime({ offset: true }).parse(data);
     },
     async satisfactionRequests(
       company: string | null,
@@ -463,6 +581,22 @@ export function createAdminRead(client: WorkspaceClient) {
       });
       if (error?.code === '40001') throw new Error('A proposta mudou. Atualize a consulta.');
       if (error) throw new Error('Não foi possível enviar a proposta no Workspace.');
+      return z.literal(proposal).parse(data);
+    },
+    async resendCommercialOffer(
+      company: string,
+      proposal: string,
+      expected: string,
+      requestId: string,
+    ) {
+      const { data, error } = await client.rpc('v2_resend_pilot_commercial_offer', {
+        p_company_id: company,
+        p_proposal_id: proposal,
+        p_expected: expected,
+        p_request_id: z.uuid().parse(requestId),
+      });
+      if (error?.code === '40001') throw new Error('A proposta mudou. Atualize a consulta.');
+      if (error) throw new Error('Não foi possível reenviar a proposta no Workspace.');
       return z.literal(proposal).parse(data);
     },
     async emailCommercialOffer(company: string, proposal: string, expected: string) {

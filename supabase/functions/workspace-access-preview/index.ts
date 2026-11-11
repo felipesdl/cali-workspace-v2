@@ -1,3 +1,5 @@
+import { managedLoginSchema, prepareWorkspaceLogin } from '../workspace-access/provision.ts';
+import { isPreviewOrigin } from '../../../src/config/preview-origin.ts';
 import { z } from 'zod';
 import {
   codeIssueResultSchema,
@@ -18,10 +20,7 @@ const project = z
   .regex(/^https:\/\/[a-z0-9-]+\.supabase\.co$/)
   .refine((url) => url !== 'https://kqtbfeeqbcllwvlkbrkq.supabase.co')
   .parse(Deno.env.get('SUPABASE_URL'));
-const origin = z
-  .string()
-  .regex(/^https:\/\/[a-z0-9-]+\.vercel\.app$/)
-  .parse(Deno.env.get('CALI_PREVIEW_ORIGIN'));
+const origin = z.string().refine(isPreviewOrigin).parse(Deno.env.get('CALI_PREVIEW_ORIGIN'));
 const service = z.string().min(1).parse(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'));
 const resend = z.string().min(1).parse(Deno.env.get('RESEND_API_KEY'));
 const recipients = new Set(
@@ -35,6 +34,19 @@ const recipients = new Set(
         .map((email) => email.trim().toLowerCase()),
     ),
 );
+
+const partnerRecipients = new Set(
+  z
+    .array(z.email())
+    .default([])
+    .parse(
+      Deno.env
+        .get('CALI_PREVIEW_PARTNER_RECIPIENTS')
+        ?.split(',')
+        .map((email) => email.trim().toLowerCase()) ?? [],
+    ),
+);
+const isRecipient = (email: string) => recipients.has(email) || partnerRecipients.has(email);
 
 const encoder = new TextEncoder();
 const hmac = await crypto.subtle.importKey(
@@ -62,6 +74,28 @@ async function post(path: string, body: object, token = service) {
   return result;
 }
 const codeRpc = '/rest/v1/rpc/v2_preview_access_code';
+const enableCompanyProvisioning = Deno.env.get('CALI_PREVIEW_COMPANY_PROVISIONING') === 'true';
+
+async function issueCode(email: string, hash: string) {
+  const response = await post(codeRpc, { p_action: 'issue', p_email: email, p_hash: hash });
+  return codeIssueResultSchema.parse(await response.json());
+}
+
+async function prepareCompanyAccess(email: string) {
+  return prepareWorkspaceLogin(email, {
+    async prepare(address) {
+      const result = await post('/rest/v1/rpc/v2_prepare_pilot_invite_login', { p_email: address });
+      return managedLoginSchema.parse(await result.json());
+    },
+    async createUser(address, inviteId) {
+      await post('/auth/v1/admin/users', {
+        email: address,
+        email_confirm: true,
+        app_metadata: { cali_v2_invite: inviteId },
+      });
+    },
+  });
+}
 
 Deno.serve(
   createAccessHandler(
@@ -84,16 +118,23 @@ Deno.serve(
         ).join('');
       },
       async issue(email, hash) {
-        if (!recipients.has(email)) return { status: 'unavailable' };
-        return codeIssueResultSchema.parse(
-          await (await post(codeRpc, { p_action: 'issue', p_email: email, p_hash: hash })).json(),
-        );
+        if (!isRecipient(email)) return { status: 'unavailable' };
+        const result = await issueCode(email, hash);
+        if (
+          result.status === 'unavailable' &&
+          enableCompanyProvisioning &&
+          recipients.has(email) &&
+          !partnerRecipients.has(email) &&
+          (await prepareCompanyAccess(email))
+        )
+          return issueCode(email, hash);
+        return result;
       },
       async delivered(id, delivered) {
         await post(codeRpc, { p_action: 'delivery', p_id: id, p_delivered: delivered });
       },
       async consume(email, hash) {
-        if (!recipients.has(email)) return null;
+        if (!isRecipient(email)) return null;
         return codeSubjectSchema.parse(
           await (await post(codeRpc, { p_action: 'consume', p_email: email, p_hash: hash })).json(),
         );

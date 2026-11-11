@@ -63,4 +63,14 @@ describe('PDF da visão geral', () => {
       document.getPages().every((page) => page.getWidth() > 590 && page.getHeight() > 840),
     ).toBe(true);
   });
+  it('permite identificar o PDF de satisfação sem alterar o título padrão', async () => {
+    const blob = await overviewPdf(
+      'Empresa selecionada',
+      'Todo o histórico',
+      { metrics },
+      'Satisfação',
+    );
+    const document = await PDFDocument.load(await blob.arrayBuffer());
+    expect(document.getTitle()).toBe('Satisfação · CALI Workspace');
+  });
 });

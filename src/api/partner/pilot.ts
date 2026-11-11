@@ -65,7 +65,15 @@ const detail = z.object({
 
 export const partnerTimerTargetKind = z.enum(['project', 'delivery', 'task', 'record']);
 const timer = z.object({
-  active: z.object({ id: z.uuid(), description: z.string(), startedAt: z.string() }).nullable(),
+  active: z
+    .object({
+      id: z.uuid(),
+      description: z.string(),
+      startedAt: z.string(),
+      lastSeenAt: z.string(),
+    })
+    .nullable(),
+  recoveryPending: z.boolean().optional(),
   targets: z.array(z.object({ kind: partnerTimerTargetKind, id: z.uuid(), title: z.string() })),
 });
 const timerResult = z.object({
@@ -76,6 +84,13 @@ const timerResult = z.object({
 type TimerTarget = z.infer<typeof timer>['targets'][number];
 export type PartnerTimerCommand =
   { action: 'start'; description: string; target?: TimerTarget } | { action: 'stop'; id: string };
+
+type PartnerOtp = {
+  codeLength?: 6 | 8;
+  qa?: boolean;
+  requestCode: (email: string) => Promise<void>;
+  verifyCode: (email: string, code: string) => Promise<void>;
+};
 
 const hourQueue = z.object({
   total: z.number().int().nonnegative(),
@@ -89,6 +104,7 @@ const hourQueue = z.object({
       status: z.enum(['pending', 'approved', 'rejected']),
       decision_note: z.string().nullable(),
       member_name: z.string().nullable(),
+      recoverable: z.boolean(),
     }),
   ),
 });
@@ -136,6 +152,8 @@ export function createPartnerOtpQa(client: WorkspaceClient, ticket: string) {
     return response.json();
   }
   return {
+    codeLength: 8 as const,
+    qa: true as const,
     async requestCode(email: string) {
       z.object({ accepted: z.literal(true) }).parse(await call({ email, action: 'request' }));
     },
@@ -151,11 +169,10 @@ export function createPartnerOtpQa(client: WorkspaceClient, ticket: string) {
   };
 }
 
-export function createPartnerPilot(
-  client: WorkspaceClient,
-  otp?: ReturnType<typeof createPartnerOtpQa>,
-) {
+export function createPartnerPilot(client: WorkspaceClient, otp?: PartnerOtp) {
   return {
+    codeLength: otp?.codeLength ?? 8,
+    qa: otp?.qa ?? true,
     requestCode: otp?.requestCode,
     subscribe(listener: () => void) {
       const { data } = client.auth.onAuthStateChange(() => setTimeout(listener, 0));
@@ -230,6 +247,14 @@ export function createPartnerPilot(
       if (error) throw new Error('Não foi possível confirmar a operação do cronômetro.');
       return timerResult.parse(data);
     },
+    async touchTimer(company: string, timerId: string) {
+      const { error } = await client.rpc('v2_touch_partner_pilot_timer', {
+        p_company: company,
+        p_timer: timerId,
+      });
+      if (error?.code === '42501') throw new Error('Cronômetro indisponível.');
+      if (error) throw new Error('Não foi possível registrar a atividade.');
+    },
     async hourRequests(company: string, admin: boolean, number: number, signal: AbortSignal) {
       const { data, error } = await client
         .rpc('v2_list_partner_pilot_hour_requests', {
@@ -257,6 +282,32 @@ export function createPartnerPilot(
       if (error?.code === '22023')
         throw new Error('Confira data, duração, descrição e justificativa.');
       if (error) throw new Error('Não foi possível enviar a solicitação.');
+      return z.uuid().parse(data);
+    },
+    async adjustRecoveredHours(
+      company: string,
+      request: string,
+      input: {
+        submission: string;
+        day: string;
+        minutes: number;
+        description: string;
+        justification: string;
+      },
+    ) {
+      const { data, error } = await client.rpc('v2_adjust_partner_pilot_hours', {
+        p_company: company,
+        p_request: request,
+        p_submission: input.submission,
+        p_day: input.day,
+        p_minutes: input.minutes,
+        p_description: input.description,
+        p_justification: input.justification,
+      });
+      if (error?.code === '22023')
+        throw new Error('Confira data, duração, descrição e justificativa.');
+      if (error?.code === '42501') throw new Error('Este trecho não permite ajuste.');
+      if (error) throw new Error('Não foi possível ajustar o trecho recuperado.');
       return z.uuid().parse(data);
     },
     async decideHours(company: string, request: string, approve: boolean, note: string) {

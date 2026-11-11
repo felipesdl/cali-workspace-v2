@@ -48,6 +48,11 @@ import { type SessionController } from './session/controller';
 import { safeReturnPath, sessionGuard } from './session/guard';
 import { type HostedAccessApi } from '../api/access/api';
 import { workspaceRole } from '../api/access/schemas';
+import { type PartnerProposalDraftService } from '../api/partner/proposal-drafts';
+import { type PreRegistration } from '../api/admin/companies/pre-registration';
+import { type PartnerReportDraftService } from '../api/partner/report-drafts';
+import { type PartnerMapaOpinions } from '../api/partner/mapa-opinions';
+import { type AdminMapaOpinions } from '../api/admin/workspace/mapa-opinions';
 import { type CompaniesService } from '../api/admin/companies/service';
 import { companiesService } from '../api/admin/companies/api';
 import { parseAccessReason } from './session/access-reason';
@@ -58,6 +63,9 @@ const rootRoute = createRootRouteWithContext<{
   session: SessionController | null;
   access: HostedAccessApi | null;
   partnerPilot?: PartnerPilot | null;
+  partnerReportDrafts?: PartnerReportDraftService | null;
+  partnerMapaOpinions?: PartnerMapaOpinions | null;
+  adminMapaOpinions?: AdminMapaOpinions | null;
   companies: CompaniesService;
   ownProfile?: OwnProfileService | null;
   notifications?: NotificationsService | null;
@@ -75,6 +83,8 @@ const rootRoute = createRootRouteWithContext<{
   adminPortfolio?: AdminPortfolioService | null;
   clientDrive?: ClientDriveService | null;
   publicForms?: PublicFormsService | null;
+  preRegistration?: PreRegistration | null;
+  partnerProposalDrafts?: PartnerProposalDraftService | null;
   formLifecycle?: FormLifecycle | null;
 }>()({
   component: Outlet,
@@ -515,6 +525,15 @@ const publicTextFormRoute = createRoute({
   ),
 });
 
+const preRegistrationRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/pre-cadastro/$token',
+  component: lazyRouteComponent(
+    () => import('../modules/public/pre-registration/PreRegistrationPage'),
+    'PreRegistrationPage',
+  ),
+});
+
 const externalCommercialRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/proposta-externa',
@@ -578,6 +597,7 @@ const routeTree = rootRoute.addChildren([
   partnerPilotRoute,
   ...partnerModuleRoutes,
   publicTextFormRoute,
+  preRegistrationRoute,
   discRespondentRoute,
   discLegacyRespondentRoute,
   accessGateRoute,
@@ -596,6 +616,9 @@ export function createAppRouter(
   services?: {
     access: HostedAccessApi;
     partnerPilot?: PartnerPilot | null;
+    partnerReportDrafts?: PartnerReportDraftService | null;
+    partnerMapaOpinions?: PartnerMapaOpinions | null;
+    adminMapaOpinions?: AdminMapaOpinions | null;
     companies: CompaniesService;
     ownProfile?: OwnProfileService | null;
     notifications?: NotificationsService | null;
@@ -613,6 +636,8 @@ export function createAppRouter(
     adminPortfolio?: AdminPortfolioService | null;
     clientDrive?: ClientDriveService | null;
     publicForms?: PublicFormsService | null;
+    preRegistration?: PreRegistration | null;
+    partnerProposalDrafts?: PartnerProposalDraftService | null;
     formLifecycle?: FormLifecycle | null;
   },
 ) {
@@ -624,6 +649,9 @@ export function createAppRouter(
       session,
       access: services?.access ?? null,
       partnerPilot: services?.partnerPilot ?? null,
+      partnerReportDrafts: services?.partnerReportDrafts ?? null,
+      partnerMapaOpinions: services?.partnerMapaOpinions ?? null,
+      adminMapaOpinions: services?.adminMapaOpinions ?? null,
       companies: services?.companies ?? companiesService,
       ownProfile: services?.ownProfile ?? null,
       notifications: services?.notifications ?? null,
@@ -641,6 +669,8 @@ export function createAppRouter(
       adminPortfolio: services?.adminPortfolio ?? null,
       clientDrive: services?.clientDrive ?? null,
       publicForms: services?.publicForms ?? null,
+      preRegistration: services?.preRegistration ?? null,
+      partnerProposalDrafts: services?.partnerProposalDrafts ?? null,
       formLifecycle: services?.formLifecycle ?? null,
     },
     defaultPreload: false,

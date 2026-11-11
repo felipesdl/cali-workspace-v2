@@ -12,7 +12,7 @@ const commandSchema = z
 export type ReportPdfCommand = z.infer<typeof commandSchema>;
 
 const preparedSchema = z.object({ ticket: z.uuid(), input: reportInputSchema }).nullable();
-const origins = new Set([
+const localOrigins = new Set([
   'http://127.0.0.1:5173',
   'http://127.0.0.1:5181',
   'http://127.0.0.1:5182',
@@ -70,7 +70,10 @@ type Ports = {
   readImage: (url: string) => Promise<Uint8Array>;
 };
 
-export function createExecutivePdfHandler(ports: Ports) {
+export function createExecutivePdfHandler(
+  ports: Ports,
+  origins: ReadonlySet<string> = localOrigins,
+) {
   return async (request: Request) => {
     const origin = request.headers.get('Origin');
     const headers = new Headers({

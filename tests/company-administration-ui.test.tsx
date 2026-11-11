@@ -20,7 +20,9 @@ async function openApp(unavailable = false) {
   const service: CompaniesService = unavailable ? { ...original, management: null } : original;
   const cache = createQueryClient();
   const router = createAppRouter(
-    createMemoryHistory({ initialEntries: [`/admin/clientes?companyId=${mockCompanyIds.Aurora}`] }),
+    createMemoryHistory({
+      initialEntries: [`/admin/clientes?companyId=${mockCompanyIds.Aurora}&tab=Contrato`],
+    }),
     cache,
   );
   router.update({
@@ -34,12 +36,12 @@ async function openApp(unavailable = false) {
       <App router={router} />
     </StrictMode>,
   );
-  await screen.findByRole('heading', { name: 'Acessos · Aurora Tecnologia' }, { timeout: 5000 });
+  await screen.findByRole('heading', { name: 'Ficha da empresa' }, { timeout: 5000 });
   if (!unavailable) await screen.findByRole('button', { name: 'Editar ficha administrativa' });
   return { user: userEvent.setup(), administration, read, cache, router };
 }
 async function edit(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('button', { name: 'Editar ficha administrativa' }));
+  await user.click(await screen.findByRole('button', { name: 'Editar ficha administrativa' }));
   await screen.findByRole('form', { name: 'Editar ficha administrativa' });
 }
 
@@ -106,6 +108,7 @@ describe('ficha administrativa na jornada Admin demonstrativa', () => {
     await user.type(screen.getByLabelText('Observação financeira'), 'Rascunho Aurora');
     await user.click(screen.getByRole('button', { name: 'Ver acessos de Norte Digital' }));
     await screen.findByRole('heading', { name: 'Acessos · Norte Digital' });
+    await user.click(screen.getByRole('tab', { name: 'Contrato' }));
     await edit(user);
     expect(screen.getByLabelText('Observação financeira')).toHaveProperty('value', '');
     expect(await administration.history(mockCompanyIds.Aurora)).toHaveLength(0);

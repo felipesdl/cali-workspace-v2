@@ -58,6 +58,8 @@ export function createHostedCompaniesService(client: WorkspaceClient): Companies
         displayName: row.display_name,
         legalName: row.legal_name,
         status: row.status,
+        plan:
+          companySchema.shape.plan.safeParse(row.service_plan?.toLowerCase() ?? null).data ?? null,
       });
     },
     async list(filters, signal) {

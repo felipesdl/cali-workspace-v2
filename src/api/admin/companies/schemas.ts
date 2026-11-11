@@ -27,7 +27,8 @@ export const companySchema = z.object({
 // Detalhe separado da lista; valores originais preservados para comparação atômica.
 export const companyDetailsSchema = companySchema.extend({ legalName: z.string() });
 export const companyAccountSchema = companyDetailsSchema
-  .pick({ id: true, displayName: true, legalName: true, status: true })
+  .pick({ id: true, displayName: true, legalName: true, status: true, plan: true })
+  .extend({ plan: companySchema.shape.plan.optional() })
   .strict();
 export type CompanyAccount = z.infer<typeof companyAccountSchema>;
 const companyBasicSnapshotSchema = z.strictObject({
@@ -67,6 +68,7 @@ export const companySearchSchema = z.object({
   q: companyFilterSchema.shape.q.catch(''),
   status: companyFilterSchema.shape.status.catch('all'),
   companyId: z.uuid().optional().catch(undefined),
+  tab: z.enum(['Cadastro', 'Contrato', 'Acessos']).optional().catch(undefined),
 });
 
 export type Company = z.infer<typeof companySchema>;

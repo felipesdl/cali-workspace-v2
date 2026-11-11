@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { type WorkspaceClient } from '../../supabase';
 import { companyIdentityRecordSchema } from './records';
-const identityFields = 'id,display_name,legal_name,status';
+const identityFields = 'id,display_name,legal_name,status,service_plan';
 // Leitor mínimo compartilhado por sessão e consulta Cliente; a autorização permanece no servidor.
 export async function readHostedCompanyIdentity(
   client: WorkspaceClient,

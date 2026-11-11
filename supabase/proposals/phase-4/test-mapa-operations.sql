@@ -23,6 +23,10 @@ declare
   journey uuid:=gen_random_uuid();
   ignored uuid:=gen_random_uuid();
   email_job uuid;
+  resend_job uuid;
+  request_id uuid:=gen_random_uuid();
+  resend_request_id uuid:=gen_random_uuid();
+  recipients jsonb:='["qa@example.test"]'::jsonb;
   receipt uuid:=gen_random_uuid();
   expected_report jsonb;
 begin
@@ -74,14 +78,14 @@ begin
   assert cali_workspace.v2_review_pilot_mapa(a,record_id,0,'em_andamento','Parecer de teste')=record_id;
   assert cali_workspace.v2_review_pilot_mapa(a,record_id,0,'em_andamento','Parecer de teste')=record_id;
   expected_report:=cali_workspace.v2_read_pilot_mapa_report(a,record_id);
-  email_job:=(cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report)->>'id')::uuid;
-  assert cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report)->>'id'=email_job::text;
+  email_job:=(cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report,request_id,recipients)->>'id')::uuid;
+  assert cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report,request_id,recipients)->>'id'=email_job::text;
   begin
-    perform cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report-'opinion');
+    perform cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report-'opinion',request_id,recipients);
     raise exception 'Relatório obsoleto enviado';
   exception when serialization_failure then null; end;
   begin
-    perform cali_workspace.v2_prepare_pilot_mapa_email(b,record_id,expected_report);
+    perform cali_workspace.v2_prepare_pilot_mapa_email(b,record_id,expected_report,request_id,recipients);
     raise exception 'Envio cruzado permitido';
   exception when insufficient_privilege then null; end;
   assert not has_function_privilege('authenticated','cali_workspace.v2_record_pilot_mapa_email(uuid,uuid)','execute');
@@ -89,7 +93,7 @@ begin
   update cali_session_guard.phase4_mapa_email set created_at=now()-interval '11 minutes' where id=email_job;
   set local role authenticated;
   begin
-    perform cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report);
+    perform cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report,request_id,recipients);
     raise exception 'Envio incerto reaberto fora da janela';
   exception when invalid_parameter_value then null; end;
   reset role;
@@ -98,7 +102,17 @@ begin
   perform cali_workspace.v2_record_pilot_mapa_email(email_job,receipt);
   reset role;
   set local role authenticated;
-  assert cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report)->>'sent'='true';
+  assert cali_workspace.v2_prepare_pilot_mapa_email(a,record_id,expected_report,request_id,recipients)->>'sent'='true';
+  resend_job:=(cali_workspace.v2_prepare_pilot_mapa_email(
+    a,record_id,expected_report,resend_request_id,recipients)->>'id')::uuid;
+  assert resend_job<>email_job;
+  assert cali_workspace.v2_prepare_pilot_mapa_email(
+    a,record_id,expected_report,resend_request_id,recipients)->>'id'=resend_job::text;
+  begin
+    perform cali_workspace.v2_prepare_pilot_mapa_email(
+      a,record_id,expected_report,resend_request_id,'["other@example.test"]'::jsonb);
+    raise exception 'Envio repetido aceitou destino diferente';
+  exception when serialization_failure then null; end;
   begin
     perform cali_workspace.v2_review_pilot_mapa(a,record_id,0,'cancelado','Não deve salvar');
     raise exception 'Revisão obsoleta aceita';

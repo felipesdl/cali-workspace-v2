@@ -67,19 +67,22 @@ describe('núcleo publicado do CALI MAPA', () => {
 describe('preview isolado no Vercel', () => {
   const origin = 'https://cali-qa.vercel.app';
 
-  it('habilita o recorte do preview só na origem HTTPS configurada e no build publicado', () => {
-    const environment = readEnvironment({ ...hosted, VITE_CALI_PREVIEW_ORIGIN: origin });
-    expect(resolveCaliRuntime(environment, false, origin)).toEqual({
-      pilot: false,
-      preview: true,
-      releaseCore: false,
-    });
-    expect(resolveCaliRuntime(environment, true, origin).preview).toBe(false);
-    expect(resolveCaliRuntime(environment, false, 'https://cali-other.vercel.app').preview).toBe(
-      false,
-    );
-    expect(resolveCaliRuntime(environment, false, 'https://app.calirh.com').preview).toBe(false);
-  });
+  it.each([origin, 'https://staging.calirh.com'])(
+    'habilita o preview apenas na origem %s',
+    (selected) => {
+      const environment = readEnvironment({ ...hosted, VITE_CALI_PREVIEW_ORIGIN: selected });
+      expect(resolveCaliRuntime(environment, false, selected)).toEqual({
+        pilot: false,
+        preview: true,
+        releaseCore: false,
+      });
+      expect(resolveCaliRuntime(environment, true, selected).preview).toBe(false);
+      expect(resolveCaliRuntime(environment, false, 'https://cali-other.vercel.app').preview).toBe(
+        false,
+      );
+      expect(resolveCaliRuntime(environment, false, 'https://app.calirh.com').preview).toBe(false);
+    },
+  );
 
   it.each([
     { VITE_CALI_PREVIEW_ORIGIN: origin },
@@ -87,6 +90,7 @@ describe('preview isolado no Vercel', () => {
     { ...hosted, VITE_CALI_PREVIEW_ORIGIN: 'http://cali-qa.vercel.app' },
     { ...hosted, VITE_CALI_PREVIEW_ORIGIN: 'https://cali-qa.vercel.app.example.test' },
     { ...hosted, VITE_CALI_PREVIEW_ORIGIN: 'https://app.calirh.com' },
+    { ...hosted, VITE_CALI_PREVIEW_ORIGIN: 'https://staging.calirh.com.example.test' },
     { ...hosted, VITE_CALI_PREVIEW_ORIGIN: origin, VITE_CALI_RELEASE_CORE: 'true' },
     {
       ...hosted,

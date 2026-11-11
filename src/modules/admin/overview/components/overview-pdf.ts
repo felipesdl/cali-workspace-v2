@@ -37,12 +37,17 @@ function safeText(value: string, max = 500) {
   return printable.replace(/\s+/g, ' ').trim().slice(0, max);
 }
 
-export async function overviewPdf(scope: string, date: string, content: OverviewPdfContent) {
+export async function overviewPdf(
+  scope: string,
+  date: string,
+  content: OverviewPdfContent,
+  title = 'Visão geral da operação',
+) {
   const document = await PDFDocument.create();
   document.registerFontkit(fontkit);
   const regular = await document.embedFont(interRegular, { subset: true });
   const semibold = await document.embedFont(interSemibold, { subset: true });
-  document.setTitle('Visão geral da operação · CALI Workspace');
+  document.setTitle(`${safeText(title, 100)} · CALI Workspace`);
   document.setSubject(safeText(scope, 180));
 
   const metrics = content.metrics.map(
@@ -55,7 +60,15 @@ export async function overviewPdf(scope: string, date: string, content: Overview
 
   let page = document.addPage(pageSize);
   let pageNumber = 1;
-  let y = drawCover(page, regular, semibold, safeText(scope, 180), safeText(date, 100), metrics);
+  let y = drawCover(
+    page,
+    regular,
+    semibold,
+    safeText(scope, 180),
+    safeText(date, 100),
+    metrics,
+    safeText(title, 100),
+  );
 
   const addPage = () => {
     page = document.addPage(pageSize);
@@ -164,6 +177,7 @@ function drawCover(
   scope: string,
   date: string,
   metrics: readonly (readonly [string, string])[],
+  title: string,
 ) {
   page.drawRectangle({ x: 0, y: 0, width: pageSize[0], height: pageSize[1], color: palette.paper });
   page.drawRectangle({ x: 0, y: 761, width: pageSize[0], height: 81, color: palette.wine });
@@ -175,7 +189,7 @@ function drawCover(
     color: palette.gold,
     font: semibold,
   });
-  page.drawText('VISÃO GERAL DA OPERAÇÃO', {
+  page.drawText(title.toLocaleUpperCase('pt-BR'), {
     x: pageSize[0] - marginX - 150,
     y: 798,
     size: 8,
@@ -190,7 +204,7 @@ function drawCover(
     font: regular,
   });
   page.drawRectangle({ x: marginX, y: 745, width: contentWidth, height: 2, color: palette.gold });
-  page.drawText('Panorama do Workspace', {
+  page.drawText(title, {
     x: marginX,
     y: 710,
     size: 23,

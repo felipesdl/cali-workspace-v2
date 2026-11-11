@@ -71,3 +71,10 @@ Foram aceitos dois envios no total, um por janela. Na primeira janela o código 
 ## Limites de fechamento
 
 O recorte técnico do piloto cobre admissão por código, consultas dos módulos, horas, resposta a ocorrência, PDFs V2 e fila das duas revisões. Não inclui operação Partner no acervo, anexos ou notas internas de ocorrências, demais pedidos de alteração ou publicação, nem ampliação do Mapa. Este recorte técnico está fechado no CALI MAPA. O canal OTP temporário não é infraestrutura de rollout. Público e presença de horas no resumo diário Partner dependem de decisão CALI em DEC-19.
+
+
+## Revisão de materiais e recuperação no preview
+
+O Partner entra com código, MFA, convite e termos vigentes. O cronômetro permanece visível entre módulos. A pausa automática gera alerta e conserva o trecho na fila para ajuste com justificativa. A aprovação Admin publica o lançamento de horas. O [runbook](../RUNBOOK.md#preview-protegido-para-homologação) descreve a preparação do agendador e do transporte de teste para a prova de inatividade.
+
+Relatórios exigem acesso ao módulo. Propostas e pareceres do Mapa exigem atribuição ao registro. A revisão Admin pode devolver o material ou incorporá-lo ao fluxo oficial. Entrega e reenvio seguem a dupla confirmação da revisão vigente. Conferir o [roteiro da candidata](../HOMOLOGACAO_PATRICIA.md#regressão-do-pr-3-no-preview) com dois Partners e empresas distintas.

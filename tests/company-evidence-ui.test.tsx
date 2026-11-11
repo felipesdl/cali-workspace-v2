@@ -42,7 +42,9 @@ async function openApp(withDocument = false) {
     : null;
   const cache = createQueryClient();
   const router = createAppRouter(
-    createMemoryHistory({ initialEntries: [`/admin/clientes?companyId=${companyId}`] }),
+    createMemoryHistory({
+      initialEntries: [`/admin/clientes?companyId=${companyId}&tab=Contrato`],
+    }),
     cache,
   );
   router.update({
@@ -71,9 +73,12 @@ const confirmation = 'Confirmo que conferi a formalização indicada para esta e
 describe('interface de comprovação administrativa', () => {
   it('referência não libera acesso; exige confirmação ligada ao rascunho e retirada preserva histórico', async () => {
     const { user, management } = await openApp();
+    await user.click(screen.getByRole('tab', { name: 'Acessos' }));
     expect(
-      (screen.getByRole('button', { name: 'Adicionar acesso' }) as HTMLButtonElement).disabled,
+      ((await screen.findByRole('button', { name: 'Adicionar acesso' })) as HTMLButtonElement)
+        .disabled,
     ).toBe(true);
+    await user.click(screen.getByRole('tab', { name: 'Contrato' }));
     await draft(user);
     await user.click(screen.getByRole('checkbox', { name: confirmation }));
     await user.type(screen.getByLabelText('Como a adesão foi conferida'), ' revisada');
@@ -91,11 +96,14 @@ describe('interface de comprovação administrativa', () => {
     await user.click(screen.getByRole('button', { name: 'Confirmar comprovação' }));
     await screen.findByText(/Vigente para novas autorizações/);
     await waitFor(() => expect(document.activeElement?.id).toBe('adhesion-evidence-title'));
+    await user.click(screen.getByRole('tab', { name: 'Acessos' }));
     expect(
-      (screen.getByRole('button', { name: 'Adicionar acesso' }) as HTMLButtonElement).disabled,
+      ((await screen.findByRole('button', { name: 'Adicionar acesso' })) as HTMLButtonElement)
+        .disabled,
     ).toBe(false);
+    await user.click(screen.getByRole('tab', { name: 'Contrato' }));
     await user.click(
-      screen.getByRole('button', {
+      await screen.findByRole('button', {
         name: 'Retirar comprovação de Formalização sintética Q',
       }),
     );
@@ -105,8 +113,10 @@ describe('interface de comprovação administrativa', () => {
     );
     await user.click(screen.getByRole('button', { name: 'Confirmar retirada da comprovação' }));
     await screen.findByText(/Comprovação retirada/);
+    await user.click(screen.getByRole('tab', { name: 'Acessos' }));
     expect(
-      (screen.getByRole('button', { name: 'Adicionar acesso' }) as HTMLButtonElement).disabled,
+      ((await screen.findByRole('button', { name: 'Adicionar acesso' })) as HTMLButtonElement)
+        .disabled,
     ).toBe(true);
     expect(await management.evidence.list(mockCompanyIds.Norte)).toMatchObject([
       { status: 'retracted', retraction: { reason: 'Referência revisada' } },

@@ -5,12 +5,15 @@ declare
   b constant uuid := '6f8b1d03-e4ee-4a2b-a766-8a8f96cd2d76';
   form uuid := gen_random_uuid();
   response uuid := gen_random_uuid();
+  question uuid := gen_random_uuid();
   data jsonb;
 begin
   insert into cali_workspace.forms(id,company_id,slug,title,status,questions,stages)
-  values(form,a,'qa-triagem','Form QA','closed','[]','["Novo","Em análise"]');
+  values(form,a,'qa-triagem','Form QA','closed',jsonb_build_array(jsonb_build_object(
+    'id',question,'kind','text','label','Como podemos ajudar?','required',true
+  )), '["Novo","Em análise"]');
   insert into cali_workspace.form_responses(id,form_id,respondent_name,respondent_email,answers)
-  values(response,form,'Respondente QA','form@example.test','{"question":"Conteúdo privado QA"}');
+  values(response,form,'Respondente QA','form@example.test',jsonb_build_object(question::text,'Conteúdo privado QA'));
   set local role authenticated;
   perform cali_workspace.fixture_as('admin1');
   begin
@@ -31,7 +34,9 @@ begin
   data := cali_workspace.v2_list_pilot_form_triage(a,form,1);
   assert data->'stages'='["Novo","Em análise"]'::jsonb;
   assert data#>>'{responses,0,id}'=response::text;
-  assert not (data#>'{responses,0}' ?| array['answers','respondent_email']);
+  assert data#>>'{responses,0,answers,0,question}'='Como podemos ajudar?';
+  assert data#>>'{responses,0,answers,0,answer}'='Conteúdo privado QA';
+  assert not (data#>'{responses,0}' ? 'respondent_email');
   begin
     perform cali_workspace.v2_save_pilot_form_triage(a,form,response,null,null,'Inválida','');
     raise exception 'Etapa inexistente aceita';
@@ -44,7 +49,7 @@ begin
   exception when serialization_failure then null; end;
   reset role;
   assert exists(select 1 from cali_workspace.form_responses where id=response
-    and stage='Em análise' and owner='Pessoa QA' and answers->>'question'='Conteúdo privado QA');
+    and stage='Em análise' and owner='Pessoa QA' and answers->>(question::text)='Conteúdo privado QA');
   assert (select count(*) from cali_workspace.activity_log where entity_id=response and event_type='form_response_triaged')=1;
 end $$;
 rollback;

@@ -1,3 +1,4 @@
+import { isPreviewOrigin } from '../../../src/config/preview-origin.ts';
 import { createExecutivePdfHandler, readReportImage, type ReportPdfCommand } from './handler.ts';
 
 declare const Deno: {
@@ -8,9 +9,20 @@ declare const Deno: {
 const project = Deno.env.get('SUPABASE_URL');
 const anon = Deno.env.get('SUPABASE_ANON_KEY');
 const service = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-if (project !== 'https://kqtbfeeqbcllwvlkbrkq.supabase.co' || !anon || !service)
+const productionProject = 'https://kqtbfeeqbcllwvlkbrkq.supabase.co';
+const preview = Deno.env.get('CALI_PREVIEW_ORIGIN');
+if (
+  !project ||
+  !anon ||
+  !service ||
+  (preview === undefined
+    ? project !== productionProject
+    : !isPreviewOrigin(preview) ||
+      project === productionProject ||
+      !/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(project))
+)
   throw new Error('Configuração do relatório piloto indisponível.');
-const allowedOrigins = new Set([project, 'https://app.calirh.com']);
+const allowedOrigins = new Set([project, preview ?? 'https://app.calirh.com']);
 
 async function rpc(
   name: string,
@@ -48,18 +60,21 @@ function base64(bytes: Uint8Array) {
 }
 
 Deno.serve(
-  createExecutivePdfHandler({
-    prepare: (authorization, command) =>
-      rpc('v2_prepare_pilot_report_pdf', command, {}, authorization, anon),
-    async store(command, ticket, bytes) {
-      await rpc(
-        'v2_store_generated_pilot_report_pdf',
-        command,
-        { p_ticket: ticket, p_pdf_base64: base64(bytes) },
-        `Bearer ${service}`,
-        service,
-      );
+  createExecutivePdfHandler(
+    {
+      prepare: (authorization, command) =>
+        rpc('v2_prepare_pilot_report_pdf', command, {}, authorization, anon),
+      async store(command, ticket, bytes) {
+        await rpc(
+          'v2_store_generated_pilot_report_pdf',
+          command,
+          { p_ticket: ticket, p_pdf_base64: base64(bytes) },
+          `Bearer ${service}`,
+          service,
+        );
+      },
+      readImage: (url) => readReportImage(url, allowedOrigins),
     },
-    readImage: (url) => readReportImage(url, allowedOrigins),
-  }),
+    preview ? new Set([preview]) : undefined,
+  ),
 );

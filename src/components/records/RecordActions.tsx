@@ -13,6 +13,7 @@ import { Button } from '../ds/button/Button';
 import { Dialog } from '../ds/dialog/Dialog';
 import { Checkbox } from '../ds/checkbox/Checkbox';
 import { formatServerInstant } from '../../lib/dates';
+import { SubjectHistory } from '../workspace/SubjectHistory';
 import { ActionForm } from '../workspace/ActionForm';
 import { RecordReviewActions } from './RecordReviewActions';
 import { FileDownload } from '../documents/FileDownload';
@@ -200,6 +201,13 @@ export function RecordConversation({
                 </Link>
               </section>
             )}
+            <SubjectHistory
+              key={record}
+              company={company}
+              actor={actor}
+              kind="record"
+              id={record}
+            />
             {data.messages.length ? (
               <ol className="tw:m-0 tw:grid tw:list-none tw:gap-3 tw:p-0">
                 {data.messages.map((message) => (

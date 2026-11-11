@@ -10,6 +10,7 @@ vi.mock('@tanstack/react-router', () => ({
     <a href={to}>{children}</a>
   ),
   useNavigate: () => vi.fn(),
+  useRouteContext: () => ({ adminRead: null }),
 }));
 
 const companyId = '00000000-0000-4000-8000-000000000001';
@@ -40,6 +41,7 @@ it('organiza contratação, três indicadores, agenda, avisos e equipe sem inven
           id: companyId,
           displayName: 'Empresa Exemplo',
           legalName: 'Empresa Exemplo',
+          plan: 'partner',
           status: 'active',
         }}
         canOpenRecord={false}
@@ -56,7 +58,7 @@ it('organiza contratação, três indicadores, agenda, avisos e equipe sem inven
   expect(contract.getByRole('link', { name: 'Empresa Exemplo' }).getAttribute('href')).toBe(
     '/cliente/empresa',
   );
-  expect(contract.getByText('Ativa')).toBeTruthy();
+  expect(contract.getByText('CALI Partner · Ativa')).toBeTruthy();
   expect(contract.queryByText(/Plano/)).toBeNull();
   expect(screen.getByRole('heading', { name: 'Entregas do ciclo' })).toBeTruthy();
   expect(screen.getByRole('heading', { name: /Percepção do trabalho/ })).toBeTruthy();

@@ -7,7 +7,10 @@ declare
   recipient constant uuid := '00000000-0000-4000-8000-000000000011';
   opportunity uuid := gen_random_uuid();
   proposal uuid := gen_random_uuid();
+  resend_request uuid := gen_random_uuid();
+  second_resend_request uuid := gen_random_uuid();
   approved timestamptz := clock_timestamp();
+  delivered_revision timestamptz;
   original_deadline timestamptz;
   offers jsonb;
 begin
@@ -27,6 +30,19 @@ begin
   exception when serialization_failure then null; end;
   assert cali_workspace.v2_send_pilot_commercial_offer(a,proposal,approved)=proposal;
   assert cali_workspace.v2_send_pilot_commercial_offer(a,proposal,approved)=proposal;
+  delivered_revision:=(cali_workspace.v2_read_pilot_commercial(a,1)#>>'{entries,0,updatedAt}')::timestamptz;
+  assert (cali_workspace.v2_read_pilot_commercial(a,1)#>>'{entries,0,canResend}')::boolean;
+  assert cali_workspace.v2_resend_pilot_commercial_offer(a,proposal,delivered_revision,resend_request)=proposal;
+  assert cali_workspace.v2_resend_pilot_commercial_offer(a,proposal,delivered_revision,resend_request)=proposal;
+  reset role;
+  assert (select count(*) from cali_session_guard.phase4_commercial_resends where proposal_id=proposal)=1;
+  set local role authenticated;
+  assert cali_workspace.v2_resend_pilot_commercial_offer(a,proposal,delivered_revision,second_resend_request)=proposal;
+  reset role;
+  assert (select count(*) from cali_session_guard.phase4_commercial_resends where proposal_id=proposal)=2;
+  assert (select count(*) from cali_workspace.notifications where entity_id=proposal and user_id=recipient
+    and notification_type='commercial_proposal_resent' and not email_required)=2;
+  set local role authenticated;
   perform cali_workspace.fixture_as('clientB');
   assert cali_workspace.v2_read_pilot_received_offers(b)='[]'::jsonb;
   begin
@@ -54,13 +70,20 @@ begin
   set local role authenticated;
   assert cali_workspace.v2_accept_pilot_commercial_offer(a,proposal,1)=proposal;
   assert cali_workspace.v2_accept_pilot_commercial_offer(a,proposal,1)=proposal;
+  perform cali_workspace.fixture_as('admin');
+  assert not (cali_workspace.v2_read_pilot_commercial(a,1)#>>'{entries,0,canResend}')::boolean;
+  begin
+    perform cali_workspace.v2_resend_pilot_commercial_offer(a,proposal,delivered_revision,gen_random_uuid());
+    raise exception 'Proposta aceita foi reenviada';
+  exception when insufficient_privilege then null; end;
+  perform cali_workspace.fixture_as('clientA');
   assert cali_workspace.v2_read_pilot_received_offers(a)#>>'{0,canAccept}'='false';
   reset role;
-  assert (select count(*) from cali_workspace.activity_log where entity_id=proposal)=2;
+  assert (select count(*) from cali_workspace.activity_log where entity_id=proposal)=4;
   assert exists(select 1 from public.cali_proposals where id=proposal and status='aceita' and total_value=175.50);
   update cali_session_guard.phase4_commercial_scope set recipient_revoked_at=clock_timestamp() where proposal_id=proposal;
   set local role authenticated;
   assert cali_workspace.v2_read_pilot_received_offers(a)='[]'::jsonb;
 end $$;
 rollback;
-\echo Fase 4: entrega e aceite no Workspace validados por versão, destinatário, prazo e reenvio.
+\echo Fase 4: entrega, reenvio idempotente e aceite no Workspace validados por versão, destinatário e prazo.

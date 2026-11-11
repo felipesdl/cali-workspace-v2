@@ -2,6 +2,7 @@ import { FeedbackMessage } from '../../../../components/ds/feedback/FeedbackMess
 import { Input, Select } from '../../../../components/ds/field/Controls';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import type { PartnerPilot, PartnerTimerCommand } from '../../../../api/partner/pilot';
 import { Button } from '../../../../components/ds/button/Button';
 import { FeedbackState } from '../../../../components/ds/feedback/FeedbackState';
@@ -23,6 +24,8 @@ export function PartnerTimer({
   const [description, setDescription] = useState('');
   const [targetKey, setTargetKey] = useState('');
   const receipt = useRef<{ command: string; id: string } | null>(null);
+  const lastTouchAt = useRef(0);
+  const touchInFlight = useRef(false);
   const cache = useQueryClient();
   const timerKey = ['partner-timer', actor, company];
   const query = useQuery({
@@ -54,6 +57,37 @@ export function PartnerTimer({
   const { isError, data: result } = change;
   const activeTimer = query.data?.active;
   useEffect(() => {
+    if (!activeTimer) return;
+    lastTouchAt.current = Date.parse(activeTimer.lastSeenAt);
+    const recordInteraction = () => {
+      const now = Date.now();
+      if (
+        document.visibilityState !== 'visible' ||
+        touchInFlight.current ||
+        now - lastTouchAt.current < 90000
+      )
+        return;
+      lastTouchAt.current = now;
+      touchInFlight.current = true;
+      void api
+        .touchTimer(company, activeTimer.id)
+        .catch(() => {
+          lastTouchAt.current = Date.now() - 90000;
+        })
+        .finally(() => {
+          touchInFlight.current = false;
+        });
+    };
+    window.addEventListener('pointerdown', recordInteraction, { passive: true });
+    window.addEventListener('keydown', recordInteraction);
+    window.addEventListener('touchstart', recordInteraction, { passive: true });
+    return () => {
+      window.removeEventListener('pointerdown', recordInteraction);
+      window.removeEventListener('keydown', recordInteraction);
+      window.removeEventListener('touchstart', recordInteraction);
+    };
+  }, [activeTimer, api, company]);
+  useEffect(() => {
     if (document.activeElement !== document.body) return;
     if (result?.status === 'active' && activeTimer) stopButton.current?.focus();
     else if (isError || result) feedback.current?.focus();
@@ -77,6 +111,14 @@ export function PartnerTimer({
       aria-label="Cronômetro"
     >
       <h3 className="tw:font-semibold">Cronômetro</h3>
+      {query.data.recoveryPending && (
+        <FeedbackMessage tone="error">
+          O cronômetro foi pausado por inatividade.{' '}
+          <Link to="/equipe" search={{ modulo: 'hours' }}>
+            Revise o tempo e registre o ajuste em Minhas horas.
+          </Link>
+        </FeedbackMessage>
+      )}
       {active ? (
         <>
           <p>

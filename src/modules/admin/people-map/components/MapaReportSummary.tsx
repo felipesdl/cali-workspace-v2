@@ -20,6 +20,12 @@ export function MapaReportSummary({
   actor?: string;
   service: AdminReadService;
 }) {
+  const previewDelivery =
+    import.meta.env.PROD &&
+    import.meta.env.VITE_CALI_PREVIEW_MAPA_EMAIL === 'true' &&
+    import.meta.env.VITE_CALI_PREVIEW_ORIGIN === window.location.origin;
+  const localPilotDelivery =
+    import.meta.env.DEV && import.meta.env.VITE_CALI_PHASE4_MAPA_EMAIL === 'true';
   const [open, setOpen] = useState(false);
   const report = useQuery({
     queryKey: ['phase4-mapa-report', actor, company, record],
@@ -106,22 +112,43 @@ export function MapaReportSummary({
               return mapaReportPdf(current);
             }}
           />
-          {import.meta.env.DEV && import.meta.env.VITE_CALI_PHASE4_MAPA_EMAIL === 'true' && (
+          {(localPilotDelivery || previewDelivery) && (
             <ActionForm
               key={JSON.stringify(data)}
-              label="Enviar diagnóstico ao simulador"
-              submit={async (fields) => {
-                if (fields.get('confirm') !== 'on') {
-                  throw new Error('Confirme o envio de teste.');
-                }
-                return service.emailMapaReport(data);
+              label={
+                previewDelivery
+                  ? 'Enviar devolutiva de homologação'
+                  : 'Enviar diagnóstico ao simulador'
+              }
+              dialog={{
+                title: 'Deseja enviar?',
+                trigger: previewDelivery
+                  ? 'Enviar devolutiva de homologação'
+                  : 'Enviar diagnóstico ao simulador',
               }}
-              success="O simulador aceitou o diagnóstico de teste."
+              submit={async (fields, requestId) => {
+                if (fields.get('confirm') !== 'on') {
+                  throw new Error('Confirme o envio na segunda etapa.');
+                }
+                return service.emailMapaReport(data, requestId);
+              }}
+              success={
+                previewDelivery
+                  ? 'A equipe autorizada de homologação recebeu a devolutiva sintética.'
+                  : 'O simulador aceitou o diagnóstico de teste.'
+              }
             >
-              {() => (
-                <Checkbox name="confirm" required>
-                  Conferi este diagnóstico. Enviar o PDF apenas ao simulador de e-mail.
-                </Checkbox>
+              {(prefix) => (
+                <>
+                  <p>
+                    Tem certeza que deseja enviar esta devolutiva{' '}
+                    {previewDelivery ? 'à equipe autorizada de homologação' : 'ao simulador'}?
+                  </p>
+                  <Checkbox id={prefix + 'confirm'} name="confirm" required>
+                    Conferi o diagnóstico e confirmo o envio apenas para o destino permitido neste
+                    ambiente.
+                  </Checkbox>
+                </>
               )}
             </ActionForm>
           )}

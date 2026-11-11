@@ -92,13 +92,18 @@ do $$
 declare
   definition text := pg_get_functiondef('cali_workspace.v2_list_pilot_form_triage(uuid,uuid,integer)'::regprocedure);
   previous constant text := 'select r.id,r.respondent_name,r.submitted_at,r.stage,r.owner';
+  current_prefix constant text := previous||',';
   added constant text := ', exists(select 1 from cali_session_guard.phase4_form_pdfs p where p.response_id=r.id) as "pdfAvailable", exists(select 1 from jsonb_array_elements(f.questions) q where q->>''kind''=''file'' and r.answers ? (q->>''id'')) as "attachmentsAvailable"';
 begin
-  if strpos(definition,previous||added)>0 then return; end if;
-  if (length(definition)-length(replace(definition,previous,'')))/length(previous)<>1 then
+  if strpos(definition,current_prefix||substr(added,2))>0 then return; end if;
+  if (length(definition)-length(replace(definition,current_prefix,'')))/length(current_prefix)=1 then
+    execute replace(definition,current_prefix,
+      current_prefix||substr(added,2)||',');
+  elsif (length(definition)-length(replace(definition,previous,'')))/length(previous)=1 then
+    execute replace(definition,previous,previous||added);
+  else
     raise exception 'Projeção de triagem de Forms mudou.';
   end if;
-  execute replace(definition,previous,previous||added);
 end;
 $$;
 notify pgrst,'reload schema';

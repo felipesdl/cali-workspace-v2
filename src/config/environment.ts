@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isPreviewOrigin } from './preview-origin';
 
 const caliMapBackend = 'https://kqtbfeeqbcllwvlkbrkq.supabase.co';
 const caliProductionOrigin = 'https://app.calirh.com';
@@ -55,13 +56,11 @@ const environmentSchema = z
     }
     if (
       previewOrigin !== undefined &&
-      (releaseCore ||
-        target.origin === caliMapBackend ||
-        !/^https:\/\/[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.vercel\.app$/.test(previewOrigin))
+      (releaseCore || target.origin === caliMapBackend || !isPreviewOrigin(previewOrigin))
     ) {
       context.addIssue({
         code: 'custom',
-        message: 'O preview exige uma origem Vercel exata e um projeto Supabase separado.',
+        message: 'O preview exige uma origem de homologação exata e um projeto Supabase separado.',
       });
       return z.NEVER;
     }

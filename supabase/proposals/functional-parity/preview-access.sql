@@ -16,6 +16,16 @@ create index preview_access_codes_user_time on cali_session_guard.preview_access
 alter table cali_session_guard.preview_access_codes enable row level security;
 revoke all on cali_session_guard.preview_access_codes from public,anon,authenticated,service_role;
 
+-- Partner tem allowlist independente. A linha só pode apontar para convite administrativo ativo.
+create table cali_session_guard.preview_partner_recipients (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  recipient_email text not null unique,
+  invite_id uuid not null unique references cali_session_guard.phase4_staff_invites(id) on delete cascade,
+  check (recipient_email=lower(btrim(recipient_email)))
+);
+alter table cali_session_guard.preview_partner_recipients enable row level security;
+revoke all on cali_session_guard.preview_partner_recipients from public,anon,authenticated,service_role;
+
 create function cali_workspace.v2_preview_access_code(
   p_action text,p_email text default null,p_hash text default null,
   p_id uuid default null,p_delivered boolean default null
@@ -39,6 +49,14 @@ begin
   select p.* into actor from cali_workspace.profiles p join auth.users u on u.id=p.id
     where lower(p.email)=email_address and lower(u.email)=email_address and u.email_confirmed_at is not null
       and p.active and p.role in ('admin','client');
+  if actor.id is null then
+    select u.id,'partner' into actor.id,actor.role from auth.users u
+      join cali_session_guard.preview_partner_recipients r on r.user_id=u.id and r.recipient_email=email_address
+      join cali_session_guard.phase4_staff_invites i on i.id=r.invite_id and i.target_user_id=u.id
+      where lower(u.email)=email_address and u.email_confirmed_at is not null
+        and i.revoked_at is null and (i.accepted_at is not null or i.expires_at>clock_timestamp())
+        and cali_session_guard.phase4_staff_binding(i.company_id,i.member_id,i.member_revision,u.id);
+  end if;
   if actor.id is null or cali_session_guard.profile_login_eligible(actor.id) is distinct from true then
     return case when p_action='issue' then '{"status":"unavailable"}'::jsonb else null end;
   end if;

@@ -10,6 +10,7 @@ import { Button } from '../../../../components/ds/button/Button';
 import { Field } from '../../../../components/ds/field/Field';
 import { FeedbackState } from '../../../../components/ds/feedback/FeedbackState';
 import { ActionForm } from '../../../../components/workspace/ActionForm';
+import { Checkbox } from '../../../../components/ds/checkbox/Checkbox';
 
 const money = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 
@@ -46,26 +47,42 @@ export function SendCommercialOffer({
   proposal,
   expected,
   service,
+  resend = false,
 }: {
   company: string;
   actor?: string;
   proposal: string;
   expected: string;
   service: AdminReadService;
+  resend?: boolean;
 }) {
   const cache = useQueryClient();
   return (
     <ActionForm
-      label="Enviar no Workspace de teste"
-      submit={async () => {
-        const result = await service.sendCommercialOffer(company, proposal, expected);
+      label={resend ? 'Reenviar no Workspace de teste' : 'Enviar no Workspace de teste'}
+      dialog={{
+        title: resend ? 'Deseja reenviar?' : 'Deseja enviar?',
+        trigger: resend ? 'Reenviar no Workspace de teste' : 'Enviar no Workspace de teste',
+      }}
+      submit={async (fields, requestId) => {
+        if (fields.get('confirmSend') !== 'on')
+          throw new Error('Confirme o envio na segunda etapa.');
+        const result = resend
+          ? await service.resendCommercialOffer(company, proposal, expected, requestId)
+          : await service.sendCommercialOffer(company, proposal, expected);
         await Promise.all([
           cache.invalidateQueries({ queryKey: ['phase4-commercial', actor, company] }),
           cache.invalidateQueries({ queryKey: ['phase4-audit', actor, company] }),
         ]);
         return result;
       }}
-    />
+    >
+      {(prefix) => (
+        <Checkbox id={prefix + 'confirmSend'} name="confirmSend" required>
+          Tem certeza? Confirmo o {resend ? 'reenvio' : 'envio'} desta proposta ao Cliente.
+        </Checkbox>
+      )}
+    </ActionForm>
   );
 }
 
@@ -91,9 +108,20 @@ export function EmailCommercialOffer({
   ) : (
     <ActionForm
       label="Enviar PDF ao simulador"
-      submit={() => service.emailCommercialOffer(company, proposal, expected)}
+      dialog={{ title: 'Deseja enviar?', trigger: 'Enviar PDF ao simulador' }}
+      submit={(fields) => {
+        if (fields.get('confirmSend') !== 'on')
+          throw new Error('Confirme o envio na segunda etapa.');
+        return service.emailCommercialOffer(company, proposal, expected);
+      }}
       saved={setLink}
-    />
+    >
+      {(prefix) => (
+        <Checkbox id={prefix + 'confirmSend'} name="confirmSend" required>
+          Tem certeza? Confirmo o envio deste PDF ao simulador.
+        </Checkbox>
+      )}
+    </ActionForm>
   );
 }
 

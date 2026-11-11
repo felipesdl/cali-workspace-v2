@@ -26,7 +26,7 @@ begin
         ))
         and a.event_type in (
           'report_draft_created','report_review','report_approve','report_pdf_generated',
-          'report_released_in_app','report_reopen','report_release_acknowledged',
+          'report_released_in_app','report_resent','report_reopen','report_release_acknowledged',
           'document_revision_added','document_published','document_withdrawn',
           'deliverable_reopened','deliverable_client_approved',
           'record_open','account_record_feedback','record_reopen_requested','record_reopen_decided',
@@ -34,7 +34,7 @@ begin
           'notice_comment_hidden','notice_comment_restored','capacity_pause_recorded','capacity_pause_resumed',
           'satisfaction_followup_saved',
           'commercial_proposal_created','commercial_proposal_edited','commercial_proposal_approved',
-          'commercial_proposal_delivered','commercial_proposal_accepted',
+          'commercial_proposal_delivered','commercial_proposal_resent','commercial_proposal_accepted',
           'form_draft_created','form_draft_edited','form_open','form_closed','form_response_triaged','form_responses_exported'
         )
     ), selected as (

@@ -1,9 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { skipToken, useQuery } from '@tanstack/react-query';
+import { Link, useNavigate, useRouteContext } from '@tanstack/react-router';
 import { type ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { clientAccountPaths } from '../../../../app/navigation';
 import { type CompanyAccount } from '../../../../api/admin/companies/schemas';
+import { isPilotCompany } from '../../../../api/admin/companies/onboarding';
+import { companyPlanLabels } from '../../../../components/workspace/company-plan-labels';
 import {
   type CatalogModule,
   type catalog,
@@ -69,8 +71,16 @@ export function ClientOperationsOverview({
   canOpenRecord: boolean;
   teamOverview: ReactNode;
 }) {
+  const { adminRead } = useRouteContext({ from: '__root__' });
   const navigate = useNavigate();
   const month = currentBrasiliaMonth();
+  const responsibleQuery = useQuery({
+    queryKey: ['company-responsibles-client', actor, company],
+    queryFn:
+      adminRead && isPilotCompany(company)
+        ? ({ signal }) => adminRead.companyResponsibles(company, signal)
+        : skipToken,
+  });
   const projects = useQuery({
     queryKey: ['projects', actor, company, firstPage],
     queryFn: ({ signal }) => service.list(company, firstPage, signal),
@@ -156,6 +166,8 @@ export function ClientOperationsOverview({
               </Link>
             </h2>
             <p className="tw:m-0 tw:text-caption tw:text-panel/80">
+              {account?.plan ? companyPlanLabels[account.plan] : 'Plano não informado'}
+              {' · '}
               {account ? companyStatusLabels[account.status] : 'Situação indisponível'}
             </p>
           </div>
@@ -190,6 +202,38 @@ export function ClientOperationsOverview({
           />
         )}
       </section>
+
+      {isPilotCompany(company) && (
+        <section className={cardClass} aria-labelledby="client-company-responsibles-title">
+          <h2
+            id="client-company-responsibles-title"
+            className="tw:m-0 tw:text-section tw:font-semibold"
+          >
+            Pessoas responsáveis pela sua conta
+          </h2>
+          {responsibleQuery.isPending ? (
+            <p className="tw:m-0 tw:text-muted-copy">Consultando responsáveis…</p>
+          ) : responsibleQuery.isError ? (
+            <p className="tw:m-0 tw:text-muted-copy">Não foi possível consultar os responsáveis.</p>
+          ) : responsibleQuery.data?.responsibles.length ? (
+            <ul className="tw:m-0 tw:grid tw:list-none tw:gap-2 tw:p-0">
+              {responsibleQuery.data.responsibles.map((person) => (
+                <li
+                  key={person.role}
+                  className="tw:flex tw:flex-wrap tw:justify-between tw:gap-2 tw:border-t tw:border-border-default tw:pt-2"
+                >
+                  <span className="tw:text-muted-copy">{person.title}</span>
+                  <strong>{person.name}</strong>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="tw:m-0 tw:text-muted-copy">
+              As designações desta conta ainda não foram registradas.
+            </p>
+          )}
+        </section>
+      )}
 
       {projectId && completeDeliverySet && pendingDeliveries > 0 && (
         <Link

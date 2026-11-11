@@ -1,3 +1,4 @@
+import { isPreviewOrigin } from '../../../src/config/preview-origin.ts';
 import { normalizeDiscImage } from '../_shared/disc-image.ts';
 import { z } from 'zod';
 import { createDiscHandler, discDocumentSchema, discJobSchema } from './handler.ts';
@@ -18,10 +19,7 @@ const preview =
   previewOrigin === undefined
     ? undefined
     : {
-        origin: z
-          .string()
-          .regex(/^https:\/\/[a-z0-9-]+\.vercel\.app$/)
-          .parse(previewOrigin),
+        origin: z.string().refine(isPreviewOrigin).parse(previewOrigin),
         recipients: new Set(
           z
             .array(z.email())

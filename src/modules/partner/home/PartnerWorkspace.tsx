@@ -19,8 +19,11 @@ import { WorkspacePagination } from '../../../components/workspace/WorkspacePagi
 import { workspaceLabel } from '../../../components/workspace/workspace-labels';
 import { PartnerItemDetail } from './components/PartnerItemDetail';
 import { PartnerHoursQueue } from './components/PartnerHoursQueue';
+import { PartnerProposalDrafts } from './components/PartnerProposalDrafts';
 import { PartnerTimer } from './components/PartnerTimer';
 import { PartnerReviewQueue } from './components/PartnerReviewQueue';
+import { PartnerReportDraftsPanel } from './components/PartnerReportDraftsPanel';
+import { PartnerMapaOpinionDrafts } from './components/PartnerMapaOpinionDrafts';
 import { WorkspaceFrame } from '../../../app/WorkspaceFrame';
 import { WorkspaceNavLabel } from '../../../app/WorkspaceNavLabel';
 
@@ -79,6 +82,7 @@ function PartnerItems({
   access: Ready;
   module: PartnerModule;
 }) {
+  const { partnerReportDrafts } = useRouteContext({ from: '__root__' });
   const [page, setPage] = useState(1);
   const [item, setItem] = useState<string>();
   const [returnItem, setReturnItem] = useState<string>();
@@ -175,9 +179,15 @@ function PartnerItems({
         <FeedbackState kind="empty">Nenhum registro nesta página.</FeedbackState>
       )}
       <WorkspacePagination total={result.data.total} page={page} change={setPage} />
+      {module === 'reports' && partnerReportDrafts && (
+        <PartnerReportDraftsPanel
+          service={partnerReportDrafts}
+          company={access.company}
+          actor={access.actor}
+        />
+      )}
       {module === 'hours' && (
         <>
-          <PartnerTimer api={api} actor={access.actor} company={access.company} />
           <PartnerHoursQueue
             api={api}
             actor={access.actor}
@@ -242,6 +252,11 @@ function PartnerModules({
             </h2>
           </div>
         </section>
+        {available.includes('hours') && (
+          <PartnerTimer api={api} actor={access.actor} company={access.company} />
+        )}
+        <PartnerProposalDrafts company={access.company} actor={access.actor} />
+        <PartnerMapaOpinionDrafts />
         {active ? (
           <PartnerItems key={active} api={api} access={access} module={active} />
         ) : (
@@ -352,8 +367,8 @@ function PartnerGate({ api, actions }: { api: PartnerPilot; actions?: ReactNode 
       content = (
         <CodeForm
           api={api}
-          codeLength={8}
-          qa
+          codeLength={api.codeLength}
+          qa={api.qa}
           onConfirmed={async () => {
             await query.refetch();
           }}

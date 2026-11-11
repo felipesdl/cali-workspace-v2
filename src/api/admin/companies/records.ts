@@ -7,6 +7,7 @@ export const companyIdentityRecordSchema = z.strictObject({
   display_name: z.string(),
   legal_name: z.string(),
   status: z.enum(companyStatus),
+  service_plan: z.string().nullable().optional(),
 });
 
 export const clientInviteIdentityRecordSchema = z.strictObject({

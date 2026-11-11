@@ -2,7 +2,7 @@
 begin;
 set local lock_timeout = '5s';
 
-create function cali_workspace.v2_list_pilot_form_triage(p_company_id uuid,p_form_id uuid,p_page integer)
+create or replace function cali_workspace.v2_list_pilot_form_triage(p_company_id uuid,p_form_id uuid,p_page integer)
 returns jsonb language plpgsql stable security definer set search_path = ''
 as $$
 declare
@@ -21,7 +21,26 @@ begin
       'responses',coalesce((
         select jsonb_agg(to_jsonb(page) order by submitted_at desc,id)
         from (
-          select r.id,r.respondent_name,r.submitted_at,r.stage,r.owner
+          select r.id,r.respondent_name,r.submitted_at,r.stage,r.owner,
+            coalesce((
+              select jsonb_agg(jsonb_build_object(
+                'questionId',coalesce(q->>'id',q->>'label'),
+                'question',q->>'label',
+                'answer',case
+                  when q->>'kind'='file' and r.answers ? (q->>'id') then '[Anexo disponível no CALI Forms]'
+                  when jsonb_typeof(r.answers->(q->>'id'))='array' then coalesce((
+                    select string_agg(item#>>'{}',', ' order by position)
+                    from jsonb_array_elements(r.answers->(q->>'id')) with ordinality as items(item,position)
+                    where jsonb_typeof(item)='string'
+                  ),'')
+                  when jsonb_typeof(r.answers->(q->>'id')) in ('string','number','boolean')
+                    then r.answers->>(q->>'id')
+                  else ''
+                end
+              ) order by position)
+              from jsonb_array_elements(f.questions) with ordinality as questions(q,position)
+              where q->>'kind'<>'statement'
+            ),'[]'::jsonb) as answers
           from cali_workspace.form_responses r where r.form_id=f.id
           order by r.submitted_at desc,r.id limit 25 offset (p_page-1)*25
         ) page
@@ -32,7 +51,7 @@ begin
 end;
 $$;
 
-create function cali_workspace.v2_save_pilot_form_triage(
+create or replace function cali_workspace.v2_save_pilot_form_triage(
   p_company_id uuid,p_form_id uuid,p_response_id uuid,
   p_expected_stage text,p_expected_owner text,p_stage text,p_owner text
 )

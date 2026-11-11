@@ -24,18 +24,26 @@ const proposalLabels = {
   recusada: 'Recusada',
   expirada: 'Expirada',
 } as const;
+const briefingLabel = (key: string) =>
+  key
+    .replace(/_/g, ' ')
+    .replace(/(^|\s)\S/g, (letter: string) => letter.toLocaleUpperCase('pt-BR'));
 
 export function CommercialResults({
   entries,
   create,
   editor,
   send,
+  resend,
   email,
+  partnerReview,
 }: {
   entries: Entries;
   create?: (opportunity: string) => ReactNode;
+  partnerReview?: (opportunity: string) => ReactNode;
   editor?: (proposal: string) => ReactNode;
   send?: (proposal: string, expected: string) => ReactNode;
+  resend?: (proposal: string, expected: string) => ReactNode;
   email?: (proposal: string, expected: string) => ReactNode;
 }) {
   return (
@@ -68,6 +76,23 @@ export function CommercialResults({
                 {entry.version && ` · Versão ${entry.version}`}
               </p>
             )}
+            {entry.briefing.length > 0 && (
+              <details className="tw:border-t tw:border-border-default tw:pt-3">
+                <summary className="tw:cursor-pointer tw:font-semibold">
+                  Briefing do cliente
+                </summary>
+                <dl className="tw:m-0 tw:grid tw:gap-3 tw:pt-3 tw:wide:grid-cols-2">
+                  {entry.briefing.map((answer) => (
+                    <div key={answer.key}>
+                      <dt className="tw:font-semibold">{briefingLabel(answer.key)}</dt>
+                      <dd className="tw:m-0 tw:whitespace-pre-wrap">{answer.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+            )}
+            {(entry.canCreate || entry.proposalStatus === 'rascunho') &&
+              partnerReview?.(entry.opportunityId)}
             {!entry.proposalId && <p className="tw:m-0">Ainda não há proposta registrada.</p>}
             <div className="tw:flex tw:flex-wrap tw:items-center tw:gap-2">
               {entry.proposalId &&
@@ -78,6 +103,10 @@ export function CommercialResults({
                 entry.proposalId &&
                 entry.updatedAt &&
                 send?.(entry.proposalId, entry.updatedAt)}
+              {entry.canResend &&
+                entry.proposalId &&
+                entry.updatedAt &&
+                resend?.(entry.proposalId, entry.updatedAt)}
               {entry.canEmail &&
                 entry.proposalId &&
                 entry.updatedAt &&

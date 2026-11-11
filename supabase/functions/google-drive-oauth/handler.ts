@@ -1,3 +1,4 @@
+import { isPreviewOrigin } from '../../../src/config/preview-origin.ts';
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 
@@ -94,7 +95,7 @@ function decode(value: string) {
 export function createDriveHandler(config: Config, transport: typeof fetch = fetch) {
   const project = new URL(config.project);
   const preview =
-    config.origins.some((origin) => new URL(origin).hostname.endsWith('.vercel.app')) ||
+    config.origins.some(isPreviewOrigin) ||
     (project.hostname.endsWith('.supabase.co') &&
       project.hostname !== 'kqtbfeeqbcllwvlkbrkq.supabase.co');
   const redirect = new URL(config.redirectUri);
@@ -102,7 +103,7 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
     preview &&
     (redirect.protocol !== 'https:' ||
       !config.origins.includes(redirect.origin) ||
-      !redirect.hostname.endsWith('.vercel.app') ||
+      !isPreviewOrigin(redirect.origin) ||
       redirect.pathname !== '/oauth/google/callback' ||
       redirect.search ||
       redirect.hash ||

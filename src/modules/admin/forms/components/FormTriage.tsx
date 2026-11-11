@@ -66,6 +66,25 @@ export function FormTriage({
                     {response.respondent_name || 'Resposta sem nome'} ·{' '}
                     {formatServerInstant(response.submitted_at)}
                   </p>
+                  {response.answers && (
+                    <details>
+                      <summary>Respostas enviadas</summary>
+                      {response.answers.length ? (
+                        <dl className="tw:grid tw:gap-2">
+                          {response.answers.map((answer) => (
+                            <div key={`${response.id}-${answer.questionId}`}>
+                              <dt className="tw:font-semibold">{answer.question}</dt>
+                              <dd className="tw:m-0 tw:whitespace-pre-wrap">
+                                {answer.answer || 'Sem resposta'}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      ) : (
+                        <p>Esta resposta não contém respostas textuais.</p>
+                      )}
+                    </details>
+                  )}
                   <Field id={prefix + 'stage'} label="Etapa">
                     <Select id={prefix + 'stage'} name="stage" defaultValue={response.stage ?? ''}>
                       <option value="">Sem etapa</option>
