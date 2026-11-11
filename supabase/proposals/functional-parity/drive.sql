@@ -10,7 +10,7 @@ create table cali_session_guard.drive_copies (
 alter table cali_session_guard.drive_copies enable row level security;
 revoke all on cali_session_guard.drive_copies from public,anon,authenticated,service_role;
 
-create function cali_workspace.v2_drive_copy(p_action text,p_file uuid,p_connection uuid,
+create function cali_workspace.v2_drive_copy(p_action text,p_file uuid,p_connection uuid,p_account text,
   p_lease uuid default null,p_provider text default null)
 returns jsonb language plpgsql security definer set search_path='' as $$
 declare
@@ -23,7 +23,8 @@ begin
   select p.company_id into company from cali_workspace.profiles p
     where p.id=auth.uid() and p.role='client' and p.active;
   select * into c from cali_workspace.drive_connections where id=p_connection
-    and company_id=company and owner_type='client' and status='connected' for update;
+    and company_id=company and owner_type='client' and status='connected'
+    and google_account_id=p_account for update;
   if not found then raise exception using errcode='42501',message='Conexão indisponível.'; end if;
   select * into f from cali_workspace.files where id=p_file and company_id=company
     and status='published' and client_visible and storage_path is not null for share;
@@ -63,7 +64,7 @@ begin
     'providerId',job.provider_id,'path',f.storage_path,'name',coalesce(f.original_filename,f.title),
     'fileType',f.file_type,'deliverable',f.deliverable_id);
 end $$;
-revoke all on function cali_workspace.v2_drive_copy(text,uuid,uuid,uuid,text) from public,anon,authenticated,service_role;
-grant execute on function cali_workspace.v2_drive_copy(text,uuid,uuid,uuid,text) to authenticated;
+revoke all on function cali_workspace.v2_drive_copy(text,uuid,uuid,text,uuid,text) from public,anon,authenticated,service_role;
+grant execute on function cali_workspace.v2_drive_copy(text,uuid,uuid,text,uuid,text) to authenticated;
 notify pgrst,'reload schema';
 commit;

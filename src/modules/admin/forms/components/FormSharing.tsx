@@ -68,8 +68,11 @@ export function FormSharing({
               onClick={() => {
                 setMessage('');
                 setError('');
-                void navigator.clipboard
-                  .writeText(url)
+                void Promise.resolve()
+                  .then(() => navigator.clipboard?.writeText(url))
+                  .then((result) => {
+                    if (result === undefined) throw new Error('Clipboard unavailable');
+                  })
                   .then(() => setMessage('Link copiado.'))
                   .catch(() => setError('Não foi possível copiar. Selecione o endereço acima.'));
               }}

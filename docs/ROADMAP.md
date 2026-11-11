@@ -14,6 +14,8 @@ Todos os IDs FLOW-01 a FLOW-18 permanecem rastreados. A rotina Admin/Cliente vem
 
 **Organização do frontend em 09/11.** Páginas Admin, Cliente, Partner, acesso e públicas migradas para a [estrutura por área](ARCHITECTURE.md#organização-das-páginas). Componentes compartilhados e DS separados. Mocks de Empresas mantidos na composição local. Prévias e folhas exclusivas removidas após regressão local. Aceite visual e validação pós-publicação seguem como etapas próprias.
 
+**Escopo de estreia confirmado em 11/11 no PR #3.** DISC deve preservar os links já enviados. Forms deve preservar links, respostas e anexos e incluir compartilhamento, confirmação, planilha e lixeira. Agenda deve sincronizar com Calendar/Meet usando as credenciais existentes. Documentos deve oferecer cópia de arquivo e pasta de entregável para o Drive. [Critérios locais e de homologação](HOMOLOGACAO_PATRICIA.md#aceite-dos-quatro-fluxos-de-estreia).
+
 ## Recuperação e separação de ambientes — prioridade atual
 
 DEC-28 foi revisada em 09/11/2026. O CALI MAPA atual é produção e já está online. Primeiro concluir os ajustes e validar o estado de produção. Depois criar a homologação separada a partir da versão reconciliada do código, schema e configuração. [Cobertura, ordem e aceite](RUNBOOK.md#backup-restauração-e-ambientes--dec-28).

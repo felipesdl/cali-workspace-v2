@@ -23,10 +23,10 @@ Patrícia, estamos trazendo para o novo Workspace as telas que você já usa. A 
 
 | Tema | Escolha e impacto no dia a dia |
 | --- | --- |
-| DISC em andamento | Deixar os convites já enviados terminarem no sistema atual e abrir as próximas coletas no novo. Ou fazer a troca só depois de conferir que os mesmos links retomam respostas em andamento e que os relatórios antigos continuam disponíveis. |
-| Formulários abertos | Manter os links já distribuídos e o acesso às respostas e anexos como condição da troca. Além disso, quais recursos você usa desde o primeiro dia: QR e cartão de divulgação, e-mail de confirmação, tipos de anexo, colunas da planilha ou recuperação de formulários excluídos? Os demais podem entrar depois, se você preferir. |
-| Agenda | Continuar marcando no Workspace e sincronizar com Google Calendar e Meet desde o primeiro dia. Ou lançar com solicitação, confirmação e remarcação no Workspace, com a equipe incluindo o link da reunião enquanto a sincronização é validada. |
-| Documentos e Drive | Oferecer cópia de arquivos e pastas para o Drive do cliente desde a estreia. Ou começar com consulta e download dos documentos, deixando a cópia para uma segunda etapa. Em ambos os casos, confirmar quais pastas, versões e links antigos precisam continuar acessíveis. |
+| DISC em andamento | Na estreia, manter os mesmos links dos convites já enviados. Antes da troca, conferir se eles abrem normalmente, retomam o preenchimento e preservam respostas concluídas e relatórios. |
+| Formulários abertos | Na estreia, manter os links, as respostas e os anexos. Incluir QR, cartão de divulgação, prévia ao compartilhar, e-mail de confirmação, planilha e recuperação pela lixeira. Conferir os tipos de anexo e as colunas disponíveis nos formulários ativos. |
+| Agenda | Na estreia, usar Google Calendar e Meet com as credenciais já disponíveis. Conferir em calendário de teste a criação do compromisso e do link do Meet, a remarcação e o cancelamento. |
+| Documentos e Drive | Na estreia, permitir copiar arquivos liberados e pastas de entregáveis para o Drive da empresa. Conferir com uma conta de teste se as cópias chegam ao destino certo e se os arquivos, pastas, versões e links antigos continuam acessíveis. |
 | Relatórios, propostas e Mapa de People | Os links já compartilhados precisam continuar levando ao material correto. Para trabalhos novos, escolher se a equipe prepara, envia e acompanha a proposta no Portal Comercial ou no Workspace. Confirmar também quais etapas de revisão e liberação você quer antes de o cliente receber relatórios e devolutivas. |
 | Início Cliente e contato com a CALI | Manter um atalho direto de conversa, como o cliente vê hoje. Ou concentrar o contato em Ocorrências, com um assunto por conversa e histórico no mesmo lugar. Confirmar se responsável da conta, plano contratado e próximas decisões precisam aparecer já na primeira tela. |
 | Minha conta e frentes contratadas | Em Minha conta, manter os contatos de trabalho ou incluir também redes sociais. Nas frentes contratadas, abrir a conversa pelo WhatsApp como hoje ou registrar o interesse no Workspace para a equipe acompanhar o histórico. |
@@ -36,6 +36,17 @@ Patrícia, estamos trazendo para o novo Workspace as telas que você já usa. A 
 | Histórico e privacidade | Consultar o histórico por empresa e mês ou buscar um assunto e ver suas movimentações em vários módulos. Para pedidos de remoção de dados, confirmar quem revisa, quem autoriza e se a execução deve acontecer dentro do Workspace ou em uma etapa acompanhada pela equipe. |
 
 As escolhas acima tratam de como as pessoas usam o Workspace. A troca depende da conferência dos links ativos, dados, anexos e permissões com o fluxo escolhido. O [plano de consolidação](COMPARACAO_FUNCIONAL_APP_CALI.md#compatibilidade-e-decisões-de-produto) registra a implementação e a verificação técnica.
+
+### Aceite dos quatro fluxos de estreia
+
+Felipe confirmou este escopo em 11/11/2026. Ele vai subir o preview no Vercel. Usar a origem HTTPS protegida e o projeto separado de homologação para os percursos externos. O build atual restringe partes de DISC, Forms, Agenda e Documentos ao piloto de desenvolvimento. Adaptar a composição e as origens autorizadas para o endereço de homologação antes de executar a rodada. [Roteiro de preview](RUNBOOK.md#preview-protegido-para-homologação)
+
+| Fluxo | Prova local | Prova na homologação |
+| --- | --- | --- |
+| DISC | Reproduzir um convite legado sintético com rascunho no navegador e um convite novo da V2. Verificar origem, retomada, envio único e separação dos públicos do relatório. | Abrir o caminho e parâmetros originais em cenário equivalente ao corte. Validar retomada no navegador de origem e consulta de respostas e relatórios com os públicos autorizados. |
+| Forms | Exercitar resolução do mesmo slug, coleta condicional, anexo, recibo repetido, QR/cartão, prévia, planilha e restauração. Simular o transporte do e-mail. | Confirmar que um link de formulário já aberto preserva identidade, versão, respostas e anexos. Verificar prévia pelo endereço de homologação, exportação e confirmação única para destinatário de teste. |
+| Calendar e Meet | Simular o Google ao criar, remarcar e cancelar. Verificar a identidade do evento, repetição da operação e resultado de falha externa. | Usar o calendário de teste e as credenciais existentes após conferir escopos, callback e calendário selecionado. Criar o link Meet e confirmar remarcação/cancelamento do mesmo evento com convidados de teste. |
+| Drive | Exercitar permissões, troca de conta, cópia de arquivo e pasta e retomada de uma cópia parcial com respostas simuladas. | Conectar a conta de teste, copiar arquivo e pasta, verificar a conta de destino, repetir sem duplicar e confirmar a separação entre empresas. |
 
 ## Roteiro da Patrícia
 

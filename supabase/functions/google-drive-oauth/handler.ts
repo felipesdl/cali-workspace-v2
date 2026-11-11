@@ -24,7 +24,9 @@ const credentialSchema = z.object({
   access_token: z.string().nullable(),
   refresh_token: z.string(),
   expires_at: z.string().nullable(),
+  provider_account_id: z.string().nullable(),
 });
+type DriveConnection = z.infer<typeof connectionSchema>;
 const tokenSchema = z.object({
   access_token: z.string(),
   refresh_token: z.string().optional(),
@@ -153,25 +155,30 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
         if (result.error) throw new Error('Conexão indisponível.');
         return connectionSchema.nullable().parse(result.data);
       }
-      async function updateConnection(id: string, values: object) {
-        const result = await root
+      async function updateConnection(id: string, values: object, expectedCredential?: string) {
+        const query = root
           .from('drive_connections')
           .update({ ...values, updated_at: new Date().toISOString() })
           .eq('id', id)
           .eq('company_id', company);
+        const result = await (expectedCredential
+          ? query.eq('credential_key', expectedCredential)
+          : query);
         if (result.error) throw new Error('Não foi possível atualizar a conexão.');
       }
       async function credential(key: string) {
         const result = await root
           .from('google_calendar_credentials')
-          .select('access_token,refresh_token,expires_at')
+          .select('access_token,refresh_token,expires_at,provider_account_id')
           .eq('credential_key', key)
-          .single();
+          .maybeSingle();
         if (result.error) throw new Error('Credencial indisponível.');
-        return credentialSchema.parse(result.data);
+        return credentialSchema.nullable().parse(result.data);
       }
-      async function accessToken(key: string) {
-        const value = await credential(key);
+      async function accessToken(conn: DriveConnection) {
+        const value = await credential(conn.credential_key);
+        if (!conn.google_account_id || value?.provider_account_id !== conn.google_account_id)
+          throw new Error('Conecte novamente a conta Google do Drive.');
         if (value.access_token && Date.parse(value.expires_at ?? '') > Date.now() + 60000)
           return value.access_token;
         const token = await google('https://oauth2.googleapis.com/token', tokenSchema, {
@@ -189,7 +196,7 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
             access_token: token.access_token,
             expires_at: new Date(Date.now() + (token.expires_in ?? 3600) * 1000).toISOString(),
           })
-          .eq('credential_key', key);
+          .eq('credential_key', conn.credential_key);
         if (result.error) throw new Error('Não foi possível renovar a conexão.');
         return token.access_token;
       }
@@ -260,21 +267,26 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
         });
         const identity = await google(
           'https://openidconnect.googleapis.com/v1/userinfo',
-          z.object({ email: z.email(), sub: z.string() }),
+          z.object({ email: z.email(), sub: z.string().min(1) }),
           { headers: { Authorization: `Bearer ${tokens.access_token}` } },
         );
-        const key = `${actor}:${company}`;
+        const key = `drive:${actor}:${company}:${identity.sub}`;
         const previous = await root
           .from('google_calendar_credentials')
-          .select('refresh_token')
+          .select('refresh_token,provider_account_id')
           .eq('credential_key', key)
           .maybeSingle();
         if (previous.error) throw new Error('Credencial indisponível.');
         const old = z
-          .object({ refresh_token: z.string().nullable() })
+          .object({
+            refresh_token: z.string().nullable(),
+            provider_account_id: z.string().nullable(),
+          })
           .nullable()
           .parse(previous.data);
-        const refresh = tokens.refresh_token ?? old?.refresh_token;
+        const refresh =
+          tokens.refresh_token ??
+          (old?.provider_account_id === identity.sub ? old.refresh_token : null);
         if (!refresh) return reply({ error: 'google_refresh_token_missing' }, 409);
         const credentials = await root.from('google_calendar_credentials').upsert(
           {
@@ -333,16 +345,34 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
         });
       if (input.action === 'disconnect') {
         if (!conn) return reply({ ok: true });
-        await updateConnection(conn.id, { status: 'revoked' });
-        const calendar = await root
-          .from('calendar_connections')
-          .select('id')
-          .eq('credential_key', conn.credential_key)
-          .eq('status', 'connected')
-          .limit(1);
-        if (calendar.error) throw new Error('Não foi possível conferir a agenda conectada.');
-        if (!calendar.data?.length) {
+        await updateConnection(conn.id, { status: 'revoked' }, conn.credential_key);
+        const calendars = root.from('calendar_connections').select('id').eq('status', 'connected');
+        const [sharedCalendar, sameAccountCalendar, sameAccountDrive] = await Promise.all([
+          calendars.eq('credential_key', conn.credential_key).limit(1),
+          conn.google_account_id
+            ? root
+                .from('calendar_connections')
+                .select('id')
+                .eq('status', 'connected')
+                .eq('provider_account_id', conn.google_account_id)
+                .limit(1)
+            : null,
+          conn.google_account_id
+            ? root
+                .from('drive_connections')
+                .select('id')
+                .eq('status', 'connected')
+                .eq('google_account_id', conn.google_account_id)
+                .neq('id', conn.id)
+                .limit(1)
+            : null,
+        ]);
+        const related = [sharedCalendar, sameAccountCalendar, sameAccountDrive];
+        if (related.some((result) => result?.error))
+          throw new Error('Não foi possível conferir as conexões Google.');
+        if (conn.google_account_id && related.every((result) => !result?.data?.length)) {
           const value = await credential(conn.credential_key);
+          if (value?.provider_account_id !== conn.google_account_id) return reply({ ok: true });
           const revoked = await transport('https://oauth2.googleapis.com/revoke', {
             method: 'POST',
             body: new URLSearchParams({ token: value.refresh_token }),
@@ -358,7 +388,7 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
         return reply({ ok: true });
       }
       if (!conn) return reply({ error: 'drive_not_connected' }, 409);
-      const token = await accessToken(conn.credential_key);
+      const token = await accessToken(conn);
       const googleHeaders = { Authorization: `Bearer ${token}` };
       async function folder(name: string, parent?: string) {
         const safe = name.replace(/[\\']/g, ' ').trim().slice(0, 180) || 'CALI Workspace';
@@ -391,10 +421,11 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
       }
       if (!rootId) {
         rootId = await folder('CALI Workspace');
-        await updateConnection(conn.id, {
-          root_folder_id: rootId,
-          root_folder_name: 'CALI Workspace',
-        });
+        await updateConnection(
+          conn.id,
+          { root_folder_id: rootId, root_folder_name: 'CALI Workspace' },
+          conn.credential_key,
+        );
       }
       async function deliveryFolder(id: string) {
         const result = await user
@@ -417,6 +448,7 @@ export function createDriveHandler(config: Config, transport: typeof fetch = fet
           p_action: action,
           p_file: file,
           p_connection: conn!.id,
+          p_account: conn!.google_account_id,
           p_lease: lease ?? null,
           p_provider: provider ?? null,
         });
