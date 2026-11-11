@@ -19,23 +19,13 @@ Na rodada final, usar empresas e dados de teste no projeto separado de homologa�
 
 ## Escolhas de fluxo para a Patrícia
 
-Patrícia, estamos trazendo para o novo Workspace as telas que você já usa. A ideia é manter os caminhos familiares e proteger os links, arquivos e históricos que já existem. Queremos confirmar em quais pontos você prefere manter o fluxo atual e o que pode entrar depois. Você pode indicar a opção por tema e marcar o que precisa estar pronto no primeiro dia.
+As respostas da Patrícia de 11/11 foram registradas na [DEC-29](DECISIONS.md#dec-29--fluxos-confirmados-pela-patrícia). As [regras aprovadas](PRODUCT_RULES.md#fluxos-confirmados-pela-patrícia-em-1111) substituem as alternativas da consulta anterior. O [roadmap](ROADMAP.md#entregas-da-dec-29) mostra o que já existe e o que precisa ser desenvolvido e validado em cada frente.
 
-| Tema | Escolha e impacto no dia a dia |
-| --- | --- |
-| DISC em andamento | Na estreia, manter os mesmos links dos convites já enviados. Antes da troca, conferir se eles abrem normalmente, retomam o preenchimento e preservam respostas concluídas e relatórios. |
-| Formulários abertos | Na estreia, manter os links, as respostas e os anexos. Incluir QR, cartão de divulgação, prévia ao compartilhar, e-mail de confirmação, planilha e recuperação pela lixeira. Conferir os tipos de anexo e as colunas disponíveis nos formulários ativos. |
-| Agenda | Na estreia, usar Google Calendar e Meet com as credenciais já disponíveis. Conferir em calendário de teste a criação do compromisso e do link do Meet, a remarcação e o cancelamento. |
-| Documentos e Drive | Na estreia, permitir copiar arquivos liberados e pastas de entregáveis para o Drive da empresa. Conferir com uma conta de teste se as cópias chegam ao destino certo e se os arquivos, pastas, versões e links antigos continuam acessíveis. |
-| Relatórios, propostas e Mapa de People | Os links já compartilhados precisam continuar levando ao material correto. Para trabalhos novos, escolher se a equipe prepara, envia e acompanha a proposta no Portal Comercial ou no Workspace. Confirmar também quais etapas de revisão e liberação você quer antes de o cliente receber relatórios e devolutivas. |
-| Início Cliente e contato com a CALI | Manter um atalho direto de conversa, como o cliente vê hoje. Ou concentrar o contato em Ocorrências, com um assunto por conversa e histórico no mesmo lugar. Confirmar se responsável da conta, plano contratado e próximas decisões precisam aparecer já na primeira tela. |
-| Minha conta e frentes contratadas | Em Minha conta, manter os contatos de trabalho ou incluir também redes sociais. Nas frentes contratadas, abrir a conversa pelo WhatsApp como hoje ou registrar o interesse no Workspace para a equipe acompanhar o histórico. |
-| Cadastro de empresas e acessos | Usar uma ficha única com as informações da empresa ou etapas separadas para cadastro, documentos e liberação de acessos. Confirmar em que momento o responsável recebe o convite para entrar e quais etapas a CALI precisa conferir antes disso. |
-| Horas e Equipe CALI | Ter cronômetro visível em qualquer tela ou concentrá-lo em Horas e nos trabalhos que podem ser cronometrados. Para parceiros, dizer o que precisam conseguir fazer no primeiro dia: consultar trabalhos, registrar horas, enviar para revisão ou aprovar. |
-| Satisfação e PDF Admin | Priorizar a fila de notas baixas para acompanhamento, ou incluir também tendências e avaliações positivas para análise. No PDF, decidir se basta exportar a empresa e o mês selecionados ou se você precisa mudar o recorte na hora de exportar. |
-| Histórico e privacidade | Consultar o histórico por empresa e mês ou buscar um assunto e ver suas movimentações em vários módulos. Para pedidos de remoção de dados, confirmar quem revisa, quem autoriza e se a execução deve acontecer dentro do Workspace ou em uma etapa acompanhada pela equipe. |
+### Proposta de contatos e redes em Minha conta
 
-As escolhas acima tratam de como as pessoas usam o Workspace. A troca depende da conferência dos links ativos, dados, anexos e permissões com o fluxo escolhido. O [plano de consolidação](COMPARACAO_FUNCIONAL_APP_CALI.md#compatibilidade-e-decisões-de-produto) registra a implementação e a verificação técnica.
+Mostrar uma área “Ajuda e contato” com duas entradas: **Acompanhar um assunto**, que abre Ocorrências para atendimento e histórico da empresa, e **Problemas de acesso**, com o e-mail oficial de suporte. O canal de acesso também deve estar disponível na tela de entrada, para quem não consegue fazer login. Manter **Pedidos sobre meus dados** como ação própria em Minha conta.
+
+Separar os links institucionais do atendimento. Sugestão: oferecer Instagram e LinkedIn da CALI como links opcionais em “Sobre a CALI”, após confirmar os perfis oficiais. Não mostrar telefone pessoal nem usar WhatsApp para atendimento de assuntos da conta; se a CALI quiser manter WhatsApp para ajuda de acesso, aprovar o número institucional e sua finalidade. A configuração de contatos e redes aguarda aprovação de Patrícia.
 
 ### Aceite dos quatro fluxos de estreia
 

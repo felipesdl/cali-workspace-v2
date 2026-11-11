@@ -1,8 +1,16 @@
 # Registro de decisões e questões abertas
 
-Atualização: 07/11/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
+Atualização: 11/11/2026. Registra estado e evidência; regras completas permanecem nos documentos donos. Data recente ou presença em código não transforma uma hipótese em aprovação de produto.
 
 ## Decisões de produto e escopo
+
+## DEC-29 — Fluxos confirmados pela Patrícia
+
+Em 11/11/2026, Felipe repassou as respostas da Patrícia sobre envio de materiais e propostas, Início Cliente, cadastro e acesso, Partner e horas, satisfação e PDF, Minha conta e histórico. As [regras operacionais](PRODUCT_RULES.md#fluxos-confirmados-pela-patrícia-em-1111) registram o alvo aprovado. O [plano de entrega](ROADMAP.md#entregas-da-dec-29) separa as mudanças do que já existe e define o aceite.
+
+As respostas complementam as decisões de adesão, MFA, revisão e visibilidade. Os públicos do DISC (DEC-13) e a regra de que mensagem de chat não envia e-mail continuam vigentes. A decisão aprova o fluxo de produto; não comprova implementação, não muda por si o escopo do preview atual e não autoriza disparos, migrations ou publicação em produção.
+
+Em aberto: aprovação dos contatos e perfis públicos de Minha conta; tratamento e responsáveis por pedidos de dados após o recebimento; destino do interesse em frentes contratadas. Para o timer, reconciliar a janela de inatividade e o sinal da V1 antes de propor mudança. Para satisfação, conferir a fonte de solicitações e a janela de resposta antes de calcular não respostas.
 
 ## DEC-28 — Recuperação comprovada e separação staging/produção
 

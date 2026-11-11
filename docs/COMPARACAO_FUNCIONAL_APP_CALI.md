@@ -126,6 +126,8 @@ Usar Luna 6 para agentes delegados. Cada agente recebe arquivos, critérios e te
 
 Em 11/11/2026, Felipe confirmou quatro fluxos na estreia: DISC nos mesmos links, Forms completo, Calendar/Meet com as credenciais existentes e cópia de arquivos e pastas de entregáveis para o Drive. Validar localmente com dados sintéticos e completar a prova com o preview Vercel que Felipe vai subir. [Critérios de aceite](HOMOLOGACAO_PATRICIA.md#aceite-dos-quatro-fluxos-de-estreia)
 
+As respostas seguintes da Patrícia fecharam seis grupos de diferenças em [DEC-29](DECISIONS.md#dec-29--fluxos-confirmados-pela-patrícia). Para esses grupos, usar as regras aprovadas em vez das alternativas levantadas nesta matriz. As diferenças de código e critérios de aceite estão no [roadmap](ROADMAP.md#entregas-da-dec-29); essa rodada não adicionou implementação ao preview.
+
 ### Execução local, testes e autonomia
 
 1. Subir `app.cali@773c9d4` e a candidata V2 em loopback, em portas e contextos de navegador separados. Executar o legado a partir de cópia descartável da revisão. O cliente Supabase legado tem fallback para o ambiente hospedado e há configuração também em `public/js/config.js`. Conferir o destino de ambos os caminhos e bloquear rede externa no cenário sintético. Usar overrides explícitos ou interceptação de requests no navegador. Na V2, conferir `.env` e usar a composição local ou fixtures no harness das áreas gated. Módulo indisponível em demo exige cenário isolado próprio para comparação funcional.
